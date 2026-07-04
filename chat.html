@@ -132,24 +132,8 @@
 </head>
 <body>
 
-<header>
-  <div class="nav">
-    <div class="logo">
-      <div class="mark">B</div>
-      <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
-    </div>
-    <a href="index.html" class="back-link">بازگشت به سایت ←</a>
-  </div>
-</header>
- <div class="mobile-menu" id="mobileMenu">
-  <a href="index.html">خانه</a>    
-  <a href="tarahi-site.html">طراحی سایت</a>
-  <a href="tarahi-app.html">طراحی اپلیکیشن</a>
-  <a href="khadamat-computer.html">خدمات کامپیوتر</a>
-  <a href="blog.html">بلاگ</a>
-  <a href="#contact">تماس</a>
-  <a href="chat.html">چت با هوش مصنوعی</a>
-</div>
+
+  <div id="siteHeaderPlaceholder"></div>
 <div class="chat-wrap">
   <div class="chat-head">
     <div class="eyebrow"><span class="pulse-dot"></span> دستیار هوشمند بایت‌لب</div>
@@ -334,6 +318,6 @@ suggestionsEl.querySelectorAll('.chip').forEach(chip => {
   chip.addEventListener('click', () => handleSend(chip.dataset.q));
 });
 </script>
-
+<script src="header.js"></script>
 </body>
 </html>
