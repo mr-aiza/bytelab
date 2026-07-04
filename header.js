@@ -7,7 +7,7 @@
 <header>
   <div class="wrap nav">
     <div class="logo">
-      <div class="mark">B</div>
+      <img src="logo-icon.png" alt="بایت‌لب" class="logo-icon">
       <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
     </div>
     <nav class="links">
@@ -16,10 +16,10 @@
   <a href="tarahi-app.html">طراحی اپلیکیشن</a>
   <a href="khadamat-computer.html">خدمات کامپیوتر</a>
   <a href="blog.html">بلاگ</a>
-  <a href="index.html#contact">تماس</a>
+  <a href="#contact">تماس</a>
   <a href="chat.html">چت با هوش مصنوعی</a>
     </nav>
-    <a href="index.html#contact" class="nav-cta">شروع پروژه</a>
+    <a href="#contact" class="nav-cta">شروع پروژه</a>
     <button class="burger" id="burger" aria-label="منو">
       <span></span><span></span><span></span>
     </button>
@@ -31,7 +31,7 @@
   <a href="tarahi-app.html">طراحی اپلیکیشن</a>
   <a href="khadamat-computer.html">خدمات کامپیوتر</a>
   <a href="blog.html">بلاگ</a>
-  <a href="index.html#contact">تماس</a>
+  <a href="#contact">تماس</a>
   <a href="chat.html">چت با هوش مصنوعی</a>
 </div>
   `;
