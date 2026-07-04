@@ -175,8 +175,10 @@
 
   /* portfolio */
   .portfolio{padding:100px 0;}
-  .pf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-  .pf-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .pf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;}
+  .pf-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:block;transition:border-color .25s ease, transform .25s ease;}
+  .pf-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
+  .pf-link{color:var(--cyan);font-size:13px;font-weight:700;margin-top:14px;display:inline-flex;align-items:center;gap:6px;}
   .pf-preview{padding:22px;background:var(--panel-2);min-height:200px;display:flex;align-items:center;justify-content:center;}
   .browser-mock{width:100%;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--ink);}
   .browser-bar{display:flex;gap:6px;padding:9px 12px;background:#0a0f17;}
@@ -375,12 +377,10 @@
 <section class="portfolio" id="portfolio">
   <div class="wrap">
     <div class="sec-head reveal">
-      <span class="sec-eyebrow">نمونه‌کارها</span>
-      <h2 class="sec-title">نمونه طراحی‌های بایت‌لب</h2>
-      <p class="sec-sub">این‌ها نمونه‌های مفهومی از سبک کاری ما هستند؛ نمونه‌های واقعی پروژه‌ها بعد از هماهنگی با مشتری اضافه می‌شود.</p>
+      <p class="sec-sub">چند نمونه از پروژه‌های واقعی که طراحی و اجرا کردیم؛ روی هرکدوم بزن تا از نزدیک ببینی.</p>
     </div>
     <div class="pf-grid">
-      <div class="pf-card reveal">
+      <a href="https://mr-aiza.github.io/bytelab/index.html" target="_blank" rel="noopener" class="pf-card reveal">
         <div class="pf-preview">
           <div class="browser-mock">
             <div class="browser-bar"><span></span><span></span><span></span></div>
@@ -392,12 +392,13 @@
           </div>
         </div>
         <div class="pf-info">
-          <span class="pf-label">نمونه طراحی سایت</span>
-          <div class="pf-title">سایت فروشگاهی</div>
-          <div class="pf-desc">صفحه فروش با تمرکز روی سرعت بارگذاری و نرخ تبدیل بازدیدکننده به خریدار.</div>
+          <span class="pf-label">نمونه طراحی سایت + هوش مصنوعی</span>
+          <div class="pf-title">سایت شرکتی بایت‌لب</div>
+          <div class="pf-desc">سایت معرفی خدمات با دستیار هوش مصنوعی اختصاصی برای پاسخ‌گویی به مشتری.</div>
+          <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
-      </div>
-      <div class="pf-card reveal">
+      </a>
+      <a href="https://mr-aiza.github.io/Bytelab2/tarahi-app.html" target="_blank" rel="noopener" class="pf-card reveal">
         <div class="pf-preview">
           <div class="phone-mock">
             <div class="notch"></div>
@@ -407,26 +408,63 @@
           </div>
         </div>
         <div class="pf-info">
-          <span class="pf-label">نمونه طراحی اپ</span>
-          <div class="pf-title">اپلیکیشن سفارش‌گیری</div>
-          <div class="pf-desc">رابط کاربری ساده برای ثبت سفارش سریع و پیگیری وضعیت آن.</div>
+          <span class="pf-label">نمونه طراحی سایت — نسخه ۲</span>
+          <div class="pf-title">سایت شرکتی بایت‌لب (ورژن ۲)</div>
+          <div class="pf-desc">بازطراحی صفحه‌ی معرفی خدمات با چیدمان و ظاهر متفاوت.</div>
+          <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
-      </div>
-      <div class="pf-card reveal">
+      </a>
+      <a href="https://mr-aiza.github.io/224/" target="_blank" rel="noopener" class="pf-card reveal">
         <div class="pf-preview">
           <div class="repair-mock">
             <div class="repair-icon">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#9c7bff" stroke-width="1.6"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.77z"/></svg>
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#9c7bff" stroke-width="1.6"><path d="M12 21s-8-4.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-8 11-8 11a1 1 0 0 1-2 0z"/></svg>
             </div>
-            <span class="mono" style="font-size:12px;">SYSTEM_CHECK_OK</span>
+            <span class="mono" style="font-size:12px;">EVENT_PLANNING</span>
           </div>
         </div>
         <div class="pf-info">
-          <span class="pf-label">نمونه خدمات کامپیوتر</span>
-          <div class="pf-title">سرویس و آپگرید سیستم</div>
-          <div class="pf-desc">رفع ایراد، تعویض قطعه و بهینه‌سازی سرعت سیستم.</div>
+          <span class="pf-label">نمونه طراحی سایت خدماتی</span>
+          <div class="pf-title">تشریفات رویایی</div>
+          <div class="pf-desc">سایت معرفی خدمات برگزاری مراسم عروسی و رویدادهای لاکچری.</div>
+          <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
-      </div>
+      </a>
+      <a href="portfolio/galeriy-mashin.html" target="_blank" class="pf-card reveal">
+        <div class="pf-preview">
+          <div class="repair-mock">
+            <div class="repair-icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><path d="M3 13l1.5-4.5A2 2 0 0 1 6.4 7h11.2a2 2 0 0 1 1.9 1.5L21 13v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5Z"/><circle cx="7" cy="16" r="1.4"/><circle cx="17" cy="16" r="1.4"/></svg>
+            </div>
+            <span class="mono" style="font-size:12px;">LUXURY_CARS</span>
+          </div>
+        </div>
+        <div class="pf-info">
+          <span class="pf-label">نمونه طراحی سایت گالری</span>
+          <div class="pf-title">گالری اتومبیل پرستیژ</div>
+          <div class="pf-desc">نمایشگاه آنلاین خودروهای لوکس و کلاسیک با معرفی هر خودرو.</div>
+          <span class="pf-link">مشاهده نمونه‌کار ←</span>
+        </div>
+      </a>
+      <a href="portfolio/zarrin-gallery-gold-shop.html" target="_blank" class="pf-card reveal">
+        <div class="pf-preview">
+          <div class="repair-mock">
+            <div class="repair-icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><path d="M6 3h12l3 6-9 12L3 9Z"/><path d="M3 9h18M9 3l3 6 3-6M12 9l-3 12M12 9l3 12"/></svg>
+            </div>
+            <span class="mono" style="font-size:12px;">GOLD_SHOP</span>
+          </div>
+        </div>
+        <div class="pf-info">
+          <span class="pf-label">نمونه طراحی سایت فروشگاهی</span>
+          <div class="pf-title">زرّین گالری</div>
+          <div class="pf-desc">سایت فروشگاه طلا و جواهرات با نمایش قیمت لحظه‌ای.</div>
+          <span class="pf-link">مشاهده نمونه‌کار ←</span>
+        </div>
+      </a>
+    </div>
+    <div style="text-align:center;margin-top:44px;">
+      <a href="portfolio.html" class="btn-primary">مشاهده همه نمونه‌کارها ←</a>
     </div>
   </div>
 </section>
