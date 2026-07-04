@@ -76,7 +76,6 @@
   <a href="blog.html">بلاگ</a>
   <a href="#contact">تماس</a>
   <a href="chat.html">چت با هوش مصنوعی</a>
-  <a href="ticket.html">🎫 ثبت تیکت</a>
     </nav>
     <a href="#contact" class="nav-cta">شروع پروژه</a>
     <button class="burger" id="burger" aria-label="منو">
@@ -92,7 +91,6 @@
   <a href="blog.html">بلاگ</a>
   <a href="#contact">تماس</a>
   <a href="chat.html">چت با هوش مصنوعی</a>
-  <a href="ticket.html">🎫 ثبت تیکت</a>
 </div>
   `;
 
