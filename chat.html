@@ -458,7 +458,7 @@ async function handleSend(text){
     history.push({ role: 'assistant', content: reply });
   }catch(err){
     typingEl.remove();
-    addMessage('مشکلی در ارتباط پیش آمد. لطفاً دوباره تلاش کن.', 'bot');
+    addMessage('❌ خطای واقعی (موقت برای دیباگ): ' + (err && err.message ? err.message : String(err)), 'bot');
   }
   sendBtn.disabled = false;
   inputEl.focus();
