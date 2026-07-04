@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>گالری اتومبیل پرستیژ | خودروهای لوکس و کلاسیک</title>
+<meta name="description" content="گالری اتومبیل پرستیژ — نمایشگاه اختصاصی خودروهای لوکس، اسپرت و کلاسیک">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+
+  :root {
+    --carbon:   #0A0A0C;
+    --graphite: #111318;
+    --steel:    #1C2030;
+    --chrome:   #C0C8D8;
+    --silver:   #8A96A8;
+    --red:      #D42B2B;
+    --red-glow: rgba(212,43,43,0.35);
+    --amber:    #E8A020;
+    --amber-glow: rgba(232,160,32,0.2);
+    --text:     #D8DCE8;
+    --text-dim: #6A7080;
+    --border:   rgba(192,200,216,0.12);
+    --border-hot: rgba(212,43,43,0.4);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    background: var(--carbon);
+    color: var(--text);
+    direction: rtl;
+    overflow-x: hidden;
+  }
+
+  /* ══ SCROLLBAR ══ */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--graphite); }
+  ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 2px; }
+
+  /* ══ NAV ══ */
+  nav {
+    position: fixed; top: 0; right: 0; left: 0; z-index: 1000;
+    background: rgba(10,10,12,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+  }
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem; font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+  .nav-logo .dot { color: var(--red); }
+  .nav-logo small {
+    display: block;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.6rem; font-weight: 400;
+    color: var(--silver); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-top: 1px;
+  }
+
+  .nav-links { display: flex; gap: 0.1rem; list-style: none; }
+  .nav-links button {
+    background: none; border: none; cursor: pointer;
+    color: var(--silver);
+    font-family: 'Vazirmatn', sans-serif; font-size: 0.78rem;
+    padding: 0.45rem 0.75rem; border-radius: 4px;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .nav-links button:hover, .nav-links button.active {
+    color: var(--red);
+    background: rgba(212,43,43,0.08);
+  }
+
+  .hamburger {
+    display: none; flex-direction: column; gap: 5px;
+    background: none; border: none; cursor: pointer; padding: 4px;
+  }
+  .hamburger span { display: block; width: 22px; height: 2px; background: var(--chrome); border-radius: 2px; transition: all 0.3s; }
+
+  /* mobile nav */
+  .mobile-nav {
+    display: none; position: fixed; top: 60px; right: 0; left: 0; z-index: 999;
+    background: rgba(10,10,12,0.97);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem;
+    flex-direction: column; gap: 0.3rem;
+  }
+  .mobile-nav.open { display: flex; }
+  .mobile-nav button {
+    background: none; border: none; cursor: pointer;
+    color: var(--silver); font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.9rem; padding: 0.7rem 1rem; text-align: right;
+    border-radius: 6px; transition: all 0.2s;
+  }
+  .mobile-nav button:hover { color: var(--red); background: rgba(212,43,43,0.08); }
+
+  /* ══ PAGES ══ */
+  .page { display: none; min-height: 100vh; padding-top: 60px; }
+  .page.active { display: block; }
+
+  /* ══ HERO ══ */
+  .hero {
+    min-height: 100vh;
+    background:
+      linear-gradient(to bottom, rgba(10,10,12,0.3) 0%, rgba(10,10,12,0.6) 50%, var(--carbon) 100%),
+      url('https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1800&q=85') center/cover no-repeat;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 60%;
+    background: linear-gradient(to top, var(--carbon), transparent);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 70%, rgba(212,43,43,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(212,43,43,0.12);
+    border: 1px solid var(--border-hot);
+    border-radius: 50px;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 2rem;
+    animation: fadeUp 0.8s 0.2s both;
+    position: relative; z-index: 1;
+  }
+  .hero-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: pulse 1.5s infinite; }
+
+  .hero h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(2.4rem, 7vw, 5.5rem);
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.6rem;
+    animation: fadeUp 0.8s 0.4s both;
+    position: relative; z-index: 1;
+  }
+  .hero h1 .accent { color: var(--red); }
+
+  .hero-en {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(0.65rem, 1.5vw, 0.85rem);
+    color: var(--text-dim);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s 0.5s both;
+    position: relative; z-index: 1;
+  }
+
+  .hero-sub {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    color: var(--silver);
+    max-width: 500px; line-height: 1.9;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.8s 0.6s both;
+    position: relative; z-index: 1;
+  }
+
+  .hero-actions {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.8s 0.8s both;
+    position: relative; z-index: 1;
+  }
+
+  .btn-primary {
+    background: var(--red);
+    color: #fff;
+    border: none; border-radius: 6px;
+    padding: 0.85rem 2.2rem;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.95rem; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 0 30px var(--red-glow);
+  }
+  .btn-primary:hover { background: #bf2020; box-shadow: 0 0 50px var(--red-glow); transform: translateY(-2px); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--chrome);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.85rem 2.2rem;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .btn-outline:hover { border-color: var(--chrome); color: #fff; background: rgba(192,200,216,0.05); }
+
+  .hero-stats {
+    position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 3.5rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.8s 1s both;
+    z-index: 1;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.8rem; font-weight: 700;
+    color: #fff; display: block;
+  }
+  .stat-num span { color: var(--red); }
+  .stat-label { font-size: 0.68rem; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
+
+  /* ══ SECTION COMMONS ══ */
+  .section { padding: 5rem 2rem; }
+  .section-header { text-align: center; margin-bottom: 3rem; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--red); margin-bottom: 1rem;
+  }
+  .eyebrow::before, .eyebrow::after { content: '—'; color: var(--text-dim); }
+  .section-header h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+    color: #fff; font-weight: 700;
+    line-height: 1.2;
+  }
+  .section-header p { color: var(--silver); margin-top: 0.8rem; font-size: 0.95rem; max-width: 520px; margin-inline: auto; line-height: 1.9; }
+
+  /* ══ FEATURED CARS (HOME) ══ */
+  .cars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    max-width: 1160px; margin: 0 auto;
+  }
+
+  .car-card {
+    background: var(--graphite);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    position: relative;
+  }
+  .car-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--border-hot);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 30px var(--red-glow);
+  }
+
+  .car-img {
+    width: 100%; height: 200px; object-fit: cover;
+    display: block;
+    transition: transform 0.5s;
+  }
+  .car-card:hover .car-img { transform: scale(1.04); }
+
+  .car-badge {
+    position: absolute; top: 12px; right: 12px;
+    background: var(--red); color: #fff;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .car-badge.new { background: var(--amber); color: var(--carbon); }
+  .car-badge.sold { background: var(--text-dim); }
+
+  .car-info { padding: 1.2rem 1.4rem; }
+  .car-brand {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem; letter-spacing: 0.2em;
+    color: var(--text-dim); text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+  .car-name {
+    font-size: 1.1rem; font-weight: 700; color: #fff;
+    margin-bottom: 0.8rem; line-height: 1.3;
+  }
+
+  .car-specs {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .spec {
+    display: flex; align-items: center; gap: 0.35rem;
+    font-size: 0.75rem; color: var(--silver);
+  }
+  .spec-icon { color: var(--red); font-size: 0.85rem; }
+
+  .car-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid var(--border); padding-top: 1rem;
+  }
+  .car-price { font-family: 'Orbitron', monospace; font-size: 0.95rem; font-weight: 700; color: var(--amber); }
+  .car-price small { font-family: 'Vazirmatn', sans-serif; font-size: 0.65rem; color: var(--text-dim); font-weight: 400; display: block; }
+  .btn-detail {
+    background: rgba(212,43,43,0.1); border: 1px solid var(--border-hot);
+    color: var(--red); font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.75rem; padding: 0.4rem 0.9rem;
+    border-radius: 4px; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-detail:hover { background: var(--red); color: #fff; }
+
+  /* ══ MARQUEE BRANDS ══ */
+  .brands-strip {
+    background: var(--graphite);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 1.2rem 0; overflow: hidden;
+  }
+  .brands-track {
+    display: flex; gap: 3rem; align-items: center;
+    animation: marquee 25s linear infinite;
+    white-space: nowrap;
+  }
+  .brand-item {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem; font-weight: 700;
+    color: var(--text-dim); letter-spacing: 0.3em;
+    text-transform: uppercase; padding: 0 1rem;
+    transition: color 0.3s; cursor: default; flex-shrink: 0;
+  }
+  .brand-item:hover { color: var(--red); }
+
+  /* ══ GALLERY PAGE ══ */
+  #page-gallery { background: var(--carbon); }
+  .gallery-hero {
+    background: linear-gradient(135deg, var(--graphite), var(--steel));
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .gallery-hero h1 { font-family: 'Orbitron', monospace; font-size: clamp(1.6rem, 4vw, 2.8rem); font-weight: 900; color: #fff; margin-bottom: 0.8rem; }
+  .gallery-hero p { color: var(--silver); font-size: 0.95rem; }
+
+  .filter-bar {
+    display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center;
+    padding: 2rem; max-width: 900px; margin: 0 auto;
+  }
+  .filter-btn {
+    background: var(--graphite); border: 1px solid var(--border);
+    color: var(--silver); font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.8rem; padding: 0.5rem 1.2rem;
+    border-radius: 50px; cursor: pointer; transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--red); border-color: var(--red);
+    color: #fff;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.2rem;
+    padding: 0 2rem 4rem;
+    max-width: 1160px; margin: 0 auto;
+  }
+
+  .gallery-item {
+    position: relative; border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border); cursor: pointer;
+    aspect-ratio: 4/3;
+  }
+  .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; display: block; }
+  .gallery-item:hover img { transform: scale(1.08); }
+  .gallery-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(10,10,12,0.95) 0%, transparent 55%);
+    opacity: 0; transition: opacity 0.3s;
+    display: flex; flex-direction: column; justify-content: flex-end; padding: 1.2rem;
+  }
+  .gallery-item:hover .gallery-overlay { opacity: 1; }
+  .gallery-overlay h4 { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; }
+  .gallery-overlay p { font-size: 0.7rem; color: var(--silver); }
+
+  /* ══ SERVICES PAGE ══ */
+  #page-services { background: var(--carbon); }
+  .page-hero {
+    background: linear-gradient(135deg, var(--graphite), var(--steel));
+    padding: 5rem 2rem 4rem; text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .page-hero h1 { font-family: 'Orbitron', monospace; font-size: clamp(1.6rem, 4vw, 2.8rem); font-weight: 900; color: #fff; margin-bottom: 0.8rem; }
+  .page-hero p { color: var(--silver); font-size: 0.95rem; }
+
+  .services-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem; max-width: 1100px; margin: 3rem auto; padding: 0 2rem;
+  }
+  .service-card {
+    background: var(--graphite); border: 1px solid var(--border);
+    border-radius: 12px; padding: 2rem 1.5rem;
+    transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .service-card::before {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(to bottom, var(--red), transparent);
+    transform: scaleY(0); transform-origin: top; transition: transform 0.3s;
+  }
+  .service-card:hover { border-color: var(--border-hot); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .service-card:hover::before { transform: scaleY(1); }
+  .service-icon { font-size: 2.2rem; margin-bottom: 1rem; }
+  .service-card h3 { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.6rem; }
+  .service-card p { color: var(--silver); font-size: 0.85rem; line-height: 1.8; }
+  .service-tag {
+    display: inline-block; margin-top: 1rem;
+    background: rgba(212,43,43,0.1); border: 1px solid var(--border-hot);
+    color: var(--red); font-size: 0.65rem; letter-spacing: 0.1em;
+    padding: 0.2rem 0.6rem; border-radius: 4px; text-transform: uppercase;
+  }
+
+  /* ══ PRICING ══ */
+  .pricing-section {
+    background: var(--graphite);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    padding: 5rem 2rem;
+  }
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem; max-width: 1000px; margin: 0 auto;
+  }
+  .price-card {
+    background: var(--carbon); border: 1px solid var(--border);
+    border-radius: 12px; padding: 2rem; text-align: center;
+    transition: all 0.3s; position: relative;
+  }
+  .price-card.featured {
+    border-color: var(--red);
+    box-shadow: 0 0 40px var(--red-glow);
+  }
+  .price-card.featured::before {
+    content: 'پرفروش‌ترین';
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--red); color: #fff;
+    font-size: 0.65rem; padding: 0.25rem 0.8rem; border-radius: 50px;
+  }
+  .price-plan { font-family: 'Orbitron', monospace; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 1rem; }
+  .price-amount { font-family: 'Orbitron', monospace; font-size: 2rem; font-weight: 900; color: #fff; margin-bottom: 0.3rem; }
+  .price-amount span { color: var(--red); }
+  .price-unit { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1.5rem; }
+  .price-features { list-style: none; text-align: right; margin-bottom: 2rem; }
+  .price-features li { font-size: 0.82rem; color: var(--silver); padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+  .price-features li::before { content: '✓ '; color: var(--red); font-weight: 700; }
+
+  /* ══ ABOUT PAGE ══ */
+  #page-about { background: var(--carbon); }
+  .about-layout {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;
+    max-width: 1100px; margin: 4rem auto; padding: 0 2rem;
+    align-items: center;
+  }
+  .about-img-wrap { position: relative; border-radius: 12px; overflow: hidden; }
+  .about-img-wrap img { width: 100%; display: block; border-radius: 12px; }
+  .about-img-wrap::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(212,43,43,0.2) 0%, transparent 60%);
+    border-radius: 12px;
+  }
+  .about-content h2 { font-family: 'Orbitron', monospace; font-size: clamp(1.4rem, 3vw, 2rem); color: #fff; margin-bottom: 1.5rem; line-height: 1.3; }
+  .about-content p { color: var(--silver); line-height: 1.9; font-size: 0.9rem; margin-bottom: 1.2rem; }
+
+  .about-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;
+  }
+  .about-stat {
+    background: var(--graphite); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.2rem; text-align: center;
+  }
+  .about-stat-num { font-family: 'Orbitron', monospace; font-size: 1.6rem; font-weight: 700; color: var(--red); }
+  .about-stat-label { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.3rem; }
+
+  .team-section { padding: 5rem 2rem; background: var(--graphite); border-top: 1px solid var(--border); }
+  .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; max-width: 1000px; margin: 0 auto; }
+  .team-card {
+    background: var(--carbon); border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; text-align: center; transition: all 0.3s;
+  }
+  .team-card:hover { border-color: var(--border-hot); transform: translateY(-4px); }
+  .team-card img { width: 100%; height: 180px; object-fit: cover; }
+  .team-info { padding: 1.2rem; }
+  .team-info h4 { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+  .team-info p { font-size: 0.75rem; color: var(--red); }
+
+  /* ══ CONTACT PAGE ══ */
+  #page-contact { background: var(--carbon); }
+  .contact-layout {
+    display: grid; grid-template-columns: 1fr 1.3fr; gap: 3rem;
+    max-width: 1000px; margin: 3rem auto; padding: 0 2rem 4rem;
+  }
+  .contact-info h2 { font-family: 'Orbitron', monospace; font-size: 1.3rem; color: #fff; margin-bottom: 1rem; }
+  .contact-info > p { color: var(--silver); font-size: 0.88rem; line-height: 1.9; margin-bottom: 2rem; }
+  .contact-item {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.2rem; padding: 1rem;
+    background: var(--graphite); border: 1px solid var(--border);
+    border-radius: 10px; transition: border-color 0.2s;
+  }
+  .contact-item:hover { border-color: var(--border-hot); }
+  .ci-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: rgba(212,43,43,0.1); border: 1px solid var(--border-hot);
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;
+  }
+  .ci-text { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.15rem; }
+  .ci-val { font-size: 0.88rem; color: var(--chrome); font-weight: 600; }
+
+  .contact-form-box {
+    background: var(--graphite); border: 1px solid var(--border);
+    border-radius: 14px; padding: 2rem;
+  }
+  .contact-form-box h3 { font-family: 'Orbitron', monospace; font-size: 1rem; color: #fff; margin-bottom: 1.5rem; letter-spacing: 0.05em; }
+
+  .field { margin-bottom: 1.1rem; }
+  .field label { display: block; font-size: 0.75rem; color: var(--silver); margin-bottom: 0.4rem; letter-spacing: 0.05em; }
+  .field input, .field select, .field textarea {
+    width: 100%; background: var(--carbon);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.75rem 1rem; color: var(--text);
+    font-family: 'Vazirmatn', sans-serif; font-size: 0.88rem;
+    outline: none; transition: border-color 0.2s; direction: rtl;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-glow); }
+  .field textarea { resize: vertical; min-height: 100px; }
+
+  .btn-submit {
+    width: 100%; background: var(--red); color: #fff;
+    border: none; border-radius: 8px;
+    padding: 0.9rem; font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.95rem; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; box-shadow: 0 0 25px var(--red-glow);
+  }
+  .btn-submit:hover { background: #bf2020; box-shadow: 0 0 40px var(--red-glow); }
+
+  /* ══ FOOTER ══ */
+  footer {
+    background: var(--graphite);
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem; text-align: center;
+    font-size: 0.75rem; color: var(--text-dim);
+  }
+  footer strong { color: var(--red); }
+
+  /* ══ TOAST ══ */
+  #toast {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--graphite); border: 1px solid var(--red);
+    color: var(--text); padding: 0.9rem 2rem; border-radius: 8px;
+    font-size: 0.88rem; z-index: 9999; transition: transform 0.4s;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ══ ANIMATIONS ══ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ══ RESPONSIVE ══ */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .hero h1 { font-size: 2.2rem; }
+    .hero-stats { gap: 2rem; bottom: 2rem; }
+    .about-layout { grid-template-columns: 1fr; }
+    .contact-layout { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">
+    PRESTIGE<span class="dot">.</span>AUTO
+    <small>گالری اتومبیل پرستیژ</small>
+  </div>
+  <ul class="nav-links">
+    <li><button data-page="home" onclick="showPage('home')" class="active">خانه</button></li>
+    <li><button data-page="gallery" onclick="showPage('gallery')">گالری خودرو</button></li>
+    <li><button data-page="services" onclick="showPage('services')">خدمات</button></li>
+    <li><button data-page="about" onclick="showPage('about')">درباره ما</button></li>
+    <li><button data-page="contact" onclick="showPage('contact')">تماس</button></li>
+  </ul>
+  <button class="hamburger" onclick="toggleMobileNav()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <button onclick="navTo('home')">🏠 خانه</button>
+  <button onclick="navTo('gallery')">🚗 گالری خودرو</button>
+  <button onclick="navTo('services')">🔧 خدمات</button>
+  <button onclick="navTo('about')">🏢 درباره ما</button>
+  <button onclick="navTo('contact')">📞 تماس</button>
+</div>
+
+<!-- ══════════ HOME PAGE ══════════ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">✦ نمایشگاه رسمی خودروهای لوکس ✦</div>
+    <h1>قدرت<br><span class="accent">بی‌حد</span></h1>
+    <p class="hero-en">PRESTIGE AUTO GALLERY</p>
+    <p class="hero-sub">
+      از سوپرکارهای ایتالیایی تا سدان‌های آلمانی — هر خودرویی که تصور کنید اینجاست.
+      با ما تجربه‌ای متفاوت از خرید خودرو را کشف کنید.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="showPage('gallery')">مشاهده گالری</button>
+      <button class="btn-outline" onclick="showPage('contact')">مشاوره رایگان</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num"><span>+</span>۲۸۰</span><span class="stat-label">خودرو موجود</span></div>
+      <div class="stat"><span class="stat-num">۱۵<span>+</span></span><span class="stat-label">سال تجربه</span></div>
+      <div class="stat"><span class="stat-num"><span>+</span>۱۲۰۰</span><span class="stat-label">مشتری راضی</span></div>
+      <div class="stat"><span class="stat-num">۴۰<span>+</span></span><span class="stat-label">برند جهانی</span></div>
+    </div>
+  </section>
+
+  <!-- BRANDS MARQUEE -->
+  <div class="brands-strip">
+    <div class="brands-track">
+      <span class="brand-item">FERRARI</span>
+      <span class="brand-item">LAMBORGHINI</span>
+      <span class="brand-item">PORSCHE</span>
+      <span class="brand-item">BENTLEY</span>
+      <span class="brand-item">ROLLS-ROYCE</span>
+      <span class="brand-item">MASERATI</span>
+      <span class="brand-item">BUGATTI</span>
+      <span class="brand-item">ASTON MARTIN</span>
+      <span class="brand-item">MCLAREN</span>
+      <span class="brand-item">MERCEDES-AMG</span>
+      <span class="brand-item">BMW M</span>
+      <span class="brand-item">AUDI RS</span>
+      <!-- duplicate for seamless loop -->
+      <span class="brand-item">FERRARI</span>
+      <span class="brand-item">LAMBORGHINI</span>
+      <span class="brand-item">PORSCHE</span>
+      <span class="brand-item">BENTLEY</span>
+      <span class="brand-item">ROLLS-ROYCE</span>
+      <span class="brand-item">MASERATI</span>
+      <span class="brand-item">BUGATTI</span>
+      <span class="brand-item">ASTON MARTIN</span>
+      <span class="brand-item">MCLAREN</span>
+      <span class="brand-item">MERCEDES-AMG</span>
+      <span class="brand-item">BMW M</span>
+      <span class="brand-item">AUDI RS</span>
+    </div>
+  </div>
+
+  <!-- FEATURED CARS -->
+  <section class="section" style="background: var(--graphite);">
+    <div class="section-header">
+      <div class="eyebrow">FEATURED CARS</div>
+      <h2>خودروهای ویژه این هفته</h2>
+      <p>گزیده‌ای از بهترین خودروهای موجود در نمایشگاه با قیمت‌های اختصاصی</p>
+    </div>
+    <div class="cars-grid">
+
+      <div class="car-card">
+        <div class="car-badge">HOT</div>
+        <img class="car-img" src="https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=600&q=80" alt="Ferrari SF90">
+        <div class="car-info">
+          <div class="car-brand">Ferrari · ایتالیا</div>
+          <div class="car-name">Ferrari SF90 Stradale 2024</div>
+          <div class="car-specs">
+            <span class="spec"><span class="spec-icon">⚡</span>1000 اسب بخار</span>
+            <span class="spec"><span class="spec-icon">🏎</span>2.5 ثانیه 0→100</span>
+            <span class="spec"><span class="spec-icon">⛽</span>هیبرید</span>
+          </div>
+          <div class="car-footer">
+            <div class="car-price">۱۸ میلیارد <small>تومان</small></div>
+            <button class="btn-detail" onclick="showPage('contact')">استعلام قیمت</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="car-card">
+        <div class="car-badge new">NEW</div>
+        <img class="car-img" src="https://images.unsplash.com/photo-1614200187524-dc4b892acf16?w=600&q=80" alt="Lamborghini Urus">
+        <div class="car-info">
+          <div class="car-brand">Lamborghini · ایتالیا</div>
+          <div class="car-name">Lamborghini Urus S 2024</div>
+          <div class="car-specs">
+            <span class="spec"><span class="spec-icon">⚡</span>666 اسب بخار</span>
+            <span class="spec"><span class="spec-icon">🏎</span>3.5 ثانیه</span>
+            <span class="spec"><span class="spec-icon">🛻</span>SUV</span>
+          </div>
+          <div class="car-footer">
+            <div class="car-price">۱۲ میلیارد <small>تومان</small></div>
+            <button class="btn-detail" onclick="showPage('contact')">استعلام قیمت</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="car-card">
+        <img class="car-img" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=80" alt="Porsche 911">
+        <div class="car-info">
+          <div class="car-brand">Porsche · آلمان</div>
+          <div class="car-name">Porsche 911 GT3 RS 2023</div>
+          <div class="car-specs">
+            <span class="spec"><span class="spec-icon">⚡</span>525 اسب بخار</span>
+            <span class="spec"><span class="spec-icon">🏎</span>3.2 ثانیه</span>
+            <span class="spec"><span class="spec-icon">⛽</span>بنزینی</span>
+          </div>
+          <div class="car-footer">
+            <div class="car-price">۸.۵ میلیارد <small>تومان</small></div>
+            <button class="btn-detail" onclick="showPage('contact')">استعلام قیمت</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="car-card">
+        <div class="car-badge">VIP</div>
+        <img class="car-img" src="https://images.unsplash.com/photo-1631295868223-63265b40d9e4?w=600&q=80" alt="Rolls Royce">
+        <div class="car-info">
+          <div class="car-brand">Rolls-Royce · انگلیس</div>
+          <div class="car-name">Rolls-Royce Ghost 2024</div>
+          <div class="car-specs">
+            <span class="spec"><span class="spec-icon">⚡</span>563 اسب بخار</span>
+            <span class="spec"><span class="spec-icon">🛻</span>سدان</span>
+            <span class="spec"><span class="spec-icon">✨</span>هندساخت</span>
+          </div>
+          <div class="car-footer">
+            <div class="car-price">۳۲ میلیارد <small>تومان</small></div>
+            <button class="btn-detail" onclick="showPage('contact')">استعلام قیمت</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="car-card">
+        <img class="car-img" src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80" alt="BMW M8">
+        <div class="car-info">
+          <div class="car-brand">BMW · آلمان</div>
+          <div class="car-name">BMW M8 Competition 2023</div>
+          <div class="car-specs">
+            <span class="spec"><span class="spec-icon">⚡</span>625 اسب بخار</span>
+            <span class="spec"><span class="spec-icon">🏎</span>3.2 ثانیه</span>
+            <span class="spec"><span class="spec-icon">⛽</span>بنزینی</span>
+          </div>
+          <div class="car-footer">
+            <div class="car-price">۶.۸ میلیارد <small>تومان</small></div>
+            <button class="btn-detail" onclick="showPage('contact')">استعلام قیمت</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="car-card">
+        <div class="car-badge new">CLASSIC</div>
+        <img class="car-img" src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=80" alt="Classic Car">
+        <div class="car-info">
+          <div class="car-brand">Classic Collection</div>
+          <div class="car-name">Ford Mustang GT 1969</div>
+          <div class="car-specs">
+            <span class="spec"><span class="spec-icon">⚡</span>390 اسب بخار</span>
+            <span class="spec"><span class="spec-icon">🏆</span>کلاسیک</span>
+            <span class="spec"><span class="spec-icon">🔴</span>بازسازی</span>
+          </div>
+          <div class="car-footer">
+            <div class="car-price">۴.۲ میلیارد <small>تومان</small></div>
+            <button class="btn-detail" onclick="showPage('contact')">استعلام قیمت</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div style="text-align:center; margin-top: 2.5rem;">
+      <button class="btn-primary" onclick="showPage('gallery')">مشاهده همه خودروها ←</button>
+    </div>
+  </section>
+
+  <!-- WHY US -->
+  <section class="section">
+    <div class="section-header">
+      <div class="eyebrow">WHY PRESTIGE</div>
+      <h2>چرا پرستیژ اتو؟</h2>
+      <p>یک نمایشگاه متفاوت که همه چیز را در یک سقف ارائه می‌دهد</p>
+    </div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap:1.2rem; max-width:1100px; margin:0 auto;">
+      <div style="background:var(--graphite);border:1px solid var(--border);border-radius:12px;padding:1.8rem;text-align:center;transition:all 0.3s;" onmouseover="this.style.borderColor='rgba(212,43,43,0.4)'" onmouseout="this.style.borderColor='rgba(192,200,216,0.12)'">
+        <div style="font-size:2.5rem;margin-bottom:1rem;">🔍</div>
+        <h3 style="color:#fff;font-size:0.95rem;font-weight:700;margin-bottom:0.6rem;">کارشناسی رایگان</h3>
+        <p style="color:var(--silver);font-size:0.82rem;line-height:1.8;">بررسی تخصصی خودرو توسط مکانیک‌های مجرب قبل از خرید</p>
+      </div>
+      <div style="background:var(--graphite);border:1px solid var(--border);border-radius:12px;padding:1.8rem;text-align:center;transition:all 0.3s;" onmouseover="this.style.borderColor='rgba(212,43,43,0.4)'" onmouseout="this.style.borderColor='rgba(192,200,216,0.12)'">
+        <div style="font-size:2.5rem;margin-bottom:1rem;">📝</div>
+        <h3 style="color:#fff;font-size:0.95rem;font-weight:700;margin-bottom:0.6rem;">مدارک معتبر</h3>
+        <p style="color:var(--silver);font-size:0.82rem;line-height:1.8;">تمام مدارک اصالت کالا و گمرکی کامل و بدون دردسر</p>
+      </div>
+      <div style="background:var(--graphite);border:1px solid var(--border);border-radius:12px;padding:1.8rem;text-align:center;transition:all 0.3s;" onmouseover="this.style.borderColor='rgba(212,43,43,0.4)'" onmouseout="this.style.borderColor='rgba(192,200,216,0.12)'">
+        <div style="font-size:2.5rem;margin-bottom:1rem;">💳</div>
+        <h3 style="color:#fff;font-size:0.95rem;font-weight:700;margin-bottom:0.6rem;">تسهیلات ویژه</h3>
+        <p style="color:var(--silver);font-size:0.82rem;line-height:1.8;">پرداخت اقساطی با شرایط منعطف برای مشتریان منتخب</p>
+      </div>
+      <div style="background:var(--graphite);border:1px solid var(--border);border-radius:12px;padding:1.8rem;text-align:center;transition:all 0.3s;" onmouseover="this.style.borderColor='rgba(212,43,43,0.4)'" onmouseout="this.style.borderColor='rgba(192,200,216,0.12)'">
+        <div style="font-size:2.5rem;margin-bottom:1rem;">🚚</div>
+        <h3 style="color:#fff;font-size:0.95rem;font-weight:700;margin-bottom:0.6rem;">تحویل درب منزل</h3>
+        <p style="color:var(--silver);font-size:0.82rem;line-height:1.8;">خودرو را بدون مراجعه تحویل بگیرید، ما می‌آییم</p>
+      </div>
+    </div>
+  </section>
+
+  <footer><p>© ۱۴۰۴ <strong>PRESTIGE AUTO</strong> — تمامی حقوق محفوظ است</p></footer>
+</div>
+
+<!-- ══════════ GALLERY PAGE ══════════ -->
+<div class="page" id="page-gallery">
+  <div class="gallery-hero">
+    <div class="eyebrow">OUR COLLECTION</div>
+    <h1>گالری خودروها</h1>
+    <p>بیش از ۲۸۰ خودرو لوکس، اسپرت و کلاسیک در انتظار شما</p>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterCars(this,'all')">همه</button>
+    <button class="filter-btn" onclick="filterCars(this,'super')">سوپرکار</button>
+    <button class="filter-btn" onclick="filterCars(this,'suv')">SUV لوکس</button>
+    <button class="filter-btn" onclick="filterCars(this,'sedan')">سدان</button>
+    <button class="filter-btn" onclick="filterCars(this,'classic')">کلاسیک</button>
+    <button class="filter-btn" onclick="filterCars(this,'electric')">الکتریک</button>
+  </div>
+  <div class="gallery-grid">
+    <div class="gallery-item" data-cat="super">
+      <img src="https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=500&q=80" alt="Ferrari">
+      <div class="gallery-overlay"><h4>Ferrari SF90 Stradale</h4><p>۱۸ میلیارد تومان</p></div>
+    </div>
+    <div class="gallery-item" data-cat="super">
+      <img src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=500&q=80" alt="Lamborghini">
+      <div class="gallery-overlay"><h4>Lamborghini Huracán</h4><p>۱۵ میلیارد تومان</p></div>
+    </div>
+    <div class="gallery-item" data-cat="suv">
+      <img src="https://images.unsplash.com/photo-1614200187524-dc4b892acf16?w=500&q=80" alt="Urus">
+      <div class="gallery-overlay"><h4>Lamborghini Urus S</h4><p>۱۲ میلیارد تومان</p></div>
+    </div>
+    <div class="gallery-item" data-cat="super">
+      <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=500&q=80" alt="Porsche">
+      <div class="gallery-overlay"><h4>Porsche 911 GT3 RS</h4><p>۸.۵ میلیارد تومان</p></div>
+    </div>
+    <div class="gallery-item" data-cat="sedan">
+      <img src="https://images.unsplash.com/photo-1631295868223-63265b40d9e4?w=500&q=80" alt="Rolls Royce">
+      <div class="gallery-overlay"><h4>Rolls-Royce Ghost</h4><p>۳۲ میلیارد تومان</p></div>
+    </div>
+    <div class="gallery-item" data-cat="sedan">
+      <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=500&q=80" alt="BMW">
+      <div class="gallery-overlay"><h4>BMW M8 Competition</h4><p>۶.۸ میلیارد تومان</p></div>
+    </div>
+    <div class="gallery-item" data-cat="classic">
+      <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=500&q=80" alt="Classic">
+      <div class="gallery-overlay"><h4>Ford Mustang 1969</h4><p>۴.۲ میلیارد تومان</p></div>
+    </div>
+    <div class="gallery-item" data-cat="electric">
+      <img src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=500&q=80" alt="Tesla">
+      <div class="gallery-overlay"><h4>Tesla Model S Plaid</h4><p>۵.۵ میلیارد تومان</p></div>
+    </div>
+    <div class="gallery-item" data-cat="suv">
+      <img src="https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=500&q=80" alt="SUV">
+      <div class="gallery-overlay"><h4>Bentley Bentayga</h4><p>۲۲ میلیارد تومان</p></div>
+    </div>
+    <div class="gallery-item" data-cat="super">
+      <img src="https://images.unsplash.com/photo-1571607388263-1044f9ea01dd?w=500&q=80" alt="McLaren">
+      <div class="gallery-overlay"><h4>McLaren 720S</h4><p>۱۴ میلیارد تومان</p></div>
+    </div>
+    <div class="gallery-item" data-cat="classic">
+      <img src="https://images.unsplash.com/photo-1567818735868-e71b99932e29?w=500&q=80" alt="Classic">
+      <div class="gallery-overlay"><h4>Mercedes W108 1970</h4><p>۲.۱ میلیارد تومان</p></div>
+    </div>
+    <div class="gallery-item" data-cat="sedan">
+      <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=500&q=80" alt="AMG">
+      <div class="gallery-overlay"><h4>Mercedes-AMG GT63 S</h4><p>۱۰ میلیارد تومان</p></div>
+    </div>
+  </div>
+  <footer><p>© ۱۴۰۴ <strong>PRESTIGE AUTO</strong> — تمامی حقوق محفوظ است</p></footer>
+</div>
+
+<!-- ══════════ SERVICES PAGE ══════════ -->
+<div class="page" id="page-services">
+  <div class="page-hero">
+    <div class="eyebrow">OUR SERVICES</div>
+    <h1>خدمات ما</h1>
+    <p>تمام چیزی که برای تجربه‌ای بی‌نقص نیاز دارید</p>
+  </div>
+
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon">🚗</div>
+      <h3>فروش خودرو لوکس</h3>
+      <p>بیش از ۲۸۰ خودرو از برترین برندهای جهان در موجودی، با قیمت‌های رقابتی و مدارک کامل.</p>
+      <div class="service-tag">اصلی‌ترین خدمت</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🔄</div>
+      <h3>معاوضه خودرو</h3>
+      <p>خودرو فعلی خود را به‌قیمت منصفانه تحویل دهید و با تخفیف ویژه به ماشین جدید دسترسی پیدا کنید.</p>
+      <div class="service-tag">محبوب</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🔍</div>
+      <h3>کارشناسی خودرو</h3>
+      <p>تیم متخصص ما هر خودروی دست دوم را از نظر بدنه، موتور و مدارک کاملاً بررسی می‌کند.</p>
+      <div class="service-tag">رایگان</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">📦</div>
+      <h3>واردات سفارشی</h3>
+      <p>هر خودروی که در ذهن دارید، ما آن را برایتان وارد می‌کنیم. از گواهی گمرکی تا تحویل درب منزل.</p>
+      <div class="service-tag">اختصاصی</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🔧</div>
+      <h3>سرویس و نگهداری</h3>
+      <p>تیم مکانیک‌های مجرب ما با قطعات اصل، خودرو شما را همیشه در بهترین حال نگه می‌دارند.</p>
+      <div class="service-tag">خدمت پس از فروش</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">💎</div>
+      <h3>دیتیلینگ حرفه‌ای</h3>
+      <p>پوشش سرامیک، پولیش بدنه و پوشش PPF — خودرو شما مثل روز اول می‌درخشد.</p>
+      <div class="service-tag">پرمیوم</div>
+    </div>
+  </div>
+
+  <!-- PRICING -->
+  <div class="pricing-section">
+    <div class="section-header">
+      <div class="eyebrow">PRICING</div>
+      <h2>پکیج‌های خدماتی</h2>
+      <p>انتخاب پکیج مناسب با بودجه شما</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-plan">Silver</div>
+        <div class="price-amount">۲<span>م</span></div>
+        <div class="price-unit">تومان / سالانه</div>
+        <ul class="price-features">
+          <li>کارشناسی پایه</li>
+          <li>سرویس روتین (۳ بار)</li>
+          <li>شستشوی حرفه‌ای</li>
+          <li>پشتیبانی تلفنی</li>
+        </ul>
+        <button class="btn-outline" style="width:100%;border-radius:8px;" onclick="showPage('contact')">انتخاب پکیج</button>
+      </div>
+      <div class="price-card featured">
+        <div class="price-plan">Gold</div>
+        <div class="price-amount">۵<span>م</span></div>
+        <div class="price-unit">تومان / سالانه</div>
+        <ul class="price-features">
+          <li>کارشناسی جامع</li>
+          <li>سرویس کامل (۶ بار)</li>
+          <li>دیتیلینگ پایه</li>
+          <li>تحویل درب منزل</li>
+          <li>پشتیبانی ۲۴/۷</li>
+        </ul>
+        <button class="btn-primary" style="width:100%;border-radius:8px;" onclick="showPage('contact')">انتخاب پکیج</button>
+      </div>
+      <div class="price-card">
+        <div class="price-plan">Platinum</div>
+        <div class="price-amount">۱۲<span>م</span></div>
+        <div class="price-unit">تومان / سالانه</div>
+        <ul class="price-features">
+          <li>همه چیز از Gold</li>
+          <li>پوشش سرامیک</li>
+          <li>دیتیلینگ کامل</li>
+          <li>خودروی جایگزین</li>
+          <li>مشاور اختصاصی</li>
+        </ul>
+        <button class="btn-outline" style="width:100%;border-radius:8px;" onclick="showPage('contact')">انتخاب پکیج</button>
+      </div>
+    </div>
+  </div>
+
+  <footer><p>© ۱۴۰۴ <strong>PRESTIGE AUTO</strong> — تمامی حقوق محفوظ است</p></footer>
+</div>
+
+<!-- ══════════ ABOUT PAGE ══════════ -->
+<div class="page" id="page-about">
+  <div class="page-hero">
+    <div class="eyebrow">ABOUT US</div>
+    <h1>پرستیژ اتو</h1>
+    <p>بیش از یک نمایشگاه — یک تجربه متفاوت از اتومبیل</p>
+  </div>
+
+  <div class="about-layout">
+    <div class="about-img-wrap">
+      <img src="https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=700&q=80" alt="Showroom">
+    </div>
+    <div class="about-content">
+      <div class="eyebrow">OUR STORY</div>
+      <h2>از ۱۳۸۸ در کنار شما هستیم</h2>
+      <p>
+        پرستیژ اتو در سال ۱۳۸۸ با یک هدف ساده تأسیس شد: ارائه بهترین خودروهای لوکس جهان به مشتریان ایرانی با بالاترین استانداردهای خدماتی.
+      </p>
+      <p>
+        طی ۱۵ سال گذشته، با واردات مستقیم از کارخانه‌های فراری، لامبورگینی، پورشه و دیگر برندهای جهانی، به اعتماد هزاران مشتری دست یافتیم.
+      </p>
+      <p>
+        تیم ما شامل کارشناسان خودرو، مکانیک‌های تخصصی و مشاوران مالی است که هر قدم از خرید را در کنار شما هستند.
+      </p>
+      <div class="about-stats">
+        <div class="about-stat"><div class="about-stat-num">+۱۲۰۰</div><div class="about-stat-label">مشتری راضی</div></div>
+        <div class="about-stat"><div class="about-stat-num">+۲۸۰</div><div class="about-stat-label">خودرو موجود</div></div>
+        <div class="about-stat"><div class="about-stat-num">۱۵+</div><div class="about-stat-label">سال تجربه</div></div>
+        <div class="about-stat"><div class="about-stat-num">۴۰+</div><div class="about-stat-label">برند جهانی</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="team-section">
+    <div class="section-header">
+      <div class="eyebrow">OUR TEAM</div>
+      <h2>تیم متخصص ما</h2>
+    </div>
+    <div class="team-grid">
+      <div class="team-card">
+        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&q=80" alt="Team">
+        <div class="team-info"><h4>رضا محمدی</h4><p>مدیر عامل</p></div>
+      </div>
+      <div class="team-card">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80" alt="Team">
+        <div class="team-info"><h4>علی حسینی</h4><p>مدیر فروش</p></div>
+      </div>
+      <div class="team-card">
+        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&q=80" alt="Team">
+        <div class="team-info"><h4>سامان کریمی</h4><p>کارشناس ارشد</p></div>
+      </div>
+      <div class="team-card">
+        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&q=80" alt="Team">
+        <div class="team-info"><h4>مهران تهرانی</h4><p>مکانیک ارشد</p></div>
+      </div>
+    </div>
+  </div>
+
+  <footer><p>© ۱۴۰۴ <strong>PRESTIGE AUTO</strong> — تمامی حقوق محفوظ است</p></footer>
+</div>
+
+<!-- ══════════ CONTACT PAGE ══════════ -->
+<div class="page" id="page-contact">
+  <div class="page-hero">
+    <div class="eyebrow">CONTACT</div>
+    <h1>تماس با ما</h1>
+    <p>مشاوران ما آماده پاسخگویی هستند</p>
+  </div>
+  <div class="contact-layout">
+    <div class="contact-info">
+      <h2>راه‌های ارتباطی</h2>
+      <p>برای مشاوره رایگان، استعلام قیمت یا بازدید از نمایشگاه با ما تماس بگیرید.</p>
+      <div class="contact-item">
+        <div class="ci-icon">📱</div>
+        <div><div class="ci-text">تلفن مستقیم</div><div class="ci-val">۰۲۱-۸۸۱۲-۳۴۵۶</div></div>
+      </div>
+      <div class="contact-item">
+        <div class="ci-icon">💬</div>
+        <div><div class="ci-text">واتساپ / تلگرام</div><div class="ci-val">۰۹۱۲-۴۵۶-۷۸۹۰</div></div>
+      </div>
+      <div class="contact-item">
+        <div class="ci-icon">📸</div>
+        <div><div class="ci-text">اینستاگرام</div><div class="ci-val">@prestige.auto.ir</div></div>
+      </div>
+      <div class="contact-item">
+        <div class="ci-icon">📍</div>
+        <div><div class="ci-text">آدرس نمایشگاه</div><div class="ci-val">تهران، شریعتی، نبش خیابان خواجه‌نصیر</div></div>
+      </div>
+      <div class="contact-item">
+        <div class="ci-icon">🕐</div>
+        <div><div class="ci-text">ساعات کاری</div><div class="ci-val">شنبه تا پنج‌شنبه | ۹ صبح تا ۸ شب</div></div>
+      </div>
+    </div>
+    <div class="contact-form-box">
+      <h3>SEND MESSAGE</h3>
+      <div class="field"><label>نام و نام خانوادگی</label><input type="text" placeholder="نام شما"></div>
+      <div class="field"><label>شماره تماس</label><input type="tel" placeholder="09xxxxxxxxx"></div>
+      <div class="field"><label>ایمیل</label><input type="email" placeholder="example@email.com"></div>
+      <div class="field">
+        <label>موضوع درخواست</label>
+        <select>
+          <option>استعلام قیمت خودرو</option>
+          <option>مشاوره خرید</option>
+          <option>معاوضه خودرو</option>
+          <option>واردات سفارشی</option>
+          <option>خدمات پس از فروش</option>
+        </select>
+      </div>
+      <div class="field"><label>پیام شما</label><textarea placeholder="جزئیات درخواست خود را بنویسید..."></textarea></div>
+      <button class="btn-submit" onclick="submitForm()">ارسال پیام ⚡</button>
+    </div>
+  </div>
+  <footer><p>© ۱۴۰۴ <strong>PRESTIGE AUTO</strong> — تمامی حقوق محفوظ است</p></footer>
+</div>
+
+<!-- TOAST -->
+<div id="toast">✅ پیام شما ارسال شد. کارشناسان ما در اسرع وقت با شما تماس می‌گیرند.</div>
+
+<script>
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('page-' + id);
+    if (target) { target.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    document.querySelectorAll('[data-page]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.page === id);
+    });
+    document.getElementById('mobileNav').classList.remove('open');
+  }
+
+  function navTo(id) { showPage(id); }
+
+  function toggleMobileNav() {
+    document.getElementById('mobileNav').classList.toggle('open');
+  }
+
+  function filterCars(btn, cat) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.gallery-item').forEach(item => {
+      if (cat === 'all' || item.dataset.cat === cat) {
+        item.style.display = 'block';
+        item.style.animation = 'fadeUp 0.4s both';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  }
+
+  function submitForm() {
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  // scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.animation = 'fadeUp 0.6s both';
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.car-card, .service-card, .gallery-item, .team-card, .about-stat').forEach(el => {
+    el.style.opacity = '0';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
