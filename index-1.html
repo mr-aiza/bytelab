@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بایت‌لب | طراحی اپلیکیشن، سایت و خدمات کامپیوتر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070b12;
+    --panel:#0f1620;
+    --panel-2:#141d2b;
+    --line:#1e2a38;
+    --cyan:#4df0c9;
+    --violet:#9c7bff;
+    --paper:#eaf0f4;
+    --muted:#7c8b9c;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    width:100%;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.02em;}
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+  section{position:relative;}
+
+  /* background circuit grid */
+  .grid-bg{
+    position:absolute;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:64px 64px;
+    opacity:.18;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  }
+  .glow{
+    position:absolute;border-radius:50%;filter:blur(80px);z-index:0;pointer-events:none;
+  }
+
+  /* header */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    background:rgba(7,11,18,.72);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:72px;}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;}
+  .logo .mark{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;
+    box-shadow:0 0 24px rgba(77,240,201,.45);
+  }
+  .logo .tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.08em;margin-right:2px;}
+  nav.links{display:flex;gap:32px;font-size:15px;color:var(--muted);}
+  nav.links a:hover{color:var(--cyan);}
+  .nav-cta{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--cyan);color:#06120f;font-weight:700;font-size:14px;
+    padding:11px 22px;border-radius:999px;
+    box-shadow:0 0 24px rgba(77,240,201,.35);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(77,240,201,.55);}
+  .burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;}
+  .burger span{width:22px;height:2px;background:var(--paper);border-radius:2px;}
+  .mobile-menu{
+    display:none;position:fixed;top:72px;left:0;right:0;background:var(--panel);
+    border-bottom:1px solid var(--line);padding:20px 24px;flex-direction:column;gap:18px;z-index:49;
+  }
+  .mobile-menu.open{display:flex;}
+  .mobile-menu a{color:var(--paper);font-size:16px;}
+
+  /* hero */
+  .hero{padding:170px 0 110px;min-height:100vh;display:flex;align-items:center;overflow:hidden;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:13px;color:var(--cyan);
+    border:1px solid var(--line);border-radius:999px;padding:7px 16px;margin-bottom:28px;
+    background:rgba(77,240,201,.05);
+  }
+  .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(77,240,201,.6);animation:pulse 1.8s infinite;}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(77,240,201,.55);}
+    70%{box-shadow:0 0 0 10px rgba(77,240,201,0);}
+    100%{box-shadow:0 0 0 0 rgba(77,240,201,0);}
+  }
+  h1.hero-title{
+    font-size:clamp(36px,6vw,68px);font-weight:800;line-height:1.18;letter-spacing:-.01em;
+    max-width:780px;
+  }
+  h1.hero-title .accent{
+    background:linear-gradient(90deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero-sub{font-size:18px;color:var(--muted);max-width:560px;margin-top:24px;}
+  .hero-ctas{display:flex;gap:16px;margin-top:40px;flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--cyan);color:#06120f;font-weight:700;padding:15px 30px;border-radius:999px;
+    box-shadow:0 0 30px rgba(77,240,201,.4);transition:transform .2s ease;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-ghost{
+    border:1px solid var(--line);color:var(--paper);padding:15px 30px;border-radius:999px;
+    transition:border-color .2s ease, color .2s ease;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+  .trust-strip{display:flex;gap:36px;margin-top:64px;flex-wrap:wrap;color:var(--muted);font-size:14px;}
+  .trust-strip .item{display:flex;align-items:center;gap:8px;}
+  .trust-strip .dot{width:5px;height:5px;border-radius:50%;background:var(--violet);}
+
+  /* section heading */
+  .sec-head{margin-bottom:56px;max-width:640px;}
+  .sec-eyebrow{font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:13px;color:var(--violet);letter-spacing:.02em;margin-bottom:14px;display:block;}
+  .sec-title{font-size:clamp(26px,3.6vw,40px);font-weight:800;}
+  .sec-sub{color:var(--muted);margin-top:14px;font-size:16px;}
+
+  /* services */
+  .services{padding:140px 0 100px;}
+  .trace-row{position:relative;}
+  .trace-svg{position:absolute;top:46px;left:0;right:0;width:100%;height:2px;z-index:0;}
+  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative;z-index:1;}
+  .svc-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:32px 26px;transition:border-color .25s ease, transform .25s ease;
+  }
+  .svc-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
+  .svc-node{
+    width:52px;height:52px;border-radius:14px;background:var(--panel-2);
+    display:flex;align-items:center;justify-content:center;margin-bottom:22px;
+    border:1px solid var(--line);position:relative;
+  }
+  .svc-node::after{
+    content:'';position:absolute;inset:-1px;border-radius:14px;
+    background:linear-gradient(135deg,rgba(77,240,201,.5),rgba(156,123,255,.5));
+    opacity:0;transition:opacity .25s ease;z-index:-1;
+  }
+  .svc-card:hover .svc-node::after{opacity:1;}
+  .svc-title{font-size:19px;font-weight:700;margin-bottom:10px;}
+  .svc-desc{color:var(--muted);font-size:14.5px;}
+  .svc-tags{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;}
+  .svc-tags span{
+    font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:12.5px;color:var(--cyan);
+    border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:rgba(77,240,201,.04);
+  }
+
+  /* process */
+  .process{padding:100px 0;}
+  .proc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative;}
+  .proc-grid::before{
+    content:'';position:absolute;top:30px;left:6%;right:6%;height:1px;background:var(--line);z-index:0;
+  }
+  .proc-step{position:relative;z-index:1;}
+  .proc-num{
+    font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--ink);font-weight:700;
+    width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--violet));
+    display:flex;align-items:center;justify-content:center;margin-bottom:20px;
+  }
+  .proc-title{font-weight:700;font-size:16.5px;margin-bottom:8px;}
+  .proc-desc{color:var(--muted);font-size:14px;}
+
+  /* portfolio */
+  .portfolio{padding:100px 0;}
+  .pf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .pf-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .pf-preview{padding:22px;background:var(--panel-2);min-height:200px;display:flex;align-items:center;justify-content:center;}
+  .browser-mock{width:100%;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--ink);}
+  .browser-bar{display:flex;gap:6px;padding:9px 12px;background:#0a0f17;}
+  .browser-bar span{width:8px;height:8px;border-radius:50%;background:var(--line);}
+  .browser-body{padding:18px;display:flex;flex-direction:column;gap:8px;}
+  .browser-body .line{height:8px;border-radius:4px;background:var(--line);}
+  .browser-body .line.short{width:50%;}
+  .browser-body .line.accent{background:linear-gradient(90deg,var(--cyan),var(--violet));width:35%;height:10px;}
+  .phone-mock{width:130px;height:230px;border:6px solid var(--line);border-radius:22px;background:var(--ink);padding:10px 8px;display:flex;flex-direction:column;gap:7px;}
+  .phone-mock .notch{width:36%;height:5px;border-radius:4px;background:var(--line);margin:0 auto 8px;}
+  .phone-mock .blob{height:30px;border-radius:8px;background:var(--panel-2);}
+  .phone-mock .blob.accent{background:linear-gradient(135deg,var(--cyan),var(--violet));height:46px;}
+  .repair-mock{display:flex;flex-direction:column;align-items:center;gap:14px;color:var(--muted);}
+  .repair-icon{
+    width:74px;height:74px;border-radius:18px;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;background:var(--ink);
+  }
+  .pf-info{padding:22px 24px 26px;}
+  .pf-label{font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:12.5px;color:var(--violet);margin-bottom:8px;display:block;}
+  .pf-title{font-weight:700;font-size:17px;margin-bottom:6px;}
+  .pf-desc{color:var(--muted);font-size:14px;}
+
+  /* stats band */
+  .stats{padding:70px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;}
+  .stat-val{font-family:'Vazirmatn',sans-serif;font-weight:800;font-size:clamp(22px,3vw,30px);color:var(--cyan);}
+  .stat-label{color:var(--muted);font-size:13.5px;margin-top:8px;}
+
+  /* cta band */
+  .cta-band{padding:130px 0;}
+  .cta-card{
+    position:relative;border-radius:28px;border:1px solid var(--line);
+    background:radial-gradient(circle at 30% 20%, rgba(77,240,201,.12), transparent 60%),
+               radial-gradient(circle at 80% 80%, rgba(156,123,255,.14), transparent 55%),
+               var(--panel);
+    padding:70px 50px;text-align:center;overflow:hidden;
+  }
+  .cta-card h2{font-size:clamp(26px,4vw,42px);font-weight:800;max-width:600px;margin:0 auto 18px;}
+  .cta-card p{color:var(--muted);max-width:480px;margin:0 auto 36px;}
+
+  /* contact */
+  .contact{padding:0 0 120px;}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  .contact-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 28px;display:flex;align-items:center;gap:20px;transition:border-color .2s ease;
+  }
+  .contact-card:hover{border-color:var(--cyan);}
+  .contact-icon{
+    width:50px;height:50px;border-radius:13px;background:var(--panel-2);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;border:1px solid var(--line);
+  }
+  .contact-label{font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:12.5px;color:var(--muted);margin-bottom:4px;display:block;}
+  .contact-value{font-weight:700;font-size:16px;}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:50px 0 32px;}
+  .foot-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:30px;margin-bottom:36px;}
+  .foot-desc{color:var(--muted);font-size:14px;max-width:320px;margin-top:14px;}
+  .foot-links{display:flex;gap:40px;flex-wrap:wrap;}
+  .foot-col h4{font-size:13.5px;color:var(--muted);font-family:'Vazirmatn',sans-serif;font-weight:700;margin-bottom:16px;}
+  .foot-col a{display:block;color:var(--paper);font-size:14.5px;margin-bottom:12px;}
+  .foot-col a:hover{color:var(--cyan);}
+  .social-row{display:flex;gap:12px;margin-top:18px;}
+  .social-row a{
+    width:40px;height:40px;border-radius:11px;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;transition:border-color .2s ease, color .2s ease;color:var(--muted);
+  }
+  .social-row a:hover{border-color:var(--cyan);color:var(--cyan);}
+  .foot-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;color:var(--muted);font-size:13px;flex-wrap:wrap;gap:10px;}
+
+  /* reveal animation */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+    .reveal{opacity:1;transform:none;}
+  }
+
+  @media (max-width: 900px){
+    nav.links{display:none;}
+    .nav-cta{display:none;}
+    .burger{display:flex;}
+    .svc-grid,.pf-grid{grid-template-columns:1fr;}
+    .proc-grid{grid-template-columns:1fr 1fr;row-gap:36px;}
+    .proc-grid::before{display:none;}
+    .stats-grid{grid-template-columns:1fr 1fr;row-gap:28px;}
+    .contact-grid{grid-template-columns:1fr;}
+    .trace-svg{display:none;}
+    .foot-top{flex-direction:column;}
+  }
+  @media (max-width:560px){
+    .hero{padding:150px 0 80px;}
+    .proc-grid{grid-template-columns:1fr 1fr;}
+    .cta-card{padding:50px 26px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo">
+      <div class="mark">B</div>
+      <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
+    </div>
+    <nav class="links">
+      <a href="#services">خدمات</a>
+      <a href="#process">روند کار</a>
+      <a href="#portfolio">نمونه‌کارها</a>
+      <a href="#contact">تماس</a>
+      <a href="chat.html">چت با هوش مصنوعی</a>
+    </nav>
+    <a href="#contact" class="nav-cta">شروع پروژه</a>
+    <button class="burger" id="burger" aria-label="منو">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#services">خدمات</a>
+  <a href="#process">روند کار</a>
+  <a href="#portfolio">نمونه‌کارها</a>
+  <a href="#contact">تماس</a>
+  <a href="chat.html">چت با هوش مصنوعی</a>
+</div>
+
+<section class="hero">
+  <div class="grid-bg"></div>
+  <div class="glow" style="width:480px;height:480px;background:var(--cyan);opacity:.10;top:-120px;right:-120px;"></div>
+  <div class="glow" style="width:420px;height:420px;background:var(--violet);opacity:.10;bottom:-100px;left:-100px;"></div>
+  <div class="wrap" style="position:relative;z-index:1;">
+    <div class="eyebrow"><span class="pulse-dot"></span> آزمایشگاه دیجیتال بایت‌لب</div>
+    <h1 class="hero-title">از ایده تا اجرا؛ <span class="accent">اپ، سایت و سیستم</span> شما زیر یک سقف ساخته می‌شود</h1>
+    <p class="hero-sub">بایت‌لب اپلیکیشن و وب‌سایت شما را طراحی می‌کند و کنار آن، خدمات کامل کامپیوتر از تعمیر تا خرید و فروش قطعه و سیستم را هم انجام می‌دهد.</p>
+    <div class="hero-ctas">
+      <a href="#contact" class="btn-primary">مشاوره رایگان بگیر ←</a>
+      <a href="#portfolio" class="btn-ghost">نمونه‌کارها</a>
+    </div>
+    <div class="trust-strip">
+      <div class="item"><span class="dot"></span> مشاوره رایگان پیش از شروع</div>
+      <div class="item"><span class="dot"></span> پشتیبانی پس از تحویل</div>
+      <div class="item"><span class="dot"></span> قیمت شفاف، بدون هزینه پنهان</div>
+    </div>
+  </div>
+</section>
+
+<section class="services" id="services">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">خدمات</span>
+      <h2 class="sec-title">سه ماژول اصلی بایت‌لب</h2>
+      <p class="sec-sub">هر بخش جدا انجام می‌شود، اما در یک پروژه هم می‌توان همه را با هم گرفت؛ مثلاً طراحی سایت به‌همراه راه‌اندازی سیستم فروشگاه.</p>
+    </div>
+    <div class="trace-row">
+      <svg class="trace-svg" viewBox="0 0 100 2" preserveAspectRatio="none">
+        <line x1="16" y1="1" x2="84" y2="1" stroke="#1e2a38" stroke-width="1" stroke-dasharray="3 3"/>
+      </svg>
+      <div class="svc-grid">
+        <div class="svc-card reveal">
+          <div class="svc-node">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><rect x="6" y="2" width="12" height="20" rx="2.5"/><line x1="10" y1="19" x2="14" y2="19"/></svg>
+          </div>
+          <div class="svc-title">طراحی اپلیکیشن</div>
+          <div class="svc-desc">اپلیکیشن اندروید و iOS با رابط کاربری اختصاصی، از فروشگاهی تا سفارش‌گیری و رزرو.</div>
+          <div class="svc-tags"><span>UI/UX</span><span>Android</span><span>iOS</span></div>
+        </div>
+        <div class="svc-card reveal">
+          <div class="svc-node">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"/></svg>
+          </div>
+          <div class="svc-title">طراحی وب‌سایت</div>
+          <div class="svc-desc">سایت شرکتی، فروشگاهی یا پورتفولیو؛ سریع، ریسپانسیو و آماده برای گوگل.</div>
+          <div class="svc-tags"><span>فروشگاهی</span><span>شرکتی</span><span>SEO</span></div>
+        </div>
+        <div class="svc-card reveal">
+          <div class="svc-node">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="16" x2="12" y2="20"/></svg>
+          </div>
+          <div class="svc-title">خدمات کامپیوتر</div>
+          <div class="svc-desc">تعمیر، نگهداری، آپگرید و نیز خرید و فروش قطعه و سیستم نو و دست‌دوم.</div>
+          <div class="svc-tags"><span>تعمیر</span><span>آپگرید</span><span>خرید و فروش</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="process" id="process">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">روند کار</span>
+      <h2 class="sec-title">از مشاوره تا تحویل، چهار قدم</h2>
+    </div>
+    <div class="proc-grid">
+      <div class="proc-step reveal">
+        <div class="proc-num">01</div>
+        <div class="proc-title">مشاوره رایگان</div>
+        <div class="proc-desc">نیاز و بودجه‌تون رو می‌شنویم و بهترین راه‌حل رو پیشنهاد می‌دیم.</div>
+      </div>
+      <div class="proc-step reveal">
+        <div class="proc-num">02</div>
+        <div class="proc-title">طراحی</div>
+        <div class="proc-desc">طرح اولیه و نمونه بصری رو قبل از اجرا می‌بینید و تأیید می‌کنید.</div>
+      </div>
+      <div class="proc-step reveal">
+        <div class="proc-num">03</div>
+        <div class="proc-title">اجرا</div>
+        <div class="proc-desc">توسعه یا انجام خدمات با گزارش پیشرفت منظم.</div>
+      </div>
+      <div class="proc-step reveal">
+        <div class="proc-num">04</div>
+        <div class="proc-title">تحویل و پشتیبانی</div>
+        <div class="proc-desc">تحویل نهایی به‌همراه پشتیبانی پس از تحویل.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="portfolio" id="portfolio">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">نمونه‌کارها</span>
+      <h2 class="sec-title">نمونه طراحی‌های بایت‌لب</h2>
+      <p class="sec-sub">این‌ها نمونه‌های مفهومی از سبک کاری ما هستند؛ نمونه‌های واقعی پروژه‌ها بعد از هماهنگی با مشتری اضافه می‌شود.</p>
+    </div>
+    <div class="pf-grid">
+      <div class="pf-card reveal">
+        <div class="pf-preview">
+          <div class="browser-mock">
+            <div class="browser-bar"><span></span><span></span><span></span></div>
+            <div class="browser-body">
+              <div class="line accent"></div>
+              <div class="line"></div>
+              <div class="line short"></div>
+            </div>
+          </div>
+        </div>
+        <div class="pf-info">
+          <span class="pf-label">نمونه طراحی سایت</span>
+          <div class="pf-title">سایت فروشگاهی</div>
+          <div class="pf-desc">صفحه فروش با تمرکز روی سرعت بارگذاری و نرخ تبدیل بازدیدکننده به خریدار.</div>
+        </div>
+      </div>
+      <div class="pf-card reveal">
+        <div class="pf-preview">
+          <div class="phone-mock">
+            <div class="notch"></div>
+            <div class="blob accent"></div>
+            <div class="blob"></div>
+            <div class="blob"></div>
+          </div>
+        </div>
+        <div class="pf-info">
+          <span class="pf-label">نمونه طراحی اپ</span>
+          <div class="pf-title">اپلیکیشن سفارش‌گیری</div>
+          <div class="pf-desc">رابط کاربری ساده برای ثبت سفارش سریع و پیگیری وضعیت آن.</div>
+        </div>
+      </div>
+      <div class="pf-card reveal">
+        <div class="pf-preview">
+          <div class="repair-mock">
+            <div class="repair-icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#9c7bff" stroke-width="1.6"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.77z"/></svg>
+            </div>
+            <span class="mono" style="font-size:12px;">SYSTEM_CHECK_OK</span>
+          </div>
+        </div>
+        <div class="pf-info">
+          <span class="pf-label">نمونه خدمات کامپیوتر</span>
+          <div class="pf-title">سرویس و آپگرید سیستم</div>
+          <div class="pf-desc">رفع ایراد، تعویض قطعه و بهینه‌سازی سرعت سیستم.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="wrap stats-grid">
+    <div class="reveal">
+      <div class="stat-val">رایگان</div>
+      <div class="stat-label">مشاوره اولیه</div>
+    </div>
+    <div class="reveal">
+      <div class="stat-val">شفاف</div>
+      <div class="stat-label">قیمت‌گذاری</div>
+    </div>
+    <div class="reveal">
+      <div class="stat-val">۳</div>
+      <div class="stat-label">حوزه خدمات اصلی</div>
+    </div>
+    <div class="reveal">
+      <div class="stat-val">پس از تحویل</div>
+      <div class="stat-label">پشتیبانی فعال</div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap">
+    <div class="cta-card reveal">
+      <h2>آماده‌ای ایده‌ت رو اجرا کنیم؟</h2>
+      <p>همین حالا پیام بده تا در کمتر از یک روز کاری باهات تماس بگیریم و رایگان مشورت کنیم.</p>
+      <a href="#contact" class="btn-primary">شروع گفتگو ←</a>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">تماس با ما</span>
+      <h2 class="sec-title">بایت‌لب همین الان آماده شنیدن ایده توست</h2>
+    </div>
+    <div class="contact-grid">
+      <a href="tel:+989120000000" class="contact-card reveal">
+        <div class="contact-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><path d="M3 5a2 2 0 0 1 2-2h2.3a1 1 0 0 1 1 .8l1 4a1 1 0 0 1-.5 1.1l-1.8 1a13 13 0 0 0 6 6l1-1.8a1 1 0 0 1 1.1-.5l4 1a1 1 0 0 1 .8 1V19a2 2 0 0 1-2 2h-1C9.6 21 3 14.4 3 6V5z"/></svg></div>
+        <div>
+          <span class="contact-label">تلفن / واتس‌اپ</span>
+          <span class="contact-value mono" dir="ltr">0912 000 0000</span>
+        </div>
+      </a>
+      <a href="https://t.me/bytelab" class="contact-card reveal">
+        <div class="contact-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><path d="M21 4 3 11l6 2.5M21 4l-3.5 16-7.5-6.5M21 4l-11 7"/></svg></div>
+        <div>
+          <span class="contact-label">تلگرام</span>
+          <span class="contact-value mono" dir="ltr">@bytelab</span>
+        </div>
+      </a>
+      <a href="https://instagram.com/bytelab.ir" class="contact-card reveal">
+        <div class="contact-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.7"/><circle cx="17.2" cy="6.8" r="1"/></svg></div>
+        <div>
+          <span class="contact-label">اینستاگرام</span>
+          <span class="contact-value mono" dir="ltr">@bytelab.ir</span>
+        </div>
+      </a>
+      <a href="mailto:hello@bytelab.ir" class="contact-card reveal">
+        <div class="contact-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></div>
+        <div>
+          <span class="contact-label">ایمیل</span>
+          <span class="contact-value mono" dir="ltr">hello@bytelab.ir</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <div class="logo">
+          <div class="mark">B</div>
+          <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
+        </div>
+        <p class="foot-desc">طراحی اپلیکیشن، طراحی وب‌سایت و خدمات کامل کامپیوتر؛ از ایده تا اجرا.</p>
+        <div class="social-row">
+          <a href="https://instagram.com/bytelab.ir" aria-label="اینستاگرام"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.7"/><circle cx="17.2" cy="6.8" r="1"/></svg></a>
+          <a href="https://t.me/bytelab" aria-label="تلگرام"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 4 3 11l6 2.5M21 4l-3.5 16-7.5-6.5M21 4l-11 7"/></svg></a>
+          <a href="https://wa.me/989120000000" aria-label="واتس‌اپ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21l1.5-4.5A8 8 0 1 1 8 19.5L3 21z"/></svg></a>
+        </div>
+      </div>
+      <div class="foot-links">
+        <div class="foot-col">
+          <h4>دسترسی سریع</h4>
+          <a href="#services">خدمات</a>
+          <a href="#process">روند کار</a>
+          <a href="#portfolio">نمونه‌کارها</a>
+        </div>
+        <div class="foot-col">
+          <h4>خدمات</h4>
+          <a href="#services">طراحی اپلیکیشن</a>
+          <a href="#services">طراحی سایت</a>
+          <a href="#services">خدمات کامپیوتر</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© ۱۴۰۵ بایت‌لب. تمامی حقوق محفوظ است.</span>
+      <span class="mono" style="direction:ltr;">BYTE_LAB / DIGITAL SERVICES</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const burger = document.getElementById('burger');
+  const menu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', () => menu.classList.toggle('open'));
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.remove('open')));
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
+  }, {threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>
