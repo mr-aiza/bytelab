@@ -20,6 +20,27 @@
     document.head.appendChild(link);
   });
 
+  // --- PWA: مانیفست + رنگ نوار مرورگر ---
+  // با تزریق خودکار از همینجا، لازم نیست این خط‌ها رو تو هر صفحه دستی اضافه کنی.
+  const manifestLink = document.createElement("link");
+  manifestLink.rel = "manifest";
+  manifestLink.href = "manifest.json";
+  document.head.appendChild(manifestLink);
+
+  const themeColor = document.createElement("meta");
+  themeColor.name = "theme-color";
+  themeColor.content = "#070b12";
+  document.head.appendChild(themeColor);
+
+  // --- PWA: ثبت Service Worker برای نصب‌شدنی‌بودن و بارگذاری سریع‌تر ---
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {
+        // اگه ثبت نشد (مثلاً روی localhost بدون https)، بی‌سروصدا رد شو
+      });
+    });
+  }
+
   // --- استایل هدر: به‌صورت خودکار به هر صفحه‌ای که این فایل رو صدا بزنه اضافه می‌شه ---
   // اینطوری لازم نیست CSS هدر رو توی <style> هر صفحه (مثل blog.html) دستی کپی کنی.
   const headerCSS = `
