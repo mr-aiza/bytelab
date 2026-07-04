@@ -323,10 +323,6 @@
 </footer>
 
 <script>
-  const burger = document.getElementById('burger');
-  const menu = document.getElementById('mobileMenu');
-  burger.addEventListener('click', () => menu.classList.toggle('open'));
-  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.remove('open')));
 
   const obs = new IntersectionObserver((entries) => {
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
