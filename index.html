@@ -278,36 +278,7 @@
 </head>
 <body>
 
-<header>
-  <div class="wrap nav">
-    <div class="logo">
-      <div class="mark">B</div>
-      <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
-    </div>
-    <nav class="links">
-  <a href="index.html">خانه</a>    
-  <a href="tarahi-site.html">طراحی سایت</a>
-  <a href="tarahi-app.html">طراحی اپلیکیشن</a>
-  <a href="khadamat-computer.html">خدمات کامپیوتر</a>
-  <a href="blog.html">بلاگ</a>
-  <a href="#contact">تماس</a>
-  <a href="chat.html">چت با هوش مصنوعی</a>
-    </nav>
-    <a href="#contact" class="nav-cta">شروع پروژه</a>
-    <button class="burger" id="burger" aria-label="منو">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-</header>
- <div class="mobile-menu" id="mobileMenu">
-  <a href="index.html">خانه</a>    
-  <a href="tarahi-site.html">طراحی سایت</a>
-  <a href="tarahi-app.html">طراحی اپلیکیشن</a>
-  <a href="khadamat-computer.html">خدمات کامپیوتر</a>
-  <a href="blog.html">بلاگ</a>
-  <a href="#contact">تماس</a>
-  <a href="chat.html">چت با هوش مصنوعی</a>
-</div>
+<div id="siteHeaderPlaceholder"></div>
 
 <section class="hero">
   <div class="grid-bg"></div>
@@ -568,11 +539,7 @@
 </footer>
 
 <script>
-  const burger = document.getElementById('burger');
-  const menu = document.getElementById('mobileMenu');
-  burger.addEventListener('click', () => menu.classList.toggle('open'));
-  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.remove('open')));
-
+  
   const obs = new IntersectionObserver((entries) => {
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
   }, {threshold:.15});
