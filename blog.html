@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بلاگ | بایت‌لب</title>
+<meta name="description" content="مقالات بایت‌لب درباره طراحی سایت، طراحی اپلیکیشن و خدمات کامپیوتر.">
+<link rel="canonical" href="https://mr-aiza.github.io/bytelab/blog.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070b12;
+    --panel:#0f1620;
+    --panel-2:#141d2b;
+    --line:#1e2a38;
+    --cyan:#4df0c9;
+    --violet:#9c7bff;
+    --paper:#eaf0f4;
+    --muted:#7c8b9c;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    width:100%;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.02em;}
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+  section{position:relative;}
+
+  .grid-bg{
+    position:absolute;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:64px 64px;
+    opacity:.18;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  }
+  .glow{position:absolute;border-radius:50%;filter:blur(80px);z-index:0;pointer-events:none;}
+
+  /* header */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    background:rgba(7,11,18,.72);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:72px;}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;}
+  .logo .mark{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;
+    box-shadow:0 0 24px rgba(77,240,201,.45);
+  }
+  .logo .tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.08em;margin-right:2px;}
+  nav.links{display:flex;gap:28px;font-size:14.5px;color:var(--muted);}
+  nav.links a:hover,nav.links a.active{color:var(--cyan);}
+  .nav-cta{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--cyan);color:#06120f;font-weight:700;font-size:14px;
+    padding:11px 22px;border-radius:999px;
+    box-shadow:0 0 24px rgba(77,240,201,.35);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(77,240,201,.55);}
+  .burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;}
+  .burger span{width:22px;height:2px;background:var(--paper);border-radius:2px;}
+  .mobile-menu{
+    display:none;position:fixed;top:72px;left:0;right:0;background:var(--panel);
+    border-bottom:1px solid var(--line);padding:20px 24px;flex-direction:column;gap:18px;z-index:49;
+  }
+  .mobile-menu.open{display:flex;}
+  .mobile-menu a{color:var(--paper);font-size:16px;}
+  .mobile-menu a.active{color:var(--cyan);}
+
+  /* page hero (lighter version of homepage hero, used on inner pages) */
+  .page-hero{padding:168px 0 84px;overflow:hidden;}
+  .page-hero .wrap{position:relative;z-index:1;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-weight:600;font-size:13px;color:var(--cyan);
+    border:1px solid var(--line);border-radius:999px;padding:7px 16px;margin-bottom:26px;
+    background:rgba(77,240,201,.05);
+  }
+  .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(77,240,201,.6);animation:pulse 1.8s infinite;}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(77,240,201,.55);}
+    70%{box-shadow:0 0 0 10px rgba(77,240,201,0);}
+    100%{box-shadow:0 0 0 0 rgba(77,240,201,0);}
+  }
+  h1.page-title{
+    font-size:clamp(30px,5vw,50px);font-weight:800;line-height:1.25;letter-spacing:-.01em;max-width:760px;
+  }
+  h1.page-title em{
+    font-style:normal;
+    background:linear-gradient(90deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .page-sub{font-size:17px;color:var(--muted);max-width:600px;margin-top:20px;}
+  .btn-row{display:flex;gap:16px;margin-top:36px;flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--cyan);color:#06120f;font-weight:700;padding:15px 30px;border-radius:999px;
+    box-shadow:0 0 30px rgba(77,240,201,.4);transition:transform .2s ease;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-ghost{
+    border:1px solid var(--line);color:var(--paper);padding:15px 30px;border-radius:999px;
+    transition:border-color .2s ease, color .2s ease;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+
+  /* section heading */
+  .sec-head{margin-bottom:50px;max-width:640px;}
+  .sec-eyebrow{font-weight:700;font-size:13px;color:var(--violet);letter-spacing:.02em;margin-bottom:14px;display:block;}
+  .sec-title{font-size:clamp(24px,3.4vw,34px);font-weight:800;}
+  .sec-sub{color:var(--muted);margin-top:14px;font-size:15.5px;}
+
+  .info-section{padding:90px 0;}
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .info-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:28px 24px;transition:border-color .25s ease, transform .25s ease;
+  }
+  .info-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
+  .info-card .card-num{font-family:'JetBrains Mono',monospace;color:var(--violet);font-size:13px;margin-bottom:12px;display:block;}
+  .info-card h3{font-size:16.5px;font-weight:700;margin-bottom:9px;}
+  .info-card p{color:var(--muted);font-size:14px;}
+
+  /* pricing tiers */
+  .pricing-section{padding:20px 0 100px;}
+  .tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .tier{border:1px solid var(--line);border-radius:var(--radius);padding:30px 26px;background:var(--panel);}
+  .tier.featured{border-color:var(--cyan);box-shadow:0 0 30px rgba(77,240,201,.12);position:relative;}
+  .tier .tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--violet);letter-spacing:.08em;}
+  .tier h3{margin:14px 0;font-size:18px;font-weight:700;}
+  .tier ul{margin:16px 0 24px;list-style:none;}
+  .tier li{color:var(--muted);font-size:14px;padding:8px 0;border-bottom:1px dashed var(--line);}
+  .tier li:last-child{border:none;}
+  .tier .btn-primary,.tier .btn-ghost{width:100%;justify-content:center;padding:13px 20px;}
+
+  /* faq */
+  .faq-section{padding:20px 0 110px;}
+  .faq-wrap{max-width:760px;}
+  .faq-item{border-bottom:1px solid var(--line);padding:22px 0;}
+  .faq-item summary{cursor:pointer;font-weight:700;font-size:16px;list-style:none;display:flex;justify-content:space-between;align-items:center;color:var(--paper);}
+  .faq-item summary::-webkit-details-marker{display:none;}
+  .faq-item summary::after{content:'+';color:var(--cyan);font-size:20px;flex-shrink:0;margin-right:12px;}
+  .faq-item[open] summary::after{content:'–';}
+  .faq-item p{color:var(--muted);margin:14px 0 0;font-size:14.5px;}
+
+  /* blog list */
+  .blog-section{padding:20px 0 110px;}
+  .post-card{border-bottom:1px solid var(--line);padding:30px 0;}
+  .post-card .meta{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--violet);margin-bottom:10px;display:block;}
+  .post-card h3{font-size:20px;margin:0 0 10px;font-weight:700;}
+  .post-card h3 a:hover{color:var(--cyan);}
+  .post-card p{color:var(--muted);font-size:15px;margin-bottom:12px;}
+  .post-card a.more{color:var(--cyan);font-size:14px;font-weight:700;}
+
+  /* blog post body */
+  .post-body-section{padding:168px 0 110px;}
+  .post-body{max-width:720px;margin:0 auto;}
+  .post-meta{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--violet);margin-bottom:22px;display:block;}
+  .post-body h1{font-size:clamp(28px,4vw,42px);font-weight:800;margin-bottom:8px;line-height:1.3;}
+  .post-body h2{margin-top:38px;margin-bottom:12px;font-size:21px;font-weight:700;}
+  .post-body p{color:var(--muted);font-size:16px;margin-bottom:18px;line-height:1.85;}
+  .post-body .btn-row{margin-top:44px;}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:50px 0 32px;}
+  .foot-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:30px;margin-bottom:36px;}
+  .foot-desc{color:var(--muted);font-size:14px;max-width:320px;margin-top:14px;}
+  .foot-links{display:flex;gap:40px;flex-wrap:wrap;}
+  .foot-col h4{font-size:13.5px;color:var(--muted);font-weight:700;margin-bottom:16px;}
+  .foot-col a{display:block;color:var(--paper);font-size:14.5px;margin-bottom:12px;}
+  .foot-col a:hover{color:var(--cyan);}
+  .social-row{display:flex;gap:12px;margin-top:18px;}
+  .social-row a{
+    width:40px;height:40px;border-radius:11px;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;transition:border-color .2s ease, color .2s ease;color:var(--muted);
+  }
+  .social-row a:hover{border-color:var(--cyan);color:var(--cyan);}
+  .foot-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;color:var(--muted);font-size:13px;flex-wrap:wrap;gap:10px;}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+    .reveal{opacity:1;transform:none;}
+  }
+
+  @media (max-width: 900px){
+    nav.links{display:none;}
+    .nav-cta{display:none;}
+    .burger{display:flex;}
+    .info-grid,.tier-grid{grid-template-columns:1fr;}
+    .foot-top{flex-direction:column;}
+  }
+  @media (max-width:560px){
+    .page-hero{padding:150px 0 70px;}
+    .post-body-section{padding:150px 0 90px;}
+  }
+</style>
+
+
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="index.html" class="logo">
+      <div class="mark">B</div>
+      <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
+    </a>
+    <nav class="links">
+      <a href="index.html">خانه</a>
+      <a href="tarahi-site.html">طراحی سایت</a>
+      <a href="tarahi-app.html">طراحی اپلیکیشن</a>
+      <a href="khadamat-computer.html">خدمات کامپیوتر</a>
+      <a href="blog.html" class="active">بلاگ</a>
+      <a href="index.html#contact">تماس</a>
+    </nav>
+    <a href="chat.html" class="nav-cta">چت با هوش مصنوعی</a>
+    <button class="burger" id="burger" aria-label="منو">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<div class="mobile-menu" id="mobileMenu">
+      <a href="index.html">خانه</a>
+      <a href="tarahi-site.html">طراحی سایت</a>
+      <a href="tarahi-app.html">طراحی اپلیکیشن</a>
+      <a href="khadamat-computer.html">خدمات کامپیوتر</a>
+      <a href="blog.html" class="active">بلاگ</a>
+      <a href="index.html#contact">تماس</a>
+</div>
+
+<section class="page-hero" style="padding:150px 0 50px">
+  <div class="grid-bg"></div>
+  <div class="glow" style="width:380px;height:380px;background:var(--violet);opacity:.10;top:-100px;right:-100px;"></div>
+  <div class="wrap">
+    <div class="eyebrow"><span class="pulse-dot"></span> BLOG / بایت‌لب</div>
+    <h1 class="page-title">یادداشت‌هایی درباره <em>وب و نرم‌افزار</em></h1>
+    <p class="page-sub">راهنما و نکات عملی درباره طراحی سایت، اپلیکیشن و نگهداری سیستم.</p>
+  </div>
+</section>
+
+<section class="blog-section">
+  <div class="wrap">
+    <div class="post-card reveal">
+      <span class="meta">طراحی سایت</span>
+      <h3><a href="hazine-tarahi-site.html">هزینه طراحی سایت چطور محاسبه می‌شود؟</a></h3>
+      <p>عوامل موثر بر قیمت طراحی سایت و اینکه چطور یک برآورد واقع‌بینانه بگیرید.</p>
+      <a href="hazine-tarahi-site.html" class="more">ادامه مطلب ←</a>
+    </div>
+    <div class="post-card reveal">
+      <span class="meta">طراحی اپلیکیشن</span>
+      <h3><a href="app-ekhtesasi.html">چه زمانی کسب‌وکار شما به اپلیکیشن اختصاصی نیاز دارد؟</a></h3>
+      <p>نشانه‌هایی که می‌گویند وقت ساخت اپلیکیشن اختصاصی رسیده.</p>
+      <a href="app-ekhtesasi.html" class="more">ادامه مطلب ←</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <div class="logo">
+          <div class="mark">B</div>
+          <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
+        </div>
+        <p class="foot-desc">طراحی اپلیکیشن، طراحی وب‌سایت و خدمات کامل کامپیوتر؛ از ایده تا اجرا.</p>
+        <div class="social-row">
+          <a href="https://instagram.com/ByteLab_Com" aria-label="اینستاگرام"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.7"/><circle cx="17.2" cy="6.8" r="1"/></svg></a>
+          <a href="https://t.me/ByteLab_Com" aria-label="تلگرام"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 4 3 11l6 2.5M21 4l-3.5 16-7.5-6.5M21 4l-11 7"/></svg></a>
+          <a href="https://wa.me/989388088657" aria-label="واتس‌اپ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21l1.5-4.5A8 8 0 1 1 8 19.5L3 21z"/></svg></a>
+        </div>
+      </div>
+      <div class="foot-links">
+        <div class="foot-col">
+          <h4>دسترسی سریع</h4>
+          <a href="index.html">خانه</a>
+          <a href="index.html#portfolio">نمونه‌کارها</a>
+          <a href="index.html#contact">تماس</a>
+        </div>
+        <div class="foot-col">
+          <h4>خدمات</h4>
+          <a href="tarahi-app.html">طراحی اپلیکیشن</a>
+          <a href="tarahi-site.html">طراحی سایت</a>
+          <a href="khadamat-computer.html">خدمات کامپیوتر</a>
+          <a href="blog.html">بلاگ</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© ۱۴۰۵ بایت‌لب. تمامی حقوق محفوظ است.</span>
+      <span class="mono" style="direction:ltr;">BYTE_LAB / DIGITAL SERVICES</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const burger = document.getElementById('burger');
+  const menu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', () => menu.classList.toggle('open'));
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.remove('open')));
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
+  }, {threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>
