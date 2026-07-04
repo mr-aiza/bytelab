@@ -430,7 +430,7 @@ async function callAI(userText){
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       system: fullSystem,
-      messages: [...history, { role: "user", content: userText }]
+      messages: [...history.slice(-10), { role: "user", content: userText }]
     })
   });
 
@@ -458,7 +458,7 @@ async function handleSend(text){
     history.push({ role: 'assistant', content: reply });
   }catch(err){
     typingEl.remove();
-    addMessage('❌ خطای واقعی (موقت برای دیباگ): ' + (err && err.message ? err.message : String(err)), 'bot');
+    addMessage('مشکلی در ارتباط پیش آمد. لطفاً دوباره تلاش کن.', 'bot');
   }
   sendBtn.disabled = false;
   inputEl.focus();
