@@ -31,7 +31,7 @@
   <a href="tarahi-app.html">طراحی اپلیکیشن</a>
   <a href="khadamat-computer.html">خدمات کامپیوتر</a>
   <a href="blog.html">بلاگ</a>
-  <a href="#contact">تماس</a>
+  <a href="index.html#contact">تماس</a>
   <a href="chat.html">چت با هوش مصنوعی</a>
 </div>
   `;
