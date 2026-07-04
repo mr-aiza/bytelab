@@ -539,12 +539,11 @@
 </footer>
 
 <script>
-  
+  <script src="header.js"></script>
   const obs = new IntersectionObserver((entries) => {
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
   }, {threshold:.15});
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 </script>
-
 </body>
 </html>
