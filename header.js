@@ -35,7 +35,7 @@
     header .logo-icon{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 0 10px rgba(77,240,201,.35));}
     nav.links{display:flex;gap:32px;font-size:15px;color:#7c8b9c;}
     nav.links a{color:inherit;text-decoration:none;}
-    nav.links a:hover{color:#4df0c9;}
+    nav.links a:hover, nav.links a.active{color:#4df0c9;}
     .nav-cta{
       display:inline-flex;align-items:center;gap:8px;
       background:#4df0c9;color:#06120f;font-weight:700;font-size:14px;
@@ -52,6 +52,7 @@
     }
     .mobile-menu.open{display:flex;}
     .mobile-menu a{color:#eaf0f4;font-size:16px;text-decoration:none;}
+    .mobile-menu a.active{color:#4df0c9;}
     @media (max-width:860px){
       nav.links, .nav-cta{display:none;}
       .burger{display:flex;}
@@ -61,6 +62,26 @@
   styleTag.textContent = headerCSS;
   document.head.appendChild(styleTag);
 
+  // --- تشخیص صفحه فعلی برای هایلایت‌کردن لینک فعال تو منو ---
+  const current = (location.pathname.split("/").pop() || "index.html");
+  const isActive = (names) => names.includes(current);
+
+  // --- لیست لینک‌های منو: منبع واحد برای دسکتاپ و موبایل ---
+  const NAV_LINKS = [
+    { href: "index.html", text: "خانه", match: ["index.html", ""] },
+    { href: "tarahi-site.html", text: "طراحی سایت", match: ["tarahi-site.html"] },
+    { href: "tarahi-app.html", text: "طراحی اپلیکیشن", match: ["tarahi-app.html"] },
+    { href: "khadamat-computer.html", text: "خدمات کامپیوتر", match: ["khadamat-computer.html"] },
+    { href: "blog.html", text: "بلاگ", match: ["blog.html", "hazine-tarahi-site.html", "app-ekhtesasi.html"] },
+    { href: "index.html#contact", text: "تماس", match: [] },
+    { href: "chat.html", text: "چت با هوش مصنوعی", match: ["chat.html"] }
+  ];
+
+  const linksHTML = NAV_LINKS.map(l => {
+    const cls = isActive(l.match) ? ' class="active"' : "";
+    return `<a href="${l.href}"${cls}>${l.text}</a>`;
+  }).join("\n  ");
+
   const headerHTML = `
 <header>
   <div class="wrap nav">
@@ -69,28 +90,16 @@
       <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
     </div>
     <nav class="links">
-  <a href="index.html">خانه</a>    
-  <a href="tarahi-site.html">طراحی سایت</a>
-  <a href="tarahi-app.html">طراحی اپلیکیشن</a>
-  <a href="khadamat-computer.html">خدمات کامپیوتر</a>
-  <a href="blog.html">بلاگ</a>
-  <a href="#contact">تماس</a>
-  <a href="chat.html">چت با هوش مصنوعی</a>
+  ${linksHTML}
     </nav>
-    <a href="#contact" class="nav-cta">شروع پروژه</a>
+    <a href="index.html#contact" class="nav-cta">شروع پروژه</a>
     <button class="burger" id="burger" aria-label="منو">
       <span></span><span></span><span></span>
     </button>
   </div>
 </header>
 <div class="mobile-menu" id="mobileMenu">
-  <a href="index.html">خانه</a>    
-  <a href="tarahi-site.html">طراحی سایت</a>
-  <a href="tarahi-app.html">طراحی اپلیکیشن</a>
-  <a href="khadamat-computer.html">خدمات کامپیوتر</a>
-  <a href="blog.html">بلاگ</a>
-  <a href="#contact">تماس</a>
-  <a href="chat.html">چت با هوش مصنوعی</a>
+  ${linksHTML}
 </div>
   `;
 
