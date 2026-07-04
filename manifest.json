@@ -1,0 +1,32 @@
+{
+  "name": "بایت‌لب | طراحی سایت، اپلیکیشن و خدمات کامپیوتر",
+  "short_name": "بایت‌لب",
+  "description": "طراحی سایت، طراحی اپلیکیشن اختصاصی و خدمات تخصصی کامپیوتر با مشاوره رایگان.",
+  "start_url": "index.html",
+  "scope": "/bytelab/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#070b12",
+  "theme_color": "#070b12",
+  "lang": "fa",
+  "dir": "rtl",
+  "icons": [
+    { "src": "favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "favicon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "favicon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "favicon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "favicon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "چت با هوش مصنوعی",
+      "url": "chat.html",
+      "description": "گفتگوی سریع با دستیار هوشمند بایت‌لب"
+    },
+    {
+      "name": "نمونه‌کارها",
+      "url": "portfolio.html",
+      "description": "مشاهده نمونه‌کارهای بایت‌لب"
+    }
+  ]
+}
