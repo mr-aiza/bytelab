@@ -316,6 +316,9 @@ async function callAI(userText){
   });
 
   const data = await response.json();
+  if(data.error){
+    return "خطای Worker: " + data.error;
+  }
   const textBlock = (data.content || []).find(b => b.type === 'text');
   return textBlock ? textBlock.text : 'متاسفانه پاسخی دریافت نشد، دوباره تلاش کن.';
 }
