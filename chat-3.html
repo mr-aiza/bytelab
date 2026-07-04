@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>چت هوش مصنوعی | بایت‌لب</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070b12;
+    --panel:#0f1620;
+    --panel-2:#141d2b;
+    --line:#1e2a38;
+    --cyan:#4df0c9;
+    --violet:#9c7bff;
+    --paper:#eaf0f4;
+    --muted:#7c8b9c;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;
+    line-height:1.7;
+    display:flex;
+    flex-direction:column;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.02em;}
+  a{color:inherit;text-decoration:none;}
+
+  header{
+    border-bottom:1px solid var(--line);
+    background:rgba(7,11,18,.85);
+    backdrop-filter:blur(14px);
+  }
+  .nav{max-width:900px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;}
+  .logo .mark{
+    width:32px;height:32px;border-radius:9px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;
+    box-shadow:0 0 24px rgba(77,240,201,.45);
+  }
+  .logo .tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);font-weight:400;letter-spacing:.08em;margin-right:2px;}
+  .back-link{font-size:13.5px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+  .back-link:hover{color:var(--cyan);}
+
+  .chat-wrap{
+    max-width:820px;width:100%;margin:0 auto;flex:1;
+    display:flex;flex-direction:column;padding:22px 20px 0;
+    min-height:0;
+  }
+  .chat-head{margin-bottom:16px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-weight:600;font-size:12.5px;color:var(--cyan);
+    border:1px solid var(--line);border-radius:999px;padding:6px 14px;margin-bottom:12px;
+    background:rgba(77,240,201,.05);
+  }
+  .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(77,240,201,.6);animation:pulse 1.8s infinite;}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(77,240,201,.55);}
+    70%{box-shadow:0 0 0 10px rgba(77,240,201,0);}
+    100%{box-shadow:0 0 0 0 rgba(77,240,201,0);}
+  }
+  .chat-title{font-size:22px;font-weight:800;}
+  .chat-sub{color:var(--muted);font-size:14px;margin-top:6px;}
+
+  .messages{
+    flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;
+    padding:6px 2px 20px;
+  }
+  .msg{max-width:82%;padding:13px 17px;border-radius:16px;font-size:15px;line-height:1.75;white-space:pre-wrap;}
+  .msg.bot{
+    align-self:flex-start;background:var(--panel);border:1px solid var(--line);
+    border-bottom-right-radius:4px;
+  }
+  .msg.user{
+    align-self:flex-end;
+    background:linear-gradient(135deg, rgba(77,240,201,.18), rgba(156,123,255,.18));
+    border:1px solid var(--line);
+    border-bottom-left-radius:4px;
+  }
+  .msg.typing{align-self:flex-start;color:var(--muted);font-size:14px;display:flex;align-items:center;gap:8px;}
+  .typing-dots span{
+    width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;margin:0 1px;
+    animation:blink 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2){animation-delay:.2s;}
+  .typing-dots span:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+
+  .suggestions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .chip{
+    font-size:12.5px;color:var(--paper);border:1px solid var(--line);border-radius:999px;
+    padding:8px 14px;cursor:pointer;background:var(--panel);transition:border-color .2s ease, color .2s ease;
+  }
+  .chip:hover{border-color:var(--cyan);color:var(--cyan);}
+
+  .composer{
+    border-top:1px solid var(--line);padding:16px 2px 22px;
+    display:flex;gap:10px;align-items:flex-end;
+    background:linear-gradient(180deg, transparent, var(--ink) 40%);
+  }
+  .composer textarea{
+    flex:1;resize:none;background:var(--panel);border:1px solid var(--line);
+    color:var(--paper);border-radius:14px;padding:13px 16px;font-family:'Vazirmatn',sans-serif;
+    font-size:15px;max-height:140px;outline:none;transition:border-color .2s ease;
+  }
+  .composer textarea:focus{border-color:var(--cyan);}
+  .send-btn{
+    background:var(--cyan);color:#06120f;font-weight:700;border:none;
+    width:46px;height:46px;border-radius:12px;cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 20px rgba(77,240,201,.3);transition:transform .15s ease;
+  }
+  .send-btn:hover{transform:translateY(-1px);}
+  .send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+  .disclaimer{text-align:center;font-size:11.5px;color:var(--muted);padding-bottom:14px;}
+
+  @media (max-width:560px){
+    .msg{max-width:90%;font-size:14px;}
+    .chat-title{font-size:19px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">
+      <div class="mark">B</div>
+      <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
+    </div>
+    <a href="index.html" class="back-link">بازگشت به سایت ←</a>
+  </div>
+</header>
+
+<div class="chat-wrap">
+  <div class="chat-head">
+    <div class="eyebrow"><span class="pulse-dot"></span> دستیار هوشمند بایت‌لب</div>
+    <div class="chat-title">هرچی می‌خوای بدونی، بپرس</div>
+    <div class="chat-sub">این دستیار درباره خدمات بایت‌لب جواب می‌ده و می‌تونه ساعت و آب‌وهوا رو هم بگه.</div>
+  </div>
+
+  <div class="messages" id="messages">
+    <div class="msg bot">سلام! من دستیار هوشمند بایت‌لب هستم 👋
+می‌تونم درباره خدمات، قیمت‌گذاری، روند کار و راه‌های تماس با بایت‌لب کمکتون کنم؛ یا اگه بخواید ساعت الان یا وضعیت آب‌وهوا رو هم بگم.</div>
+  </div>
+
+  <div class="suggestions" id="suggestions">
+    <div class="chip" data-q="خدمات بایت‌لب چیه؟">خدمات بایت‌لب چیه؟</div>
+    <div class="chip" data-q="روند کار شما چطوریه؟">روند کار چطوریه؟</div>
+    <div class="chip" data-q="چطور می‌تونم باهاتون تماس بگیرم؟">راه ارتباطی</div>
+    <div class="chip" data-q="ساعت الان چنده؟">ساعت الان چنده؟</div>
+    <div class="chip" data-q="هوا الان چطوره؟">هوا چطوره؟</div>
+  </div>
+
+  <div class="composer">
+    <textarea id="input" rows="1" placeholder="پیامتو بنویس..."></textarea>
+    <button class="send-btn" id="sendBtn" aria-label="ارسال">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06120f" stroke-width="2"><path d="M21 3 3 10.5l7 2.5 2 7L21 3Z"/></svg>
+    </button>
+  </div>
+  <div class="disclaimer">پاسخ‌ها فقط بر اساس اطلاعات سایت بایت‌لب و سؤالات عمومی مثل ساعت و آب‌وهوا هستند.</div>
+</div>
+
+<script>
+/* ===================== SYSTEM PROMPT (site content lives here) ===================== */
+const SYSTEM_PROMPT = `
+تو دستیار هوش مصنوعی سایت «بایت‌لب» هستی.
+
+قوانین:
+1) درباره بایت‌لب و خدماتش، فقط بر اساس اطلاعاتی که در بخش «اطلاعات زنده سایت» (که جدا برات فرستاده می‌شه) آمده جواب بده. چیزی که اونجا نیست رو درباره بایت‌لب اختراع نکن (مثل قیمت دقیق یا نام افراد تیم).
+2) سؤالات عمومی و بی‌خطر (مثل «پایتخت سوئد کجاست؟»، «فاصله زمین تا ماه چقدره؟»، سؤالات علمی، تاریخی، جغرافیایی و مانند این‌ها) رو هم آزادانه و از دانش عمومی خودت جواب بده.
+3) سؤالات درباره ساعت، تاریخ یا آب‌وهوا رو از بخش «اطلاعات زنده» که برات فرستاده می‌شه جواب بده، نه از حدس خودت.
+4) اگه سؤالی خطرناک، غیراخلاقی یا کاملاً نامرتبط با این موارد بود، مؤدبانه رد کن.
+5) پاسخ‌ها رو به زبان فارسی، کوتاه، دوستانه و روشن بنویس؛ از قالب لیست کوتاه استفاده کن وقتی جواب چند بخشی داره.
+`;
+/* ===================================================================================== */
+
+const messagesEl = document.getElementById('messages');
+const inputEl = document.getElementById('input');
+const sendBtn = document.getElementById('sendBtn');
+const suggestionsEl = document.getElementById('suggestions');
+
+let history = []; // {role, content}
+
+function addMessage(text, role){
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.textContent = text;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return div;
+}
+
+function addTyping(){
+  const div = document.createElement('div');
+  div.className = 'msg typing';
+  div.innerHTML = 'در حال نوشتن <span class="typing-dots"><span></span><span></span><span></span></span>';
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return div;
+}
+
+// ---- Live facts: current time (client-side, always accurate) ----
+function getLiveTimeFa(){
+  const now = new Date();
+  const time = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+  const date = now.toLocaleDateString('fa-IR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  return `ساعت دقیق الان: ${time} — تاریخ امروز: ${date}`;
+}
+
+// ---- Live facts: weather via Open-Meteo (no API key needed) ----
+async function getLiveWeatherFa(){
+  try{
+    const pos = await new Promise((resolve, reject) => {
+      if(!navigator.geolocation) return reject('no-geo');
+      navigator.geolocation.getCurrentPosition(
+        p => resolve(p.coords),
+        () => reject('denied'),
+        { timeout: 4000 }
+      );
+    });
+    const { latitude, longitude } = pos;
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m`);
+    const data = await res.json();
+    const c = data.current;
+    return `آب‌وهوای موقعیت فعلی کاربر: دمای ${c.temperature_2m}°C، رطوبت ${c.relative_humidity_2m}%، سرعت باد ${c.wind_speed_10m} km/h.`;
+  }catch(e){
+    // fallback: Tehran as default city if location not available
+    try{
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=35.6892&longitude=51.3890&current=temperature_2m,relative_humidity_2m,wind_speed_10m`);
+      const data = await res.json();
+      const c = data.current;
+      return `موقعیت کاربر در دسترس نبود؛ آب‌وهوای تهران به‌عنوان پیش‌فرض: دمای ${c.temperature_2m}°C، رطوبت ${c.relative_humidity_2m}%، سرعت باد ${c.wind_speed_10m} km/h.`;
+    }catch(e2){
+      return 'اطلاعات آب‌وهوا در حال حاضر در دسترس نیست.';
+    }
+  }
+}
+
+// آدرس Worker خودت را اینجا بگذار (بعد از مرحله ۳ راهنما به دستت می‌آید)
+// مثال: "https://bytelab-chat.your-subdomain.workers.dev"
+const API_ENDPOINT = "https://bytelab-worker.bytelab.workers.dev";
+
+async function callAI(userText){
+  const liveTime = getLiveTimeFa();
+  const needsWeather = /هوا|آب و هوا|آب‌وهوا|دما|هواشناسی/.test(userText);
+  const liveWeather = needsWeather ? await getLiveWeatherFa() : null;
+
+  const liveContext = `\n\n===== اطلاعات زنده (برای سؤالات عمومی) =====\n${liveTime}${liveWeather ? '\n' + liveWeather : ''}\n===== پایان اطلاعات زنده =====`;
+
+  const fullSystem = SYSTEM_PROMPT + liveContext;
+
+  // توجه: این آدرس باید به سرور پروکسی خودت اشاره کند (فایل server.js پیوست‌شده)
+  // چون کلید API نباید داخل کد سمت مرورگر باشد.
+  const response = await fetch(API_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      system: fullSystem,
+      messages: [...history, { role: "user", content: userText }]
+    })
+  });
+
+  const data = await response.json();
+  if(data.error){
+    return "خطای Worker: " + data.error;
+  }
+  const textBlock = (data.content || []).find(b => b.type === 'text');
+  return textBlock ? textBlock.text : 'متاسفانه پاسخی دریافت نشد، دوباره تلاش کن.';
+}
+
+async function handleSend(text){
+  if(!text || !text.trim()) return;
+  suggestionsEl.style.display = 'none';
+  addMessage(text, 'user');
+  history.push({ role: 'user', content: text });
+  inputEl.value = '';
+  sendBtn.disabled = true;
+
+  const typingEl = addTyping();
+  try{
+    const reply = await callAI(text);
+    typingEl.remove();
+    addMessage(reply, 'bot');
+    history.push({ role: 'assistant', content: reply });
+  }catch(err){
+    typingEl.remove();
+    addMessage('مشکلی در ارتباط پیش آمد. لطفاً دوباره تلاش کن.', 'bot');
+  }
+  sendBtn.disabled = false;
+  inputEl.focus();
+}
+
+sendBtn.addEventListener('click', () => handleSend(inputEl.value));
+inputEl.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    handleSend(inputEl.value);
+  }
+});
+inputEl.addEventListener('input', () => {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+});
+suggestionsEl.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => handleSend(chip.dataset.q));
+});
+</script>
+
+</body>
+</html>
