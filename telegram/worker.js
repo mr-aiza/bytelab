@@ -1,4 +1,4 @@
-// worker.js
+// worker.js 
 // این کد رو توی Cloudflare Workers (workers.cloudflare.com) به‌عنوان یه Worker جدید بذارید.
 // توکن بات و chat_id رو به‌صورت Secret تنظیم کنید (نه داخل کد!) — بخش پایین توضیح داره.
 
