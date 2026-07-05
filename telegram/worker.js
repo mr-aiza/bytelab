@@ -4,20 +4,19 @@
 
 export default {
   async fetch(request, env) {
-    // فقط درخواست‌های POST رو قبول کن
-    if (request.method !== "POST") {
-      return new Response("Method not allowed", { status: 405 });
-    }
-
-    // اجازه‌ی دسترسی از دامنه‌ی سایت خودتون (CORS)
     const corsHeaders = {
       "Access-Control-Allow-Origin": "https://mr-aiza.github.io",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
 
+    // درخواست پیش‌بررسی مرورگر (preflight) باید همیشه قبل از هر چک دیگه‌ای جواب داده بشه
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders });
+    }
+
+    if (request.method !== "POST") {
+      return new Response("Method not allowed", { status: 405, headers: corsHeaders });
     }
 
     try {
