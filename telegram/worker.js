@@ -29,6 +29,7 @@ export default {
           `📩 پیام جدید از فرم تماس\n\n` +
           `👤 نام: ${escapeHtml(data.name || "-")}\n` +
           `📞 شماره: ${escapeHtml(data.phone || "-")}\n` +
+          `🛠 خدمات: ${escapeHtml(data.service || "-")}\n` +
           `💬 پیام: ${escapeHtml(data.message || "-")}`;
       } else if (data.type === "profile") {
         text =
