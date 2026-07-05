@@ -1,7 +1,7 @@
 // sw.js — بایت‌لب PWA service worker
 // دیگه لازم نیست هر بار عدد ورژن رو دستی عوض کنی — فایل‌های استاتیک
 // خودشون در پس‌زمینه چک و به‌روز می‌شن (stale-while-revalidate).
-const CACHE_VERSION = 'bytelab-v3';
+const CACHE_VERSION = 'bytelab-v4';
 const CACHE_NAME = CACHE_VERSION;
 
 // صفحات و فایل‌های اصلی که از همون اول نصب کش می‌شن (App Shell)
