@@ -203,8 +203,10 @@
         const auth = getAuth(fbApp);
         onAuthStateChanged(auth, (user) => {
           if (user) {
+            const displayText = user.displayName || (user.email ? user.email.split("@")[0] : "پروفایل");
             document.querySelectorAll('a[href="profile/login.html"]').forEach(a => {
               a.href = "profile/profile.html";
+              a.textContent = "👤 " + displayText;
             });
           }
         });
