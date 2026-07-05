@@ -33,10 +33,35 @@
   document.head.appendChild(themeColor);
 
   // --- PWA: ثبت Service Worker برای نصب‌شدنی‌بودن و بارگذاری سریع‌تر ---
+  // + تشخیص خودکار نسخه‌ی جدید و فعال‌سازی بی‌درنگش (بدون نیاز به بستن کامل تب)
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("sw.js").catch(() => {
+      navigator.serviceWorker.register("sw.js").then((reg) => {
+        // هر بار صفحه لود شد، از سرور چک کن ببین نسخه جدیدتری از sw.js هست یا نه
+        reg.update();
+
+        // وقتی نسخه‌ی جدید نصب شد و منتظر فعال‌سازیه، بگو فوراً فعال بشه
+        reg.addEventListener("updatefound", () => {
+          const newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener("statechange", () => {
+              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                newWorker.postMessage("SKIP_WAITING");
+              }
+            });
+          }
+        });
+      }).catch(() => {
         // اگه ثبت نشد (مثلاً روی localhost بدون https)، بی‌سروصدا رد شو
+      });
+
+      // وقتی نسخه‌ی جدید کنترل صفحه رو به دست گرفت، یه بار صفحه رو رفرش کن
+      // تا کاربر همون لحظه محتوای تازه رو ببینه
+      let refreshed = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (refreshed) return;
+        refreshed = true;
+        window.location.reload();
       });
     });
   }
@@ -130,7 +155,7 @@
   ${linksHTML}
     </nav>
     <div class="header-actions">
-      <a href="Byte_Lab.apk" download class="nav-cta-app">دانلود اپلیکیشن</a>
+      <a href="Byte_Lab.apk" download class="nav-cta-app">⬇ دانلود اپ</a>
       <a href="index.html#contact" class="nav-cta">شروع پروژه</a>
     </div>
     <button class="burger" id="burger" aria-label="منو">
@@ -140,7 +165,7 @@
 </header>
 <div class="mobile-menu" id="mobileMenu">
   ${linksHTML}
-  <a href="Byte_Lab.apk" download class="app-download-link">دانلود اپلیکیشن</a>
+  <a href="Byte_Lab.apk" download class="app-download-link">⬇ دانلود اپلیکیشن</a>
 </div>
   `;
 
