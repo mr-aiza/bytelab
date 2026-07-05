@@ -68,7 +68,7 @@
 
   label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;}
   .field{margin-bottom:16px;}
-  input, textarea{
+  input, textarea, select{
     width:100%;
     background:var(--panel-2);
     border:1px solid var(--line);
@@ -80,8 +80,9 @@
     outline:none;
     transition:border-color .2s ease, box-shadow .2s ease;
   }
+  select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c8b9c' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 14px center;background-size:16px;}
   input::placeholder, textarea::placeholder{color:#4c5a6b;}
-  input:focus, textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(77,240,201,.15);}
+  input:focus, textarea:focus, select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(77,240,201,.15);}
   textarea{resize:vertical;min-height:100px;}
 
   .submit-btn{
@@ -145,6 +146,16 @@
       <input type="tel" id="phone" name="phone" placeholder="09xxxxxxxxx" dir="ltr" required>
     </div>
     <div class="field">
+      <label for="service">نوع خدمات مورد نیاز</label>
+      <select id="service" name="service" required>
+        <option value="" disabled selected>یکی رو انتخاب کن</option>
+        <option value="طراحی سایت">طراحی سایت</option>
+        <option value="طراحی اپلیکیشن">طراحی اپلیکیشن</option>
+        <option value="خدمات کامپیوتر">خدمات کامپیوتر</option>
+        <option value="سایر">سایر</option>
+      </select>
+    </div>
+    <div class="field">
       <label for="message">پیام شما</label>
       <textarea id="message" name="message" placeholder="در چه زمینه‌ای نیاز به مشاوره یا همکاری داری؟" required></textarea>
     </div>
@@ -174,9 +185,10 @@
 
     const name = document.getElementById("name").value.trim();
     const phone = document.getElementById("phone").value.trim();
+    const service = document.getElementById("service").value;
     const message = document.getElementById("message").value.trim();
 
-    if (!name || !phone || !message) return;
+    if (!name || !phone || !service || !message) return;
 
     btn.disabled = true;
     btn.textContent = "در حال ارسال...";
@@ -190,6 +202,7 @@
           type: "contact",
           name: name,
           phone: phone,
+          service: service,
           message: message
         })
       });
