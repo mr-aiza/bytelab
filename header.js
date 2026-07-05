@@ -185,5 +185,30 @@
         a.addEventListener('click', () => menu.classList.remove('open'))
       );
     }
+
+    // --- چک وضعیت لاگین کاربر تا دکمه «ورود / پروفایل» هوشمند بشه ---
+    // اگه کاربر از قبل لاگین بود، به‌جای صفحه ورود، مستقیم بره صفحه پروفایل
+    import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js").then(({ initializeApp }) => {
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js").then(({ getAuth, onAuthStateChanged }) => {
+        const firebaseConfig = {
+          apiKey: "AIzaSyC4H9JHfDNCFiNWSx9JXA-L2MzleiQvzQI",
+          authDomain: "bytelab-bot-7a303.firebaseapp.com",
+          projectId: "bytelab-bot-7a303",
+          storageBucket: "bytelab-bot-7a303.firebasestorage.app",
+          messagingSenderId: "350774453186",
+          appId: "1:350774453186:web:15d2c832986804812c6c5b",
+          measurementId: "G-76F34JK2RY"
+        };
+        const fbApp = initializeApp(firebaseConfig);
+        const auth = getAuth(fbApp);
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            document.querySelectorAll('a[href="profile/login.html"]').forEach(a => {
+              a.href = "profile/profile.html";
+            });
+          }
+        });
+      });
+    }).catch(() => { /* اگه فایربیس لود نشد، دکمه همون لینک پیش‌فرض ورود رو نگه می‌داره */ });
   });
 })();
