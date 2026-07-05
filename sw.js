@@ -1,7 +1,7 @@
 // sw.js — بایت‌لب PWA service worker
 // نسخه کش رو هر بار که محتوای صفحات رو عوض کردی عوض کن (مثلاً v2, v3, ...)
 // این کار باعث می‌شه کاربرها نسخه‌ی جدید رو به‌جای کش قدیمی بگیرن.
-const CACHE_VERSION = 'bytelab-v1';
+const CACHE_VERSION = 'bytelab-v2';
 const CACHE_NAME = CACHE_VERSION;
 
 // صفحات و فایل‌های اصلی که از همون اول نصب کش می‌شن (App Shell)
