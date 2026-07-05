@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>کافه و رستوران اِمبر | منوی دیجیتال</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-950:#07090d;
+    --ink-900:#0b0e15;
+    --ink-800:#11141d;
+    --ink-700:#171b26;
+    --ink-600:#232838;
+    --line:rgba(255,255,255,.08);
+    --cyan:#2fd8e8;
+    --violet:#9b7bf0;
+    --ember:#f0a94e;
+    --ember-2:#ff6b4a;
+    --text-1:#f2f0ea;
+    --text-2:#a6acbd;
+    --text-3:#6b7185;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink-950);
+    color:var(--text-1);
+    font-family:'Vazirmatn',sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--ember);color:#0b0e15;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* subtle grain + glow backdrop */
+  .backdrop{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(700px 500px at 15% -10%, rgba(155,123,240,.18), transparent 60%),
+      radial-gradient(600px 480px at 100% 10%, rgba(47,216,232,.14), transparent 60%),
+      radial-gradient(900px 700px at 50% 120%, rgba(240,169,78,.10), transparent 60%);
+  }
+
+  /* ===== NAV ===== */
+  header{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(16px) saturate(140%);
+    background:rgba(7,9,13,.72);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-top{
+    max-width:1180px;margin:0 auto;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 24px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:36px;height:36px;border-radius:10px;
+    background:linear-gradient(135deg,var(--ember),var(--ember-2));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-weight:700;color:#0b0e15;font-size:15px;
+    box-shadow:0 0 22px rgba(240,169,78,.45);
+  }
+  .brand-name{font-weight:800;font-size:18px;letter-spacing:.2px;}
+  .brand-name span{color:var(--ember);}
+  .brand-sub{font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace;letter-spacing:.06em;}
+
+  .tabs-wrap{
+    max-width:1180px;margin:0 auto;padding:0 24px 14px;
+    overflow-x:auto;scrollbar-width:none;
+  }
+  .tabs-wrap::-webkit-scrollbar{display:none;}
+  .tabs{display:flex;gap:6px;position:relative;width:max-content;}
+  .tab{
+    position:relative;z-index:2;
+    padding:9px 18px;border-radius:999px;
+    font-size:13.5px;font-weight:600;color:var(--text-2);
+    white-space:nowrap;cursor:pointer;
+    transition:color .35s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .tab.active{color:#0b0e15;}
+  .tab-pill{
+    position:absolute;z-index:1;top:0;height:100%;border-radius:999px;
+    background:linear-gradient(120deg,var(--ember),var(--ember-2));
+    transition:transform .45s cubic-bezier(.65,0,.35,1), width .45s cubic-bezier(.65,0,.35,1);
+    box-shadow:0 0 20px rgba(240,169,78,.35);
+  }
+
+  /* ===== HERO ===== */
+  .hero{
+    position:relative;z-index:1;
+    max-width:1180px;margin:0 auto;
+    padding:64px 24px 40px;
+    display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--cyan);
+    letter-spacing:.12em;margin-bottom:18px;
+    opacity:0;animation:riseIn .7s .1s ease forwards;
+  }
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);}
+  .hero h1{
+    font-size:clamp(32px,5vw,54px);font-weight:800;line-height:1.22;
+    opacity:0;animation:riseIn .7s .22s ease forwards;
+  }
+  .hero h1 em{
+    font-style:normal;
+    background:linear-gradient(120deg,var(--ember),var(--ember-2) 60%,var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p{
+    margin-top:18px;color:var(--text-2);font-size:15.5px;line-height:2;max-width:46ch;
+    opacity:0;animation:riseIn .7s .34s ease forwards;
+  }
+  .hero-stats{
+    display:flex;gap:28px;margin-top:30px;
+    opacity:0;animation:riseIn .7s .46s ease forwards;
+  }
+  .stat b{display:block;font-family:'JetBrains Mono',monospace;font-size:22px;color:var(--text-1);}
+  .stat span{font-size:11.5px;color:var(--text-3);}
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+  /* signature: ember cup with rising steam */
+  .cup-stage{
+    position:relative;height:340px;display:flex;align-items:flex-end;justify-content:center;
+  }
+  .cup-glow{
+    position:absolute;bottom:40px;width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle,rgba(240,169,78,.35),transparent 70%);
+    filter:blur(6px);
+    animation:pulseGlow 4s ease-in-out infinite;
+  }
+  @keyframes pulseGlow{0%,100%{opacity:.55;transform:scale(1);}50%{opacity:.9;transform:scale(1.08);}}
+  .cup-svg{position:relative;z-index:2;width:180px;height:auto;filter:drop-shadow(0 10px 30px rgba(240,169,78,.25));}
+  .steam{position:absolute;bottom:190px;z-index:1;width:6px;border-radius:6px;
+    background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.35));
+    filter:blur(2px);
+    animation:steamRise 3.2s ease-in infinite;
+  }
+  .steam:nth-child(2){right:78px;height:70px;animation-delay:0s;}
+  .steam:nth-child(3){right:95px;height:90px;animation-delay:.9s;}
+  .steam:nth-child(4){right:63px;height:60px;animation-delay:1.7s;}
+  @keyframes steamRise{
+    0%{transform:translateY(0) scaleX(1);opacity:0;}
+    15%{opacity:.6;}
+    100%{transform:translateY(-90px) scaleX(1.8);opacity:0;}
+  }
+
+  /* ===== SECTION LABEL ===== */
+  .section-label{
+    max-width:1180px;margin:0 auto;padding:0 24px;
+    display:flex;align-items:baseline;justify-content:space-between;
+    margin-bottom:22px;
+  }
+  .section-label h2{font-size:22px;font-weight:800;}
+  .section-label span{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-3);}
+
+  /* ===== MENU GRID ===== */
+  main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:10px 24px 100px;}
+  .menu-panel{display:none;}
+  .menu-panel.show{display:block;animation:panelIn .5s ease;}
+  @keyframes panelIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .grid{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:16px;
+  }
+  .item{
+    position:relative;
+    background:linear-gradient(160deg,var(--ink-800),var(--ink-700));
+    border:1px solid var(--line);border-radius:16px;
+    padding:20px;overflow:hidden;
+    opacity:0;transform:translateY(18px);
+    transition:transform .45s cubic-bezier(.2,.7,.3,1), box-shadow .35s ease, border-color .35s ease;
+  }
+  .item.in-view{animation:cardIn .6s cubic-bezier(.2,.7,.3,1) forwards;}
+  @keyframes cardIn{to{opacity:1;transform:translateY(0);}}
+  .item::before{
+    content:'';position:absolute;inset:0;border-radius:16px;padding:1px;
+    background:linear-gradient(135deg,rgba(240,169,78,0),rgba(240,169,78,0));
+    transition:background .4s ease;pointer-events:none;
+  }
+  .item:hover{transform:translateY(-4px);border-color:rgba(240,169,78,.35);
+    box-shadow:0 16px 40px -20px rgba(240,169,78,.35);}
+  .item-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .item-name{font-size:16.5px;font-weight:700;}
+  .item-tag{
+    display:inline-block;margin-top:6px;font-size:10.5px;color:var(--violet);
+    font-family:'JetBrains Mono',monospace;letter-spacing:.05em;
+  }
+  .item-desc{margin-top:10px;font-size:13px;color:var(--text-2);line-height:1.9;}
+  .item-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:16px;}
+  .price{
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:17px;
+    color:var(--ember);display:flex;align-items:baseline;gap:4px;
+  }
+  .price small{font-size:10.5px;color:var(--text-3);font-weight:500;}
+  .badge{
+    font-size:10px;padding:3px 9px;border-radius:999px;
+    background:rgba(47,216,232,.12);color:var(--cyan);border:1px solid rgba(47,216,232,.25);
+    font-family:'JetBrains Mono',monospace;
+  }
+  .badge.spicy{background:rgba(255,107,74,.14);color:var(--ember-2);border-color:rgba(255,107,74,.3);}
+  .badge.new{background:rgba(155,123,240,.14);color:var(--violet);border-color:rgba(155,123,240,.3);}
+
+  footer{
+    position:relative;z-index:1;border-top:1px solid var(--line);
+    padding:34px 24px;text-align:center;color:var(--text-3);font-size:12.5px;
+  }
+  footer b{color:var(--text-2);}
+
+  @media (max-width:860px){
+    .hero{grid-template-columns:1fr;padding-top:36px;}
+    .cup-stage{order:-1;height:220px;}
+    .cup-svg{width:130px;}
+    .grid{grid-template-columns:1fr;}
+    .hero-stats{gap:20px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="backdrop"></div>
+
+<header>
+  <div class="nav-top">
+    <div class="brand">
+      <div class="brand-mark mono">E</div>
+      <div>
+        <div class="brand-name">کافه <span>اِمبر</span></div>
+        <div class="brand-sub">EMBER · SINCE 2024</div>
+      </div>
+    </div>
+    <div class="brand-sub mono" style="display:flex;align-items:center;gap:6px;">
+      <span style="width:7px;height:7px;border-radius:50%;background:#3ee06b;box-shadow:0 0 8px #3ee06b;display:inline-block;"></span>
+      امروز باز است · ۹ صبح تا ۱۲ شب
+    </div>
+  </div>
+  <div class="tabs-wrap">
+    <div class="tabs" id="tabs"></div>
+  </div>
+</header>
+
+<section class="hero">
+  <div>
+    <div class="eyebrow">MENU · DEMO PROJECT</div>
+    <h1>طعمی که <em>می‌درخشد</em><br>در دل شب.</h1>
+    <p>یک نمونه‌کار از منوی دیجیتال کافه و رستوران؛ طراحی‌شده برای نمایش سرعت، ریسپانسیو بودن و انیمیشن‌های ظریف روی محتوای واقعیِ یک منو — از صبحانه تا دسر.</p>
+    <div class="hero-stats">
+      <div class="stat"><b class="mono">۵</b><span>دسته‌بندی</span></div>
+      <div class="stat"><b class="mono">۲۴</b><span>آیتم منو</span></div>
+      <div class="stat"><b class="mono">۱۰۰٪</b><span>ریسپانسیو</span></div>
+    </div>
+  </div>
+  <div class="cup-stage">
+    <div class="cup-glow"></div>
+    <div class="steam"></div><div class="steam"></div><div class="steam"></div>
+    <svg class="cup-svg" viewBox="0 0 200 180" fill="none">
+      <path d="M40 60 H150 V115 C150 140 130 158 105 158 H85 C60 158 40 140 40 115 Z" fill="#171b26" stroke="#f0a94e" stroke-width="2.5"/>
+      <path d="M150 75 C175 75 178 105 152 108" stroke="#f0a94e" stroke-width="6" stroke-linecap="round" fill="none"/>
+      <ellipse cx="95" cy="60" rx="55" ry="9" fill="#0b0e15" stroke="#ff6b4a" stroke-width="2.5"/>
+      <ellipse cx="95" cy="58" rx="46" ry="6" fill="#f0a94e" opacity=".85"/>
+    </svg>
+  </div>
+</section>
+
+<main>
+  <div class="section-label">
+    <h2>منوی امروز</h2>
+    <span class="mono" id="countLabel">۰۶ آیتم</span>
+  </div>
+  <div id="panels"></div>
+</main>
+
+<footer>
+  <b>کافه و رستوران اِمبر</b> — این یک نمونه‌کار طراحی از تیم بایت‌لب است، صرفاً جهت نمایش قابلیت‌های فنی و بصری.
+</footer>
+
+<script>
+const DATA = {
+  "صبحانه": {
+    icon:"☀︎",
+    items:[
+      {name:"صبحانه دیرهنگام امبر", tag:"تخم‌مرغ · نان تست · آووکادو", desc:"تخم‌مرغ آب‌پز نرم، آووکادوی له‌شده با لیمو و فلفل، سرو با نان تست چوبی.", price:"۱۸۵", badge:{t:"محبوب",c:""}},
+      {name:"املت پنیر و گردو", tag:"سه تخم‌مرغ · پنیر محلی", desc:"املت پفی با پنیر لیقوان و گردوی خردشده، همراه گوجه‌ی کبابی.", price:"۱۴۵"},
+      {name:"پنکیک عسل و توت", tag:"سه لایه · شربت افرا", desc:"پنکیک نرم لایه‌لایه با کره‌ی ذوب‌شده، توت‌فرنگی تازه و شربت افرا.", price:"۱۶۰", badge:{t:"جدید",c:"new"}},
+      {name:"نان و پنیر و سبزی", tag:"سنتی · سرو خانوادگی", desc:"سبد نان بربری تازه، پنیر خامه‌ای، سبزی معطر و مربای گردو.", price:"۱۲۰"},
+    ]
+  },
+  "نوشیدنی گرم": {
+    icon:"☕",
+    items:[
+      {name:"اسپرسو امبر", tag:"سینگل اوریجین", desc:"شات اسپرسوی غلیظ با کرمای گلدنِ متراکم و رایحه‌ی کارامل.", price:"۹۵"},
+      {name:"لاته وانیل ذغالی", tag:"شیر بخارداده", desc:"لاته با شیره‌ی وانیل خانگی، فوم مخملی و پودر دارچین.", price:"۱۳۵", badge:{t:"امضای کافه",c:"new"}},
+      {name:"موکای عسل‌سوخته", tag:"شکلات تلخ ۷۰٪", desc:"ترکیب شکلات تلخ و اسپرسو با لایه‌ای از عسل کاراملیزه‌شده.", price:"۱۵۰"},
+      {name:"دمنوش زعفران و هل", tag:"گیاهی · بدون کافئین", desc:"دمنوش گرم زعفران، هل و عسل کوهی؛ آرام‌بخش شب‌های سرد.", price:"۱۱۰"},
+    ]
+  },
+  "نوشیدنی سرد": {
+    icon:"❄︎",
+    items:[
+      {name:"آیس‌لاته امبر گلیز", tag:"دو شات اسپرسو", desc:"اسپرسوی سرد روی یخ با شیره‌ی کارامل نمکی و شیر یخ‌زده.", price:"۱۴۰"},
+      {name:"موهیتوی هلو و نعنا", tag:"بدون الکل", desc:"هلوی تازه، نعنای خرد شده، لیموی تازه و سودای گازدار.", price:"۱۲۵"},
+      {name:"اسموتی انبه و پشن‌فروت", tag:"میوه‌ی تازه", desc:"اسموتی خامه‌ای با انبه، پشن‌فروت و ماست یونانی.", price:"۱۵۵", badge:{t:"جدید",c:"new"}},
+      {name:"لیموناد زنجبیلی تند", tag:"تند و ترش", desc:"لیموی تازه، زنجبیل تند و کمی فلفل قرمز برای طعمی متفاوت.", price:"۱۰۵", badge:{t:"تند",c:"spicy"}},
+    ]
+  },
+  "غذای اصلی": {
+    icon:"◈",
+    items:[
+      {name:"ریزوتوی قارچ و ترافل", tag:"برنج آربوریو", desc:"ریزوتوی خامه‌ای با قارچ ساتوته‌شده و روغن ترافل سیاه.", price:"۳۹۰"},
+      {name:"استیک مرغ چیلی سوی", tag:"تند · سرو با سبزیجات", desc:"سینه‌ی مرغ گریل‌شده با سس چیلی سوی و سبزیجات بخارپز.", price:"۳۲۰", badge:{t:"تند",c:"spicy"}},
+      {name:"پاستا آلفردوی دودی", tag:"پنیر پارمسان", desc:"پاستای فتوچینی با سس آلفردوی دودی و پنیر پارمسان رنده‌شده.", price:"۲۹۵"},
+      {name:"برگر امبر کلاسیک", tag:"گوشت گوساله · چدار", desc:"برگر آبدار با پنیر چدار ذوب‌شده، سس مخصوص و سیب‌زمینی سرخ‌کرده.", price:"۲۷۰", badge:{t:"محبوب",c:""}},
+      {name:"خوراک میگو سیر و لیمو", tag:"دریایی", desc:"میگوی تفت‌داده با سیر، کره و لیمو، سرو با نان تست شده.", price:"۳۴۰"},
+    ]
+  },
+  "دسر": {
+    icon:"✦",
+    items:[
+      {name:"چیزکیک عسل‌سوخته", tag:"سرو سرد", desc:"چیزکیک نیویورکی با لایه‌ی عسل کاراملیزه‌ی ترد روی آن.", price:"۱۷۵"},
+      {name:"براونی گرم و بستنی", tag:"شکلات تلخ", desc:"براونی داغ با مغز شکلاتی مذاب، همراه یک اسکوپ بستنی وانیل.", price:"۱۹۰", badge:{t:"محبوب",c:""}},
+      {name:"تیرامیسوی امبر", tag:"قهوه و ماسکارپونه", desc:"تیرامیسوی کلاسیک ایتالیایی با لایه‌ای از اسپرسوی تازه.", price:"۱۸۵"},
+      {name:"بستنی زعفرانی خانگی", tag:"با نبات و پسته", desc:"بستنی سنتی زعفرانی با تکه‌های نبات و پسته‌ی خردشده.", price:"۱۴۵"},
+      {name:"موس شکلات و پرتقال", tag:"تلخ و مرکباتی", desc:"موس شکلات تلخ با رگه‌ای از پوست پرتقال کارامل‌شده.", price:"۱۶۵", badge:{t:"جدید",c:"new"}},
+    ]
+  }
+};
+
+const tabsEl = document.getElementById('tabs');
+const panelsEl = document.getElementById('panels');
+const countLabel = document.getElementById('countLabel');
+const toFa = n => n.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+const cats = Object.keys(DATA);
+let active = 0;
+
+// build tabs
+const pill = document.createElement('div');
+pill.className = 'tab-pill';
+tabsEl.appendChild(pill);
+
+cats.forEach((cat, i) => {
+  const t = document.createElement('div');
+  t.className = 'tab' + (i === 0 ? ' active' : '');
+  t.textContent = `${DATA[cat].icon} ${cat}`;
+  t.addEventListener('click', () => selectTab(i));
+  tabsEl.appendChild(t);
+});
+
+// build panels
+cats.forEach((cat, i) => {
+  const panel = document.createElement('div');
+  panel.className = 'menu-panel' + (i === 0 ? ' show' : '');
+  panel.dataset.index = i;
+  const grid = document.createElement('div');
+  grid.className = 'grid';
+  DATA[cat].items.forEach(it => {
+    const card = document.createElement('div');
+    card.className = 'item';
+    card.innerHTML = `
+      <div class="item-top">
+        <div>
+          <div class="item-name">${it.name}</div>
+          <div class="item-tag">${it.tag}</div>
+        </div>
+        ${it.badge ? `<span class="badge ${it.badge.c}">${it.badge.t}</span>` : ''}
+      </div>
+      <div class="item-desc">${it.desc}</div>
+      <div class="item-bottom">
+        <span class="price mono">${toFa(it.price)}<small>هزار تومان</small></span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+  panel.appendChild(grid);
+  panelsEl.appendChild(panel);
+});
+
+function selectTab(i){
+  active = i;
+  [...tabsEl.querySelectorAll('.tab')].forEach((t, idx) => t.classList.toggle('active', idx === i));
+  [...panelsEl.children].forEach((p, idx) => p.classList.toggle('show', idx === i));
+  positionPillRTL();
+  countLabel.textContent = toFa(String(DATA[cats[i]].items.length).padStart(2,'0')) + ' آیتم';
+  observeCards();
+  tabsEl.children[i+1]?.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+}
+
+// direction-aware pill positioning (measures actual rendered position, safe for RTL)
+function positionPillRTL(){
+  const tabs = [...tabsEl.querySelectorAll('.tab')];
+  const el = tabs[active];
+  const wrapRect = tabsEl.getBoundingClientRect();
+  const elRect = el.getBoundingClientRect();
+  pill.style.width = elRect.width + 'px';
+  pill.style.transform = `translateX(${elRect.left - wrapRect.left}px)`;
+}
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in-view'); });
+}, {threshold:.15});
+
+function observeCards(){
+  document.querySelectorAll('.menu-panel.show .item').forEach(el => io.observe(el));
+}
+
+window.addEventListener('resize', positionPillRTL);
+window.addEventListener('load', () => { positionPillRTL(); observeCards(); });
+setTimeout(positionPillRTL, 60);
+</script>
+
+</body>
+</html>
