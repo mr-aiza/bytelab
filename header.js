@@ -57,6 +57,7 @@
     nav.links{display:flex;gap:32px;font-size:15px;color:#7c8b9c;}
     nav.links a{color:inherit;text-decoration:none;}
     nav.links a:hover, nav.links a.active{color:#4df0c9;}
+    .header-actions{display:flex;align-items:center;gap:12px;}
     .nav-cta{
       display:inline-flex;align-items:center;gap:8px;
       background:#4df0c9;color:#06120f;font-weight:700;font-size:14px;
@@ -65,6 +66,14 @@
       transition:transform .2s ease, box-shadow .2s ease;
     }
     .nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(77,240,201,.55);}
+    .nav-cta-app{
+      display:inline-flex;align-items:center;gap:8px;
+      background:transparent;color:#9c7bff;font-weight:700;font-size:14px;
+      padding:10px 20px;border-radius:999px;text-decoration:none;
+      border:1px solid #9c7bff;
+      transition:transform .2s ease, background .2s ease;
+    }
+    .nav-cta-app:hover{transform:translateY(-1px);background:rgba(156,123,255,.12);}
     .burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;}
     .burger span{width:22px;height:2px;background:#eaf0f4;border-radius:2px;}
     .mobile-menu{
@@ -74,8 +83,9 @@
     .mobile-menu.open{display:flex;}
     .mobile-menu a{color:#eaf0f4;font-size:16px;text-decoration:none;}
     .mobile-menu a.active{color:#4df0c9;}
+    .mobile-menu a.app-download-link{color:#9c7bff;}
     @media (max-width:860px){
-      nav.links, .nav-cta{display:none;}
+      nav.links, .header-actions{display:none;}
       .burger{display:flex;}
     }
   `;
@@ -113,7 +123,10 @@
     <nav class="links">
   ${linksHTML}
     </nav>
-    <a href="index.html#contact" class="nav-cta">شروع پروژه</a>
+    <div class="header-actions">
+      <a href="Byte_Lab.apk" download class="nav-cta-app">⬇ دانلود اپ</a>
+      <a href="index.html#contact" class="nav-cta">شروع پروژه</a>
+    </div>
     <button class="burger" id="burger" aria-label="منو">
       <span></span><span></span><span></span>
     </button>
@@ -121,6 +134,7 @@
 </header>
 <div class="mobile-menu" id="mobileMenu">
   ${linksHTML}
+  <a href="Byte_Lab.apk" download class="app-download-link">⬇ دانلود اپلیکیشن</a>
 </div>
   `;
 
