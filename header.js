@@ -134,7 +134,7 @@
     { href: "tarahi-app.html", text: "طراحی اپلیکیشن", match: ["tarahi-app.html"] },
     { href: "khadamat-computer.html", text: "خدمات کامپیوتر", match: ["khadamat-computer.html"] },
     { href: "blog.html", text: "بلاگ", match: ["blog.html", "hazine-tarahi-site.html", "app-ekhtesasi.html"] },
-    { href: "bytelab/telegram/contact.html", text: "تماس", match: ["contact.html"] },
+    { href: "telegram/contact.html", text: "تماس", match: ["contact.html"] },
     { href: "chat.html", text: "چت با هوش مصنوعی", match: ["chat.html"] }
   ];
 
