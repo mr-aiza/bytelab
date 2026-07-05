@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -8,8 +7,7 @@
   <meta name="description" content="گفتگوی رایگان با هوش مصنوعی بایت‌لب برای مشاوره سریع درباره طراحی سایت، اپلیکیشن و خدمات کامپیوتر.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#070b12;
@@ -171,48 +169,13 @@
     .msg{max-width:90%;font-size:14px;}
     .chat-title{font-size:19px;}
   }
-
-  #authLoading{
-    display:flex;align-items:center;justify-content:center;
-    min-height:60vh;color:var(--muted);font-size:14px;
-  }
-  #authGate{
-    display:none;
-    max-width:420px;margin:60px auto;padding:36px 28px;
-    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);
-  }
-  #authGate .lock-icon{
-    width:56px;height:56px;border-radius:50%;margin:0 auto 18px;
-    background:linear-gradient(135deg,var(--cyan),var(--violet));
-    display:flex;align-items:center;justify-content:center;font-size:24px;
-    box-shadow:0 0 30px rgba(77,240,201,.35);
-  }
-  #authGate h2{font-size:18px;font-weight:800;margin-bottom:8px;}
-  #authGate p{color:var(--muted);font-size:14px;margin-bottom:22px;}
-  #authGate a.login-cta{
-    display:inline-flex;align-items:center;justify-content:center;
-    background:linear-gradient(135deg,var(--cyan),var(--violet));color:var(--ink);
-    font-weight:800;font-size:14px;padding:13px 28px;border-radius:12px;
-    text-decoration:none;box-shadow:0 0 24px rgba(77,240,201,.25);
-  }
 </style>
 </head>
 <body>
 
 
   <div id="siteHeaderPlaceholder"></div>
-
-  <div id="authLoading">در حال بررسی حساب کاربری...</div>
-
-  <div id="authGate">
-    <div class="lock-icon">🔒</div>
-    <h2 id="authGateTitle">برای استفاده از دستیار هوشمند وارد شوید</h2>
-    <p id="authGateText">چت با هوش مصنوعی بایت‌لب فقط برای کاربرانی که حساب کاربری دارن فعاله.</p>
-    <a href="profile/login.html" class="login-cta" id="authGateBtn">ورود / ثبت‌نام</a>
-  </div>
-
-  <div class="chat-wrap" id="chatWrap" style="display:none;">
+<div class="chat-wrap">
   <div class="chat-head">
     <div class="eyebrow"><span class="pulse-dot"></span> دستیار هوشمند بایت‌لب</div>
     <div class="chat-title">هرچی می‌خوای بدونی، بپرس</div>
@@ -486,47 +449,5 @@ suggestionsEl.querySelectorAll('.chip').forEach(chip => {
 });
 </script>
 <script src="header.js"></script>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyC4H9JHfDNCFiNWSx9JXA-L2MzleiQvzQI",
-    authDomain: "bytelab-bot-7a303.firebaseapp.com",
-    projectId: "bytelab-bot-7a303",
-    storageBucket: "bytelab-bot-7a303.firebasestorage.app",
-    messagingSenderId: "350774453186",
-    appId: "1:350774453186:web:15d2c832986804812c6c5b",
-    measurementId: "G-76F34JK2RY"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  let resolved = false;
-
-  // اگه بعد از ۶ ثانیه هنوز جوابی از فایربیس نیومد (معمولاً به‌خاطر نیاز به VPN)
-  const timeoutId = setTimeout(() => {
-    if (resolved) return;
-    document.getElementById("authLoading").style.display = "none";
-    document.getElementById("authGateTitle").textContent = "اتصال برقرار نشد";
-    document.getElementById("authGateText").textContent = "برای بررسی حساب کاربری و استفاده از دستیار هوشمند، لطفاً VPN خودتون رو روشن کنید و صفحه رو دوباره بارگذاری کنید.";
-    document.getElementById("authGateBtn").textContent = "تلاش دوباره";
-    document.getElementById("authGateBtn").href = "javascript:location.reload()";
-    document.getElementById("authGate").style.display = "";
-  }, 6000);
-
-  onAuthStateChanged(auth, (user) => {
-    resolved = true;
-    clearTimeout(timeoutId);
-    document.getElementById("authLoading").style.display = "none";
-    if (user) {
-      document.getElementById("chatWrap").style.display = "";
-    } else {
-      document.getElementById("authGate").style.display = "";
-    }
-  });
-</script>
 </body>
 </html>
