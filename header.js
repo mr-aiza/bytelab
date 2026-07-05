@@ -130,7 +130,7 @@
   ${linksHTML}
     </nav>
     <div class="header-actions">
-      <a href="Byte_Lab.apk" download class="nav-cta-app">⬇ دانلود اپ</a>
+      <a href="Byte_Lab.apk" download class="nav-cta-app">دانلود اپلیکیشن</a>
       <a href="index.html#contact" class="nav-cta">شروع پروژه</a>
     </div>
     <button class="burger" id="burger" aria-label="منو">
@@ -140,7 +140,7 @@
 </header>
 <div class="mobile-menu" id="mobileMenu">
   ${linksHTML}
-  <a href="Byte_Lab.apk" download class="app-download-link">⬇ دانلود اپلیکیشن</a>
+  <a href="Byte_Lab.apk" download class="app-download-link">دانلود اپلیکیشن</a>
 </div>
   `;
 
