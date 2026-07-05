@@ -48,6 +48,23 @@
   .info-row span:first-child{color:var(--muted);}
   .info-row span:last-child{font-family:'JetBrains Mono',monospace;direction:ltr;word-break:break-all;text-align:left;}
 
+  .username-field{margin-bottom:16px;text-align:right;}
+  .username-field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;}
+  .username-row{display:flex;gap:8px;}
+  .username-row input{
+    flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;
+    padding:11px 13px;color:var(--paper);font-family:'Vazirmatn',sans-serif;font-size:14px;outline:none;
+  }
+  .username-row input:focus{border-color:var(--cyan);}
+  .save-btn{
+    background:linear-gradient(135deg,var(--cyan),var(--violet));color:var(--ink);
+    font-weight:800;font-size:13px;padding:0 16px;border:none;border-radius:10px;cursor:pointer;
+  }
+  .save-btn:disabled{opacity:.5;cursor:not-allowed;}
+  .username-status{font-size:12px;margin-top:6px;min-height:16px;}
+  .username-status.ok{color:var(--cyan);}
+  .username-status.err{color:#ff8a8a;}
+
   .signout-btn{
     width:100%; background:transparent; border:1px solid #ff8a8a; color:#ff8a8a;
     font-weight:700; font-size:14px; padding:13px; border-radius:12px; cursor:pointer;
@@ -72,7 +89,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC4H9JHfDNCFiNWSx9JXA-L2MzleiQvzQI",
@@ -94,15 +111,24 @@
       return;
     }
 
-    const initial = (user.email || "?").charAt(0).toUpperCase();
+    const initial = (user.displayName || user.email || "?").charAt(0).toUpperCase();
     const joined = user.metadata?.creationTime
       ? new Date(user.metadata.creationTime).toLocaleDateString("fa-IR")
       : "-";
 
     card.innerHTML = `
       <div class="avatar">${initial}</div>
-      <h1>خوش اومدی</h1>
+      <h1>${user.displayName ? user.displayName : "خوش اومدی"}</h1>
       <div class="email">${user.email || "بدون ایمیل"}</div>
+
+      <div class="username-field">
+        <label for="displayName">نام کاربری (نمایشی)</label>
+        <div class="username-row">
+          <input type="text" id="displayName" placeholder="مثلاً علی احمدی" value="${user.displayName || ""}">
+          <button class="save-btn" id="saveNameBtn">ذخیره</button>
+        </div>
+        <div class="username-status" id="nameStatus"></div>
+      </div>
 
       <div class="info-row"><span>UID</span><span>${user.uid}</span></div>
       <div class="info-row"><span>تاریخ عضویت</span><span>${joined}</span></div>
@@ -111,6 +137,29 @@
       <button class="signout-btn" id="signoutBtn">خروج از حساب</button>
       <a href="../index.html" class="back-link">← بازگشت به سایت بایت‌لب</a>
     `;
+
+    document.getElementById("saveNameBtn").addEventListener("click", async () => {
+      const nameInput = document.getElementById("displayName");
+      const status = document.getElementById("nameStatus");
+      const newName = nameInput.value.trim();
+
+      if (!newName) {
+        status.textContent = "نام نمی‌تواند خالی باشد.";
+        status.className = "username-status err";
+        return;
+      }
+
+      try {
+        await updateProfile(auth.currentUser, { displayName: newName });
+        status.textContent = "ذخیره شد ✅";
+        status.className = "username-status ok";
+        card.querySelector("h1").textContent = newName;
+        card.querySelector(".avatar").textContent = newName.charAt(0).toUpperCase();
+      } catch (err) {
+        status.textContent = "خطا در ذخیره، دوباره تلاش کنید.";
+        status.className = "username-status err";
+      }
+    });
 
     document.getElementById("signoutBtn").addEventListener("click", async () => {
       await signOut(auth);
