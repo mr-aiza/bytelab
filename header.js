@@ -1,6 +1,7 @@
 // header.js
 // این فایل هدر و منوی موبایل سایت بایت‌لب رو دقیقا مطابق index.html
 // در همه صفحات تزریق می‌کنه. کافیه این فایل رو در همه صفحات لینک بدی.
+
 (function () {
   // --- فاویکون مشترک: با اجرای این فایل روی هر صفحه، فاویکون به‌صورت خودکار اضافه می‌شه ---
   const favicons = [
@@ -154,7 +155,7 @@
   ${linksHTML}
     </nav>
     <div class="header-actions">
-      <a href="Byte_Lab.apk" download class="nav-cta-app">دانلود اپلیکیشن</a>
+      <a href="Byte_Lab.apk" download class="nav-cta-app">⬇ دانلود اپ</a>
       <a href="index.html#contact" class="nav-cta">شروع پروژه</a>
     </div>
     <button class="burger" id="burger" aria-label="منو">
@@ -164,7 +165,7 @@
 </header>
 <div class="mobile-menu" id="mobileMenu">
   ${linksHTML}
-  <a href="Byte_Lab.apk" download class="app-download-link">دانلود اپلیکیشن</a>
+  <a href="Byte_Lab.apk" download class="app-download-link">⬇ دانلود اپلیکیشن</a>
 </div>
   `;
 
