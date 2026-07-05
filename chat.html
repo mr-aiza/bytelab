@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -7,7 +8,8 @@
   <meta name="description" content="گفتگوی رایگان با هوش مصنوعی بایت‌لب برای مشاوره سریع درباره طراحی سایت، اپلیکیشن و خدمات کامپیوتر.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
   :root{
     --ink:#070b12;
@@ -205,9 +207,9 @@
 
   <div id="authGate">
     <div class="lock-icon">🔒</div>
-    <h2>برای استفاده از دستیار هوشمند وارد شوید</h2>
-    <p>چت با هوش مصنوعی بایت‌لب فقط برای کاربرانی که حساب کاربری دارن فعاله.</p>
-    <a href="profile/login.html" class="login-cta">ورود / ثبت‌نام</a>
+    <h2 id="authGateTitle">برای استفاده از دستیار هوشمند وارد شوید</h2>
+    <p id="authGateText">چت با هوش مصنوعی بایت‌لب فقط برای کاربرانی که حساب کاربری دارن فعاله.</p>
+    <a href="profile/login.html" class="login-cta" id="authGateBtn">ورود / ثبت‌نام</a>
   </div>
 
   <div class="chat-wrap" id="chatWrap" style="display:none;">
@@ -502,7 +504,22 @@ suggestionsEl.querySelectorAll('.chip').forEach(chip => {
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
+  let resolved = false;
+
+  // اگه بعد از ۶ ثانیه هنوز جوابی از فایربیس نیومد (معمولاً به‌خاطر نیاز به VPN)
+  const timeoutId = setTimeout(() => {
+    if (resolved) return;
+    document.getElementById("authLoading").style.display = "none";
+    document.getElementById("authGateTitle").textContent = "اتصال برقرار نشد";
+    document.getElementById("authGateText").textContent = "برای بررسی حساب کاربری و استفاده از دستیار هوشمند، لطفاً VPN خودتون رو روشن کنید و صفحه رو دوباره بارگذاری کنید.";
+    document.getElementById("authGateBtn").textContent = "تلاش دوباره";
+    document.getElementById("authGateBtn").href = "javascript:location.reload()";
+    document.getElementById("authGate").style.display = "";
+  }, 6000);
+
   onAuthStateChanged(auth, (user) => {
+    resolved = true;
+    clearTimeout(timeoutId);
     document.getElementById("authLoading").style.display = "none";
     if (user) {
       document.getElementById("chatWrap").style.display = "";
