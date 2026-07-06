@@ -208,6 +208,7 @@
       });
 
       if (res.ok) {
+        formSubmitted = true;
         showStatus("پیام شما با موفقیت ارسال شد ✅ به‌زودی تماس می‌گیریم.", "ok");
         form.reset();
       } else {
@@ -220,6 +221,33 @@
       btn.textContent = "ارسال پیام";
     }
   });
+
+  // --- تشخیص فرم نیمه‌کاره رهاشده: اگه کاربر چیزی نوشت ولی بدون ارسال صفحه رو ترک کرد ---
+  let formSubmitted = false;
+  let abandonReported = false;
+
+  function reportAbandonedForm() {
+    if (formSubmitted || abandonReported) return;
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const service = document.getElementById("service").value;
+    const message = document.getElementById("message").value.trim();
+
+    if (!name && !phone && !message) return; // فرم کاملاً خالیه، چیزی برای گزارش نیست
+
+    abandonReported = true;
+    const payload = JSON.stringify({ type: "abandoned_form", name, phone, service, message });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(TELEGRAM_WORKER_URL, new Blob([payload], { type: "application/json" }));
+    } else {
+      fetch(TELEGRAM_WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
+    }
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") reportAbandonedForm();
+  });
+  window.addEventListener("pagehide", reportAbandonedForm);
 </script>
 
 </body>
