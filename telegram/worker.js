@@ -47,7 +47,19 @@ async function getAllLeads(env) {
 function statusLabel(status) {
   if (status === "contacted") return "✅ تماس گرفته شد";
   if (status === "rejected") return "❌ رد شد";
+  if (status === "later") return "⏳ تماس بعداً";
   return "🆕 جدید";
+}
+
+function mainMenu() {
+  return {
+    keyboard: [
+      [{ text: "📊 آمار" }, { text: "📋 لیدها" }],
+      [{ text: "🎨 نمونه‌کارها" }],
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+  };
 }
 
 export default {
@@ -87,6 +99,10 @@ export default {
           if (raw) {
             const lead = JSON.parse(raw);
             lead.status = newStatus;
+            if (newStatus === "later") {
+              lead.reminded = false;
+              lead.snoozeUntil = Date.now() + 24 * 60 * 60 * 1000;
+            }
             await saveLead(env, lead);
             await tgEditMarkup(env, cq.message.chat.id, cq.message.message_id, {
               inline_keyboard: [[{ text: statusLabel(newStatus) + " (ثبت شد)", callback_data: "noop" }]],
@@ -109,7 +125,7 @@ export default {
           return new Response("ok");
         }
 
-        if (text === "/stats") {
+        if (text === "/stats" || text === "📊 آمار") {
           const leads = await getAllLeads(env);
           const today = nowTehranDateStr();
           const todays = leads.filter((l) => new Date(l.createdAt).toLocaleDateString("fa-IR-u-ca-gregory", { timeZone: "Asia/Tehran" }) === today);
@@ -120,6 +136,7 @@ export default {
           const abandoned = leads.filter((l) => l.type === "abandoned_form").length;
           const contacted = leads.filter((l) => l.status === "contacted").length;
           const rejected = leads.filter((l) => l.status === "rejected").length;
+          const later = leads.filter((l) => l.status === "later").length;
           const pending = leads.filter((l) => !l.status || l.status === "new").length;
 
           await tgSend(env,
@@ -132,15 +149,17 @@ export default {
             `👀 بازدید صفحه: ${visits}\n` +
             `🕓 فرم رهاشده: ${abandoned}\n\n` +
             `✅ تماس گرفته شده: ${contacted}\n` +
+            `⏳ تماس بعداً: ${later}\n` +
             `❌ رد شده: ${rejected}\n` +
-            `🆕 در انتظار پیگیری: ${pending}`
+            `🆕 در انتظار پیگیری: ${pending}`,
+            { reply_markup: mainMenu() }
           );
-        } else if (text === "/leads") {
+        } else if (text === "/leads" || text === "📋 لیدها") {
           const leads = (await getAllLeads(env))
             .filter((l) => ["contact", "profile", "abandoned_form"].includes(l.type))
             .slice(0, 10);
           if (leads.length === 0) {
-            await tgSend(env, "هنوز هیچ لیدی ثبت نشده.");
+            await tgSend(env, "هنوز هیچ لیدی ثبت نشده.", { reply_markup: mainMenu() });
           } else {
             let msg = "📋 آخرین ۱۰ لید:\n\n";
             leads.forEach((l, i) => {
@@ -151,15 +170,18 @@ export default {
               if (l.type === "abandoned_form") msg += `   🕓 ${l.name || "-"} | 📞 ${l.phone || "-"} (رهاشده)\n`;
               msg += `   🕐 ${date}\n\n`;
             });
-            await tgSend(env, msg);
+            await tgSend(env, msg, { reply_markup: mainMenu() });
           }
-        } else if (text === "/portfolio") {
+        } else if (text === "/portfolio" || text === "🎨 نمونه‌کارها") {
           await tgSend(env,
             `🎨 نمونه‌کارهای بایت‌لب:\n\n` +
-            `https://mr-aiza.github.io/bytelab/portfolio.html`
+            `https://mr-aiza.github.io/bytelab/portfolio.html`,
+            { reply_markup: mainMenu() }
           );
         } else if (text === "/start") {
-          await tgSend(env, "سلام 👋 بات اطلاع‌رسانی بایت‌لب فعاله.\n\nدستورات:\n/stats — آمار کلی\n/leads — آخرین لیدها\n/portfolio — لینک نمونه‌کارها");
+          await tgSend(env, "سلام 👋 بات اطلاع‌رسانی بایت‌لب فعاله.\n\nاز منوی پایین صفحه استفاده کن، یا این دستورات رو بفرست:\n/stats — آمار کلی\n/leads — آخرین لیدها\n/portfolio — لینک نمونه‌کارها",
+            { reply_markup: mainMenu() }
+          );
         }
       }
       return new Response("ok");
@@ -221,6 +243,7 @@ export default {
             reply_markup: {
               inline_keyboard: [[
                 { text: "✅ تماس گرفتم", callback_data: `st:${id}:contacted` },
+                { text: "⏳ بعداً", callback_data: `st:${id}:later` },
                 { text: "❌ رد شد", callback_data: `st:${id}:rejected` },
               ]],
             },
@@ -280,6 +303,17 @@ async function checkFollowUps(env) {
 
   for (const lead of leads) {
     if (!["contact", "profile", "abandoned_form"].includes(lead.type)) continue;
+
+    if (lead.status === "later") {
+      if (!lead.reminded && lead.snoozeUntil && now > lead.snoozeUntil) {
+        const label = lead.type === "contact" ? `${lead.name} (${lead.phone})` : `${lead.email}`;
+        await tgSend(env, `⏰ یادآوری «تماس بعداً»\n\nموقع پیگیری این لیده:\n${label}`);
+        lead.reminded = true;
+        await saveLead(env, lead);
+      }
+      continue;
+    }
+
     const isPending = !lead.status || lead.status === "new";
     if (isPending && !lead.reminded && now - lead.createdAt > dayMs) {
       const label = lead.type === "contact" ? `${lead.name} (${lead.phone})` : `${lead.email}`;
