@@ -134,7 +134,7 @@
     { href: "tarahi-app.html", text: "طراحی اپلیکیشن", match: ["tarahi-app.html"] },
     { href: "khadamat-computer.html", text: "خدمات کامپیوتر", match: ["khadamat-computer.html"] },
     { href: "blog.html", text: "بلاگ", match: ["blog.html", "hazine-tarahi-site.html", "app-ekhtesasi.html"] },
-    { href: "telegram/contact.html", text: "تماس", match: ["contact.html"] },
+    { href: "index.html#contact", text: "تماس", match: [] },
     { href: "chat.html", text: "چت با هوش مصنوعی", match: ["chat.html"] }
   ];
 
@@ -212,5 +212,34 @@
         });
       });
     }).catch(() => { /* اگه فایربیس لود نشد، دکمه همون لینک پیش‌فرض ورود رو نگه می‌داره */ });
+
+    // --- اطلاع‌رسانی دانلود اپلیکیشن به تلگرام (بدون کند کردن دانلود کاربر) ---
+    const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab-workerbytelab.workers.dev";
+    document.querySelectorAll('a[href="Byte_Lab.apk"]').forEach(a => {
+      a.addEventListener('click', () => {
+        fetch(TELEGRAM_WORKER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "apk_download" })
+        }).catch(() => {});
+      });
+    });
+
+    // --- اطلاع‌رسانی بازدید صفحات مهم (هر صفحه، هر نشست، فقط یک‌بار) ---
+    const TRACKED_PAGES = {
+      "tarahi-site.html": "طراحی سایت",
+      "tarahi-app.html": "طراحی اپلیکیشن",
+      "khadamat-computer.html": "خدمات کامپیوتر",
+      "hazine-tarahi-site.html": "هزینه طراحی سایت"
+    };
+    const pageName = TRACKED_PAGES[current];
+    if (pageName && !sessionStorage.getItem("visited_" + current)) {
+      sessionStorage.setItem("visited_" + current, "1");
+      fetch(TELEGRAM_WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "page_visit", page: pageName })
+      }).catch(() => {});
+    }
   });
 })();
