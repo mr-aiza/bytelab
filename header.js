@@ -138,8 +138,8 @@
     { href: "chat.html", text: "چت با هوش مصنوعی", match: ["chat.html"] }
   ];
 
-  // مسیر پوشه‌ی صفحه‌ی ارسال نمونه‌کار (دقیقاً مثل profile/ و telegram/)
-  const PORTFOLIO_SUBMIT_HREF = "submit/index.html";
+  // مسیر صفحه‌ی نمونه‌کارها (دکمه‌ی هدر اول به همین‌جا میره، دکمه‌ی ارسال داخل خودشه)
+  const PORTFOLIO_SUBMIT_HREF = "portfolio.html";
 
   const linksHTML = NAV_LINKS.map(l => {
     const cls = isActive(l.match) ? ' class="active"' : "";
@@ -158,7 +158,7 @@
     </nav>
     <div class="header-actions">
       <a href="profile/login.html" class="nav-cta-app">ورود / پروفایل</a>
-      <a href="${PORTFOLIO_SUBMIT_HREF}" class="nav-cta-app">🎨 نمونه‌کار من</a>
+      <a href="${PORTFOLIO_SUBMIT_HREF}" class="nav-cta-app">🎨 نمونه‌کارها</a>
       <a href="Byte_Lab.apk" download class="nav-cta-app">دانلود اپلیکیشن</a>
       <a href="index.html#contact" class="nav-cta">شروع پروژه</a>
     </div>
@@ -170,7 +170,7 @@
 <div class="mobile-menu" id="mobileMenu">
   ${linksHTML}
   <a href="profile/login.html" class="app-download-link" style="background:linear-gradient(135deg,#9c7bff,#4df0c9);">ورود / پروفایل</a>
-  <a href="${PORTFOLIO_SUBMIT_HREF}" class="app-download-link" style="background:transparent;border:1px solid #9c7bff;color:#c9b6ff;box-shadow:none;">🎨 نمونه‌کار من</a>
+  <a href="${PORTFOLIO_SUBMIT_HREF}" class="app-download-link" style="background:transparent;border:1px solid #9c7bff;color:#c9b6ff;box-shadow:none;">🎨 نمونه‌کارها</a>
   <a href="Byte_Lab.apk" download class="app-download-link">دانلود اپلیکیشن</a>
 </div>
   `;
