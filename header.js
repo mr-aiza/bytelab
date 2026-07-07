@@ -91,30 +91,77 @@
     }
     .nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(77,240,201,.55);}
     .nav-cta-app{
-      display:inline-flex;align-items:center;gap:8px;
-      background:rgba(156,123,255,.12);color:#c9b6ff;font-weight:700;font-size:14px;
-      padding:11px 22px;border-radius:999px;text-decoration:none;
-      border:1px solid #9c7bff;
+      display:inline-flex;align-items:center;gap:7px;
+      background:rgba(156,123,255,.12);color:#c9b6ff;font-weight:700;font-size:13.5px;
+      padding:10px 18px;border-radius:999px;text-decoration:none;
+      border:1px solid #9c7bff;white-space:nowrap;
       transition:transform .2s ease, background .2s ease, box-shadow .2s ease;
     }
     .nav-cta-app:hover{transform:translateY(-1px);background:rgba(156,123,255,.22);box-shadow:0 0 24px rgba(156,123,255,.35);}
-    .burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;}
-    .burger span{width:22px;height:2px;background:#eaf0f4;border-radius:2px;}
-    .mobile-menu{
-      display:none;position:fixed;top:72px;left:0;right:0;background:#0f1620;
-      border-bottom:1px solid #1e2a38;padding:20px 24px;flex-direction:column;gap:18px;z-index:49;
+    .nav-cta-chat{
+      display:inline-flex;align-items:center;gap:7px;
+      background:rgba(77,240,201,.08);color:#4df0c9;font-weight:700;font-size:13.5px;
+      padding:10px 18px;border-radius:999px;text-decoration:none;white-space:nowrap;
+      border:1px solid rgba(77,240,201,.45);
+      transition:transform .2s ease, background .2s ease, box-shadow .2s ease;
     }
-    .mobile-menu.open{display:flex;}
-    .mobile-menu a{color:#eaf0f4;font-size:16px;text-decoration:none;}
+    .nav-cta-chat:hover{transform:translateY(-1px);background:rgba(77,240,201,.18);box-shadow:0 0 24px rgba(77,240,201,.3);}
+
+    /* دکمه همبرگری: با باز شدن منو به ضربدر تبدیل می‌شه */
+    .burger{display:none;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;background:none;border:none;padding:8px;width:38px;height:38px;position:relative;z-index:61;}
+    .burger span{width:22px;height:2px;background:#eaf0f4;border-radius:2px;transition:transform .25s ease, opacity .25s ease;}
+    .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .burger.open span:nth-child(2){opacity:0;}
+    .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+    /* پرده‌ی تیره پشت منوی کشویی */
+    .menu-overlay{
+      position:fixed;inset:0;background:rgba(4,7,12,.62);backdrop-filter:blur(2px);
+      z-index:58;opacity:0;pointer-events:none;transition:opacity .3s ease;
+    }
+    .menu-overlay.open{opacity:1;pointer-events:auto;}
+
+    /* منوی کشویی (Drawer) موبایل: از راست به داخل کشیده می‌شه */
+    .mobile-menu{
+      display:flex;flex-direction:column;gap:20px;
+      position:fixed;top:0;right:0;height:100%;width:min(320px,84vw);
+      background:#0f1620;border-left:1px solid #1e2a38;
+      padding:20px 20px 28px;z-index:59;overflow-y:auto;
+      transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);
+      box-shadow:-18px 0 40px rgba(0,0,0,.35);
+    }
+    .mobile-menu.open{transform:translateX(0);}
+    .mm-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:4px;}
+    .mm-head .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;color:#eaf0f4;}
+    .mm-head .logo-icon{width:26px;height:26px;object-fit:contain;}
+    .mm-close{
+      background:none;border:1px solid #1e2a38;color:#eaf0f4;width:34px;height:34px;border-radius:10px;
+      font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .mm-links{display:flex;flex-direction:column;}
+    .mobile-menu a{color:#eaf0f4;font-size:15.5px;text-decoration:none;padding:11px 2px;border-bottom:1px solid rgba(30,42,56,.7);}
     .mobile-menu a.active{color:#4df0c9;}
+    .mm-divider{height:1px;background:#1e2a38;}
+    .mm-label{font-size:11.5px;color:#7c8b9c;font-weight:700;letter-spacing:.02em;}
+    .mm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .mm-action{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+      border:1px solid #1e2a38;border-radius:14px;padding:14px 8px;
+      color:#eaf0f4;font-size:12.5px;font-weight:600;text-align:center;
+      background:rgba(255,255,255,.02);text-decoration:none;border-bottom:1px solid #1e2a38;
+      transition:border-color .2s ease, background .2s ease;
+    }
+    .mm-action:active{background:rgba(255,255,255,.06);}
+    .mm-action.accent{border-color:rgba(77,240,201,.45);color:#4df0c9;}
     .mobile-menu a.app-download-link{
       display:flex;align-items:center;justify-content:center;gap:8px;
       background:linear-gradient(135deg,#4df0c9,#9c7bff);
       color:#06120f;font-weight:800;font-size:15px;
-      padding:14px 20px;border-radius:14px;margin-top:6px;
+      padding:14px 20px;border-radius:14px;margin-top:2px;border-bottom:none;
       box-shadow:0 0 20px rgba(77,240,201,.25);
     }
-    @media (max-width:860px){
+    body.menu-open{overflow:hidden;}
+    @media (max-width:1040px){
       nav.links, .header-actions{display:none;}
       .burger{display:flex;}
     }
@@ -173,8 +220,7 @@
     { href: "tarahi-app.html", text: "طراحی اپلیکیشن", match: ["tarahi-app.html"] },
     { href: "khadamat-computer.html", text: "خدمات کامپیوتر", match: ["khadamat-computer.html"] },
     { href: "blog.html", text: "بلاگ", match: ["blog.html", "hazine-tarahi-site.html", "app-ekhtesasi.html"] },
-    { href: "telegram/contact.html", text: "تماس", match: [] },
-    { href: "chat.html", text: "چت با هوش مصنوعی", match: ["chat.html"] }
+    { href: "telegram/contact.html", text: "تماس", match: [] }
   ];
 
   // مسیر صفحه‌ی نمونه‌کارها (دکمه‌ی هدر اول به همین‌جا میره، دکمه‌ی ارسال داخل خودشه)
@@ -196,21 +242,38 @@
   ${linksHTML}
     </nav>
     <div class="header-actions">
+      <a href="chat.html" class="nav-cta-chat">💬 چت با هوش مصنوعی</a>
       <a href="profile/login.html" class="nav-cta-app">ورود / پروفایل</a>
       <a href="${PORTFOLIO_SUBMIT_HREF}" class="nav-cta-app">🎨 نمونه‌کارها</a>
       <a href="Byte_Lab.apk" download class="nav-cta-app">دانلود اپلیکیشن</a>
       <a href="index.html#contact" class="nav-cta">شروع پروژه</a>
     </div>
-    <button class="burger" id="burger" aria-label="منو">
+    <button class="burger" id="burger" aria-label="باز کردن منو">
       <span></span><span></span><span></span>
     </button>
   </div>
 </header>
-<div class="mobile-menu" id="mobileMenu">
+<div class="menu-overlay" id="menuOverlay"></div>
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="منوی سایت">
+  <div class="mm-head">
+    <div class="logo">
+      <img src="logo-icon.png" alt="بایت‌لب" class="logo-icon">
+      <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
+    </div>
+    <button class="mm-close" id="mmClose" aria-label="بستن منو">✕</button>
+  </div>
+  <div class="mm-links">
   ${linksHTML}
-  <a href="profile/login.html" class="app-download-link" style="background:linear-gradient(135deg,#9c7bff,#4df0c9);">ورود / پروفایل</a>
-  <a href="${PORTFOLIO_SUBMIT_HREF}" class="app-download-link" style="background:transparent;border:1px solid #9c7bff;color:#c9b6ff;box-shadow:none;">🎨 نمونه‌کارها</a>
-  <a href="Byte_Lab.apk" download class="app-download-link">دانلود اپلیکیشن</a>
+  </div>
+  <div class="mm-divider"></div>
+  <span class="mm-label">دسترسی سریع</span>
+  <div class="mm-actions">
+    <a href="chat.html" class="mm-action accent">💬<span>چت با هوش مصنوعی</span></a>
+    <a href="${PORTFOLIO_SUBMIT_HREF}" class="mm-action">🎨<span>نمونه‌کارها</span></a>
+    <a href="Byte_Lab.apk" download class="mm-action">⬇️<span>دانلود اپلیکیشن</span></a>
+    <a href="profile/login.html" class="mm-action">👤<span>ورود / پروفایل</span></a>
+  </div>
+  <a href="index.html#contact" class="app-download-link">شروع پروژه ←</a>
 </div>
   `;
 
@@ -220,14 +283,32 @@
       placeholder.outerHTML = headerHTML;
     }
 
-    // فعال‌سازی دکمه همبرگری و بسته‌شدن منو بعد از کلیک روی لینک
+    // فعال‌سازی دکمه همبرگری و منوی کشویی (Drawer)
     const burger = document.getElementById('burger');
     const menu = document.getElementById('mobileMenu');
-    if (burger && menu) {
-      burger.addEventListener('click', () => menu.classList.toggle('open'));
-      menu.querySelectorAll('a').forEach(a =>
-        a.addEventListener('click', () => menu.classList.remove('open'))
-      );
+    const overlay = document.getElementById('menuOverlay');
+    const closeBtn = document.getElementById('mmClose');
+
+    function openMenu() {
+      menu.classList.add('open');
+      overlay.classList.add('open');
+      burger.classList.add('open');
+      document.body.classList.add('menu-open');
+    }
+    function closeMenu() {
+      menu.classList.remove('open');
+      overlay.classList.remove('open');
+      burger.classList.remove('open');
+      document.body.classList.remove('menu-open');
+    }
+    if (burger && menu && overlay) {
+      burger.addEventListener('click', () => {
+        menu.classList.contains('open') ? closeMenu() : openMenu();
+      });
+      overlay.addEventListener('click', closeMenu);
+      if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+      menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
     }
 
     // --- چک وضعیت لاگین کاربر تا دکمه «ورود / پروفایل» هوشمند بشه ---
