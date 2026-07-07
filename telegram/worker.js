@@ -107,6 +107,47 @@ const BLOG_WRITER_SYSTEM = `
 {"title":"...","excerpt":"...","tag":"طراحی سایت | طراحی اپلیکیشن | خدمات کامپیوتر | نکات فنی","content":"پاراگراف اول...\\n\\nپاراگراف دوم...\\n\\n..."}
 `;
 
+// خروجی مدل هوش‌مصنوعی گاهی خط‌جدید واقعی به‌جای \n اسکیپ‌شده داخل رشته‌ها می‌ذاره، یا متن اضافه دور JSON.
+// این تابع هم فقط بخش { ... } رو استخراج می‌کنه، هم کاراکترهای کنترلی خام رو اسکیپ می‌کنه تا JSON.parse خطا نده.
+function parseBlogJSON(raw) {
+  let text = String(raw).replace(/```json|```/g, "").trim();
+  const match = text.match(/\{[\s\S]*\}/);
+  if (match) text = match[0];
+
+  let sanitized = "";
+  let inString = false;
+  let escaped = false;
+  for (const ch of text) {
+    if (inString) {
+      if (escaped) {
+        sanitized += ch;
+        escaped = false;
+      } else if (ch === "\\") {
+        sanitized += ch;
+        escaped = true;
+      } else if (ch === '"') {
+        sanitized += ch;
+        inString = false;
+      } else if (ch === "\n") {
+        sanitized += "\\n";
+      } else if (ch === "\r") {
+        // نادیده گرفته می‌شه
+      } else if (ch === "\t") {
+        sanitized += "\\t";
+      } else if (ch.charCodeAt(0) < 0x20) {
+        // سایر کاراکترهای کنترلی حذف می‌شن
+      } else {
+        sanitized += ch;
+      }
+    } else {
+      if (ch === '"') inString = true;
+      sanitized += ch;
+    }
+  }
+
+  return JSON.parse(sanitized);
+}
+
 async function callAIWorker(env, system, userText) {
   if (!env.AI_WORKER) {
     throw new Error(
@@ -138,8 +179,7 @@ async function generateAndPublishBlogPost(env) {
       `یک پست جدید و متفاوت با موضوعات بالا، طبق قوانین سیستم بنویس و فقط JSON خروجی بده.`;
 
     const raw = await callAIWorker(env, BLOG_WRITER_SYSTEM, userMsg);
-    const clean = raw.replace(/```json|```/g, "").trim();
-    const parsed = JSON.parse(clean);
+    const parsed = parseBlogJSON(raw);
 
     if (!parsed.title || !parsed.content) throw new Error("خروجی هوش‌مصنوعی ناقص بود.");
 
