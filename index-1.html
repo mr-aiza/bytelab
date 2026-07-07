@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ارسال نمونه‌کار | بایت‌لب</title>
+<meta name="description" content="نمونه‌کار سایت یا اپلیکیشنی که طراحی کردی رو با بایت‌لب به اشتراک بگذار.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="../favicon.ico">
+<style>
+  :root{
+    --ink:#070b12;
+    --panel:#0f1620;
+    --panel-2:#141d2b;
+    --line:#1e2a38;
+    --cyan:#4df0c9;
+    --violet:#9c7bff;
+    --paper:#eaf0f4;
+    --muted:#7c8b9c;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    width:100%;
+    min-height:100vh;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.02em;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:720px;margin:0 auto;padding:0 24px;}
+  section{position:relative;}
+
+  .glow{position:fixed;border-radius:50%;filter:blur(90px);z-index:0;pointer-events:none;}
+  .glow-1{width:340px;height:340px;background:var(--cyan);opacity:.1;top:-100px;right:-100px;}
+  .glow-2{width:340px;height:340px;background:var(--violet);opacity:.1;bottom:-100px;left:-100px;}
+
+  .top-bar{position:relative;z-index:1;padding:26px 0;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;}
+  .brand .mark{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;
+    box-shadow:0 0 24px rgba(77,240,201,.45);
+  }
+  .brand .tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.08em;margin-right:2px;}
+
+  .page-head{position:relative;z-index:1;padding:30px 0 20px;}
+  .page-eyebrow{font-weight:700;font-size:13px;color:var(--violet);letter-spacing:.02em;margin-bottom:14px;display:block;}
+  .page-title{font-size:clamp(26px,4vw,38px);font-weight:800;}
+  .page-sub{color:var(--muted);margin-top:14px;font-size:15.5px;}
+
+  .form-section{position:relative;z-index:1;padding:20px 0 100px;}
+  .pf-form{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:28px;display:flex;flex-direction:column;gap:20px;box-shadow:0 20px 60px rgba(0,0,0,.35);}
+  .field{display:flex;flex-direction:column;gap:8px;}
+  .field label{font-size:14px;font-weight:700;color:var(--paper);}
+  .field .hint{font-size:12.5px;color:var(--muted);}
+  .field input,.field textarea{
+    background:var(--panel-2);border:1px solid var(--line);border-radius:12px;
+    padding:13px 16px;color:var(--paper);font-family:'Vazirmatn',sans-serif;font-size:14.5px;
+    outline:none;transition:border-color .2s ease;
+  }
+  .field input::placeholder,.field textarea::placeholder{color:#4c5a6b;}
+  .field input:focus,.field textarea:focus{border-color:var(--cyan);}
+  .field textarea{resize:vertical;min-height:90px;}
+  .required{color:var(--cyan);}
+
+  .submit-btn{
+    margin-top:6px;background:linear-gradient(135deg,var(--cyan),var(--violet));
+    color:#06120f;font-weight:800;font-size:15px;border:none;border-radius:999px;
+    padding:15px 24px;cursor:pointer;transition:transform .2s ease, box-shadow .2s ease;
+    box-shadow:0 0 24px rgba(77,240,201,.3);
+  }
+  .submit-btn:hover{transform:translateY(-2px);box-shadow:0 0 32px rgba(77,240,201,.5);}
+  .submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+  .form-msg{font-size:14px;padding:14px 16px;border-radius:12px;display:none;}
+  .form-msg.ok{display:block;background:rgba(77,240,201,.1);border:1px solid var(--cyan);color:var(--cyan);}
+  .form-msg.err{display:block;background:rgba(255,99,99,.1);border:1px solid #ff6363;color:#ff9c9c;}
+
+  .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:14px;margin-top:20px;}
+  .back-link:hover{color:var(--cyan);}
+
+  .foot-note{position:relative;z-index:1;text-align:center;color:var(--muted);font-size:13px;padding:0 0 40px;}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+    .reveal{opacity:1;transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<div class="top-bar">
+  <div class="wrap">
+    <a href="../index.html" class="brand">
+      <div class="mark">B</div>
+      <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
+    </a>
+  </div>
+</div>
+
+<section class="page-head">
+  <div class="wrap">
+    <span class="page-eyebrow reveal">ارسال نمونه‌کار</span>
+    <h1 class="page-title reveal">نمونه‌کارت رو با ما به اشتراک بگذار</h1>
+    <p class="page-sub reveal">اگه سایت، اپلیکیشن یا هر پروژه‌ی دیگه‌ای طراحی کردی، اطلاعاتش رو اینجا وارد کن. بعد از بررسی و تایید تیم بایت‌لب توی تلگرام، نمونه‌کارت توی صفحه‌ی نمونه‌کارها با پیش‌نمایش زنده‌ی سایتت نمایش داده می‌شه.</p>
+  </div>
+</section>
+
+<section class="form-section">
+  <div class="wrap">
+    <form class="pf-form reveal" id="pfForm">
+      <div class="field">
+        <label>عنوان پروژه <span class="required">*</span></label>
+        <input type="text" id="pfTitle" placeholder="مثلاً: فروشگاه آنلاین کفش رها" required maxlength="80">
+      </div>
+
+      <div class="field">
+        <label>توضیح کوتاه <span class="required">*</span></label>
+        <textarea id="pfDesc" placeholder="یه توضیح کوتاه درباره‌ی پروژه و کاری که انجام دادی" required maxlength="300"></textarea>
+      </div>
+
+      <div class="field">
+        <label>لینک سایت <span class="required">*</span></label>
+        <span class="hint">همین لینک برای پیش‌نمایش زنده‌ی کارت استفاده می‌شه.</span>
+        <input type="url" id="pfUrl" placeholder="https://example.com" required>
+      </div>
+
+      <div class="field">
+        <label>لینک تصویر <span class="hint" style="font-weight:400;">(اختیاری — فقط اگه پروژه‌ت وب‌سایت نداره، مثلاً اپلیکیشن)</span></label>
+        <input type="url" id="pfImage" placeholder="https://example.com/screenshot.jpg">
+      </div>
+
+      <div class="field">
+        <label>نام سازنده <span class="required">*</span></label>
+        <input type="text" id="pfAuthor" placeholder="اسم یا نام کاربری‌ت" required maxlength="60">
+      </div>
+
+      <div class="field">
+        <label>راه ارتباطی <span class="required">*</span></label>
+        <span class="hint">آیدی تلگرام، شماره تماس یا اینستاگرام</span>
+        <input type="text" id="pfContact" placeholder="@username یا 0912xxxxxxx" required maxlength="80">
+      </div>
+
+      <div class="form-msg" id="pfMsg"></div>
+
+      <button type="submit" class="submit-btn" id="pfSubmitBtn">ارسال برای بررسی</button>
+    </form>
+
+    <a href="../portfolio.html" class="back-link reveal">→ بازگشت به نمونه‌کارها</a>
+  </div>
+</section>
+
+<p class="foot-note mono" style="direction:ltr;">© ۱۴۰۵ BYTE_LAB — DIGITAL SERVICES</p>
+
+<script>
+  const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab-workerbytelab.workers.dev";
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
+  }, {threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  const form = document.getElementById('pfForm');
+  const msg = document.getElementById('pfMsg');
+  const btn = document.getElementById('pfSubmitBtn');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msg.className = 'form-msg';
+    msg.textContent = '';
+
+    const payload = {
+      type: 'portfolio_submit',
+      title: document.getElementById('pfTitle').value.trim(),
+      description: document.getElementById('pfDesc').value.trim(),
+      url: document.getElementById('pfUrl').value.trim(),
+      image: document.getElementById('pfImage').value.trim(),
+      authorName: document.getElementById('pfAuthor').value.trim(),
+      authorContact: document.getElementById('pfContact').value.trim(),
+    };
+
+    btn.disabled = true;
+    btn.textContent = 'در حال ارسال...';
+
+    try {
+      const res = await fetch(TELEGRAM_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        msg.className = 'form-msg ok';
+        msg.textContent = 'نمونه‌کارت با موفقیت ارسال شد ✅ بعد از بررسی و تایید توی تلگرام، توی صفحه‌ی نمونه‌کارها نمایش داده می‌شه.';
+        form.reset();
+      } else {
+        throw new Error('failed');
+      }
+    } catch (err) {
+      msg.className = 'form-msg err';
+      msg.textContent = 'مشکلی توی ارسال پیش اومد. دوباره امتحان کن یا از راه‌های دیگه با ما در ارتباط باش.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'ارسال برای بررسی';
+    }
+  });
+</script>
+
+</body>
+</html>
