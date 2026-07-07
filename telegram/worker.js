@@ -108,7 +108,12 @@ const BLOG_WRITER_SYSTEM = `
 `;
 
 async function callAIWorker(env, system, userText) {
-  const response = await fetch(AI_WORKER_URL, {
+  if (!env.AI_WORKER) {
+    throw new Error(
+      "اتصال به Worker هوش‌مصنوعی تنظیم نشده. تو تنظیمات bytelab-telegram → Bindings → Add → Service binding، یک Binding با نام AI_WORKER به Worker «bytelab-ai» وصل کن."
+    );
+  }
+  const response = await env.AI_WORKER.fetch(AI_WORKER_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
