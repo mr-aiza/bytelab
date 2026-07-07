@@ -51,14 +51,7 @@
     position:absolute;border-radius:50%;filter:blur(80px);z-index:0;pointer-events:none;
   }
 
-  /* header */
-  header{
-    position:fixed;top:0;left:0;right:0;z-index:50;
-    background:rgba(7,11,18,.72);
-    backdrop-filter:blur(14px);
-    border-bottom:1px solid var(--line);
-  }
-  .nav{display:flex;align-items:center;justify-content:space-between;height:72px;}
+  /* توجه: استایل هدر/منوی کشویی موبایل به‌صورت خودکار از header.js تزریق می‌شه */
   .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;}
   .logo .mark{
     width:34px;height:34px;border-radius:9px;
@@ -68,8 +61,6 @@
     box-shadow:0 0 24px rgba(77,240,201,.45);
   }
   .logo .tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.08em;margin-right:2px;}
-  nav.links{display:flex;gap:32px;font-size:15px;color:var(--muted);}
-  nav.links a:hover{color:var(--cyan);}
   .nav-cta{
     display:inline-flex;align-items:center;gap:8px;
     background:var(--cyan);color:#06120f;font-weight:700;font-size:14px;
@@ -78,14 +69,6 @@
     transition:transform .2s ease, box-shadow .2s ease;
   }
   .nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(77,240,201,.55);}
-  .burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;}
-  .burger span{width:22px;height:2px;background:var(--paper);border-radius:2px;}
-  .mobile-menu{
-    display:none;position:fixed;top:72px;left:0;right:0;background:var(--panel);
-    border-bottom:1px solid var(--line);padding:20px 24px;flex-direction:column;gap:18px;z-index:49;
-  }
-  .mobile-menu.open{display:flex;}
-  .mobile-menu a{color:var(--paper);font-size:16px;}
 
   /* hero */
   .hero{padding:170px 0 110px;min-height:100vh;display:flex;align-items:center;overflow:hidden;}
@@ -181,22 +164,16 @@
   .pf-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:block;transition:border-color .25s ease, transform .25s ease;}
   .pf-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
   .pf-link{color:var(--cyan);font-size:13px;font-weight:700;margin-top:14px;display:inline-flex;align-items:center;gap:6px;}
-  .pf-preview{padding:22px;background:var(--panel-2);min-height:200px;display:flex;align-items:center;justify-content:center;}
-  .browser-mock{width:100%;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--ink);}
-  .browser-bar{display:flex;gap:6px;padding:9px 12px;background:#0a0f17;}
-  .browser-bar span{width:8px;height:8px;border-radius:50%;background:var(--line);}
-  .browser-body{padding:18px;display:flex;flex-direction:column;gap:8px;}
-  .browser-body .line{height:8px;border-radius:4px;background:var(--line);}
-  .browser-body .line.short{width:50%;}
-  .browser-body .line.accent{background:linear-gradient(90deg,var(--cyan),var(--violet));width:35%;height:10px;}
-  .phone-mock{width:130px;height:230px;border:6px solid var(--line);border-radius:22px;background:var(--ink);padding:10px 8px;display:flex;flex-direction:column;gap:7px;}
-  .phone-mock .notch{width:36%;height:5px;border-radius:4px;background:var(--line);margin:0 auto 8px;}
-  .phone-mock .blob{height:30px;border-radius:8px;background:var(--panel-2);}
-  .phone-mock .blob.accent{background:linear-gradient(135deg,var(--cyan),var(--violet));height:46px;}
-  .repair-mock{display:flex;flex-direction:column;align-items:center;gap:14px;color:var(--muted);}
-  .repair-icon{
-    width:74px;height:74px;border-radius:18px;border:1px solid var(--line);
-    display:flex;align-items:center;justify-content:center;background:var(--ink);
+  .pf-preview{background:var(--panel-2);position:relative;}
+  .live-preview{width:100%;height:200px;overflow:hidden;position:relative;background:#0a0f17;}
+  .live-preview iframe{
+    width:1280px;height:800px;
+    position:absolute;top:0;left:0;
+    transform-origin:top left;
+    border:0;pointer-events:none;background:#fff;
+  }
+  .live-preview .lp-fade{
+    position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,23,0) 65%,rgba(10,15,23,.55) 100%);
   }
   .pf-info{padding:22px 24px 26px;}
   .pf-label{font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:12.5px;color:var(--violet);margin-bottom:8px;display:block;}
@@ -262,9 +239,6 @@
   }
 
   @media (max-width: 900px){
-    nav.links{display:none;}
-    .nav-cta{display:none;}
-    .burger{display:flex;}
     .svc-grid,.pf-grid{grid-template-columns:1fr;}
     .proc-grid{grid-template-columns:1fr 1fr;row-gap:36px;}
     .proc-grid::before{display:none;}
@@ -382,15 +356,11 @@
       <p class="sec-sub">چند نمونه از پروژه‌های واقعی که طراحی و اجرا کردیم؛ روی هرکدوم بزن تا از نزدیک ببینی.</p>
     </div>
     <div class="pf-grid">
-      <a href="https://mr-aiza.github.io/bytelab/chat.html" target="_blank" rel="noopener" class="pf-card reveal">
+      <a href="https://mr-aiza.github.io/bytelab/index.html" target="_blank" rel="noopener" class="pf-card reveal">
         <div class="pf-preview">
-          <div class="browser-mock">
-            <div class="browser-bar"><span></span><span></span><span></span></div>
-            <div class="browser-body">
-              <div class="line accent"></div>
-              <div class="line"></div>
-              <div class="line short"></div>
-            </div>
+          <div class="live-preview">
+            <iframe src="https://mr-aiza.github.io/bytelab/index.html" loading="lazy" tabindex="-1" title="سایت شرکتی بایت‌لب"></iframe>
+            <div class="lp-fade"></div>
           </div>
         </div>
         <div class="pf-info">
@@ -402,11 +372,9 @@
       </a>
       <a href="https://mr-aiza.github.io/Bytelab2/tarahi-app.html" target="_blank" rel="noopener" class="pf-card reveal">
         <div class="pf-preview">
-          <div class="phone-mock">
-            <div class="notch"></div>
-            <div class="blob accent"></div>
-            <div class="blob"></div>
-            <div class="blob"></div>
+          <div class="live-preview">
+            <iframe src="https://mr-aiza.github.io/Bytelab2/tarahi-app.html" loading="lazy" tabindex="-1" title="سایت شرکتی بایت‌لب نسخه ۲"></iframe>
+            <div class="lp-fade"></div>
           </div>
         </div>
         <div class="pf-info">
@@ -418,11 +386,9 @@
       </a>
       <a href="portfolio/tasharifat-royaee-v2.html" target="_blank" class="pf-card reveal">
         <div class="pf-preview">
-          <div class="repair-mock">
-            <div class="repair-icon">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><path d="M12 21s-8-4.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-8 11-8 11a1 1 0 0 1-2 0z"/></svg>
-            </div>
-            <span class="mono" style="font-size:12px;">EVENT_PLANNING_V2</span>
+          <div class="live-preview">
+            <iframe src="portfolio/tasharifat-royaee-v2.html" loading="lazy" tabindex="-1" title="تشریفات رویایی ورژن ۲"></iframe>
+            <div class="lp-fade"></div>
           </div>
         </div>
         <div class="pf-info">
@@ -434,11 +400,9 @@
       </a>
       <a href="portfolio/galeriy-mashin.html" target="_blank" class="pf-card reveal">
         <div class="pf-preview">
-          <div class="repair-mock">
-            <div class="repair-icon">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><path d="M3 13l1.5-4.5A2 2 0 0 1 6.4 7h11.2a2 2 0 0 1 1.9 1.5L21 13v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5Z"/><circle cx="7" cy="16" r="1.4"/><circle cx="17" cy="16" r="1.4"/></svg>
-            </div>
-            <span class="mono" style="font-size:12px;">LUXURY_CARS</span>
+          <div class="live-preview">
+            <iframe src="portfolio/galeriy-mashin.html" loading="lazy" tabindex="-1" title="گالری اتومبیل پرستیژ"></iframe>
+            <div class="lp-fade"></div>
           </div>
         </div>
         <div class="pf-info">
@@ -450,11 +414,9 @@
       </a>
       <a href="portfolio/zarrin-gallery-gold-shop.html" target="_blank" class="pf-card reveal">
         <div class="pf-preview">
-          <div class="repair-mock">
-            <div class="repair-icon">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><path d="M6 3h12l3 6-9 12L3 9Z"/><path d="M3 9h18M9 3l3 6 3-6M12 9l-3 12M12 9l3 12"/></svg>
-            </div>
-            <span class="mono" style="font-size:12px;">GOLD_SHOP</span>
+          <div class="live-preview">
+            <iframe src="portfolio/zarrin-gallery-gold-shop.html" loading="lazy" tabindex="-1" title="زرّین گالری"></iframe>
+            <div class="lp-fade"></div>
           </div>
         </div>
         <div class="pf-info">
@@ -465,20 +427,18 @@
         </div>
       </a>
       <a href="portfolio/cafe-restoran-amber.html" target="_blank" class="pf-card reveal">
-  <div class="pf-preview">
-    <div class="repair-mock">
-      <div class="repair-icon">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Z"/><path d="M17 9c2.5 0 3 2 3 3.5S18.5 15 17 15"/><path d="M7 4c0 .8-1 1-1 2M11 4c0 .8-1 1-1 2"/></svg>
-      </div>
-      <span class="mono" style="font-size:12px;">CAFE_MENU</span>
-    </div>
-  </div>
-  <div class="pf-info">
-    <span class="pf-label">نمونه طراحی منوی دیجیتال</span>
-    <div class="pf-title">کافه و رستوران اِمبر</div>
-    <div class="pf-desc">منوی دیجیتال ریسپانسیو کافه و رستوران با دسته‌بندی متحرک و انیمیشن‌های ظریف اسکرول.</div>
-    <span class="pf-link">مشاهده نمونه‌کار ←</span>
-  </div>
+        <div class="pf-preview">
+          <div class="live-preview">
+            <iframe src="portfolio/cafe-restoran-amber.html" loading="lazy" tabindex="-1" title="کافه و رستوران اِمبر"></iframe>
+            <div class="lp-fade"></div>
+          </div>
+        </div>
+        <div class="pf-info">
+          <span class="pf-label">نمونه طراحی منوی دیجیتال</span>
+          <div class="pf-title">کافه و رستوران اِمبر</div>
+          <div class="pf-desc">منوی دیجیتال ریسپانسیو کافه و رستوران با دسته‌بندی متحرک و انیمیشن‌های ظریف اسکرول.</div>
+          <span class="pf-link">مشاهده نمونه‌کار ←</span>
+        </div>
       </a>
     </div>
     <div style="text-align:center;margin-top:44px;">
@@ -600,6 +560,18 @@
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
   }, {threshold:.15});
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // --- مقیاس‌دهی خودکار پیش‌نمایش‌های زنده (iframe) با اندازه‌ی واقعی کارت ---
+  function scaleLivePreviews(){
+    document.querySelectorAll('.live-preview').forEach(wrap => {
+      const iframe = wrap.querySelector('iframe');
+      if(!iframe) return;
+      const scale = wrap.clientWidth / 1280;
+      iframe.style.transform = `scale(${scale})`;
+    });
+  }
+  window.addEventListener('load', scaleLivePreviews);
+  window.addEventListener('resize', scaleLivePreviews);
 </script>
   <script src="header.js"></script>
 </body>
