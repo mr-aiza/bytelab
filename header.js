@@ -246,7 +246,6 @@
       <a href="profile/login.html" class="nav-cta-app">ورود / پروفایل</a>
       <a href="${PORTFOLIO_SUBMIT_HREF}" class="nav-cta-app">🎨 نمونه‌کارها</a>
       <a href="Byte_Lab.apk" download class="nav-cta-app">دانلود اپلیکیشن</a>
-      <a href="index.html#contact" class="nav-cta">شروع پروژه</a>
     </div>
     <button class="burger" id="burger" aria-label="باز کردن منو">
       <span></span><span></span><span></span>
@@ -273,7 +272,6 @@
     <a href="Byte_Lab.apk" download class="mm-action">⬇️<span>دانلود اپلیکیشن</span></a>
     <a href="profile/login.html" class="mm-action">👤<span>ورود / پروفایل</span></a>
   </div>
-  <a href="index.html#contact" class="app-download-link">شروع پروژه ←</a>
 </div>
   `;
 
