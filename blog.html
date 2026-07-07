@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -162,6 +163,8 @@
 
   /* blog list */
   .blog-section{padding:20px 0 110px;}
+  .blog-loading{color:var(--muted);font-size:14px;padding:20px 0;display:none;}
+  .blog-loading.show{display:block;}
   .post-card{border-bottom:1px solid var(--line);padding:30px 0;}
   .post-card .meta{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--violet);margin-bottom:10px;display:block;}
   .post-card h3{font-size:20px;margin:0 0 10px;font-weight:700;}
@@ -233,17 +236,24 @@
 
 <section class="blog-section">
   <div class="wrap">
-    <div class="post-card reveal">
-      <span class="meta">طراحی سایت</span>
-      <h3><a href="hazine-tarahi-site.html">هزینه طراحی سایت چطور محاسبه می‌شود؟</a></h3>
-      <p>عوامل موثر بر قیمت طراحی سایت و اینکه چطور یک برآورد واقع‌بینانه بگیرید.</p>
-      <a href="hazine-tarahi-site.html" class="more">ادامه مطلب ←</a>
-    </div>
-    <div class="post-card reveal">
-      <span class="meta">طراحی اپلیکیشن</span>
-      <h3><a href="app-ekhtesasi.html">چه زمانی کسب‌وکار شما به اپلیکیشن اختصاصی نیاز دارد؟</a></h3>
-      <p>نشانه‌هایی که می‌گویند وقت ساخت اپلیکیشن اختصاصی رسیده.</p>
-      <a href="app-ekhtesasi.html" class="more">ادامه مطلب ←</a>
+    <!-- پست‌هایی که خود سایت (از طریق تلگرام) می‌نویسه، اینجا و بالای همه نمایش داده می‌شن -->
+    <p class="blog-loading" id="blogLoading">در حال بارگذاری پست‌های تازه...</p>
+    <div id="blogList"></div>
+
+    <!-- این دو پست ثابت، فقط وقتی نمایش داده می‌شن که هنوز هیچ پست دینامیکی منتشر نشده باشه -->
+    <div id="staticPosts">
+      <div class="post-card reveal">
+        <span class="meta">طراحی سایت</span>
+        <h3><a href="hazine-tarahi-site.html">هزینه طراحی سایت چطور محاسبه می‌شود؟</a></h3>
+        <p>عوامل موثر بر قیمت طراحی سایت و اینکه چطور یک برآورد واقع‌بینانه بگیرید.</p>
+        <a href="hazine-tarahi-site.html" class="more">ادامه مطلب ←</a>
+      </div>
+      <div class="post-card reveal">
+        <span class="meta">طراحی اپلیکیشن</span>
+        <h3><a href="app-ekhtesasi.html">چه زمانی کسب‌وکار شما به اپلیکیشن اختصاصی نیاز دارد؟</a></h3>
+        <p>نشانه‌هایی که می‌گویند وقت ساخت اپلیکیشن اختصاصی رسیده.</p>
+        <a href="app-ekhtesasi.html" class="more">ادامه مطلب ←</a>
+      </div>
     </div>
   </div>
 </section>
@@ -276,7 +286,6 @@
           <a href="tarahi-site.html">طراحی سایت</a>
           <a href="khadamat-computer.html">خدمات کامپیوتر</a>
           <a href="blog.html">بلاگ</a>
-          <div id="blogList"></div>
         </div>
       </div>
     </div>
@@ -299,6 +308,6 @@
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 </script>
 <script src="header.js"></script>
-  <script src="blog-dynamic.js"></script>
+<script src="blog-dynamic.js"></script>
 </body>
 </html>
