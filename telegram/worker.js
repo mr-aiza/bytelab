@@ -62,6 +62,12 @@ const BOT_COMMANDS = [
   { command: "portfolio", description: "🎨 نمونه‌کارهای در انتظار تایید" },
   { command: "managepf", description: "🗂 مدیریت کامل گالری (ویرایش/حذف/تایید)" },
   { command: "addpf", description: "➕ افزودن دستی یک نمونه‌کار" },
+  { command: "manageblog", description: "📰 مدیریت کامل بلاگ (ویرایش/حذف/انتشار)" },
+  { command: "addblog", description: "➕ نوشتن پست جدید بلاگ" },
+  { command: "managefaq", description: "❓ مدیریت سوالات متداول" },
+  { command: "addfaq", description: "➕ افزودن سوال متداول جدید" },
+  { command: "banner", description: "📢 مدیریت بنر اعلانات سایت" },
+  { command: "status", description: "🟢 تغییر وضعیت پاسخگویی آنلاین/آفلاین" },
   { command: "cancel", description: "❌ لغو مکالمه‌ی در حال انجام" },
 ];
 
@@ -108,6 +114,111 @@ async function getAllPortfolioItems(env) {
   return values.filter(Boolean).map((v) => JSON.parse(v)).sort((a, b) => b.createdAt - a.createdAt);
 }
 
+// ================== بنر اعلانات سایت ==================
+async function getBanner(env) {
+  const raw = await env.LEADS_KV.get("config:banner");
+  return raw ? JSON.parse(raw) : { enabled: false, text: "", link: "", style: "info" };
+}
+async function saveBanner(env, banner) {
+  await env.LEADS_KV.put("config:banner", JSON.stringify(banner));
+}
+
+function formatBannerDetail(banner) {
+  return (
+    `📢 بنر اعلانات سایت\n\n` +
+    `وضعیت: ${banner.enabled ? "✅ روشن (روی سایت نمایش داده می‌شه)" : "🚫 خاموش"}\n\n` +
+    `📝 متن: ${banner.text || "-"}\n` +
+    `🔗 لینک (اختیاری): ${banner.link || "-"}`
+  );
+}
+function bannerKeyboard(banner) {
+  const rows = [];
+  if (banner.enabled) {
+    rows.push([{ text: "🚫 خاموش کردن بنر", callback_data: "bnenable:0" }]);
+  } else {
+    rows.push([{ text: "✅ روشن کردن بنر", callback_data: "bnenable:1" }]);
+  }
+  rows.push([
+    { text: "✏️ ویرایش متن", callback_data: "bnedit:text" },
+    { text: "✏️ ویرایش لینک", callback_data: "bnedit:link" },
+  ]);
+  rows.push([{ text: "🔄 بروزرسانی این پیام", callback_data: "bnrefresh" }]);
+  return { inline_keyboard: rows };
+}
+
+// ================== وضعیت پاسخگویی آنلاین/آفلاین ==================
+async function getStatus(env) {
+  const raw = await env.LEADS_KV.get("config:status");
+  return raw ? JSON.parse(raw) : { online: true, updatedAt: Date.now() };
+}
+async function saveStatus(env, status) {
+  await env.LEADS_KV.put("config:status", JSON.stringify(status));
+}
+function formatStatusDetail(status) {
+  const date = new Date(status.updatedAt || Date.now()).toLocaleString("fa-IR", { timeZone: "Asia/Tehran" });
+  return (
+    `🟢 وضعیت پاسخگویی سایت\n\n` +
+    `وضعیت فعلی: ${status.online ? "🟢 آنلاین (پاسخگو هستیم)" : "🔴 آفلاین (خارج از دسترس)"}\n` +
+    `آخرین تغییر: ${date}\n\n` +
+    `این وضعیت به‌صورت خودکار روی سایت (کنار دکمه چت/تماس) نمایش داده می‌شه.`
+  );
+}
+function statusKeyboard(status) {
+  return {
+    inline_keyboard: [[
+      status.online
+        ? { text: "🔴 تغییر به آفلاین", callback_data: "sttoggle:0" }
+        : { text: "🟢 تغییر به آنلاین", callback_data: "sttoggle:1" },
+    ]],
+  };
+}
+
+// ================== سوالات متداول (FAQ) ==================
+const FAQ_SERVICES = [
+  { code: "site", label: "🌐 طراحی سایت" },
+  { code: "app", label: "📱 طراحی اپلیکیشن" },
+  { code: "computer", label: "🖥 خدمات کامپیوتر" },
+];
+function faqServiceLabel(code) {
+  const s = FAQ_SERVICES.find((s) => s.code === code);
+  return s ? s.label : code;
+}
+async function saveFaq(env, item) {
+  await env.LEADS_KV.put(`faq:${item.id}`, JSON.stringify(item));
+}
+async function getFaqItem(env, id) {
+  const raw = await env.LEADS_KV.get(`faq:${id}`);
+  return raw ? JSON.parse(raw) : null;
+}
+async function deleteFaqItem(env, id) {
+  await env.LEADS_KV.delete(`faq:${id}`);
+}
+async function getAllFaq(env) {
+  const list = await env.LEADS_KV.list({ prefix: "faq:" });
+  const values = await Promise.all(list.keys.map((k) => env.LEADS_KV.get(k.name)));
+  return values.filter(Boolean).map((v) => JSON.parse(v)).sort((a, b) => a.createdAt - b.createdAt);
+}
+
+// ================== وبلاگ ==================
+async function saveBlogPost(env, item) {
+  await env.LEADS_KV.put(`blog:${item.id}`, JSON.stringify(item));
+}
+async function getBlogPost(env, id) {
+  const raw = await env.LEADS_KV.get(`blog:${id}`);
+  return raw ? JSON.parse(raw) : null;
+}
+async function deleteBlogPost(env, id) {
+  await env.LEADS_KV.delete(`blog:${id}`);
+}
+async function getAllBlogPosts(env) {
+  const list = await env.LEADS_KV.list({ prefix: "blog:" });
+  const values = await Promise.all(list.keys.map((k) => env.LEADS_KV.get(k.name)));
+  return values.filter(Boolean).map((v) => JSON.parse(v)).sort((a, b) => b.createdAt - a.createdAt);
+}
+function slugify(title) {
+  return "post-" + Date.now().toString(36);
+}
+
 // ================== وضعیت مکالمه ادمین (برای ویرایش / افزودن دستی) ==================
 // ذخیره در KV با کلید admstate:<chatId> و انقضای ۱ ساعته تا مکالمه‌های رهاشده هرز نره
 async function getAdminState(env, chatId) {
@@ -140,10 +251,95 @@ function mainMenu() {
       [{ text: "📊 آمار" }, { text: "📋 لیدها" }],
       [{ text: "🎨 نمونه‌کارهای جدید" }, { text: "🗂 مدیریت گالری" }],
       [{ text: "➕ افزودن نمونه‌کار دستی" }],
+      [{ text: "📰 مدیریت بلاگ" }, { text: "➕ پست جدید" }],
+      [{ text: "❓ مدیریت سوالات متداول" }, { text: "➕ سوال جدید" }],
+      [{ text: "📢 بنر سایت" }, { text: "🟢 وضعیت پاسخگویی" }],
     ],
     resize_keyboard: true,
     is_persistent: true,
   };
+}
+
+// ---- فیلدهای قابل ویرایش یک سوال متداول ----
+const FAQ_FIELDS = {
+  q: { key: "question", label: "❓ سوال" },
+  a: { key: "answer", label: "💬 پاسخ" },
+};
+
+function formatFaqDetail(item) {
+  return (
+    `❓ سوال متداول\n\n` +
+    `📂 خدمت: ${faqServiceLabel(item.service)}\n\n` +
+    `❓ سوال: ${item.question || "-"}\n` +
+    `💬 پاسخ: ${item.answer || "-"}`
+  );
+}
+
+function faqManageKeyboard(item) {
+  return {
+    inline_keyboard: [
+      [
+        { text: "✏️ ویرایش سوال", callback_data: `fqedit:${item.id}:q` },
+        { text: "✏️ ویرایش پاسخ", callback_data: `fqedit:${item.id}:a` },
+      ],
+      [{ text: "🗑 حذف این سوال", callback_data: `fqdel:${item.id}` }],
+    ],
+  };
+}
+
+async function sendFaqManageCard(env, chatId, item) {
+  return tgSendTo(env, chatId, formatFaqDetail(item), { reply_markup: faqManageKeyboard(item) });
+}
+
+// ---- فیلدهای قابل ویرایش یک پست بلاگ ----
+const BLOG_FIELDS = {
+  t: { key: "title", label: "📌 عنوان" },
+  e: { key: "excerpt", label: "📝 خلاصه" },
+  c: { key: "content", label: "📄 متن کامل" },
+  i: { key: "image", label: "🖼 لینک تصویر" },
+  g: { key: "tag", label: "🏷 دسته/برچسب" },
+};
+
+function blogStatusLabel(status) {
+  return status === "published" ? "✅ منتشر شده (روی سایت)" : "📝 پیش‌نویس";
+}
+
+function formatBlogDetail(item) {
+  const preview = (item.content || "-").slice(0, 200) + ((item.content || "").length > 200 ? "…" : "");
+  return (
+    `📰 پست بلاگ\n\n` +
+    `وضعیت: ${blogStatusLabel(item.status)}\n\n` +
+    `📌 عنوان: ${item.title || "-"}\n` +
+    `🏷 برچسب: ${item.tag || "-"}\n` +
+    `📝 خلاصه: ${item.excerpt || "-"}\n` +
+    `🖼 لینک تصویر: ${item.image || "-"}\n\n` +
+    `📄 متن: ${preview}`
+  );
+}
+
+function blogManageKeyboard(item) {
+  const rows = [];
+  if (item.status !== "published") {
+    rows.push([{ text: "✅ انتشار روی سایت", callback_data: `blpub:${item.id}:published` }]);
+  } else {
+    rows.push([{ text: "🚫 برداشتن از سایت (پیش‌نویس)", callback_data: `blpub:${item.id}:draft` }]);
+  }
+  rows.push([
+    { text: "✏️ عنوان", callback_data: `bledit:${item.id}:t` },
+    { text: "✏️ برچسب", callback_data: `bledit:${item.id}:g` },
+  ]);
+  rows.push([
+    { text: "✏️ خلاصه", callback_data: `bledit:${item.id}:e` },
+    { text: "✏️ لینک تصویر", callback_data: `bledit:${item.id}:i` },
+  ]);
+  rows.push([{ text: "✏️ متن کامل", callback_data: `bledit:${item.id}:c` }]);
+  rows.push([{ text: "🗑 حذف کامل این پست", callback_data: `bldel:${item.id}` }]);
+  rows.push([{ text: "🔄 بروزرسانی این پیام", callback_data: `blmanage:${item.id}` }]);
+  return { inline_keyboard: rows };
+}
+
+async function sendBlogManageCard(env, chatId, item) {
+  return tgSendTo(env, chatId, formatBlogDetail(item), { reply_markup: blogManageKeyboard(item) });
 }
 
 // ---- فیلدهای قابل ویرایش یک نمونه‌کار ----
@@ -245,6 +441,71 @@ export default {
         return new Response(JSON.stringify({ ok: false, error: String(err) }), {
           status: 500,
           headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
+    }
+
+    // ================== وضعیت پاسخگویی آنلاین/آفلاین (برای نمایش در سایت) ==================
+    if (url.pathname === "/status" && request.method === "GET") {
+      const status = await getStatus(env);
+      return new Response(JSON.stringify({ ok: true, online: status.online }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // ================== بنر اعلانات (برای نمایش در سایت) ==================
+    if (url.pathname === "/banner" && request.method === "GET") {
+      const banner = await getBanner(env);
+      return new Response(JSON.stringify({ ok: true, banner }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // ================== سوالات متداول (برای نمایش در صفحات خدمات) ==================
+    if (url.pathname === "/api/faq" && request.method === "GET") {
+      try {
+        const service = url.searchParams.get("service");
+        let items = await getAllFaq(env);
+        if (service) items = items.filter((i) => i.service === service);
+        items = items.map((i) => ({ id: i.id, service: i.service, question: i.question, answer: i.answer }));
+        return new Response(JSON.stringify({ ok: true, items }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ ok: false, error: String(err) }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
+    }
+
+    // ================== بلاگ (لیست منتشر شده + جزئیات یک پست) ==================
+    if (url.pathname === "/api/blog" && request.method === "GET") {
+      try {
+        const id = url.searchParams.get("id");
+        if (id) {
+          const item = await getBlogPost(env, id);
+          if (!item || item.status !== "published") {
+            return new Response(JSON.stringify({ ok: false, error: "not_found" }), {
+              status: 404, headers: { "Content-Type": "application/json", ...corsHeaders },
+            });
+          }
+          return new Response(JSON.stringify({ ok: true, item }), {
+            status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
+        }
+        const posts = (await getAllBlogPosts(env))
+          .filter((p) => p.status === "published")
+          .map((p) => ({ id: p.id, title: p.title, excerpt: p.excerpt, image: p.image, tag: p.tag, createdAt: p.createdAt }));
+        return new Response(JSON.stringify({ ok: true, posts }), {
+          status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ ok: false, error: String(err) }), {
+          status: 500, headers: { "Content-Type": "application/json", ...corsHeaders },
         });
       }
     }
@@ -381,6 +642,137 @@ export default {
             reply_markup: { inline_keyboard: [] },
           });
           await tgAnswerCallback(env, cq.id, "لغو شد");
+
+        // ---------- بنر اعلانات ----------
+        } else if (parts[0] === "bnenable") {
+          const banner = await getBanner(env);
+          banner.enabled = parts[1] === "1";
+          banner.updatedAt = Date.now();
+          await saveBanner(env, banner);
+          await tgEditText(env, chatId, messageId, formatBannerDetail(banner), { reply_markup: bannerKeyboard(banner) });
+          await tgAnswerCallback(env, cq.id, banner.enabled ? "بنر روشن شد ✅" : "بنر خاموش شد 🚫");
+        } else if (parts[0] === "bnedit") {
+          const field = parts[1]; // text | link
+          await setAdminState(env, chatId, { mode: "bannerfield", field });
+          await tgAnswerCallback(env, cq.id, "منتظر مقدار جدید هستم...");
+          const label = field === "text" ? "📝 متن بنر" : "🔗 لینک بنر";
+          await tgSendTo(env, chatId, `✏️ در حال ویرایش «${label}»\n\nمقدار جدید رو بفرست (برای پاک‌کردن لینک بنویس -)، یا /cancel:`, {
+            reply_markup: { force_reply: true },
+          });
+        } else if (parts[0] === "bnrefresh") {
+          const banner = await getBanner(env);
+          await tgEditText(env, chatId, messageId, formatBannerDetail(banner), { reply_markup: bannerKeyboard(banner) });
+          await tgAnswerCallback(env, cq.id, "بروزرسانی شد");
+
+        // ---------- وضعیت پاسخگویی آنلاین/آفلاین ----------
+        } else if (parts[0] === "sttoggle") {
+          const status = { online: parts[1] === "1", updatedAt: Date.now() };
+          await saveStatus(env, status);
+          await tgEditText(env, chatId, messageId, formatStatusDetail(status), { reply_markup: statusKeyboard(status) });
+          await tgAnswerCallback(env, cq.id, status.online ? "وضعیت: آنلاین 🟢" : "وضعیت: آفلاین 🔴");
+
+        // ---------- سوالات متداول ----------
+        } else if (parts[0] === "fqaddservice") {
+          const service = parts[1];
+          await setAdminState(env, chatId, { mode: "faqadd", step: "question", data: { service } });
+          await tgAnswerCallback(env, cq.id, "");
+          await tgSendTo(env, chatId, `❓ سوال رو بفرست (برای «${faqServiceLabel(service)}»):`, { reply_markup: { force_reply: true } });
+        } else if (parts[0] === "fqmanage") {
+          const item = await getFaqItem(env, parts[1]);
+          if (item) {
+            await tgEditText(env, chatId, messageId, formatFaqDetail(item), { reply_markup: faqManageKeyboard(item) });
+            await tgAnswerCallback(env, cq.id, "بروزرسانی شد");
+          } else {
+            await tgAnswerCallback(env, cq.id, "این سوال پیدا نشد.");
+          }
+        } else if (parts[0] === "fqedit") {
+          const fqId = parts[1];
+          const fieldCode = parts[2];
+          const field = FAQ_FIELDS[fieldCode];
+          const item = await getFaqItem(env, fqId);
+          if (!item || !field) {
+            await tgAnswerCallback(env, cq.id, "امکان ویرایش نیست.");
+            return new Response("ok");
+          }
+          await setAdminState(env, chatId, { mode: "faqeditfield", id: fqId, field: fieldCode });
+          await tgAnswerCallback(env, cq.id, "منتظر مقدار جدید هستم...");
+          await tgSendTo(env, chatId, `✏️ در حال ویرایش «${field.label}»\n\nمقدار فعلی:\n${item[field.key] || "-"}\n\nمقدار جدید رو بفرست، یا /cancel:`, {
+            reply_markup: { force_reply: true },
+          });
+        } else if (parts[0] === "fqdel") {
+          const item = await getFaqItem(env, parts[1]);
+          if (!item) {
+            await tgAnswerCallback(env, cq.id, "این سوال پیدا نشد.");
+            return new Response("ok");
+          }
+          await tgEditText(env, chatId, messageId, `⚠️ مطمئنی می‌خوای این سوال رو حذف کنی؟\n\n«${item.question}»`, {
+            reply_markup: {
+              inline_keyboard: [[
+                { text: "✅ بله، حذف کن", callback_data: `fqdelyes:${item.id}` },
+                { text: "❌ نه، بازگشت", callback_data: `fqmanage:${item.id}` },
+              ]],
+            },
+          });
+          await tgAnswerCallback(env, cq.id, "");
+        } else if (parts[0] === "fqdelyes") {
+          const item = await getFaqItem(env, parts[1]);
+          await deleteFaqItem(env, parts[1]);
+          await tgEditText(env, chatId, messageId, `🗑 سوال با موفقیت حذف شد.`, { reply_markup: { inline_keyboard: [] } });
+          await tgAnswerCallback(env, cq.id, "حذف شد ✅");
+
+        // ---------- بلاگ ----------
+        } else if (parts[0] === "blpub") {
+          const item = await getBlogPost(env, parts[1]);
+          if (item) {
+            item.status = parts[2];
+            await saveBlogPost(env, item);
+            await tgEditText(env, chatId, messageId, formatBlogDetail(item), { reply_markup: blogManageKeyboard(item) });
+            await tgAnswerCallback(env, cq.id, item.status === "published" ? "منتشر شد ✅" : "به پیش‌نویس برگشت 📝");
+          } else {
+            await tgAnswerCallback(env, cq.id, "این پست پیدا نشد.");
+          }
+        } else if (parts[0] === "blmanage") {
+          const item = await getBlogPost(env, parts[1]);
+          if (item) {
+            await tgEditText(env, chatId, messageId, formatBlogDetail(item), { reply_markup: blogManageKeyboard(item) });
+            await tgAnswerCallback(env, cq.id, "بروزرسانی شد");
+          } else {
+            await tgAnswerCallback(env, cq.id, "این پست دیگه وجود نداره.");
+          }
+        } else if (parts[0] === "bledit") {
+          const blId = parts[1];
+          const fieldCode = parts[2];
+          const field = BLOG_FIELDS[fieldCode];
+          const item = await getBlogPost(env, blId);
+          if (!item || !field) {
+            await tgAnswerCallback(env, cq.id, "امکان ویرایش نیست.");
+            return new Response("ok");
+          }
+          await setAdminState(env, chatId, { mode: "blogeditfield", id: blId, field: fieldCode });
+          await tgAnswerCallback(env, cq.id, "منتظر مقدار جدید هستم...");
+          await tgSendTo(env, chatId, `✏️ در حال ویرایش «${field.label}»\n\nمقدار فعلی:\n${(item[field.key] || "-").toString().slice(0, 300)}\n\nمقدار جدید رو بفرست، یا /cancel:`, {
+            reply_markup: { force_reply: true },
+          });
+        } else if (parts[0] === "bldel") {
+          const item = await getBlogPost(env, parts[1]);
+          if (!item) {
+            await tgAnswerCallback(env, cq.id, "این پست پیدا نشد.");
+            return new Response("ok");
+          }
+          await tgEditText(env, chatId, messageId, `⚠️ مطمئنی می‌خوای پست «${item.title}» رو کامل حذف کنی؟ این کار قابل بازگشت نیست.`, {
+            reply_markup: {
+              inline_keyboard: [[
+                { text: "✅ بله، حذف کن", callback_data: `bldelyes:${item.id}` },
+                { text: "❌ نه، بازگشت", callback_data: `blmanage:${item.id}` },
+              ]],
+            },
+          });
+          await tgAnswerCallback(env, cq.id, "");
+        } else if (parts[0] === "bldelyes") {
+          const item = await getBlogPost(env, parts[1]);
+          await deleteBlogPost(env, parts[1]);
+          await tgEditText(env, chatId, messageId, `🗑 «${item ? item.title : "پست"}» با موفقیت حذف شد.`, { reply_markup: { inline_keyboard: [] } });
+          await tgAnswerCallback(env, cq.id, "حذف شد ✅");
         } else {
           await tgAnswerCallback(env, cq.id, "");
         }
@@ -408,7 +800,114 @@ export default {
 
         // اگه یک مکالمه‌ی باز (ویرایش فیلد یا افزودن دستی) در جریانه، پیام رو به‌عنوان پاسخ اون مکالمه بگیر
         const state = await getAdminState(env, chatId);
-        if (state && !text.startsWith("/") && !["📊 آمار", "📋 لیدها", "🎨 نمونه‌کارهای جدید", "🗂 مدیریت گالری", "➕ افزودن نمونه‌کار دستی"].includes(text)) {
+        const MENU_BUTTON_TEXTS = [
+          "📊 آمار", "📋 لیدها", "🎨 نمونه‌کارهای جدید", "🗂 مدیریت گالری", "➕ افزودن نمونه‌کار دستی",
+          "📰 مدیریت بلاگ", "➕ پست جدید", "❓ مدیریت سوالات متداول", "➕ سوال جدید", "📢 بنر سایت", "🟢 وضعیت پاسخگویی",
+        ];
+        if (state && !text.startsWith("/") && !MENU_BUTTON_TEXTS.includes(text)) {
+          if (state.mode === "bannerfield") {
+            const banner = await getBanner(env);
+            const value = text === "-" ? "" : text;
+            if (state.field === "text") banner.text = text.slice(0, 300);
+            if (state.field === "link") banner.link = value.slice(0, 300);
+            banner.updatedAt = Date.now();
+            await saveBanner(env, banner);
+            await clearAdminState(env, chatId);
+            await tgSendTo(env, chatId, "✅ بنر بروزرسانی شد.", { reply_markup: mainMenu() });
+            await tgSendTo(env, chatId, formatBannerDetail(banner), { reply_markup: bannerKeyboard(banner) });
+            return new Response("ok");
+          }
+
+          if (state.mode === "faqeditfield") {
+            const item = await getFaqItem(env, state.id);
+            const field = FAQ_FIELDS[state.field];
+            if (item && field) {
+              item[field.key] = text.slice(0, 600);
+              await saveFaq(env, item);
+              await clearAdminState(env, chatId);
+              await tgSendTo(env, chatId, `✅ «${field.label}» بروزرسانی شد.`);
+              await sendFaqManageCard(env, chatId, item);
+            } else {
+              await clearAdminState(env, chatId);
+              await tgSendTo(env, chatId, "این سوال دیگه پیدا نشد.", { reply_markup: mainMenu() });
+            }
+            return new Response("ok");
+          }
+
+          if (state.mode === "faqadd") {
+            const data = state.data || {};
+            if (state.step === "question") {
+              data.question = text.slice(0, 300);
+              await setAdminState(env, chatId, { mode: "faqadd", step: "answer", data });
+              await tgSendTo(env, chatId, "💬 حالا پاسخ این سوال رو بفرست:");
+            } else if (state.step === "answer") {
+              data.answer = text.slice(0, 800);
+              await clearAdminState(env, chatId);
+              const item = { id: crypto.randomUUID(), createdAt: Date.now(), service: data.service, question: data.question, answer: data.answer };
+              await saveFaq(env, item);
+              await tgSendTo(env, chatId, "✅ سوال متداول جدید اضافه شد و همین الان روی صفحه مربوطه نمایش داده می‌شه:", { reply_markup: mainMenu() });
+              await sendFaqManageCard(env, chatId, item);
+            }
+            return new Response("ok");
+          }
+
+          if (state.mode === "blogeditfield") {
+            const item = await getBlogPost(env, state.id);
+            const field = BLOG_FIELDS[state.field];
+            if (item && field) {
+              const maxLen = field.key === "content" ? 8000 : 300;
+              item[field.key] = text.slice(0, maxLen);
+              await saveBlogPost(env, item);
+              await clearAdminState(env, chatId);
+              await tgSendTo(env, chatId, `✅ «${field.label}» بروزرسانی شد.`);
+              await sendBlogManageCard(env, chatId, item);
+            } else {
+              await clearAdminState(env, chatId);
+              await tgSendTo(env, chatId, "این پست دیگه پیدا نشد.", { reply_markup: mainMenu() });
+            }
+            return new Response("ok");
+          }
+
+          if (state.mode === "blogadd") {
+            const value = text === "-" ? "" : text;
+            const data = state.data || {};
+            if (state.step === "title") {
+              data.title = text.slice(0, 150);
+              await setAdminState(env, chatId, { mode: "blogadd", step: "excerpt", data });
+              await tgSendTo(env, chatId, "📝 یک خلاصه کوتاه (۱-۲ خط) برای لیست بلاگ بفرست:");
+            } else if (state.step === "excerpt") {
+              data.excerpt = text.slice(0, 400);
+              await setAdminState(env, chatId, { mode: "blogadd", step: "content", data });
+              await tgSendTo(env, chatId, "📄 متن کامل پست رو بفرست (می‌تونی چند پاراگراف باشه):");
+            } else if (state.step === "content") {
+              data.content = text.slice(0, 8000);
+              await setAdminState(env, chatId, { mode: "blogadd", step: "image", data });
+              await tgSendTo(env, chatId, "🖼 لینک تصویر کاور رو بفرست (اختیاریه، برای رد شدن بنویس -):");
+            } else if (state.step === "image") {
+              data.image = value.slice(0, 300);
+              await setAdminState(env, chatId, { mode: "blogadd", step: "tag", data });
+              await tgSendTo(env, chatId, "🏷 دسته/برچسب رو بفرست (مثلاً «طراحی سایت»، اختیاریه، برای رد شدن بنویس -):");
+            } else if (state.step === "tag") {
+              data.tag = value.slice(0, 60);
+              await clearAdminState(env, chatId);
+              const item = {
+                id: crypto.randomUUID(),
+                slug: slugify(data.title || "post"),
+                status: "draft",
+                createdAt: Date.now(),
+                title: data.title || "-",
+                excerpt: data.excerpt || "-",
+                content: data.content || "-",
+                image: data.image || "",
+                tag: data.tag || "",
+              };
+              await saveBlogPost(env, item);
+              await tgSendTo(env, chatId, "✅ پست به‌صورت پیش‌نویس ذخیره شد. برای نمایش روی سایت، دکمه «انتشار» رو بزن:", { reply_markup: mainMenu() });
+              await sendBlogManageCard(env, chatId, item);
+            }
+            return new Response("ok");
+          }
+
           if (state.mode === "editfield") {
             const item = await getPortfolioItem(env, state.id);
             const field = PF_FIELDS[state.field];
@@ -573,6 +1072,51 @@ export default {
           await tgSendTo(env, chatId, "➕ افزودن نمونه‌کار جدید\n\n📌 عنوان پروژه رو بفرست (یا /cancel برای لغو):", {
             reply_markup: { force_reply: true },
           });
+        } else if (text === "/banner" || text === "📢 بنر سایت") {
+          const banner = await getBanner(env);
+          await tgSendTo(env, chatId, formatBannerDetail(banner), { reply_markup: bannerKeyboard(banner) });
+        } else if (text === "/status" || text === "🟢 وضعیت پاسخگویی") {
+          const status = await getStatus(env);
+          await tgSendTo(env, chatId, formatStatusDetail(status), { reply_markup: statusKeyboard(status) });
+        } else if (text === "/addfaq" || text === "➕ سوال جدید") {
+          await tgSendTo(env, chatId, "❓ این سوال برای کدوم خدمت اضافه بشه؟", {
+            reply_markup: {
+              inline_keyboard: FAQ_SERVICES.map((s) => [{ text: s.label, callback_data: `fqaddservice:${s.code}` }]),
+            },
+          });
+        } else if (text === "/managefaq" || text === "❓ مدیریت سوالات متداول") {
+          const items = await getAllFaq(env);
+          await tgSend(env, `❓ سوالات متداول (${items.length} مورد)\n\nهرکدوم رو می‌تونی ویرایش یا حذف کنی:`, { reply_markup: mainMenu() });
+          if (items.length === 0) {
+            await tgSend(env, "هنوز هیچ سوالی اضافه نشده. از دکمه «➕ سوال جدید» استفاده کن.");
+          }
+          for (const item of items.slice(0, 25)) {
+            await sendFaqManageCard(env, chatId, item);
+          }
+        } else if (text === "/addblog" || text === "➕ پست جدید") {
+          await setAdminState(env, chatId, { mode: "blogadd", step: "title", data: {} });
+          await tgSendTo(env, chatId, "📰 نوشتن پست جدید بلاگ\n\n📌 عنوان پست رو بفرست (یا /cancel برای لغو):", {
+            reply_markup: { force_reply: true },
+          });
+        } else if (text === "/manageblog" || text === "📰 مدیریت بلاگ") {
+          const posts = await getAllBlogPosts(env);
+          const drafts = posts.filter((p) => p.status !== "published");
+          const published = posts.filter((p) => p.status === "published");
+          await tgSend(
+            env,
+            `📰 مدیریت کامل بلاگ\n\n` +
+              `📝 پیش‌نویس: ${drafts.length}\n` +
+              `✅ منتشر شده: ${published.length}\n\n` +
+              `برای هرکدوم می‌تونی از دکمه‌های زیر پیام استفاده کنی: ویرایش، انتشار/برداشتن، یا حذف کامل.`,
+            { reply_markup: mainMenu() }
+          );
+          const combined = [...drafts, ...published].slice(0, 25);
+          for (const item of combined) {
+            await sendBlogManageCard(env, chatId, item);
+          }
+          if (posts.length > combined.length) {
+            await tgSend(env, `... و ${posts.length - combined.length} مورد دیگر.`);
+          }
         } else if (text === "/start") {
           // هر بار /start زده بشه، لیست دستورها هم دوباره با تلگرام سینک می‌شه (ارزون و بی‌خطره)
           await tgSetCommands(env);
@@ -585,6 +1129,12 @@ export default {
               "/portfolio — نمونه‌کارهای در انتظار تایید\n" +
               "/managepf — مدیریت کامل گالری (ویرایش/حذف/تایید)\n" +
               "/addpf — افزودن دستی یک نمونه‌کار\n" +
+              "/addblog — نوشتن پست جدید بلاگ\n" +
+              "/manageblog — مدیریت کامل بلاگ\n" +
+              "/addfaq — افزودن سوال متداول جدید\n" +
+              "/managefaq — مدیریت سوالات متداول\n" +
+              "/banner — مدیریت بنر اعلانات سایت\n" +
+              "/status — تغییر وضعیت آنلاین/آفلاین\n" +
               "/cancel — لغو مکالمه‌ی در حال انجام",
             { reply_markup: mainMenu() }
           );
