@@ -8,6 +8,8 @@ var MODELS = [
   "@cf/meta/llama-3.1-8b-instruct",
   "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 ];
+var DEFAULT_MAX_TOKENS = 2048;
+var HARD_MAX_TOKENS = 4096;
 function stripHtml(html) {
   return html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<!--[\s\S]*?-->/g, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -23,11 +25,16 @@ async function getSiteContext() {
   }
 }
 __name(getSiteContext, "getSiteContext");
-async function runWithFallback(env, aiMessages) {
+async function runWithFallback(env, aiMessages, maxTokens) {
   let lastError = null;
+  // ورودی max_tokens رو به یه عدد امن و در سقف مجاز محدود می‌کنیم
+  const safeMaxTokens = Math.min(
+    Math.max(parseInt(maxTokens, 10) || DEFAULT_MAX_TOKENS, 256),
+    HARD_MAX_TOKENS
+  );
   for (const model of MODELS) {
     try {
-      const result = await env.AI.run(model, { messages: aiMessages });
+      const result = await env.AI.run(model, { messages: aiMessages, max_tokens: safeMaxTokens });
       if (result && result.response) {
         return { response: result.response, modelUsed: model };
       }
@@ -72,7 +79,7 @@ var index_default = {
       return new Response("Method not allowed", { status: 405, headers: corsHeaders });
     }
     try {
-      const { system, messages } = await request.json();
+      const { system, messages, max_tokens } = await request.json();
       const siteContext = await getSiteContext();
       const fullSystem = `${system}
 
@@ -83,7 +90,7 @@ ${siteContext}
         { role: "system", content: fullSystem },
         ...messages.map((m) => ({ role: m.role, content: m.content }))
       ];
-      const { response, modelUsed } = await runWithFallback(env, aiMessages);
+      const { response, modelUsed } = await runWithFallback(env, aiMessages, max_tokens);
       const wrapped = {
         content: [{ type: "text", text: response || "\u067E\u0627\u0633\u062E\u06CC \u062F\u0631\u06CC\u0627\u0641\u062A \u0646\u0634\u062F." }],
         _debug_model: modelUsed
@@ -103,4 +110,3 @@ ${siteContext}
 export {
   index_default as default
 };
-//# sourceMappingURL=index.js.map
