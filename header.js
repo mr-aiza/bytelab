@@ -118,6 +118,45 @@
       nav.links, .header-actions{display:none;}
       .burger{display:flex;}
     }
+
+    /* بنر اعلانات سایت */
+    #siteAnnouncementBanner{
+      position:fixed;top:0;left:0;right:0;z-index:60;
+      background:linear-gradient(90deg,#4df0c9,#9c7bff);
+      color:#06120f;font-weight:700;font-size:13.5px;
+      padding:10px 44px 10px 16px;text-align:center;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      line-height:1.5;
+    }
+    #siteAnnouncementBanner a{text-decoration:underline;color:#06120f;}
+    #siteAnnouncementBanner .banner-close{
+      position:absolute;left:14px;top:50%;transform:translateY(-50%);
+      background:none;border:none;color:#06120f;font-size:16px;cursor:pointer;
+      width:26px;height:26px;line-height:26px;opacity:.7;
+    }
+    #siteAnnouncementBanner .banner-close:hover{opacity:1;}
+
+    /* نشانگر وضعیت پاسخگویی آنلاین/آفلاین */
+    #siteStatusBadge{
+      position:fixed;left:18px;bottom:18px;z-index:55;
+      display:flex;align-items:center;gap:8px;
+      background:rgba(15,22,32,.9);backdrop-filter:blur(10px);
+      border:1px solid #1e2a38;border-radius:999px;
+      padding:9px 16px 9px 12px;font-size:12.5px;color:#eaf0f4;
+      box-shadow:0 4px 18px rgba(0,0,0,.35);
+    }
+    #siteStatusBadge .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    #siteStatusBadge .dot.online{background:#4df0c9;box-shadow:0 0 0 0 rgba(77,240,201,.6);animation:statusPulse 1.8s infinite;}
+    #siteStatusBadge .dot.offline{background:#ff6b6b;}
+    @keyframes statusPulse{
+      0%{box-shadow:0 0 0 0 rgba(77,240,201,.55);}
+      70%{box-shadow:0 0 0 8px rgba(77,240,201,0);}
+      100%{box-shadow:0 0 0 0 rgba(77,240,201,0);}
+    }
+    @media (max-width:560px){
+      #siteStatusBadge{left:10px;bottom:10px;padding:8px 14px 8px 10px;font-size:11.5px;}
+      #siteAnnouncementBanner{font-size:12.5px;padding:9px 40px 9px 12px;}
+    }
   `;
   const styleTag = document.createElement("style");
   styleTag.textContent = headerCSS;
@@ -220,6 +259,54 @@
 
     // --- اطلاع‌رسانی دانلود اپلیکیشن به تلگرام (بدون کند کردن دانلود کاربر) ---
     const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab-workerbytelab.workers.dev";
+
+    // --- بنر اعلانات سایت: از تلگرام روشن/خاموش می‌شه ---
+    (function loadBanner() {
+      fetch(TELEGRAM_WORKER_URL + "/banner")
+        .then((r) => r.json())
+        .then((res) => {
+          const banner = res && res.banner;
+          if (!banner || !banner.enabled || !banner.text) return;
+          const dismissKey = "banner_dismissed_" + btoa(unescape(encodeURIComponent(banner.text))).slice(0, 40);
+          if (sessionStorage.getItem(dismissKey)) return;
+
+          const el = document.createElement("div");
+          el.id = "siteAnnouncementBanner";
+          const linkHTML = banner.link ? ` <a href="${banner.link}">بیشتر بدانید ←</a>` : "";
+          el.innerHTML = `<span>${banner.text}${linkHTML}</span><button class="banner-close" aria-label="بستن">✕</button>`;
+          document.body.prepend(el);
+
+          // هدر رو به اندازه ارتفاع بنر پایین‌تر می‌بریم تا روی هم نیفتن
+          const header = document.querySelector("header");
+          requestAnimationFrame(() => {
+            const h = el.offsetHeight;
+            if (header) header.style.top = h + "px";
+          });
+
+          el.querySelector(".banner-close").addEventListener("click", () => {
+            el.remove();
+            if (header) header.style.top = "0";
+            sessionStorage.setItem(dismissKey, "1");
+          });
+        })
+        .catch(() => { /* اگه بنر لود نشد، بی‌سروصدا رد شو */ });
+    })();
+
+    // --- وضعیت پاسخگویی آنلاین/آفلاین: از تلگرام روشن/خاموش می‌شه ---
+    (function loadStatus() {
+      fetch(TELEGRAM_WORKER_URL + "/status")
+        .then((r) => r.json())
+        .then((res) => {
+          if (!res || typeof res.online !== "boolean") return;
+          const badge = document.createElement("div");
+          badge.id = "siteStatusBadge";
+          badge.innerHTML = res.online
+            ? `<span class="dot online"></span><span>پاسخگو هستیم 🟢</span>`
+            : `<span class="dot offline"></span><span>فعلاً خارج از دسترس</span>`;
+          document.body.appendChild(badge);
+        })
+        .catch(() => { /* اگه وضعیت لود نشد، بی‌سروصدا رد شو */ });
+    })();
     document.querySelectorAll('a[href="Byte_Lab.apk"]').forEach(a => {
       a.addEventListener('click', () => {
         fetch(TELEGRAM_WORKER_URL, {
