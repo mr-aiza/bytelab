@@ -1,7 +1,14 @@
 
-// worker.js — بایت‌لب: ارسال لید به تلگرام + مدیریت وضعیت + دستورات بات + گزارش روزانه + نمونه‌کارهای کاربران
+// worker.js — بایت‌لب: ارسال لید به تلگرام + مدیریت وضعیت + دستورات بات + گزارش روزانه + مدیریت کامل نمونه‌کارهای کاربران
 // نیازمند: Secret های TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 // نیازمند: Binding به KV با اسم LEADS_KV
+//
+// امکانات مدیریت نمونه‌کار از داخل تلگرام:
+//   - تایید / رد نمونه‌کار ارسالی کاربران (مثل قبل)
+//   - ✏️ ویرایش هر فیلد از یک نمونه‌کار (عنوان، توضیح، لینک سایت، لینک تصویر، نام سازنده، راه ارتباطی)
+//   - 🗑 حذف نمونه‌کار (با تاییدیه)
+//   - ➕ افزودن دستی یک نمونه‌کار جدید (بدون نیاز به ارسال از سایت)
+//   - 🗂 مشاهده و مدیریت کامل لیست نمونه‌کارها (در انتظار / تایید شده)
 
 const TG_API = (env) => `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}`;
 
@@ -14,6 +21,23 @@ async function tgSend(env, text, extra = {}) {
   return res.json();
 }
 
+async function tgSendTo(env, chatId, text, extra = {}) {
+  const res = await fetch(`${TG_API(env)}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, text, ...extra }),
+  });
+  return res.json();
+}
+
+async function tgEditText(env, chatId, messageId, text, extra = {}) {
+  return fetch(`${TG_API(env)}/editMessageText`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, message_id: messageId, text, ...extra }),
+  }).then((r) => r.json());
+}
+
 async function tgEditMarkup(env, chatId, messageId, replyMarkup) {
   return fetch(`${TG_API(env)}/editMessageReplyMarkup`, {
     method: "POST",
@@ -22,12 +46,32 @@ async function tgEditMarkup(env, chatId, messageId, replyMarkup) {
   });
 }
 
-async function tgAnswerCallback(env, callbackQueryId, text) {
+async function tgAnswerCallback(env, callbackQueryId, text, showAlert = false) {
   return fetch(`${TG_API(env)}/answerCallbackQuery`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ callback_query_id: callbackQueryId, text }),
+    body: JSON.stringify({ callback_query_id: callbackQueryId, text, show_alert: showAlert }),
   });
+}
+
+// لیست دستورهایی که تو منوی «/» تلگرام (کنار جعبه‌ی پیام) به‌صورت دکمه نمایش داده می‌شن
+const BOT_COMMANDS = [
+  { command: "start", description: "شروع و نمایش منوی اصلی" },
+  { command: "stats", description: "📊 آمار کلی سایت" },
+  { command: "leads", description: "📋 آخرین لیدها (فرم تماس/ثبت‌نام)" },
+  { command: "portfolio", description: "🎨 نمونه‌کارهای در انتظار تایید" },
+  { command: "managepf", description: "🗂 مدیریت کامل گالری (ویرایش/حذف/تایید)" },
+  { command: "addpf", description: "➕ افزودن دستی یک نمونه‌کار" },
+  { command: "cancel", description: "❌ لغو مکالمه‌ی در حال انجام" },
+];
+
+async function tgSetCommands(env) {
+  const res = await fetch(`${TG_API(env)}/setMyCommands`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ commands: BOT_COMMANDS }),
+  });
+  return res.json();
 }
 
 function nowTehranDateStr() {
@@ -49,10 +93,32 @@ async function savePortfolioItem(env, item) {
   await env.LEADS_KV.put(`portfolio:${item.id}`, JSON.stringify(item));
 }
 
+async function getPortfolioItem(env, id) {
+  const raw = await env.LEADS_KV.get(`portfolio:${id}`);
+  return raw ? JSON.parse(raw) : null;
+}
+
+async function deletePortfolioItem(env, id) {
+  await env.LEADS_KV.delete(`portfolio:${id}`);
+}
+
 async function getAllPortfolioItems(env) {
   const list = await env.LEADS_KV.list({ prefix: "portfolio:" });
   const values = await Promise.all(list.keys.map((k) => env.LEADS_KV.get(k.name)));
   return values.filter(Boolean).map((v) => JSON.parse(v)).sort((a, b) => b.createdAt - a.createdAt);
+}
+
+// ================== وضعیت مکالمه ادمین (برای ویرایش / افزودن دستی) ==================
+// ذخیره در KV با کلید admstate:<chatId> و انقضای ۱ ساعته تا مکالمه‌های رهاشده هرز نره
+async function getAdminState(env, chatId) {
+  const raw = await env.LEADS_KV.get(`admstate:${chatId}`);
+  return raw ? JSON.parse(raw) : null;
+}
+async function setAdminState(env, chatId, state) {
+  await env.LEADS_KV.put(`admstate:${chatId}`, JSON.stringify(state), { expirationTtl: 3600 });
+}
+async function clearAdminState(env, chatId) {
+  await env.LEADS_KV.delete(`admstate:${chatId}`);
 }
 
 function statusLabel(status) {
@@ -62,15 +128,77 @@ function statusLabel(status) {
   return "🆕 جدید";
 }
 
+function pfStatusLabel(status) {
+  if (status === "approved") return "✅ تایید شده (روی سایت)";
+  if (status === "rejected") return "❌ رد شده";
+  return "⏳ در انتظار تایید";
+}
+
 function mainMenu() {
   return {
     keyboard: [
       [{ text: "📊 آمار" }, { text: "📋 لیدها" }],
-      [{ text: "🎨 نمونه‌کارها" }],
+      [{ text: "🎨 نمونه‌کارهای جدید" }, { text: "🗂 مدیریت گالری" }],
+      [{ text: "➕ افزودن نمونه‌کار دستی" }],
     ],
     resize_keyboard: true,
     is_persistent: true,
   };
+}
+
+// ---- فیلدهای قابل ویرایش یک نمونه‌کار ----
+const PF_FIELDS = {
+  t: { key: "title", label: "📌 عنوان" },
+  d: { key: "description", label: "📝 توضیح کوتاه" },
+  u: { key: "url", label: "🔗 لینک سایت" },
+  i: { key: "image", label: "🖼 لینک تصویر" },
+  a: { key: "authorName", label: "👤 نام سازنده" },
+  c: { key: "authorContact", label: "📞 راه ارتباطی" },
+};
+
+function formatItemDetail(item) {
+  return (
+    `🎨 نمونه‌کار\n\n` +
+    `وضعیت: ${pfStatusLabel(item.status)}\n\n` +
+    `📌 عنوان: ${item.title || "-"}\n` +
+    `📝 توضیح: ${item.description || "-"}\n` +
+    `🔗 لینک سایت: ${item.url || "-"}\n` +
+    `🖼 لینک تصویر: ${item.image || "-"}\n` +
+    `👤 سازنده: ${item.authorName || "-"}\n` +
+    `📞 ارتباط: ${item.authorContact || "-"}`
+  );
+}
+
+function manageKeyboard(item) {
+  const rows = [];
+
+  if (item.status !== "approved") {
+    rows.push([{ text: "✅ تایید و نمایش", callback_data: `pf:${item.id}:approved` }]);
+  }
+  if (item.status !== "rejected") {
+    rows.push([{ text: "🚫 رد کردن / برداشتن از سایت", callback_data: `pf:${item.id}:rejected` }]);
+  }
+
+  rows.push([
+    { text: "✏️ عنوان", callback_data: `pfedit:${item.id}:t` },
+    { text: "✏️ توضیح", callback_data: `pfedit:${item.id}:d` },
+  ]);
+  rows.push([
+    { text: "✏️ لینک سایت", callback_data: `pfedit:${item.id}:u` },
+    { text: "✏️ لینک تصویر", callback_data: `pfedit:${item.id}:i` },
+  ]);
+  rows.push([
+    { text: "✏️ نام سازنده", callback_data: `pfedit:${item.id}:a` },
+    { text: "✏️ راه ارتباطی", callback_data: `pfedit:${item.id}:c` },
+  ]);
+  rows.push([{ text: "🗑 حذف کامل این نمونه‌کار", callback_data: `pfdel:${item.id}` }]);
+  rows.push([{ text: "🔄 بروزرسانی این پیام", callback_data: `pfmanage:${item.id}` }]);
+
+  return { inline_keyboard: rows };
+}
+
+async function sendItemManageCard(env, chatId, item) {
+  return tgSendTo(env, chatId, formatItemDetail(item), { reply_markup: manageKeyboard(item) });
 }
 
 export default {
@@ -86,6 +214,24 @@ export default {
     }
 
     const url = new URL(request.url);
+
+    // ================== ثبت دستورهای ربات (یک‌بار بعد از هر دیپلوی، این آدرس رو باز کن) ==================
+    // این کار باعث می‌شه توی تلگرام کنار جعبه‌ی پیام یه دکمه «/» بیاد که با زدنش
+    // لیست همه‌ی دستورهای بات (مثل /managepf و /addpf) به‌صورت دکمه‌های قابل لمس نمایش داده بشه.
+    if (url.pathname === "/setup-commands" && request.method === "GET") {
+      try {
+        const result = await tgSetCommands(env);
+        return new Response(JSON.stringify(result, null, 2), {
+          status: result.ok ? 200 : 500,
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ ok: false, error: String(err) }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    }
 
     // ================== لیست عمومی نمونه‌کارهای تایید شده (برای نمایش در سایت) ==================
     if (url.pathname === "/api/portfolio" && request.method === "GET") {
@@ -109,9 +255,12 @@ export default {
 
       const update = await request.json();
 
+      // ---------- کلیک روی دکمه‌های شیشه‌ای ----------
       if (update.callback_query) {
         const cq = update.callback_query;
         const data = cq.data || "";
+        const chatId = cq.message.chat.id;
+        const messageId = cq.message.message_id;
 
         if (String(cq.from.id) !== String(env.TELEGRAM_CHAT_ID)) {
           await tgAnswerCallback(env, cq.id, "اجازه‌ی این کار رو ندارید.");
@@ -121,6 +270,7 @@ export default {
         const parts = data.split(":");
 
         if (parts[0] === "st") {
+          // وضعیت لید (تماس گرفتم / بعداً / رد شد)
           const leadId = parts[1];
           const newStatus = parts[2];
           const raw = await env.LEADS_KV.get(`lead:${leadId}`);
@@ -132,7 +282,7 @@ export default {
               lead.snoozeUntil = Date.now() + 24 * 60 * 60 * 1000;
             }
             await saveLead(env, lead);
-            await tgEditMarkup(env, cq.message.chat.id, cq.message.message_id, {
+            await tgEditMarkup(env, chatId, messageId, {
               inline_keyboard: [[{ text: statusLabel(newStatus) + " (ثبت شد)", callback_data: "noop" }]],
             });
             await tgAnswerCallback(env, cq.id, "وضعیت ثبت شد ✅");
@@ -140,28 +290,104 @@ export default {
             await tgAnswerCallback(env, cq.id, "این لید پیدا نشد.");
           }
         } else if (parts[0] === "pf") {
-          // تایید یا رد نمونه‌کار ارسالی کاربر
+          // تایید یا رد نمونه‌کار (از پیام اولیه‌ی ارسال کاربر یا از کارت مدیریت)
           const pfId = parts[1];
           const newStatus = parts[2]; // approved | rejected
-          const raw = await env.LEADS_KV.get(`portfolio:${pfId}`);
-          if (raw) {
-            const item = JSON.parse(raw);
+          const item = await getPortfolioItem(env, pfId);
+          if (item) {
             item.status = newStatus;
             await savePortfolioItem(env, item);
-            const label = newStatus === "approved" ? "✅ تایید شد و روی سایت نمایش داده می‌شه" : "❌ رد شد";
-            await tgEditMarkup(env, cq.message.chat.id, cq.message.message_id, {
-              inline_keyboard: [[{ text: label, callback_data: "noop" }]],
+            await tgEditText(env, chatId, messageId, formatItemDetail(item), {
+              reply_markup: manageKeyboard(item),
             });
-            await tgAnswerCallback(env, cq.id, "ثبت شد ✅");
+            await tgAnswerCallback(
+              env,
+              cq.id,
+              newStatus === "approved" ? "تایید شد و روی سایت نمایش داده می‌شه ✅" : "رد شد / از سایت برداشته شد ❌"
+            );
           } else {
             await tgAnswerCallback(env, cq.id, "این نمونه‌کار پیدا نشد.");
           }
+        } else if (parts[0] === "pfmanage") {
+          // نمایش/بروزرسانی کارت مدیریت یک نمونه‌کار
+          const pfId = parts[1];
+          const item = await getPortfolioItem(env, pfId);
+          if (item) {
+            await tgEditText(env, chatId, messageId, formatItemDetail(item), {
+              reply_markup: manageKeyboard(item),
+            });
+            await tgAnswerCallback(env, cq.id, "بروزرسانی شد");
+          } else {
+            await tgAnswerCallback(env, cq.id, "این نمونه‌کار دیگه وجود نداره (شاید حذف شده).");
+          }
+        } else if (parts[0] === "pfedit") {
+          // شروع ویرایش یک فیلد خاص
+          const pfId = parts[1];
+          const fieldCode = parts[2];
+          const field = PF_FIELDS[fieldCode];
+          const item = await getPortfolioItem(env, pfId);
+          if (!item || !field) {
+            await tgAnswerCallback(env, cq.id, "امکان ویرایش نیست.");
+            return new Response("ok");
+          }
+          await setAdminState(env, chatId, { mode: "editfield", id: pfId, field: fieldCode });
+          await tgAnswerCallback(env, cq.id, "منتظر مقدار جدید هستم...");
+          await tgSendTo(
+            env,
+            chatId,
+            `✏️ در حال ویرایش «${field.label}»\n\nمقدار فعلی:\n${item[field.key] || "-"}\n\nمقدار جدید رو بفرست، یا برای لغو /cancel رو بزن.`,
+            { reply_markup: { force_reply: true } }
+          );
+        } else if (parts[0] === "pfdel") {
+          // درخواست تاییدیه‌ی حذف
+          const pfId = parts[1];
+          const item = await getPortfolioItem(env, pfId);
+          if (!item) {
+            await tgAnswerCallback(env, cq.id, "این نمونه‌کار پیدا نشد.");
+            return new Response("ok");
+          }
+          await tgEditText(
+            env,
+            chatId,
+            messageId,
+            `⚠️ مطمئنی می‌خوای «${item.title}» رو کامل حذف کنی؟ این کار قابل بازگشت نیست.`,
+            {
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    { text: "✅ بله، حذف کن", callback_data: `pfdelyes:${pfId}` },
+                    { text: "❌ نه، بازگشت", callback_data: `pfmanage:${pfId}` },
+                  ],
+                ],
+              },
+            }
+          );
+          await tgAnswerCallback(env, cq.id, "");
+        } else if (parts[0] === "pfdelyes") {
+          const pfId = parts[1];
+          const item = await getPortfolioItem(env, pfId);
+          await deletePortfolioItem(env, pfId);
+          await tgEditText(
+            env,
+            chatId,
+            messageId,
+            `🗑 «${item ? item.title : "نمونه‌کار"}» با موفقیت حذف شد.`,
+            { reply_markup: { inline_keyboard: [] } }
+          );
+          await tgAnswerCallback(env, cq.id, "حذف شد ✅");
+        } else if (parts[0] === "canceladd") {
+          await clearAdminState(env, chatId);
+          await tgEditText(env, chatId, messageId, "❌ افزودن نمونه‌کار لغو شد.", {
+            reply_markup: { inline_keyboard: [] },
+          });
+          await tgAnswerCallback(env, cq.id, "لغو شد");
         } else {
           await tgAnswerCallback(env, cq.id, "");
         }
         return new Response("ok");
       }
 
+      // ---------- پیام متنی ----------
       if (update.message && update.message.text) {
         const chatId = update.message.chat.id;
         const text = update.message.text.trim();
@@ -170,6 +396,86 @@ export default {
           return new Response("ok");
         }
 
+        // لغو هر مکالمه‌ی در حال انجام (ویرایش یا افزودن دستی)
+        if (text === "/cancel") {
+          const had = await getAdminState(env, chatId);
+          await clearAdminState(env, chatId);
+          await tgSendTo(env, chatId, had ? "❌ عملیات لغو شد." : "چیزی برای لغو کردن نیست.", {
+            reply_markup: mainMenu(),
+          });
+          return new Response("ok");
+        }
+
+        // اگه یک مکالمه‌ی باز (ویرایش فیلد یا افزودن دستی) در جریانه، پیام رو به‌عنوان پاسخ اون مکالمه بگیر
+        const state = await getAdminState(env, chatId);
+        if (state && !text.startsWith("/") && !["📊 آمار", "📋 لیدها", "🎨 نمونه‌کارهای جدید", "🗂 مدیریت گالری", "➕ افزودن نمونه‌کار دستی"].includes(text)) {
+          if (state.mode === "editfield") {
+            const item = await getPortfolioItem(env, state.id);
+            const field = PF_FIELDS[state.field];
+            if (item && field) {
+              item[field.key] = text.slice(0, 400);
+              await savePortfolioItem(env, item);
+              await clearAdminState(env, chatId);
+              await tgSendTo(env, chatId, `✅ «${field.label}» بروزرسانی شد.`);
+              await sendItemManageCard(env, chatId, item);
+            } else {
+              await clearAdminState(env, chatId);
+              await tgSendTo(env, chatId, "این نمونه‌کار دیگه پیدا نشد، عملیات لغو شد.", { reply_markup: mainMenu() });
+            }
+            return new Response("ok");
+          }
+
+          if (state.mode === "add") {
+            const value = text === "-" ? "" : text;
+            const data = state.data || {};
+
+            if (state.step === "title") {
+              data.title = text.slice(0, 120);
+              await setAdminState(env, chatId, { mode: "add", step: "description", data });
+              await tgSendTo(env, chatId, "📝 حالا یک توضیح کوتاه درباره‌ی این پروژه بفرست:");
+            } else if (state.step === "description") {
+              data.description = text.slice(0, 400);
+              await setAdminState(env, chatId, { mode: "add", step: "url", data });
+              await tgSendTo(env, chatId, "🔗 لینک سایت رو بفرست (اگه سایت نداره، بنویس -):");
+            } else if (state.step === "url") {
+              data.url = value.slice(0, 300);
+              await setAdminState(env, chatId, { mode: "add", step: "image", data });
+              await tgSendTo(env, chatId, "🖼 لینک تصویر پیش‌نمایش رو بفرست (اختیاریه، برای رد شدن بنویس -):");
+            } else if (state.step === "image") {
+              data.image = value.slice(0, 300);
+              await setAdminState(env, chatId, { mode: "add", step: "authorName", data });
+              await tgSendTo(env, chatId, "👤 نام سازنده رو بفرست:");
+            } else if (state.step === "authorName") {
+              data.authorName = text.slice(0, 80);
+              await setAdminState(env, chatId, { mode: "add", step: "authorContact", data });
+              await tgSendTo(env, chatId, "📞 راه ارتباطی سازنده رو بفرست (اختیاریه، برای رد شدن بنویس -):");
+            } else if (state.step === "authorContact") {
+              data.authorContact = value.slice(0, 100);
+              await clearAdminState(env, chatId);
+
+              const item = {
+                id: crypto.randomUUID(),
+                status: "approved",
+                createdAt: Date.now(),
+                title: data.title || "-",
+                description: data.description || "-",
+                url: data.url || "",
+                image: data.image || "",
+                authorName: data.authorName || "-",
+                authorContact: data.authorContact || "-",
+                addedManually: true,
+              };
+              await savePortfolioItem(env, item);
+              await tgSendTo(env, chatId, "✅ نمونه‌کار جدید با موفقیت اضافه شد و همین الان روی سایت نمایش داده می‌شه:", {
+                reply_markup: mainMenu(),
+              });
+              await sendItemManageCard(env, chatId, item);
+            }
+            return new Response("ok");
+          }
+        }
+
+        // ---------- دستورات / دکمه‌های منو ----------
         if (text === "/stats" || text === "📊 آمار") {
           const leads = await getAllLeads(env);
           const today = nowTehranDateStr();
@@ -187,6 +493,7 @@ export default {
           const portfolioItems = await getAllPortfolioItems(env);
           const pfPending = portfolioItems.filter((p) => p.status === "pending").length;
           const pfApproved = portfolioItems.filter((p) => p.status === "approved").length;
+          const pfRejected = portfolioItems.filter((p) => p.status === "rejected").length;
 
           await tgSend(env,
             `📊 آمار کلی بایت‌لب\n\n` +
@@ -202,7 +509,8 @@ export default {
             `❌ رد شده: ${rejected}\n` +
             `🆕 در انتظار پیگیری: ${pending}\n\n` +
             `🎨 نمونه‌کار در انتظار تایید: ${pfPending}\n` +
-            `🎨 نمونه‌کار تایید شده: ${pfApproved}`,
+            `🎨 نمونه‌کار تایید شده: ${pfApproved}\n` +
+            `🎨 نمونه‌کار رد شده: ${pfRejected}`,
             { reply_markup: mainMenu() }
           );
         } else if (text === "/leads" || text === "📋 لیدها") {
@@ -223,25 +531,61 @@ export default {
             });
             await tgSend(env, msg, { reply_markup: mainMenu() });
           }
-        } else if (text === "/portfolio" || text === "🎨 نمونه‌کارها") {
+        } else if (text === "/portfolio" || text === "🎨 نمونه‌کارهای جدید") {
+          // فقط موارد در انتظار تایید، هرکدوم با دکمه‌ی تایید/رد سریع + مدیریت کامل
           const portfolioItems = await getAllPortfolioItems(env);
-          const pending = portfolioItems.filter((p) => p.status === "pending").slice(0, 10);
+          const pending = portfolioItems.filter((p) => p.status === "pending").slice(0, 15);
 
-          let msg =
-            `🎨 نمونه‌کارهای بایت‌لب:\n` +
-            `https://mr-aiza.github.io/bytelab/portfolio.html\n\n`;
-
-          if (pending.length === 0) {
-            msg += "هیچ نمونه‌کاری در انتظار تایید نیست.";
-          } else {
-            msg += `⏳ ${pending.length} نمونه‌کار در انتظار تایید:\n\n`;
-            for (const item of pending) {
-              msg += `📌 ${item.title}\n🔗 ${item.url || item.image || "-"}\n👤 ${item.authorName || "-"}\n\n`;
-            }
+          await tgSend(
+            env,
+            `🎨 نمونه‌کارهای در انتظار تایید:\n` +
+              `https://mr-aiza.github.io/bytelab/portfolio.html\n\n` +
+              (pending.length === 0 ? "هیچ موردی در انتظار تایید نیست." : `${pending.length} مورد پیدا شد:`),
+            { reply_markup: mainMenu() }
+          );
+          for (const item of pending) {
+            await sendItemManageCard(env, chatId, item);
           }
-          await tgSend(env, msg, { reply_markup: mainMenu() });
+        } else if (text === "/managepf" || text === "🗂 مدیریت گالری") {
+          // همه‌ی موارد (در انتظار + تایید شده)، هرکدوم با کارت مدیریت کامل
+          const portfolioItems = await getAllPortfolioItems(env);
+          const pending = portfolioItems.filter((p) => p.status === "pending");
+          const approved = portfolioItems.filter((p) => p.status === "approved");
+
+          await tgSend(
+            env,
+            `🗂 مدیریت کامل گالری نمونه‌کارها\n\n` +
+              `⏳ در انتظار تایید: ${pending.length}\n` +
+              `✅ تایید شده (روی سایت): ${approved.length}\n\n` +
+              `برای هرکدوم می‌تونی از دکمه‌های زیر پیام‌ها استفاده کنی: ویرایش فیلدها، تایید/رد، یا حذف کامل.`,
+            { reply_markup: mainMenu() }
+          );
+
+          const combined = [...pending, ...approved].slice(0, 25);
+          for (const item of combined) {
+            await sendItemManageCard(env, chatId, item);
+          }
+          if (portfolioItems.length > combined.length) {
+            await tgSend(env, `... و ${portfolioItems.length - combined.length} مورد دیگر (برای دیدن همه بعداً پیام بده).`);
+          }
+        } else if (text === "/addpf" || text === "➕ افزودن نمونه‌کار دستی") {
+          await setAdminState(env, chatId, { mode: "add", step: "title", data: {} });
+          await tgSendTo(env, chatId, "➕ افزودن نمونه‌کار جدید\n\n📌 عنوان پروژه رو بفرست (یا /cancel برای لغو):", {
+            reply_markup: { force_reply: true },
+          });
         } else if (text === "/start") {
-          await tgSend(env, "سلام 👋 بات اطلاع‌رسانی بایت‌لب فعاله.\n\nاز منوی پایین صفحه استفاده کن، یا این دستورات رو بفرست:\n/stats — آمار کلی\n/leads — آخرین لیدها\n/portfolio — لینک و وضعیت نمونه‌کارها",
+          // هر بار /start زده بشه، لیست دستورها هم دوباره با تلگرام سینک می‌شه (ارزون و بی‌خطره)
+          await tgSetCommands(env);
+          await tgSend(
+            env,
+            "سلام 👋 بات اطلاع‌رسانی و مدیریت بایت‌لب فعاله.\n\n" +
+              "از منوی پایین صفحه استفاده کن، یا این دستورات رو بفرست:\n" +
+              "/stats — آمار کلی\n" +
+              "/leads — آخرین لیدها\n" +
+              "/portfolio — نمونه‌کارهای در انتظار تایید\n" +
+              "/managepf — مدیریت کامل گالری (ویرایش/حذف/تایید)\n" +
+              "/addpf — افزودن دستی یک نمونه‌کار\n" +
+              "/cancel — لغو مکالمه‌ی در حال انجام",
             { reply_markup: mainMenu() }
           );
         }
@@ -274,22 +618,8 @@ export default {
         };
         await savePortfolioItem(env, item);
 
-        const text =
-          `🎨 نمونه‌کار جدید برای تایید\n\n` +
-          `📌 عنوان: ${item.title}\n` +
-          `📝 توضیح: ${item.description}\n` +
-          `🔗 لینک: ${item.url || "-"}\n` +
-          `🖼 تصویر: ${item.image || "-"}\n` +
-          `👤 سازنده: ${item.authorName}\n` +
-          `📞 ارتباط: ${item.authorContact}`;
-
-        const sendResult = await tgSend(env, text, {
-          reply_markup: {
-            inline_keyboard: [[
-              { text: "✅ تایید و نمایش", callback_data: `pf:${id}:approved` },
-              { text: "❌ رد کردن", callback_data: `pf:${id}:rejected` },
-            ]],
-          },
+        const sendResult = await tgSend(env, formatItemDetail(item) + "\n\n🆕 این یک ارسال جدید از سایته که منتظر بررسیه.", {
+          reply_markup: manageKeyboard(item),
         });
 
         if (!sendResult.ok) {
