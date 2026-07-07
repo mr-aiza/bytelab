@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.bytelab.app",
+        "sha256_cert_fingerprints": ["9B:B9:40:16:1F:1A:09:16:5F:AD:22:A8:CA:56:81:2E:46:08:D4:20:7B:A3:61:8D:D8:24:F3:BA:68:A4:E1:84"]
+      }
+    }]
