@@ -2,6 +2,13 @@
 // این فایل هدر و منوی موبایل سایت بایت‌لب رو دقیقا مطابق index.html
 // در همه صفحات تزریق می‌کنه. کافیه این فایل رو در همه صفحات لینک بدی.
 (function () {
+  // --- جلوگیری از «دارک‌مود اجباری» کروم اندروید که باعث هم‌رنگ شدن متن با پس‌زمینه می‌شد ---
+if (!document.querySelector('meta[name="color-scheme"]')) {
+  const colorScheme = document.createElement("meta");
+  colorScheme.name = "color-scheme";
+  colorScheme.content = "dark";
+  document.head.appendChild(colorScheme);
+}
   // --- فاویکون مشترک: با اجرای این فایل روی هر صفحه، فاویکون به‌صورت خودکار اضافه می‌شه ---
   const favicons = [
     { rel: "icon", type: "image/x-icon", href: "favicon.ico" },
