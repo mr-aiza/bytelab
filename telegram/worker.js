@@ -1,5 +1,5 @@
 
-// worker.js — بایت‌لب: ارسال لید به تلگرام + مدیریت وضعیت + دستورات بات + گزارش روزانه
+// worker.js — بایت‌لب: ارسال لید به تلگرام + مدیریت وضعیت + دستورات بات + گزارش روزانه + نمونه‌کارهای کاربران
 // نیازمند: Secret های TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 // نیازمند: Binding به KV با اسم LEADS_KV
 
@@ -44,6 +44,17 @@ async function getAllLeads(env) {
   return values.filter(Boolean).map((v) => JSON.parse(v)).sort((a, b) => b.createdAt - a.createdAt);
 }
 
+// ================== نمونه‌کارهای کاربران ==================
+async function savePortfolioItem(env, item) {
+  await env.LEADS_KV.put(`portfolio:${item.id}`, JSON.stringify(item));
+}
+
+async function getAllPortfolioItems(env) {
+  const list = await env.LEADS_KV.list({ prefix: "portfolio:" });
+  const values = await Promise.all(list.keys.map((k) => env.LEADS_KV.get(k.name)));
+  return values.filter(Boolean).map((v) => JSON.parse(v)).sort((a, b) => b.createdAt - a.createdAt);
+}
+
 function statusLabel(status) {
   if (status === "contacted") return "✅ تماس گرفته شد";
   if (status === "rejected") return "❌ رد شد";
@@ -66,7 +77,7 @@ export default {
   async fetch(request, env) {
     const corsHeaders = {
       "Access-Control-Allow-Origin": "https://mr-aiza.github.io",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
 
@@ -75,6 +86,22 @@ export default {
     }
 
     const url = new URL(request.url);
+
+    // ================== لیست عمومی نمونه‌کارهای تایید شده (برای نمایش در سایت) ==================
+    if (url.pathname === "/api/portfolio" && request.method === "GET") {
+      try {
+        const items = (await getAllPortfolioItems(env)).filter((p) => p.status === "approved");
+        return new Response(JSON.stringify({ ok: true, items }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ ok: false, error: String(err) }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
+    }
 
     // ================== وبهوک تلگرام (دکمه‌ها + دستورات) ==================
     if (url.pathname === "/tg") {
@@ -92,6 +119,7 @@ export default {
         }
 
         const parts = data.split(":");
+
         if (parts[0] === "st") {
           const leadId = parts[1];
           const newStatus = parts[2];
@@ -110,6 +138,23 @@ export default {
             await tgAnswerCallback(env, cq.id, "وضعیت ثبت شد ✅");
           } else {
             await tgAnswerCallback(env, cq.id, "این لید پیدا نشد.");
+          }
+        } else if (parts[0] === "pf") {
+          // تایید یا رد نمونه‌کار ارسالی کاربر
+          const pfId = parts[1];
+          const newStatus = parts[2]; // approved | rejected
+          const raw = await env.LEADS_KV.get(`portfolio:${pfId}`);
+          if (raw) {
+            const item = JSON.parse(raw);
+            item.status = newStatus;
+            await savePortfolioItem(env, item);
+            const label = newStatus === "approved" ? "✅ تایید شد و روی سایت نمایش داده می‌شه" : "❌ رد شد";
+            await tgEditMarkup(env, cq.message.chat.id, cq.message.message_id, {
+              inline_keyboard: [[{ text: label, callback_data: "noop" }]],
+            });
+            await tgAnswerCallback(env, cq.id, "ثبت شد ✅");
+          } else {
+            await tgAnswerCallback(env, cq.id, "این نمونه‌کار پیدا نشد.");
           }
         } else {
           await tgAnswerCallback(env, cq.id, "");
@@ -139,6 +184,10 @@ export default {
           const later = leads.filter((l) => l.status === "later").length;
           const pending = leads.filter((l) => !l.status || l.status === "new").length;
 
+          const portfolioItems = await getAllPortfolioItems(env);
+          const pfPending = portfolioItems.filter((p) => p.status === "pending").length;
+          const pfApproved = portfolioItems.filter((p) => p.status === "approved").length;
+
           await tgSend(env,
             `📊 آمار کلی بایت‌لب\n\n` +
             `📅 امروز: ${todays.length} رویداد جدید\n` +
@@ -151,7 +200,9 @@ export default {
             `✅ تماس گرفته شده: ${contacted}\n` +
             `⏳ تماس بعداً: ${later}\n` +
             `❌ رد شده: ${rejected}\n` +
-            `🆕 در انتظار پیگیری: ${pending}`,
+            `🆕 در انتظار پیگیری: ${pending}\n\n` +
+            `🎨 نمونه‌کار در انتظار تایید: ${pfPending}\n` +
+            `🎨 نمونه‌کار تایید شده: ${pfApproved}`,
             { reply_markup: mainMenu() }
           );
         } else if (text === "/leads" || text === "📋 لیدها") {
@@ -173,13 +224,24 @@ export default {
             await tgSend(env, msg, { reply_markup: mainMenu() });
           }
         } else if (text === "/portfolio" || text === "🎨 نمونه‌کارها") {
-          await tgSend(env,
-            `🎨 نمونه‌کارهای بایت‌لب:\n\n` +
-            `https://mr-aiza.github.io/bytelab/portfolio.html`,
-            { reply_markup: mainMenu() }
-          );
+          const portfolioItems = await getAllPortfolioItems(env);
+          const pending = portfolioItems.filter((p) => p.status === "pending").slice(0, 10);
+
+          let msg =
+            `🎨 نمونه‌کارهای بایت‌لب:\n` +
+            `https://mr-aiza.github.io/bytelab/portfolio.html\n\n`;
+
+          if (pending.length === 0) {
+            msg += "هیچ نمونه‌کاری در انتظار تایید نیست.";
+          } else {
+            msg += `⏳ ${pending.length} نمونه‌کار در انتظار تایید:\n\n`;
+            for (const item of pending) {
+              msg += `📌 ${item.title}\n🔗 ${item.url || item.image || "-"}\n👤 ${item.authorName || "-"}\n\n`;
+            }
+          }
+          await tgSend(env, msg, { reply_markup: mainMenu() });
         } else if (text === "/start") {
-          await tgSend(env, "سلام 👋 بات اطلاع‌رسانی بایت‌لب فعاله.\n\nاز منوی پایین صفحه استفاده کن، یا این دستورات رو بفرست:\n/stats — آمار کلی\n/leads — آخرین لیدها\n/portfolio — لینک نمونه‌کارها",
+          await tgSend(env, "سلام 👋 بات اطلاع‌رسانی بایت‌لب فعاله.\n\nاز منوی پایین صفحه استفاده کن، یا این دستورات رو بفرست:\n/stats — آمار کلی\n/leads — آخرین لیدها\n/portfolio — لینک و وضعیت نمونه‌کارها",
             { reply_markup: mainMenu() }
           );
         }
@@ -187,7 +249,7 @@ export default {
       return new Response("ok");
     }
 
-    // ================== درخواست‌های سایت (فرم تماس / ثبت‌نام) ==================
+    // ================== درخواست‌های سایت (فرم تماس / ثبت‌نام / نمونه‌کار) ==================
     if (request.method !== "POST") {
       return new Response("Method not allowed", { status: 405, headers: corsHeaders });
     }
@@ -196,6 +258,50 @@ export default {
       const data = await request.json();
       const id = crypto.randomUUID();
       const createdAt = Date.now();
+
+      // --- ارسال نمونه‌کار توسط کاربر: جدا از سیستم لیدها ذخیره می‌شه ---
+      if (data.type === "portfolio_submit") {
+        const item = {
+          id,
+          status: "pending",
+          createdAt,
+          title: (data.title || "-").slice(0, 120),
+          description: (data.description || "-").slice(0, 400),
+          url: (data.url || "").slice(0, 300),
+          image: (data.image || "").slice(0, 300),
+          authorName: (data.authorName || "-").slice(0, 80),
+          authorContact: (data.authorContact || "-").slice(0, 100),
+        };
+        await savePortfolioItem(env, item);
+
+        const text =
+          `🎨 نمونه‌کار جدید برای تایید\n\n` +
+          `📌 عنوان: ${item.title}\n` +
+          `📝 توضیح: ${item.description}\n` +
+          `🔗 لینک: ${item.url || "-"}\n` +
+          `🖼 تصویر: ${item.image || "-"}\n` +
+          `👤 سازنده: ${item.authorName}\n` +
+          `📞 ارتباط: ${item.authorContact}`;
+
+        const sendResult = await tgSend(env, text, {
+          reply_markup: {
+            inline_keyboard: [[
+              { text: "✅ تایید و نمایش", callback_data: `pf:${id}:approved` },
+              { text: "❌ رد کردن", callback_data: `pf:${id}:rejected` },
+            ]],
+          },
+        });
+
+        if (!sendResult.ok) {
+          return new Response(JSON.stringify({ ok: false, error: sendResult }), {
+            status: 502, headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
+        }
+
+        return new Response(JSON.stringify({ ok: true }), {
+          status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
 
       let text = "";
       let isLead = false;
