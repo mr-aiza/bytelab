@@ -2,7 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/index.js
-var SITE_URL = "https://mr-aiza.github.io/bytelab/index.html";
+var SITE_URL = "https://bytelabpro.xyz/index.html";
 var MODELS = [
   "@cf/meta/llama-3.1-8b-instruct-fast",
   "@cf/meta/llama-3.1-8b-instruct",
