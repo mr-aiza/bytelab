@@ -5,7 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title id="postTitleTag">مقاله | بایت‌لب</title>
 <meta name="description" id="postDescTag" content="مقالات بایت‌لب">
-<link rel="canonical" href="https://bytelabpro.xyz/blog-post.html">
+<link rel="canonical" id="postCanonicalTag" href="https://bytelabpro.xyz/blog-post.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="بایت‌لب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" id="postOgTitleTag" content="مقاله | بایت‌لب">
+<meta property="og:description" id="postOgDescTag" content="مقالات بایت‌لب">
+<meta property="og:url" id="postOgUrlTag" content="https://bytelabpro.xyz/blog-post.html">
+<meta property="og:image" id="postOgImageTag" content="https://bytelabpro.xyz/favicon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" id="postTwTitleTag" content="مقاله | بایت‌لب">
+<meta name="twitter:description" id="postTwDescTag" content="مقالات بایت‌لب">
+<meta name="twitter:image" id="postTwImageTag" content="https://bytelabpro.xyz/favicon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -300,6 +311,28 @@
         document.title = p.title + " | بایت‌لب";
         const descTag = document.getElementById("postDescTag");
         if (descTag) descTag.setAttribute("content", p.excerpt || p.title);
+
+        const postUrl = "https://bytelabpro.xyz/blog-post.html?id=" + encodeURIComponent(id);
+        const postImage = p.image || "https://bytelabpro.xyz/favicon-512.png";
+        const fullTitle = p.title + " | بایت‌لب";
+        const fullDesc = p.excerpt || p.title;
+
+        const canonTag = document.getElementById("postCanonicalTag");
+        if (canonTag) canonTag.setAttribute("href", postUrl);
+        const ogTitle = document.getElementById("postOgTitleTag");
+        if (ogTitle) ogTitle.setAttribute("content", fullTitle);
+        const ogDesc = document.getElementById("postOgDescTag");
+        if (ogDesc) ogDesc.setAttribute("content", fullDesc);
+        const ogUrl = document.getElementById("postOgUrlTag");
+        if (ogUrl) ogUrl.setAttribute("content", postUrl);
+        const ogImage = document.getElementById("postOgImageTag");
+        if (ogImage) ogImage.setAttribute("content", postImage);
+        const twTitle = document.getElementById("postTwTitleTag");
+        if (twTitle) twTitle.setAttribute("content", fullTitle);
+        const twDesc = document.getElementById("postTwDescTag");
+        if (twDesc) twDesc.setAttribute("content", fullDesc);
+        const twImage = document.getElementById("postTwImageTag");
+        if (twImage) twImage.setAttribute("content", postImage);
 
         const date = new Date(p.createdAt).toLocaleDateString("fa-IR-u-ca-persian", { timeZone: "Asia/Tehran" });
         const paragraphs = (p.content || "")
