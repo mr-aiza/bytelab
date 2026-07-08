@@ -254,13 +254,13 @@
 
     <!-- این دو پست ثابت، فقط وقتی نمایش داده می‌شن که هنوز هیچ پست دینامیکی منتشر نشده باشه -->
     <div id="staticPosts">
-      <div class="post-card reveal">
+      <div class="post-card">
         <span class="meta">طراحی سایت</span>
         <h3><a href="hazine-tarahi-site.html">هزینه طراحی سایت چطور محاسبه می‌شود؟</a></h3>
         <p>عوامل موثر بر قیمت طراحی سایت و اینکه چطور یک برآورد واقع‌بینانه بگیرید.</p>
         <a href="hazine-tarahi-site.html" class="more">ادامه مطلب ←</a>
       </div>
-      <div class="post-card reveal">
+      <div class="post-card">
         <span class="meta">طراحی اپلیکیشن</span>
         <h3><a href="app-ekhtesasi.html">چه زمانی کسب‌وکار شما به اپلیکیشن اختصاصی نیاز دارد؟</a></h3>
         <p>نشانه‌هایی که می‌گویند وقت ساخت اپلیکیشن اختصاصی رسیده.</p>
@@ -318,6 +318,13 @@
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
   }, {threshold:.15});
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // محافظ: بعضی مرورگرهای داخل اپ (مثل وب‌ویوی X/اینستاگرام) گاهی IntersectionObserver رو
+  // درست اجرا نمی‌کنن و المان‌ها برای همیشه opacity:0 می‌مونن. این یه شبکه‌ی ایمنیه که بعد
+  // از کمی مکث، هر المانی که هنوز کلاس in نگرفته رو به‌زور نمایان می‌کنه.
+  setTimeout(() => {
+    document.querySelectorAll('.reveal:not(.in)').forEach(el => el.classList.add('in'));
+  }, 1200);
 </script>
 <script src="header.js"></script>
 <script src="blog-dynamic.js"></script>
