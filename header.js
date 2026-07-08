@@ -115,7 +115,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     .nav-cta-chat:hover{transform:translateY(-1px);background:rgba(77,240,201,.18);box-shadow:0 0 24px rgba(77,240,201,.3);}
 
     /* دکمه همبرگری: با باز شدن منو به ضربدر تبدیل می‌شه */
-    .burger{display:none;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;background:none;border:none;padding:8px;width:38px;height:38px;position:relative;z-index:61;}
+    .burger{display:flex;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;background:none;border:none;padding:8px;width:38px;height:38px;position:relative;z-index:61;}
     .burger span{width:22px;height:2px;background:#eaf0f4;border-radius:2px;transition:transform .25s ease, opacity .25s ease;}
     .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
     .burger.open span:nth-child(2){opacity:0;}
@@ -168,9 +168,14 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       box-shadow:0 0 20px rgba(77,240,201,.25);
     }
     body.menu-open{overflow:hidden;}
-    @media (max-width:1040px){
-      nav.links, .header-actions{display:none;}
-      .burger{display:flex;}
+    nav.links{display:none;}
+    .nav-right{display:flex;align-items:center;gap:14px;}
+    @media (max-width:640px){
+      header .nav{padding:0 14px;}
+      .header-actions{gap:8px;}
+      .header-actions .lbl{display:none;}
+      .nav-cta-app, .nav-cta-chat{padding:10px;gap:0;}
+      .logo .tag{display:none;}
     }
 
     /* بنر اعلانات سایت */
@@ -245,18 +250,17 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       <img src="logo-icon.png" alt="بایت‌لب" class="logo-icon">
       <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
     </div>
-    <nav class="links">
-  ${linksHTML}
-    </nav>
-    <div class="header-actions">
-      <a href="chat.html" class="nav-cta-chat">💬 چت با هوش مصنوعی</a>
-      <a href="profile/login.html" class="nav-cta-app">ورود / پروفایل</a>
-      <a href="${PORTFOLIO_SUBMIT_HREF}" class="nav-cta-app">🎨 نمونه‌کارها</a>
-      <a href="Byte_Lab.apk" download class="nav-cta-app">دانلود اپلیکیشن</a>
+    <div class="nav-right">
+      <div class="header-actions">
+        <a href="chat.html" class="nav-cta-chat"><span class="ico">💬</span><span class="lbl">چت با هوش مصنوعی</span></a>
+        <a href="profile/login.html" class="nav-cta-app"><span class="ico">👤</span><span class="lbl">ورود / پروفایل</span></a>
+        <a href="${PORTFOLIO_SUBMIT_HREF}" class="nav-cta-app"><span class="ico">🎨</span><span class="lbl">نمونه‌کارها</span></a>
+        <a href="Byte_Lab.apk" download class="nav-cta-app"><span class="ico">⬇️</span><span class="lbl">دانلود اپلیکیشن</span></a>
+      </div>
+      <button class="burger" id="burger" aria-label="باز کردن منو">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <button class="burger" id="burger" aria-label="باز کردن منو">
-      <span></span><span></span><span></span>
-    </button>
   </div>
 </header>
 <div class="menu-overlay" id="menuOverlay"></div>
