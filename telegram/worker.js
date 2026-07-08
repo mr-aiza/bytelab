@@ -207,7 +207,7 @@ async function generateAndPublishBlogPost(env) {
       await env.LEADS_KV.put("blogauto:failstreak", "0");
       await tgSend(
         env,
-        `📰 پست جدید بلاگ به‌صورت خودکار منتشر شد:\n\n«${item.title}»\n\nhttps://mr-aiza.github.io/bytelab/blog-post.html?id=${item.id}\n\nبرای ویرایش یا حذف: /manageblog`
+        `📰 پست جدید بلاگ به‌صورت خودکار منتشر شد:\n\n«${item.title}»\n\nhttps://bytelabpro.xyz/blog-post.html?id=${item.id}\n\nبرای ویرایش یا حذف: /manageblog`
       );
       return; // موفق شد، دیگه نیازی به تلاش بیشتر نیست
     } catch (err) {
@@ -554,7 +554,7 @@ async function sendItemManageCard(env, chatId, item) {
 export default {
   async fetch(request, env) {
     const corsHeaders = {
-      "Access-Control-Allow-Origin": "https://mr-aiza.github.io",
+      "Access-Control-Allow-Origin": "https://bytelabpro.xyz",
       "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
@@ -1192,7 +1192,7 @@ export default {
           await tgSend(
             env,
             `🎨 نمونه‌کارهای در انتظار تایید:\n` +
-              `https://mr-aiza.github.io/bytelab/portfolio.html\n\n` +
+              `https://bytelabpro.xyz/portfolio.html\n\n` +
               (pending.length === 0 ? "هیچ موردی در انتظار تایید نیست." : `${pending.length} مورد پیدا شد:`),
             { reply_markup: mainMenu() }
           );

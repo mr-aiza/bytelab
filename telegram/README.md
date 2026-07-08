@@ -14,7 +14,7 @@
 4. توی تنظیمات Worker، دو تا Secret اضافه کنید: `TELEGRAM_BOT_TOKEN` و `TELEGRAM_CHAT_ID`
 5. آدرس Worker (چیزی مثل `https://xxx.yyy.workers.dev`) رو کپی کنید
 6. توی `contact.html`، مقدار `TELEGRAM_WORKER_URL` رو با همون آدرس جایگزین کنید
-7. توی `worker.js`، مقدار `Access-Control-Allow-Origin` رو با آدرس واقعی سایتتون (`https://mr-aiza.github.io`) چک کنید که درست باشه
+7. توی `worker.js`، مقدار `Access-Control-Allow-Origin` رو با آدرس واقعی سایتتون (`https://bytelabpro.xyz`) چک کنید که درست باشه
 
 ## لینک صفحه بعد از آپلود
-`https://mr-aiza.github.io/bytelab/telegram/contact.html`
+`https://bytelabpro.xyz/telegram/contact.html`
