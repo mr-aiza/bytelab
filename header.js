@@ -172,9 +172,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     .nav-right{display:flex;align-items:center;gap:14px;}
     @media (max-width:640px){
       header .nav{padding:0 14px;}
-      .header-actions{gap:8px;}
-      .header-actions .lbl{display:none;}
-      .nav-cta-app, .nav-cta-chat{padding:10px;gap:0;}
+      .header-actions{display:none;}
       .logo .tag{display:none;}
     }
 
