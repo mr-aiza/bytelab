@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /chat.html
 
-Sitemap: https://mr-aiza.github.io/bytelab/sitemap.xml
+Sitemap: https://bytelabpro.xyz/sitemap.xml
