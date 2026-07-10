@@ -85,6 +85,7 @@
     max-width:820px;width:100%;margin:0 auto;flex:1;
     display:flex;flex-direction:column;padding:94px 20px 0;
     min-height:0;
+    position:relative;
   }
   .chat-head{margin-bottom:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
   .eyebrow{
@@ -149,6 +150,9 @@
   }
   .msg b, .msg strong{color:var(--cyan);font-weight:700;}
   .msg-img{max-width:100%;border-radius:12px;margin-bottom:8px;display:block;border:1px solid var(--line);}
+  .msg-images-grid{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .msg-images-grid .msg-img{width:96px;height:96px;object-fit:cover;margin-bottom:0;}
+  .msg-audio-tag{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:6px;}
   .msg-row.typing-row{animation:msgIn .3s ease both;}
   .msg.typing{align-self:flex-start;color:var(--muted);font-size:14px;display:flex;align-items:center;gap:8px;}
   .typing-dots span{
@@ -174,7 +178,11 @@
   }
   .chip:hover{border-color:var(--cyan);color:var(--cyan);}
 
-  .image-preview-wrap{display:none;align-items:center;gap:10px;padding:10px 2px;}
+  /* دکمه‌های پیشنهادی پویا زیر هر پاسخ دستیار */
+  .inline-suggestions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start;margin-right:40px;}
+  .inline-suggestions .chip{font-size:12px;padding:7px 12px;}
+
+  .image-preview-wrap{display:none;align-items:center;gap:10px;padding:10px 2px;flex-wrap:wrap;}
   .image-preview-wrap.show{display:flex;}
   .image-preview-thumb{position:relative;width:56px;height:56px;border-radius:10px;overflow:hidden;border:1px solid var(--line);flex-shrink:0;}
   .image-preview-thumb img{width:100%;height:100%;object-fit:cover;}
@@ -194,9 +202,18 @@
     background:var(--panel);border:1px solid var(--line);color:var(--muted);
     width:46px;height:46px;border-radius:12px;cursor:pointer;flex-shrink:0;
     display:flex;align-items:center;justify-content:center;
-    transition:border-color .2s ease, color .2s ease;
+    transition:border-color .2s ease, color .2s ease, background .2s ease;
   }
   .attach-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .attach-btn.recording{
+    background:#e35b5b;border-color:#e35b5b;color:#fff;
+    animation:micPulse 1s infinite;
+  }
+  @keyframes micPulse{
+    0%{box-shadow:0 0 0 0 rgba(227,91,91,.55);}
+    70%{box-shadow:0 0 0 9px rgba(227,91,91,0);}
+    100%{box-shadow:0 0 0 0 rgba(227,91,91,0);}
+  }
   .composer textarea{
     flex:1;resize:none;background:var(--panel);border:1px solid var(--line);
     color:var(--paper);border-radius:14px;padding:13px 16px;font-family:'Vazirmatn',sans-serif;
@@ -224,20 +241,39 @@
   .fab-telegram:hover{transform:translateY(-2px);}
   .fab-telegram svg{flex-shrink:0;}
 
+  /* Drag & Drop overlay برای چند عکس */
+  .drop-overlay{
+    position:fixed;inset:0;z-index:70;
+    background:rgba(77,240,201,.08);
+    backdrop-filter:blur(3px);
+    border:2px dashed var(--cyan);
+    display:none;align-items:center;justify-content:center;
+    pointer-events:none;
+  }
+  .drop-overlay.active{display:flex;}
+  .drop-overlay .drop-text{
+    background:var(--panel);border:1px solid var(--cyan);color:var(--cyan);
+    padding:14px 24px;border-radius:14px;font-weight:700;font-size:14px;
+  }
+
   @media (max-width:560px){
     .msg{max-width:100%;font-size:14px;}
     .msg-col{max-width:88%;}
     .chat-title{font-size:19px;}
     .fab-telegram span{display:none;}
     .fab-telegram{padding:13px;}
+    .inline-suggestions{margin-right:0;}
   }
 </style>
 </head>
 <body>
 
+  <div class="drop-overlay" id="dropOverlay">
+    <div class="drop-text">📎 عکس‌ها رو اینجا رها کن</div>
+  </div>
 
   <div id="siteHeaderPlaceholder"></div>
-<div class="chat-wrap">
+<div class="chat-wrap" id="chatWrap">
   <div class="chat-head">
     <div>
       <div class="eyebrow"><span class="pulse-dot"></span> دستیار هوشمند بایت‌لب</div>
@@ -272,17 +308,16 @@
   </div>
 
   <div class="image-preview-wrap" id="imagePreviewWrap">
-    <div class="image-preview-thumb">
-      <img id="imagePreviewImg" src="" alt="پیش‌نمایش تصویر">
-      <button class="image-preview-remove" id="imagePreviewRemove" aria-label="حذف تصویر">✕</button>
-    </div>
-    <span class="image-preview-label">تصویر ضمیمه شد — پیام یا توضیح رو بنویس و بفرست</span>
+    <div class="image-preview-label" id="imagePreviewLabel">تصویر ضمیمه شد — پیام یا توضیح رو بنویس و بفرست</div>
   </div>
 
   <div class="composer">
-    <input type="file" id="imageInput" accept="image/*" hidden>
-    <button class="attach-btn" id="attachBtn" aria-label="افزودن عکس" title="افزودن عکس">
+    <input type="file" id="imageInput" accept="image/*" multiple hidden>
+    <button class="attach-btn" id="attachBtn" aria-label="افزودن عکس" title="افزودن عکس (چندتایی مجازه)">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5-9 9"/><path d="M17 15v6M14 18h6"/></svg>
+    </button>
+    <button class="attach-btn" id="micBtn" aria-label="پیام صوتی" title="پیام صوتی">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>
     </button>
     <textarea id="input" rows="1" placeholder="پیامتو بنویس..."></textarea>
     <button class="send-btn" id="sendBtn" aria-label="ارسال">
@@ -371,6 +406,7 @@ const SYSTEM_PROMPT = `
 
 const MEMORY_KEY = "bytelab_chat_history_v1";
 const MAX_STORED_MESSAGES = 30; // برای جلوگیری از پر شدن localStorage
+const MAX_IMAGES_PER_MESSAGE = 4;
 
 const messagesEl = document.getElementById('messages');
 const inputEl = document.getElementById('input');
@@ -382,13 +418,18 @@ const memoryBanner = document.getElementById('memoryBanner');
 const attachBtn = document.getElementById('attachBtn');
 const imageInput = document.getElementById('imageInput');
 const imagePreviewWrap = document.getElementById('imagePreviewWrap');
-const imagePreviewImg = document.getElementById('imagePreviewImg');
-const imagePreviewRemove = document.getElementById('imagePreviewRemove');
+const imagePreviewLabel = document.getElementById('imagePreviewLabel');
 const telegramFab = document.getElementById('telegramFab');
+const micBtn = document.getElementById('micBtn');
+const dropOverlay = document.getElementById('dropOverlay');
+const chatWrap = document.getElementById('chatWrap');
 
 let history = []; // {role, content}
-let pendingImageBase64 = null; // data URL آماده ارسال
+let pendingImages = []; // آرایه‌ای از data URL های فشرده‌شده، آماده ارسال
 let lastUserText = "";
+let isRecording = false;
+let mediaRecorder = null;
+let audioChunks = [];
 
 function escapeHtml(str){
   return str
@@ -403,7 +444,7 @@ function formatMessage(text){
   return safe;
 }
 
-function addMessage(text, role, imageDataUrl){
+function addMessage(text, role, imageDataUrls, audioTag){
   const row = document.createElement('div');
   row.className = 'msg-row ' + role;
 
@@ -420,11 +461,28 @@ function addMessage(text, role, imageDataUrl){
   const div = document.createElement('div');
   div.className = 'msg ' + role;
 
-  if(imageDataUrl){
+  if(imageDataUrls && imageDataUrls.length === 1){
     const img = document.createElement('img');
-    img.src = imageDataUrl;
+    img.src = imageDataUrls[0];
     img.className = 'msg-img';
     div.appendChild(img);
+  } else if(imageDataUrls && imageDataUrls.length > 1){
+    const grid = document.createElement('div');
+    grid.className = 'msg-images-grid';
+    imageDataUrls.forEach(src => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.className = 'msg-img';
+      grid.appendChild(img);
+    });
+    div.appendChild(grid);
+  }
+
+  if(audioTag){
+    const tag = document.createElement('div');
+    tag.className = 'msg-audio-tag';
+    tag.textContent = '🎤 پیام صوتی';
+    div.appendChild(tag);
   }
 
   const textSpan = document.createElement('span');
@@ -449,7 +507,26 @@ function addMessage(text, role, imageDataUrl){
   row.appendChild(col);
   messagesEl.appendChild(row);
   messagesEl.scrollTop = messagesEl.scrollHeight;
-  return div;
+  return { row, bubble: div };
+}
+
+// دکمه‌های پیشنهادی پویا زیر آخرین پاسخ دستیار (از Worker میان: data.suggested_actions)
+function addInlineSuggestions(actions){
+  if(!actions || !actions.length) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'inline-suggestions';
+  actions.forEach(label => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = label;
+    chip.addEventListener('click', () => {
+      wrap.remove();
+      handleSend(label);
+    });
+    wrap.appendChild(chip);
+  });
+  messagesEl.appendChild(wrap);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
 function addTyping(){
@@ -510,7 +587,7 @@ function clearMemory(){
 
 newChatBtn.addEventListener('click', clearMemory);
 
-// ---- عکس: انتخاب، تغییر سایز، پیش‌نمایش ----
+// ---- عکس: انتخاب، تغییر سایز، پیش‌نمایش (چندتایی) ----
 function resizeImage(file, maxDim){
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -539,25 +616,121 @@ function resizeImage(file, maxDim){
   });
 }
 
+function renderImagePreviews(){
+  // پاک کردن تامب‌های قبلی (به‌جز برچسب که جدا مدیریت می‌شه)
+  imagePreviewWrap.querySelectorAll('.image-preview-thumb').forEach(el => el.remove());
+
+  if(pendingImages.length === 0){
+    imagePreviewWrap.classList.remove('show');
+    return;
+  }
+  imagePreviewWrap.classList.add('show');
+  pendingImages.forEach((src, idx) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'image-preview-thumb';
+    const img = document.createElement('img');
+    img.src = src;
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'image-preview-remove';
+    removeBtn.textContent = '✕';
+    removeBtn.addEventListener('click', () => {
+      pendingImages.splice(idx, 1);
+      renderImagePreviews();
+    });
+    thumb.appendChild(img);
+    thumb.appendChild(removeBtn);
+    imagePreviewWrap.insertBefore(thumb, imagePreviewLabel);
+  });
+  imagePreviewLabel.textContent = pendingImages.length > 1
+    ? `${pendingImages.length} تصویر ضمیمه شد — پیام یا توضیح رو بنویس و بفرست`
+    : 'تصویر ضمیمه شد — پیام یا توضیح رو بنویس و بفرست';
+}
+
+async function addImagesFromFiles(fileList){
+  const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+  for(const file of files){
+    if(pendingImages.length >= MAX_IMAGES_PER_MESSAGE){
+      alert(`حداکثر ${MAX_IMAGES_PER_MESSAGE} عکس در هر پیام مجازه.`);
+      break;
+    }
+    try{
+      const resized = await resizeImage(file, 1024);
+      pendingImages.push(resized);
+      renderImagePreviews();
+    }catch(e){ /* اگه یه فایل خراب بود، رد شو */ }
+  }
+}
+
 attachBtn.addEventListener('click', () => imageInput.click());
 
 imageInput.addEventListener('change', async () => {
-  const file = imageInput.files[0];
-  if(!file) return;
-  try{
-    pendingImageBase64 = await resizeImage(file, 1024);
-    imagePreviewImg.src = pendingImageBase64;
-    imagePreviewWrap.classList.add('show');
-  }catch(e){
-    pendingImageBase64 = null;
-  }
+  await addImagesFromFiles(imageInput.files);
   imageInput.value = '';
 });
 
-imagePreviewRemove.addEventListener('click', () => {
-  pendingImageBase64 = null;
-  imagePreviewWrap.classList.remove('show');
+// ---- Drag & Drop چند عکس روی کل ناحیه‌ی چت ----
+let dragCounter = 0;
+window.addEventListener('dragenter', (e) => {
+  if(!e.dataTransfer || !e.dataTransfer.types.includes('Files')) return;
+  e.preventDefault();
+  dragCounter++;
+  dropOverlay.classList.add('active');
 });
+window.addEventListener('dragover', (e) => {
+  if(!e.dataTransfer || !e.dataTransfer.types.includes('Files')) return;
+  e.preventDefault();
+});
+window.addEventListener('dragleave', (e) => {
+  e.preventDefault();
+  dragCounter--;
+  if(dragCounter <= 0){
+    dragCounter = 0;
+    dropOverlay.classList.remove('active');
+  }
+});
+window.addEventListener('drop', async (e) => {
+  if(!e.dataTransfer || !e.dataTransfer.files.length) return;
+  e.preventDefault();
+  dragCounter = 0;
+  dropOverlay.classList.remove('active');
+  await addImagesFromFiles(e.dataTransfer.files);
+});
+
+// ---- ضبط صدا (MediaRecorder → Base64) ----
+micBtn.addEventListener('click', async () => {
+  if(!isRecording){
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+        const base64 = await blobToBase64(blob);
+        handleSend('', { audioBase64: base64 });
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      micBtn.classList.add('recording');
+    }catch(err){
+      alert('دسترسی به میکروفون امکان‌پذیر نیست. لطفاً اجازه دسترسی رو تأیید کن.');
+    }
+  } else {
+    mediaRecorder.stop();
+    isRecording = false;
+    micBtn.classList.remove('recording');
+  }
+});
+
+function blobToBase64(blob){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 
 // ---- Live facts: current time (client-side, always accurate) ----
 function getLiveTimeFa(){
@@ -598,9 +771,9 @@ async function getLiveWeatherFa(){
 // آدرس Worker خودت را اینجا بگذار
 const API_ENDPOINT = "https://bytelab-ai.bytelab-workerbytelab.workers.dev";
 
-async function callAI(userText, imageBase64){
+async function callAI(userText, images, audioBase64){
   const liveTime = getLiveTimeFa();
-  const needsWeather = /هوا|آب و هوا|آب‌وهوا|دما|هواشناسی/.test(userText);
+  const needsWeather = /هوا|آب و هوا|آب‌وهوا|دما|هواشناسی/.test(userText || '');
   const liveWeather = needsWeather ? await getLiveWeatherFa() : null;
 
   const liveContext = `\n\n===== اطلاعات زنده (برای سؤالات عمومی) =====\n${liveTime}${liveWeather ? '\n' + liveWeather : ''}\n===== پایان اطلاعات زنده =====`;
@@ -609,9 +782,11 @@ async function callAI(userText, imageBase64){
 
   const payload = {
     system: fullSystem,
-    messages: [...history.slice(-10), { role: "user", content: userText }]
+    messages: [...history.slice(-10), { role: "user", content: userText || (audioBase64 ? '' : 'این تصویر رو بررسی کن.') }]
   };
-  if(imageBase64) payload.image = imageBase64;
+  if(images && images.length === 1) payload.image = images[0];
+  if(images && images.length > 1) payload.images = images;
+  if(audioBase64) payload.audio = audioBase64;
 
   const response = await fetch(API_ENDPOINT, {
     method: "POST",
@@ -619,36 +794,68 @@ async function callAI(userText, imageBase64){
     body: JSON.stringify(payload)
   });
 
-  const data = await response.json();
-  if(data.error){
-    return "خطای Worker: " + data.error;
-  }
-  const textBlock = (data.content || []).find(b => b.type === 'text');
-  return textBlock ? textBlock.text : 'متاسفانه پاسخی دریافت نشد، دوباره تلاش کن.';
+  return await response.json();
 }
 
-async function handleSend(text){
-  const imageToSend = pendingImageBase64;
-  if((!text || !text.trim()) && !imageToSend) return;
+async function handleSend(text, opts){
+  opts = opts || {};
+  const imagesToSend = pendingImages.slice();
+  const audioToSend = opts.audioBase64 || null;
+  const hasText = text && text.trim();
 
-  const finalText = text && text.trim() ? text.trim() : "این تصویر رو بررسی کن.";
+  if(!hasText && imagesToSend.length === 0 && !audioToSend) return;
+
+  const finalText = hasText ? text.trim() : (audioToSend ? '' : 'این تصویر رو بررسی کن.');
   suggestionsEl.style.display = 'none';
-  addMessage(finalText, 'user', imageToSend);
-  history.push({ role: 'user', content: finalText });
-  lastUserText = finalText;
+
+  const { bubble: userBubble } = addMessage(
+    finalText || (audioToSend ? '🎙️ در حال پردازش...' : ''),
+    'user',
+    imagesToSend,
+    !!audioToSend
+  );
+
+  if(finalText){
+    history.push({ role: 'user', content: finalText });
+    lastUserText = finalText;
+  }
+
   inputEl.value = '';
   inputEl.style.height = 'auto';
-  pendingImageBase64 = null;
-  imagePreviewWrap.classList.remove('show');
+  pendingImages = [];
+  renderImagePreviews();
   sendBtn.disabled = true;
 
   const typingEl = addTyping();
   try{
-    const reply = await callAI(finalText, imageToSend);
+    const data = await callAI(finalText, imagesToSend, audioToSend);
     typingEl.remove();
+
+    if(data.error){
+      addMessage('خطای Worker: ' + data.error, 'bot');
+      sendBtn.disabled = false;
+      inputEl.focus();
+      return;
+    }
+
+    // اگه پیام صوتی بود و سرور متن پیاده‌شده رو برگردوند، حباب کاربر رو با متن واقعی آپدیت کن
+    if(audioToSend && data.transcribed_text){
+      const textSpan = userBubble.querySelector('span');
+      if(textSpan) textSpan.innerHTML = formatMessage(data.transcribed_text);
+      history.push({ role: 'user', content: data.transcribed_text });
+      lastUserText = data.transcribed_text;
+    }
+
+    const textBlock = (data.content || []).find(b => b.type === 'text');
+    const reply = textBlock ? textBlock.text : 'متاسفانه پاسخی دریافت نشد، دوباره تلاش کن.';
+
     addMessage(reply, 'bot');
     history.push({ role: 'assistant', content: reply });
     saveMemory();
+
+    if(data.suggested_actions && data.suggested_actions.length){
+      addInlineSuggestions(data.suggested_actions);
+    }
   }catch(err){
     typingEl.remove();
     addMessage('مشکلی در ارتباط پیش آمد. لطفاً دوباره تلاش کن.', 'bot');
