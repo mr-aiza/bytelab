@@ -31,6 +31,7 @@
     --violet:#9c7bff;
     --paper:#eaf0f4;
     --muted:#7c8b9c;
+    --gold:#f5c451;
     --radius:18px;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -67,10 +68,47 @@
   }
   .submit-cta:hover{transform:translateY(-2px);box-shadow:0 0 32px rgba(77,240,201,.5);}
 
+  /* ---- نوار جستجو + فیلتر دسته‌بندی ---- */
+  .pf-toolbar{
+    display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+    margin-top:34px;padding:14px;
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  }
+  .pf-search-box{
+    flex:1 1 260px;position:relative;display:flex;align-items:center;
+  }
+  .pf-search-box svg{position:absolute;right:16px;color:var(--muted);pointer-events:none;}
+  .pf-search-box input{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:12px;padding:12px 44px 12px 16px;color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;font-size:14.5px;outline:none;
+    transition:border-color .2s ease;
+  }
+  .pf-search-box input:focus{border-color:var(--cyan);}
+  .pf-search-box input::placeholder{color:var(--muted);}
+
+  .pf-select-wrap{position:relative;flex:0 0 auto;}
+  .pf-select-wrap select{
+    appearance:none;-webkit-appearance:none;
+    background:var(--panel-2);border:1px solid var(--line);
+    border-radius:12px;padding:12px 40px 12px 16px;color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;font-size:14.5px;outline:none;
+    cursor:pointer;min-width:170px;transition:border-color .2s ease;
+  }
+  .pf-select-wrap select:focus{border-color:var(--cyan);}
+  .pf-select-wrap::after{
+    content:"";position:absolute;left:14px;top:50%;
+    width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+    transform:translateY(-65%) rotate(45deg);pointer-events:none;
+  }
+
+  .pf-results-count{color:var(--muted);font-size:13px;margin-top:14px;}
+
   .portfolio-all{padding:20px 0 120px;}
-  .pf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;}
+  .pf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:14px;}
   .pf-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:block;transition:border-color .25s ease, transform .25s ease;}
   .pf-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
+  .pf-card.pf-hidden{display:none;}
 
   .pf-preview{background:var(--panel-2);position:relative;}
   .live-preview{width:100%;height:200px;overflow:hidden;position:relative;background:#0a0f17;}
@@ -90,14 +128,28 @@
     display:flex;align-items:center;justify-content:center;background:var(--ink);
   }
 
+  .pf-rating-badge{
+    position:absolute;top:12px;left:12px;
+    background:rgba(7,11,18,.75);backdrop-filter:blur(6px);
+    border:1px solid var(--line);border-radius:999px;
+    padding:5px 10px;font-size:12px;font-weight:700;color:var(--gold);
+    display:flex;align-items:center;gap:4px;
+  }
+
   .pf-info{padding:22px 24px 26px;}
-  .pf-label{font-weight:700;font-size:12.5px;color:var(--violet);margin-bottom:8px;display:block;}
+  .pf-tags-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .pf-label{font-weight:700;font-size:12.5px;color:var(--violet);}
+  .pf-category{
+    font-weight:700;font-size:11.5px;color:var(--cyan);
+    background:rgba(77,240,201,.1);border:1px solid rgba(77,240,201,.25);
+    padding:3px 10px;border-radius:999px;
+  }
   .pf-title{font-weight:700;font-size:17px;margin-bottom:6px;}
   .pf-desc{color:var(--muted);font-size:14px;}
   .pf-link{color:var(--cyan);font-size:13px;font-weight:700;margin-top:14px;display:inline-flex;align-items:center;gap:6px;}
   .pf-author{color:var(--muted);font-size:12.5px;margin-top:10px;display:block;}
 
-  .empty-note{color:var(--muted);font-size:14px;text-align:center;padding:20px 0;grid-column:1/-1;display:none;}
+  .empty-note{color:var(--muted);font-size:14px;text-align:center;padding:40px 0;grid-column:1/-1;display:none;}
 
   /* footer */
   footer{border-top:1px solid var(--line);padding:50px 0 32px;}
@@ -134,6 +186,8 @@
 
   @media (max-width:900px){
     .foot-top{flex-direction:column;}
+    .pf-toolbar{flex-direction:column;align-items:stretch;}
+    .pf-select-wrap select{width:100%;}
   }
 </style>
 </head>
@@ -147,13 +201,26 @@
     <h1 class="page-title reveal">همه‌ی نمونه‌کارهای بایت‌لب</h1>
     <p class="page-sub reveal">مجموعه‌ی کامل پروژه‌هایی که طراحی و اجرا کردیم؛ روی هرکدوم بزن تا از نزدیک ببینی. اگه خودت هم سایت یا اپلیکیشنی طراحی کردی، نمونه‌کارت رو با ما به اشتراک بگذار.</p>
     <a href="submit/index.html" class="submit-cta reveal">➕ ارسال نمونه‌کار من</a>
+
+    <div class="pf-toolbar reveal">
+      <div class="pf-search-box">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="pfSearchInput" placeholder="جستجو در نمونه‌کارها...">
+      </div>
+      <div class="pf-select-wrap">
+        <select id="pfCategoryFilter">
+          <option value="">همه‌ی دسته‌بندی‌ها</option>
+        </select>
+      </div>
+    </div>
+    <p class="pf-results-count" id="pfResultsCount"></p>
   </div>
 </section>
 
 <section class="portfolio-all">
   <div class="wrap">
     <div class="pf-grid" id="pfGrid">
-      <a href="https://bytelabpro.xyz/index.html" target="_blank" rel="noopener" class="pf-card reveal">
+      <a href="https://bytelabpro.xyz/index.html" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="https://bytelabpro.xyz/index.html" loading="lazy" tabindex="-1" title="سایت شرکتی بایت‌لب"></iframe>
@@ -161,13 +228,16 @@
           </div>
         </div>
         <div class="pf-info">
-          <span class="pf-label">نمونه طراحی سایت + هوش مصنوعی</span>
+          <div class="pf-tags-row">
+            <span class="pf-label">نمونه طراحی سایت + هوش مصنوعی</span>
+            <span class="pf-category">طراحی سایت</span>
+          </div>
           <div class="pf-title">سایت شرکتی بایت‌لب</div>
           <div class="pf-desc">سایت معرفی خدمات با دستیار هوش مصنوعی اختصاصی برای پاسخ‌گویی به مشتری.</div>
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="https://mr-aiza.github.io/Bytelab2/tarahi-app.html" target="_blank" rel="noopener" class="pf-card reveal">
+      <a href="https://mr-aiza.github.io/Bytelab2/tarahi-app.html" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="https://mr-aiza.github.io/Bytelab2/tarahi-app.html" loading="lazy" tabindex="-1" title="سایت شرکتی بایت‌لب نسخه ۲"></iframe>
@@ -175,13 +245,16 @@
           </div>
         </div>
         <div class="pf-info">
-          <span class="pf-label">نمونه طراحی سایت — نسخه ۲</span>
+          <div class="pf-tags-row">
+            <span class="pf-label">نمونه طراحی سایت — نسخه ۲</span>
+            <span class="pf-category">طراحی سایت</span>
+          </div>
           <div class="pf-title">سایت شرکتی بایت‌لب (ورژن ۲)</div>
           <div class="pf-desc">بازطراحی صفحه‌ی معرفی خدمات با چیدمان و ظاهر متفاوت.</div>
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="portfolio/cafe-restoran-amber.html" target="_blank" class="pf-card reveal">
+      <a href="portfolio/cafe-restoran-amber.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="portfolio/cafe-restoran-amber.html" loading="lazy" tabindex="-1" title="کافه و رستوران اِمبر"></iframe>
@@ -189,13 +262,16 @@
           </div>
         </div>
         <div class="pf-info">
-          <span class="pf-label">نمونه طراحی منوی دیجیتال</span>
+          <div class="pf-tags-row">
+            <span class="pf-label">نمونه طراحی منوی دیجیتال</span>
+            <span class="pf-category">طراحی سایت</span>
+          </div>
           <div class="pf-title">کافه و رستوران اِمبر</div>
           <div class="pf-desc">منوی دیجیتال ریسپانسیو کافه و رستوران با دسته‌بندی متحرک و انیمیشن‌های ظریف اسکرول.</div>
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="https://mr-aiza.github.io/224/" target="_blank" rel="noopener" class="pf-card reveal">
+      <a href="https://mr-aiza.github.io/224/" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="https://mr-aiza.github.io/224/" loading="lazy" tabindex="-1" title="تشریفات رویایی"></iframe>
@@ -203,13 +279,16 @@
           </div>
         </div>
         <div class="pf-info">
-          <span class="pf-label">نمونه طراحی سایت خدماتی</span>
+          <div class="pf-tags-row">
+            <span class="pf-label">نمونه طراحی سایت خدماتی</span>
+            <span class="pf-category">طراحی سایت</span>
+          </div>
           <div class="pf-title">تشریفات رویایی</div>
           <div class="pf-desc">سایت معرفی خدمات برگزاری مراسم عروسی و رویدادهای لاکچری.</div>
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="portfolio/tasharifat-royaee-v2.html" target="_blank" class="pf-card reveal">
+      <a href="portfolio/tasharifat-royaee-v2.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="portfolio/tasharifat-royaee-v2.html" loading="lazy" tabindex="-1" title="تشریفات رویایی ورژن ۲"></iframe>
@@ -217,13 +296,16 @@
           </div>
         </div>
         <div class="pf-info">
-          <span class="pf-label">نمونه طراحی سایت خدماتی — نسخه ۲</span>
+          <div class="pf-tags-row">
+            <span class="pf-label">نمونه طراحی سایت خدماتی — نسخه ۲</span>
+            <span class="pf-category">طراحی سایت</span>
+          </div>
           <div class="pf-title">تشریفات رویایی ورژن ۲</div>
           <div class="pf-desc">بازطراحی صفحه‌ی معرفی خدمات برگزاری مراسم عروسی با چیدمان و ظاهر جدید.</div>
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="portfolio/galeriy-mashin.html" target="_blank" class="pf-card reveal">
+      <a href="portfolio/galeriy-mashin.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="portfolio/galeriy-mashin.html" loading="lazy" tabindex="-1" title="گالری اتومبیل پرستیژ"></iframe>
@@ -231,13 +313,16 @@
           </div>
         </div>
         <div class="pf-info">
-          <span class="pf-label">نمونه طراحی سایت گالری</span>
+          <div class="pf-tags-row">
+            <span class="pf-label">نمونه طراحی سایت گالری</span>
+            <span class="pf-category">طراحی سایت</span>
+          </div>
           <div class="pf-title">گالری اتومبیل پرستیژ</div>
           <div class="pf-desc">نمایشگاه آنلاین خودروهای لوکس و کلاسیک با معرفی هر خودرو.</div>
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="portfolio/zarrin-gallery-gold-shop.html" target="_blank" class="pf-card reveal">
+      <a href="portfolio/zarrin-gallery-gold-shop.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="portfolio/zarrin-gallery-gold-shop.html" loading="lazy" tabindex="-1" title="زرّین گالری"></iframe>
@@ -245,14 +330,17 @@
           </div>
         </div>
         <div class="pf-info">
-          <span class="pf-label">نمونه طراحی سایت فروشگاهی</span>
+          <div class="pf-tags-row">
+            <span class="pf-label">نمونه طراحی سایت فروشگاهی</span>
+            <span class="pf-category">طراحی سایت</span>
+          </div>
           <div class="pf-title">زرّین گالری</div>
           <div class="pf-desc">سایت فروشگاه طلا و جواهرات با نمایش قیمت لحظه‌ای.</div>
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
     </div>
-    <p class="empty-note" id="pfEmptyNote">هنوز نمونه‌کاری از کاربران تایید نشده. اولین نفر باش!</p>
+    <p class="empty-note" id="pfEmptyNote">هیچ نمونه‌کاری با این فیلتر پیدا نشد.</p>
   </div>
 </section>
 
@@ -321,6 +409,14 @@
     }[c]));
   }
 
+  // --- تبدیل عدد امتیاز به رشته‌ی ستاره ---
+  function ratingStarsHTML(rating){
+    const r = Number(rating) || 0;
+    if (r <= 0) return "";
+    const rounded = Math.max(0, Math.min(5, Math.round(r)));
+    return `<span class="pf-rating-badge">⭐ ${r}</span>`;
+  }
+
   function buildPortfolioCard(item){
     const link = item.url || item.image || "#";
     let previewHTML;
@@ -341,15 +437,23 @@
         </div>`;
     }
 
+    const category = item.category || "";
+    const rating = Number(item.rating) || 0;
+
     const card = document.createElement('a');
     card.href = link;
     card.target = "_blank";
     card.rel = "noopener";
     card.className = "pf-card reveal";
+    if (category) card.dataset.category = category;
+    card.dataset.rating = String(rating);
     card.innerHTML = `
-      <div class="pf-preview">${previewHTML}</div>
+      <div class="pf-preview">${previewHTML}${ratingStarsHTML(rating)}</div>
       <div class="pf-info">
-        <span class="pf-label">نمونه‌کار ارسالی کاربران</span>
+        <div class="pf-tags-row">
+          <span class="pf-label">نمونه‌کار ارسالی کاربران</span>
+          ${category ? `<span class="pf-category">${escapeHTML(category)}</span>` : ""}
+        </div>
         <div class="pf-title">${escapeHTML(item.title)}</div>
         <div class="pf-desc">${escapeHTML(item.description)}</div>
         <span class="pf-link">مشاهده نمونه‌کار ←</span>
@@ -357,6 +461,58 @@
       </div>`;
     return card;
   }
+
+  // --- ساخت لیست دسته‌بندی‌ها بر اساس کارت‌های موجود در گرید ---
+  function populateCategoryFilter(){
+    const select = document.getElementById('pfCategoryFilter');
+    const cards = document.querySelectorAll('#pfGrid .pf-card');
+    const categories = new Set();
+    cards.forEach(c => { if (c.dataset.category) categories.add(c.dataset.category); });
+
+    // پاک کردن گزینه‌های قبلی (به‌جز «همه»)
+    while (select.options.length > 1) select.remove(1);
+
+    [...categories].sort().forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat;
+      select.appendChild(opt);
+    });
+  }
+
+  // --- فیلتر و جستجوی زنده روی کارت‌ها ---
+  function applyPortfolioFilters(){
+    const searchInput = document.getElementById('pfSearchInput');
+    const categorySelect = document.getElementById('pfCategoryFilter');
+    const query = (searchInput.value || "").trim().toLowerCase();
+    const selectedCategory = categorySelect.value;
+
+    const cards = document.querySelectorAll('#pfGrid .pf-card');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const title = (card.querySelector('.pf-title')?.textContent || "").toLowerCase();
+      const desc = (card.querySelector('.pf-desc')?.textContent || "").toLowerCase();
+      const category = card.dataset.category || "";
+
+      const matchesQuery = !query || title.includes(query) || desc.includes(query);
+      const matchesCategory = !selectedCategory || category === selectedCategory;
+
+      const visible = matchesQuery && matchesCategory;
+      card.classList.toggle('pf-hidden', !visible);
+      if (visible) visibleCount++;
+    });
+
+    document.getElementById('pfEmptyNote').style.display = visibleCount === 0 ? 'block' : 'none';
+
+    const countEl = document.getElementById('pfResultsCount');
+    countEl.textContent = (query || selectedCategory)
+      ? `${visibleCount} نمونه‌کار پیدا شد`
+      : "";
+  }
+
+  document.getElementById('pfSearchInput').addEventListener('input', applyPortfolioFilters);
+  document.getElementById('pfCategoryFilter').addEventListener('change', applyPortfolioFilters);
 
   // --- گرفتن نمونه‌کارهای تایید شده‌ی کاربران و افزودن به گرید ---
   fetch(TELEGRAM_WORKER_URL + "/api/portfolio")
@@ -369,7 +525,13 @@
         scaleLivePreviews();
       }
     })
-    .catch(() => { /* اگه شبکه یا Worker مشکل داشت، فقط نمونه‌کارهای ثابت نمایش داده می‌شن */ });
+    .catch(() => { /* اگه شبکه یا Worker مشکل داشت، فقط نمونه‌کارهای ثابت نمایش داده می‌شن */ })
+    .finally(() => {
+      populateCategoryFilter();
+    });
+
+  // اگه fetch به هر دلیلی هیچ‌وقت resolve/reject نشه (بعید ولی برای اطمینان)، حداقل روی کارت‌های ثابت فیلتر رو فعال کن
+  populateCategoryFilter();
 </script>
 
 <script src="header.js"></script>
