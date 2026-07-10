@@ -26,6 +26,7 @@
     --violet:#9c7bff;
     --paper:#eaf0f4;
     --muted:#7c8b9c;
+    --danger:#ff8a8a;
     --radius:18px;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -73,7 +74,8 @@
   h1{font-size:22px;font-weight:800;text-align:center;margin-bottom:6px;}
   p.sub{color:var(--muted);font-size:14px;text-align:center;margin-bottom:26px;}
 
-  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;}
+  label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:6px;}
+  label .counter{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4c5a6b;}
   .field{margin-bottom:16px;}
   input, textarea, select{
     width:100%;
@@ -92,6 +94,26 @@
   input:focus, textarea:focus, select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(77,240,201,.15);}
   textarea{resize:vertical;min-height:100px;}
 
+  input:invalid:not(:placeholder-shown), textarea:invalid:not(:placeholder-shown){
+    border-color:rgba(255,138,138,.5);
+  }
+  .field-error{
+    display:none;
+    font-size:12px;
+    color:var(--danger);
+    margin-top:6px;
+  }
+  .field-error.show{display:block;}
+
+  /* فیلد تله‌ی اسپم — برای کاربر واقعی هرگز دیده نمی‌شه */
+  .hp{
+    position:absolute !important;
+    width:1px;height:1px;
+    padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);
+    white-space:nowrap;border:0;
+  }
+
   .submit-btn{
     width:100%;
     background:linear-gradient(135deg,var(--cyan),var(--violet));
@@ -103,11 +125,23 @@
     border-radius:12px;
     cursor:pointer;
     margin-top:8px;
+    display:flex;align-items:center;justify-content:center;gap:8px;
     transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;
     box-shadow:0 0 24px rgba(77,240,201,.25);
   }
   .submit-btn:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(77,240,201,.4);}
   .submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+  .spinner{
+    width:15px;height:15px;
+    border:2px solid rgba(7,11,18,.35);
+    border-top-color:var(--ink);
+    border-radius:50%;
+    display:none;
+    animation:spin .7s linear infinite;
+  }
+  .submit-btn.loading .spinner{display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
 
   .status{
     margin-top:14px;
@@ -117,7 +151,7 @@
   }
   .status.show{display:block;}
   .status.ok{color:var(--cyan);}
-  .status.err{color:#ff8a8a;}
+  .status.err{color:var(--danger);}
 
   .back-link{
     display:block;
@@ -127,6 +161,11 @@
     color:var(--muted);
   }
   .back-link:hover{color:var(--cyan);}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .submit-btn, .spinner{transition:none;animation:none;}
+  }
 </style>
 </head>
 <body>
@@ -143,14 +182,16 @@
   <h1>در ارتباط باشیم</h1>
   <p class="sub">فرم زیر رو پر کن، به‌زودی باهات تماس می‌گیریم</p>
 
-  <form id="contactForm">
+  <form id="contactForm" novalidate>
     <div class="field">
       <label for="name">نام و نام‌خانوادگی</label>
-      <input type="text" id="name" name="name" placeholder="مثلاً علی احمدی" required>
+      <input type="text" id="name" name="name" placeholder="مثلاً علی احمدی" minlength="2" maxlength="60" required>
+      <div class="field-error" id="err-name">لطفاً نام و نام‌خانوادگی رو وارد کن.</div>
     </div>
     <div class="field">
       <label for="phone">شماره تماس</label>
-      <input type="tel" id="phone" name="phone" placeholder="09xxxxxxxxx" dir="ltr" required>
+      <input type="tel" id="phone" name="phone" placeholder="09xxxxxxxxx" dir="ltr" inputmode="numeric" pattern="^0?9\d{9}$" required>
+      <div class="field-error" id="err-phone">شماره موبایل معتبر نیست (مثلاً 09123456789).</div>
     </div>
     <div class="field">
       <label for="service">نوع خدمات مورد نیاز</label>
@@ -161,13 +202,25 @@
         <option value="خدمات کامپیوتر">خدمات کامپیوتر</option>
         <option value="سایر">سایر</option>
       </select>
+      <div class="field-error" id="err-service">لطفاً نوع خدمات رو انتخاب کن.</div>
     </div>
     <div class="field">
-      <label for="message">پیام شما</label>
-      <textarea id="message" name="message" placeholder="در چه زمینه‌ای نیاز به مشاوره یا همکاری داری؟" required></textarea>
+      <label for="message">پیام شما <span class="counter" id="msgCounter">0/500</span></label>
+      <textarea id="message" name="message" placeholder="در چه زمینه‌ای نیاز به مشاوره یا همکاری داری؟" minlength="10" maxlength="500" required></textarea>
+      <div class="field-error" id="err-message">لطفاً پیام رو کمی کامل‌تر بنویس (حداقل ۱۰ کاراکتر).</div>
     </div>
-    <button type="submit" class="submit-btn" id="submitBtn">ارسال پیام</button>
-    <div class="status" id="statusMsg"></div>
+
+    <!-- تله‌ی اسپم: بات‌ها معمولاً همه‌ی فیلدها رو پر می‌کنن، کاربر واقعی این رو نمی‌بینه و خالی می‌مونه -->
+    <div class="hp" aria-hidden="true">
+      <label for="website">وب‌سایت</label>
+      <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+    </div>
+
+    <button type="submit" class="submit-btn" id="submitBtn">
+      <span class="spinner"></span>
+      <span class="btn-text">ارسال پیام</span>
+    </button>
+    <div class="status" id="statusMsg" role="status" aria-live="polite"></div>
   </form>
 
   <a href="../index.html" class="back-link">← بازگشت به سایت بایت‌لب</a>
@@ -175,30 +228,78 @@
 
 <script>
   // آدرس Cloudflare Worker که پیام‌ها رو به تلگرام می‌فرسته
-  // این مقدار رو بعد از دیپلوی Worker با آدرس واقعی جایگزین کنید
   const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab-workerbytelab.workers.dev";
 
   const form = document.getElementById("contactForm");
   const btn = document.getElementById("submitBtn");
+  const btnText = btn.querySelector(".btn-text");
   const statusEl = document.getElementById("statusMsg");
+  const messageEl = document.getElementById("message");
+  const msgCounter = document.getElementById("msgCounter");
+
+  const fields = ["name", "phone", "service", "message"];
 
   function showStatus(text, type) {
     statusEl.textContent = text;
     statusEl.className = "status show " + type;
   }
 
+  function clearFieldError(id) {
+    const errEl = document.getElementById("err-" + id);
+    if (errEl) errEl.classList.remove("show");
+  }
+
+  function showFieldError(id) {
+    const errEl = document.getElementById("err-" + id);
+    if (errEl) errEl.classList.add("show");
+  }
+
+  function validateField(id) {
+    const el = document.getElementById(id);
+    const valid = el.checkValidity();
+    if (valid) clearFieldError(id);
+    else showFieldError(id);
+    return valid;
+  }
+
+  fields.forEach((id) => {
+    const el = document.getElementById(id);
+    el.addEventListener("blur", () => validateField(id));
+    el.addEventListener("input", () => clearFieldError(id));
+  });
+
+  messageEl.addEventListener("input", () => {
+    msgCounter.textContent = messageEl.value.length + "/500";
+  });
+
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
+
+    // اگه فیلد تله‌ی اسپم پر شده باشه، یعنی احتمالاً باته؛ بدون خطا و بی‌سروصدا خارج می‌شیم
+    const honeypot = document.getElementById("website").value.trim();
+    if (honeypot) {
+      showStatus("پیام شما با موفقیت ارسال شد ✅ به‌زودی تماس می‌گیریم.", "ok");
+      form.reset();
+      return;
+    }
+
+    let allValid = true;
+    fields.forEach((id) => {
+      if (!validateField(id)) allValid = false;
+    });
+    if (!allValid) {
+      showStatus("لطفاً فیلدهای مشخص‌شده رو تکمیل کن.", "err");
+      return;
+    }
 
     const name = document.getElementById("name").value.trim();
     const phone = document.getElementById("phone").value.trim();
     const service = document.getElementById("service").value;
-    const message = document.getElementById("message").value.trim();
-
-    if (!name || !phone || !service || !message) return;
+    const message = messageEl.value.trim();
 
     btn.disabled = true;
-    btn.textContent = "در حال ارسال...";
+    btn.classList.add("loading");
+    btnText.textContent = "در حال ارسال...";
     statusEl.className = "status";
 
     try {
@@ -218,6 +319,7 @@
         formSubmitted = true;
         showStatus("پیام شما با موفقیت ارسال شد ✅ به‌زودی تماس می‌گیریم.", "ok");
         form.reset();
+        msgCounter.textContent = "0/500";
       } else {
         showStatus("مشکلی پیش آمد، لطفاً دوباره تلاش کنید.", "err");
       }
@@ -225,7 +327,8 @@
       showStatus("خطا در ارتباط با سرور. اتصال اینترنت را بررسی کنید.", "err");
     } finally {
       btn.disabled = false;
-      btn.textContent = "ارسال پیام";
+      btn.classList.remove("loading");
+      btnText.textContent = "ارسال پیام";
     }
   });
 
@@ -238,9 +341,10 @@
     const name = document.getElementById("name").value.trim();
     const phone = document.getElementById("phone").value.trim();
     const service = document.getElementById("service").value;
-    const message = document.getElementById("message").value.trim();
+    const message = messageEl.value.trim();
 
     if (!name && !phone && !message) return; // فرم کاملاً خالیه، چیزی برای گزارش نیست
+    if (document.getElementById("website").value.trim()) return; // تله‌ی اسپم پر شده، گزارش نده
 
     abandonReported = true;
     const payload = JSON.stringify({ type: "abandoned_form", name, phone, service, message });
