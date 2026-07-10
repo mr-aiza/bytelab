@@ -1,4 +1,3 @@
-
 // worker.js — بایت‌لب: ارسال لید به تلگرام + مدیریت وضعیت + دستورات بات + گزارش روزانه + مدیریت کامل نمونه‌کارهای کاربران
 // نیازمند: Secret های TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 // نیازمند: Binding به KV با اسم LEADS_KV
@@ -110,6 +109,13 @@ const BLOG_WRITER_SYSTEM = `
 // خروجی مدل هوش‌مصنوعی گاهی خط‌جدید واقعی به‌جای \n اسکیپ‌شده داخل رشته‌ها می‌ذاره، یا متن اضافه دور JSON.
 // این تابع هم فقط بخش { ... } رو استخراج می‌کنه، هم کاراکترهای کنترلی خام رو اسکیپ می‌کنه تا JSON.parse خطا نده.
 function parseBlogJSON(raw) {
+  // اگه AI Worker به‌جای رشته، یه آبجکت از قبل پارس‌شده برگردونده باشه (یا callAIWorker با JSON.stringify پیچیده باشدش)،
+  // اول تلاش می‌کنیم مستقیم ازش استفاده کنیم تا String(raw) به "[object Object]" منجر نشه.
+  if (raw && typeof raw === "object") {
+    if (raw.title && raw.content) return raw;
+    raw = JSON.stringify(raw);
+  }
+
   let text = String(raw).replace(/```json|```/g, "").trim();
   const match = text.match(/\{[\s\S]*\}/);
   if (match) text = match[0];
@@ -154,6 +160,7 @@ async function callAIWorker(env, system, userText) {
       "اتصال به Worker هوش‌مصنوعی تنظیم نشده. تو تنظیمات bytelab-telegram → Bindings → Add → Service binding، یک Binding با نام AI_WORKER به Worker «bytelab-ai» وصل کن."
     );
   }
+
   const response = await env.AI_WORKER.fetch(AI_WORKER_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -163,11 +170,35 @@ async function callAIWorker(env, system, userText) {
       max_tokens: 3200,
     }),
   });
-  const data = await response.json();
-  if (data.error) throw new Error(String(data.error));
-  const textBlock = (data.content || []).find((b) => b.type === "text");
-  if (!textBlock) throw new Error("پاسخی از هوش‌مصنوعی دریافت نشد.");
-  return textBlock.text;
+
+  // بدنه‌ی خام رو جدا می‌خونیم تا اگه JSON نبود، پیام خطای واقعی و قابل‌فهم بدیم
+  // (به‌جای اینکه بعداً یه SyntaxError مبهم مثل "[object Object]" بگیریم)
+  const rawBody = await response.text();
+  let data;
+  try {
+    data = JSON.parse(rawBody);
+  } catch (e) {
+    throw new Error(
+      `پاسخ AI Worker یک JSON معتبر نبود (status ${response.status}). ابتدای پاسخ: ${rawBody.slice(0, 200)}`
+    );
+  }
+
+  if (!response.ok) {
+    const errMsg = typeof data.error === "string" ? data.error : JSON.stringify(data.error || data).slice(0, 300);
+    throw new Error(`AI Worker خطا داد (status ${response.status}): ${errMsg}`);
+  }
+  if (data.error) {
+    const errMsg = typeof data.error === "string" ? data.error : JSON.stringify(data.error).slice(0, 300);
+    throw new Error(errMsg);
+  }
+
+  const textBlock = (Array.isArray(data.content) ? data.content : []).find((b) => b && b.type === "text");
+  if (!textBlock) {
+    throw new Error(`پاسخی از هوش‌مصنوعی دریافت نشد. شکل پاسخ: ${JSON.stringify(data).slice(0, 300)}`);
+  }
+
+  // اگه به‌جای رشته، یه آبجکت (JSON از قبل پارس‌شده) برگشته باشه، دیگه از String() بی‌معنی جلوگیری می‌کنیم
+  return typeof textBlock.text === "string" ? textBlock.text : JSON.stringify(textBlock.text);
 }
 
 async function generateAndPublishBlogPost(env) {
