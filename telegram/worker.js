@@ -2,17 +2,10 @@
 // نیازمند: Secret های TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 // نیازمند: Binding به KV با اسم LEADS_KV
 //
-// امکانات مدیریت نمونه‌کار از داخل تلگرام:
-//   - تایید / رد نمونه‌کار ارسالی کاربران (مثل قبل)
-//   - ✏️ ویرایش هر فیلد از یک نمونه‌کار (عنوان، توضیح، لینک سایت، لینک تصویر، نام سازنده، راه ارتباطی)
-//   - 🗑 حذف نمونه‌کار (با تاییدیه)
-//   - ➕ افزودن دستی یک نمونه‌کار جدید (بدون نیاز به ارسال از سایت)
-//   - 🗂 مشاهده و مدیریت کامل لیست نمونه‌کارها (در انتظار / تایید شده)
-//
-// 🖥 داشبورد ادمین:
-//   - با /dashboard یا دکمه «🖥 داشبورد» یک پیام واحد با آمار امروز، موارد نیازمند توجه،
-//     وضعیت آنلاین/بنر و یک شبکه‌ی دکمه‌ای برای پرش سریع به هر بخش نمایش داده می‌شه.
-//   - دکمه‌ی «🔄 بروزرسانی» همون پیام رو با آمار تازه ویرایش می‌کنه (بدون اسپم پیام جدید).
+// رابط کاربری بات: کاملاً اینلاین (بدون کیبورد ثابت پایین صفحه) — درست مثل بات‌های ادمین حرفه‌ای.
+// همه‌چیز از داخل یک پیام «داشبورد» با دکمه‌های شیشه‌ای (inline keyboard) مدیریت می‌شه:
+//   🖥 داشبورد (خانه) → 📋 لیدها / 🎨 گالری / 📰 بلاگ / ❓ FAQ / 📢 بنر / 🟢 وضعیت / 📊 آمار کامل / 🔍 جستجو / 📤 خروجی
+//   هر بخش زیرمنوی خودش رو داره و دکمه‌ی «⬅️ بازگشت» به داشبورد برمی‌گردونه.
 
 const TG_API = (env) => `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}`;
 
@@ -60,20 +53,8 @@ async function tgAnswerCallback(env, callbackQueryId, text, showAlert = false) {
 
 // لیست دستورهایی که تو منوی «/» تلگرام (کنار جعبه‌ی پیام) به‌صورت دکمه نمایش داده می‌شن
 const BOT_COMMANDS = [
-  { command: "start", description: "شروع و نمایش منوی اصلی" },
-  { command: "dashboard", description: "🖥 داشبورد مدیریت (آمار + دسترسی سریع)" },
-  { command: "stats", description: "📊 آمار کلی سایت" },
-  { command: "leads", description: "📋 آخرین لیدها (فرم تماس/ثبت‌نام)" },
-  { command: "portfolio", description: "🎨 نمونه‌کارهای در انتظار تایید" },
-  { command: "managepf", description: "🗂 مدیریت کامل گالری (ویرایش/حذف/تایید)" },
-  { command: "addpf", description: "➕ افزودن دستی یک نمونه‌کار" },
-  { command: "manageblog", description: "📰 مدیریت کامل بلاگ (ویرایش/حذف/انتشار)" },
-  { command: "addblog", description: "➕ نوشتن پست جدید بلاگ" },
-  { command: "writeblog", description: "🤖 نوشتن فوری یک پست با هوش مصنوعی" },
-  { command: "managefaq", description: "❓ مدیریت سوالات متداول" },
-  { command: "addfaq", description: "➕ افزودن سوال متداول جدید" },
-  { command: "banner", description: "📢 مدیریت بنر اعلانات سایت" },
-  { command: "status", description: "🟢 تغییر وضعیت پاسخگویی آنلاین/آفلاین" },
+  { command: "start", description: "شروع و نمایش داشبورد" },
+  { command: "dashboard", description: "🖥 داشبورد مدیریت" },
   { command: "cancel", description: "❌ لغو مکالمه‌ی در حال انجام" },
 ];
 
@@ -91,7 +72,6 @@ function nowTehranDateStr() {
 }
 
 // ================== نویسنده خودکار بلاگ (سئو) ==================
-// از همون Worker هوش‌مصنوعی که چت‌بات سایت استفاده می‌کنه، به‌صورت سرور-به-سرور استفاده می‌کنیم
 const AI_WORKER_URL = "https://bytelab-ai.bytelab-workerbytelab.workers.dev";
 
 const BLOG_WRITER_SYSTEM = `
@@ -112,11 +92,7 @@ const BLOG_WRITER_SYSTEM = `
 {"title":"...","excerpt":"...","tag":"طراحی سایت | طراحی اپلیکیشن | خدمات کامپیوتر | نکات فنی","content":"پاراگراف اول...\\n\\nپاراگراف دوم...\\n\\n..."}
 `;
 
-// خروجی مدل هوش‌مصنوعی گاهی خط‌جدید واقعی به‌جای \n اسکیپ‌شده داخل رشته‌ها می‌ذاره، یا متن اضافه دور JSON.
-// این تابع هم فقط بخش { ... } رو استخراج می‌کنه، هم کاراکترهای کنترلی خام رو اسکیپ می‌کنه تا JSON.parse خطا نده.
 function parseBlogJSON(raw) {
-  // اگه AI Worker به‌جای رشته، یه آبجکت از قبل پارس‌شده برگردونده باشه (یا callAIWorker با JSON.stringify پیچیده باشدش)،
-  // اول تلاش می‌کنیم مستقیم ازش استفاده کنیم تا String(raw) به "[object Object]" منجر نشه.
   if (raw && typeof raw === "object") {
     if (raw.title && raw.content) return raw;
     raw = JSON.stringify(raw);
@@ -177,8 +153,6 @@ async function callAIWorker(env, system, userText) {
     }),
   });
 
-  // بدنه‌ی خام رو جدا می‌خونیم تا اگه JSON نبود، پیام خطای واقعی و قابل‌فهم بدیم
-  // (به‌جای اینکه بعداً یه SyntaxError مبهم مثل "[object Object]" بگیریم)
   const rawBody = await response.text();
   let data;
   try {
@@ -203,7 +177,6 @@ async function callAIWorker(env, system, userText) {
     throw new Error(`پاسخی از هوش‌مصنوعی دریافت نشد. شکل پاسخ: ${JSON.stringify(data).slice(0, 300)}`);
   }
 
-  // اگه به‌جای رشته، یه آبجکت (JSON از قبل پارس‌شده) برگشته باشه، دیگه از String() بی‌معنی جلوگیری می‌کنیم
   return typeof textBlock.text === "string" ? textBlock.text : JSON.stringify(textBlock.text);
 }
 
@@ -244,16 +217,14 @@ async function generateAndPublishBlogPost(env) {
       await env.LEADS_KV.put("blogauto:failstreak", "0");
       await tgSend(
         env,
-        `📰 پست جدید بلاگ به‌صورت خودکار منتشر شد:\n\n«${item.title}»\n\nhttps://bytelabpro.xyz/blog-post.html?id=${item.id}\n\nبرای ویرایش یا حذف: /manageblog`
+        `📰 پست جدید بلاگ به‌صورت خودکار منتشر شد:\n\n«${item.title}»\n\nhttps://bytelabpro.xyz/blog-post.html?id=${item.id}`
       );
-      return; // موفق شد، دیگه نیازی به تلاش بیشتر نیست
+      return;
     } catch (err) {
       lastError = err;
-      // اگه تلاش تموم نشده، دوباره امتحان می‌کنیم؛ چیزی منتشر نمی‌شه تا وقتی کامل و سالم نباشه
     }
   }
 
-  // بعد از همه‌ی تلاش‌ها هم نشد: هیچی منتشر نمی‌شه، فقط اطلاع می‌دیم
   const prevStreak = parseInt((await env.LEADS_KV.get("blogauto:failstreak")) || "0", 10);
   const streak = prevStreak + 1;
   await env.LEADS_KV.put("blogauto:failstreak", String(streak));
@@ -265,7 +236,7 @@ async function generateAndPublishBlogPost(env) {
 
   await tgSend(
     env,
-    `⚠️ نوشتن خودکار پست بلاگ بعد از ${MAX_ATTEMPTS} تلاش موفق نشد (چیزی منتشر نشد):\n${String(lastError)}${streakNote}\n\nمی‌تونی دوباره «🤖 نوشتن فوری با AI» رو بزنی.`
+    `⚠️ نوشتن خودکار پست بلاگ بعد از ${MAX_ATTEMPTS} تلاش موفق نشد (چیزی منتشر نشد):\n${String(lastError)}${streakNote}`
   );
 }
 
@@ -283,16 +254,13 @@ async function getAllLeads(env) {
 async function savePortfolioItem(env, item) {
   await env.LEADS_KV.put(`portfolio:${item.id}`, JSON.stringify(item));
 }
-
 async function getPortfolioItem(env, id) {
   const raw = await env.LEADS_KV.get(`portfolio:${id}`);
   return raw ? JSON.parse(raw) : null;
 }
-
 async function deletePortfolioItem(env, id) {
   await env.LEADS_KV.delete(`portfolio:${id}`);
 }
-
 async function getAllPortfolioItems(env) {
   const list = await env.LEADS_KV.list({ prefix: "portfolio:" });
   const values = await Promise.all(list.keys.map((k) => env.LEADS_KV.get(k.name)));
@@ -307,7 +275,6 @@ async function getBanner(env) {
 async function saveBanner(env, banner) {
   await env.LEADS_KV.put("config:banner", JSON.stringify(banner));
 }
-
 function formatBannerDetail(banner) {
   return (
     `📢 بنر اعلانات سایت\n\n` +
@@ -327,7 +294,7 @@ function bannerKeyboard(banner) {
     { text: "✏️ ویرایش متن", callback_data: "bnedit:text" },
     { text: "✏️ ویرایش لینک", callback_data: "bnedit:link" },
   ]);
-  rows.push([{ text: "🔄 بروزرسانی این پیام", callback_data: "bnrefresh" }]);
+  rows.push([{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }]);
   return { inline_keyboard: rows };
 }
 
@@ -350,11 +317,14 @@ function formatStatusDetail(status) {
 }
 function statusKeyboard(status) {
   return {
-    inline_keyboard: [[
-      status.online
-        ? { text: "🔴 تغییر به آفلاین", callback_data: "sttoggle:0" }
-        : { text: "🟢 تغییر به آنلاین", callback_data: "sttoggle:1" },
-    ]],
+    inline_keyboard: [
+      [
+        status.online
+          ? { text: "🔴 تغییر به آفلاین", callback_data: "sttoggle:0" }
+          : { text: "🟢 تغییر به آنلاین", callback_data: "sttoggle:1" },
+      ],
+      [{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }],
+    ],
   };
 }
 
@@ -410,7 +380,6 @@ function slugify(title) {
 }
 
 // ================== وضعیت مکالمه ادمین (برای ویرایش / افزودن دستی) ==================
-// ذخیره در KV با کلید admstate:<chatId> و انقضای ۱ ساعته تا مکالمه‌های رهاشده هرز نره
 async function getAdminState(env, chatId) {
   const raw = await env.LEADS_KV.get(`admstate:${chatId}`);
   return raw ? JSON.parse(raw) : null;
@@ -435,24 +404,16 @@ function pfStatusLabel(status) {
   return "⏳ در انتظار تایید";
 }
 
-function mainMenu() {
-  return {
-    keyboard: [
-      [{ text: "🖥 داشبورد" }],
-      [{ text: "📊 آمار" }, { text: "📋 لیدها" }],
-      [{ text: "🎨 نمونه‌کارهای جدید" }, { text: "🗂 مدیریت گالری" }],
-      [{ text: "➕ افزودن نمونه‌کار دستی" }],
-      [{ text: "📰 مدیریت بلاگ" }, { text: "➕ پست جدید" }],
-      [{ text: "🤖 نوشتن فوری با AI" }],
-      [{ text: "❓ مدیریت سوالات متداول" }, { text: "➕ سوال جدید" }],
-      [{ text: "📢 بنر سایت" }, { text: "🟢 وضعیت پاسخگویی" }],
-    ],
-    resize_keyboard: true,
-    is_persistent: true,
-  };
+// امتیاز نمونه‌کار: عدد صحیح یا اعشاری بین ۰ تا ۵، هم با دکمه‌های سریع ۱ تا ۵، هم با ورود دستی هر عددی
+function ratingStars(rating) {
+  const r = Number(rating) || 0;
+  const rounded = Math.max(0, Math.min(5, Math.round(r)));
+  const stars = "⭐️".repeat(rounded) + "☆".repeat(5 - rounded);
+  // اگه امتیاز دستی بزرگ‌تر از ۵ ثبت شده باشه (مقیاس دلخواه کاربر)، عدد واقعی رو هم کنارش نشون بده
+  return r > 5 ? `${stars} (${r})` : `${stars} ${r ? `(${r}/۵)` : ""}`;
 }
 
-// ================== 🖥 داشبورد ادمین ==================
+// ================== 🖥 داشبورد ادمین (خانه‌ی اصلی، کاملاً اینلاین) ==================
 async function getDashboardData(env) {
   const [leads, portfolioItems, blogPosts, banner, status] = await Promise.all([
     getAllLeads(env),
@@ -511,7 +472,32 @@ function dashboardKeyboard() {
         { text: "📢 بنر", callback_data: "dash:banner" },
         { text: "🟢 وضعیت", callback_data: "dash:status" },
       ],
-      [{ text: "🔄 بروزرسانی", callback_data: "dash:refresh" }],
+      [
+        { text: "🎨 نمونه‌کارهای جدید", callback_data: "dash:gallery:pending" },
+        { text: "➕ افزودن نمونه‌کار دستی", callback_data: "dash:gallery:add" },
+      ],
+      [
+        { text: "👥 لیست سازنده‌ها", callback_data: "dash:gallery:authors" },
+      ],
+      [
+        { text: "📰 مدیریت بلاگ", callback_data: "dash:blog" },
+        { text: "➕ پست جدید", callback_data: "dash:blog:add" },
+      ],
+      [
+        { text: "🤖 نوشتن فوری با AI", callback_data: "dash:blog:ai" },
+      ],
+      [
+        { text: "❓ مدیریت سوالات متداول", callback_data: "dash:faq" },
+        { text: "➕ سوال جدید", callback_data: "dash:faq:add" },
+      ],
+      [
+        { text: "📊 آمار کامل", callback_data: "dash:stats" },
+        { text: "🔍 جستجوی لید", callback_data: "dash:leadsearch" },
+      ],
+      [
+        { text: "📤 خروجی لیدها", callback_data: "dash:export" },
+      ],
+      [{ text: "🔄 بروزرسانی", callback_data: "dash:home" }],
     ],
   };
 }
@@ -522,6 +508,300 @@ async function sendDashboard(env, chatId) {
     parse_mode: "Markdown",
     reply_markup: dashboardKeyboard(),
   });
+}
+
+async function showDashboardEdit(env, chatId, messageId) {
+  const data = await getDashboardData(env);
+  return tgEditText(env, chatId, messageId, formatDashboardText(data), {
+    parse_mode: "Markdown",
+    reply_markup: dashboardKeyboard(),
+  });
+}
+
+// ---- 📊 آمار کامل (هفتگی/ماهانه/مجموع) ----
+async function sendFullStats(env, chatId) {
+  const leads = await getAllLeads(env);
+  const portfolioItems = await getAllPortfolioItems(env);
+  const now = Date.now();
+  const day = 24 * 60 * 60 * 1000;
+
+  const inRange = (arr, ms) => arr.filter((x) => now - x.createdAt <= ms).length;
+
+  const leadTypes = ["contact", "profile", "abandoned_form"];
+  const relevantLeads = leads.filter((l) => leadTypes.includes(l.type));
+
+  const contacted = leads.filter((l) => l.status === "contacted").length;
+  const rejected = leads.filter((l) => l.status === "rejected").length;
+  const pending = leads.filter(
+    (l) => leadTypes.includes(l.type) && (!l.status || l.status === "new" || l.status === "later")
+  ).length;
+
+  // میانگین امتیاز نمونه‌کارهای دارای امتیاز
+  const ratedItems = portfolioItems.filter((p) => Number(p.rating) > 0);
+  const avgRating = ratedItems.length
+    ? (ratedItems.reduce((sum, p) => sum + Number(p.rating), 0) / ratedItems.length).toFixed(1)
+    : "-";
+
+  const msg =
+    `📊 آمار کامل بایت‌لب\n\n` +
+    `📩 لیدها:\n` +
+    `  ۷ روز اخیر: ${inRange(relevantLeads, 7 * day)}\n` +
+    `  ۳۰ روز اخیر: ${inRange(relevantLeads, 30 * day)}\n` +
+    `  مجموع: ${relevantLeads.length}\n\n` +
+    `  ✅ تماس گرفته شده: ${contacted}\n` +
+    `  ⏳ در انتظار پیگیری: ${pending}\n` +
+    `  ❌ رد شده: ${rejected}\n\n` +
+    `🎨 نمونه‌کارها:\n` +
+    `  ۷ روز اخیر: ${inRange(portfolioItems, 7 * day)}\n` +
+    `  مجموع تایید شده: ${portfolioItems.filter((p) => p.status === "approved").length}\n` +
+    `  در انتظار تایید: ${portfolioItems.filter((p) => p.status === "pending").length}\n` +
+    `  میانگین امتیاز: ⭐ ${avgRating}\n\n` +
+    `📰 بلاگ:\n` +
+    `  مجموع پست‌ها: ${await countBlogPosts(env)}`;
+
+  await tgSendTo(env, chatId, msg, {
+    reply_markup: { inline_keyboard: [[{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }]] },
+  });
+}
+
+async function countBlogPosts(env) {
+  const posts = await getAllBlogPosts(env);
+  return posts.length;
+}
+
+// ---- 📤 خروجی لیدها به‌صورت فایل متنی ----
+async function exportLeadsFile(env, chatId) {
+  const leads = await getAllLeads(env);
+  const relevant = leads.filter((l) => ["contact", "profile", "abandoned_form"].includes(l.type));
+
+  if (relevant.length === 0) {
+    await tgSendTo(env, chatId, "هیچ لیدی برای خروجی گرفتن وجود نداره.");
+    return;
+  }
+
+  let content = "لیست لیدهای بایت‌لب\n" + "=".repeat(30) + "\n\n";
+  relevant.forEach((l, i) => {
+    const date = new Date(l.createdAt).toLocaleString("fa-IR", { timeZone: "Asia/Tehran" });
+    content += `${i + 1}. نوع: ${l.type} | وضعیت: ${statusLabel(l.status)}\n`;
+    if (l.name) content += `   نام: ${l.name}\n`;
+    if (l.phone) content += `   تلفن: ${l.phone}\n`;
+    if (l.email) content += `   ایمیل: ${l.email}\n`;
+    if (l.service) content += `   خدمت: ${l.service}\n`;
+    content += `   تاریخ: ${date}\n\n`;
+  });
+
+  const formData = new FormData();
+  formData.append("chat_id", chatId);
+  formData.append("document", new Blob([content], { type: "text/plain" }), `leads-${nowTehranDateStr()}.txt`);
+
+  await fetch(`${TG_API(env)}/sendDocument`, { method: "POST", body: formData });
+}
+
+// ---- زیرمنوی گالری ----
+function galleryMenuKeyboard() {
+  return {
+    inline_keyboard: [
+      [{ text: "⏳ در انتظار تایید", callback_data: "dash:gallery:pending" }],
+      [{ text: "🗂 مدیریت کامل گالری", callback_data: "dash:gallery:all" }],
+      [{ text: "👥 لیست بر اساس سازنده", callback_data: "dash:gallery:authors" }],
+      [{ text: "➕ افزودن دستی", callback_data: "dash:gallery:add" }],
+      [{ text: "⬅️ بازگشت", callback_data: "dash:home" }],
+    ],
+  };
+}
+async function sendPortfolioPending(env, chatId) {
+  const items = await getAllPortfolioItems(env);
+  const pending = items.filter((p) => p.status === "pending").slice(0, 15);
+  await tgSendTo(
+    env,
+    chatId,
+    pending.length === 0 ? "هیچ نمونه‌کاری در انتظار تایید نیست." : `🎨 ${pending.length} نمونه‌کار در انتظار تایید:`
+  );
+  for (const item of pending) {
+    await sendItemManageCard(env, chatId, item);
+  }
+}
+async function sendPortfolioAll(env, chatId) {
+  const items = await getAllPortfolioItems(env);
+  const pending = items.filter((p) => p.status === "pending");
+  const approved = items.filter((p) => p.status === "approved");
+  await tgSendTo(
+    env,
+    chatId,
+    `🗂 مدیریت کامل گالری نمونه‌کارها\n\n⏳ در انتظار تایید: ${pending.length}\n✅ تایید شده (روی سایت): ${approved.length}`
+  );
+  const combined = [...pending, ...approved].slice(0, 25);
+  for (const item of combined) {
+    await sendItemManageCard(env, chatId, item);
+  }
+  if (items.length > combined.length) {
+    await tgSendTo(env, chatId, `... و ${items.length - combined.length} مورد دیگر.`);
+  }
+}
+
+// ---- 👥 لیست نمونه‌کارها گروه‌بندی‌شده بر اساس سازنده (برای دسته‌بندی روی سایت) ----
+function authorKey(item) {
+  return (item.authorContact && item.authorContact !== "-" ? item.authorContact : item.authorName) || "نامشخص";
+}
+
+async function sendPortfolioByAuthor(env, chatId) {
+  const items = await getAllPortfolioItems(env);
+  if (items.length === 0) {
+    await tgSendTo(env, chatId, "هنوز هیچ نمونه‌کاری ثبت نشده.");
+    return;
+  }
+
+  const groups = {};
+  for (const item of items) {
+    const key = authorKey(item);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item);
+  }
+
+  const authorNames = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
+
+  await tgSendTo(env, chatId, `👥 لیست سازنده‌ها (${authorNames.length} نفر):`);
+
+  for (const key of authorNames) {
+    const authorItems = groups[key];
+    const first = authorItems[0];
+    const categories = [...new Set(authorItems.map((i) => i.category).filter(Boolean))];
+    const approvedCount = authorItems.filter((i) => i.status === "approved").length;
+
+    const header =
+      `👤 ${first.authorName || "-"}\n` +
+      `📞 ${first.authorContact || "-"}\n` +
+      `📦 ${authorItems.length} نمونه‌کار (${approvedCount} تایید شده)\n` +
+      (categories.length ? `🏷 دسته‌ها: ${categories.join("، ")}\n` : "");
+
+    await tgSendTo(env, chatId, header);
+
+    for (const item of authorItems.slice(0, 10)) {
+      await sendItemManageCard(env, chatId, item);
+    }
+  }
+}
+
+async function startAddPortfolio(env, chatId) {
+  await setAdminState(env, chatId, { mode: "add", step: "title", data: {} });
+  await tgSendTo(env, chatId, "➕ افزودن نمونه‌کار جدید\n\n📌 عنوان پروژه رو بفرست (یا /cancel برای لغو):", {
+    reply_markup: { force_reply: true },
+  });
+}
+
+// ---- زیرمنوی بلاگ ----
+function blogMenuKeyboard() {
+  return {
+    inline_keyboard: [
+      [{ text: "🗂 مدیریت کامل بلاگ", callback_data: "dash:blog:all" }],
+      [{ text: "➕ پست جدید (دستی)", callback_data: "dash:blog:add" }],
+      [{ text: "🤖 نوشتن فوری با AI", callback_data: "dash:blog:ai" }],
+      [{ text: "⬅️ بازگشت", callback_data: "dash:home" }],
+    ],
+  };
+}
+async function sendBlogAll(env, chatId) {
+  const posts = await getAllBlogPosts(env);
+  const drafts = posts.filter((p) => p.status !== "published");
+  const published = posts.filter((p) => p.status === "published");
+  await tgSendTo(
+    env,
+    chatId,
+    `📰 مدیریت کامل بلاگ\n\n📝 پیش‌نویس: ${drafts.length}\n✅ منتشر شده: ${published.length}`
+  );
+  const combined = [...drafts, ...published].slice(0, 25);
+  for (const item of combined) {
+    await sendBlogManageCard(env, chatId, item);
+  }
+  if (posts.length > combined.length) {
+    await tgSendTo(env, chatId, `... و ${posts.length - combined.length} مورد دیگر.`);
+  }
+}
+async function startAddBlog(env, chatId) {
+  await setAdminState(env, chatId, { mode: "blogadd", step: "title", data: {} });
+  await tgSendTo(env, chatId, "📰 نوشتن پست جدید بلاگ\n\n📌 عنوان پست رو بفرست (یا /cancel برای لغو):", {
+    reply_markup: { force_reply: true },
+  });
+}
+async function runWriteBlogAI(env, chatId) {
+  await tgSendTo(env, chatId, "🤖 در حال نوشتن پست جدید با هوش‌مصنوعی... چند ثانیه صبر کن.");
+  await generateAndPublishBlogPost(env);
+}
+
+// ---- زیرمنوی FAQ ----
+function faqMenuKeyboard() {
+  return {
+    inline_keyboard: [
+      [{ text: "🗂 مدیریت سوالات", callback_data: "dash:faq:all" }],
+      [{ text: "➕ سوال جدید", callback_data: "dash:faq:add" }],
+      [{ text: "⬅️ بازگشت", callback_data: "dash:home" }],
+    ],
+  };
+}
+async function sendFaqAll(env, chatId) {
+  const items = await getAllFaq(env);
+  await tgSendTo(env, chatId, `❓ سوالات متداول (${items.length} مورد):`);
+  for (const item of items.slice(0, 25)) {
+    await sendFaqManageCard(env, chatId, item);
+  }
+}
+async function askFaqService(env, chatId) {
+  await tgSendTo(env, chatId, "❓ این سوال برای کدوم خدمت اضافه بشه؟", {
+    reply_markup: {
+      inline_keyboard: FAQ_SERVICES.map((s) => [{ text: s.label, callback_data: `fqaddservice:${s.code}` }]),
+    },
+  });
+}
+
+async function sendLeadsList(env, chatId) {
+  const leads = (await getAllLeads(env))
+    .filter((l) => ["contact", "profile", "abandoned_form"].includes(l.type))
+    .slice(0, 10);
+  if (leads.length === 0) {
+    await tgSendTo(env, chatId, "هنوز هیچ لیدی ثبت نشده.");
+    return;
+  }
+  let msg = "📋 آخرین ۱۰ لید:\n\n";
+  leads.forEach((l, i) => {
+    const date = new Date(l.createdAt).toLocaleString("fa-IR", { timeZone: "Asia/Tehran" });
+    msg += `${i + 1}. ${statusLabel(l.status)}\n`;
+    if (l.type === "contact") msg += `   👤 ${l.name} | 📞 ${l.phone} | 🛠 ${l.service || "-"}\n`;
+    if (l.type === "profile") msg += `   📧 ${l.email}\n`;
+    if (l.type === "abandoned_form") msg += `   🕓 ${l.name || "-"} | 📞 ${l.phone || "-"} (رهاشده)\n`;
+    msg += `   🕐 ${date}\n\n`;
+  });
+  await tgSendTo(env, chatId, msg);
+}
+
+// ---- 🔍 جستجوی لید بر اساس اسم/تلفن/ایمیل ----
+async function searchLeads(env, chatId, query) {
+  const leads = (await getAllLeads(env)).filter((l) => ["contact", "profile", "abandoned_form"].includes(l.type));
+  const q = query.toLowerCase().trim();
+  const results = leads
+    .filter(
+      (l) =>
+        (l.name || "").toLowerCase().includes(q) ||
+        (l.phone || "").includes(q) ||
+        (l.email || "").toLowerCase().includes(q)
+    )
+    .slice(0, 10);
+
+  if (results.length === 0) {
+    await tgSendTo(env, chatId, "چیزی پیدا نشد.");
+    return;
+  }
+
+  let msg = `🔍 ${results.length} نتیجه پیدا شد:\n\n`;
+  results.forEach((l, i) => {
+    const date = new Date(l.createdAt).toLocaleString("fa-IR", { timeZone: "Asia/Tehran" });
+    msg += `${i + 1}. ${statusLabel(l.status)}\n`;
+    if (l.name) msg += `   👤 ${l.name}\n`;
+    if (l.phone) msg += `   📞 ${l.phone}\n`;
+    if (l.email) msg += `   📧 ${l.email}\n`;
+    if (l.service) msg += `   🛠 ${l.service}\n`;
+    msg += `   🕐 ${date}\n\n`;
+  });
+  await tgSendTo(env, chatId, msg);
 }
 
 // ---- فیلدهای قابل ویرایش یک سوال متداول ----
@@ -547,6 +827,7 @@ function faqManageKeyboard(item) {
         { text: "✏️ ویرایش پاسخ", callback_data: `fqedit:${item.id}:a` },
       ],
       [{ text: "🗑 حذف این سوال", callback_data: `fqdel:${item.id}` }],
+      [{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }],
     ],
   };
 }
@@ -598,7 +879,7 @@ function blogManageKeyboard(item) {
   ]);
   rows.push([{ text: "✏️ متن کامل", callback_data: `bledit:${item.id}:c` }]);
   rows.push([{ text: "🗑 حذف کامل این پست", callback_data: `bldel:${item.id}` }]);
-  rows.push([{ text: "🔄 بروزرسانی این پیام", callback_data: `blmanage:${item.id}` }]);
+  rows.push([{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }]);
   return { inline_keyboard: rows };
 }
 
@@ -614,6 +895,7 @@ const PF_FIELDS = {
   i: { key: "image", label: "🖼 لینک تصویر" },
   a: { key: "authorName", label: "👤 نام سازنده" },
   c: { key: "authorContact", label: "📞 راه ارتباطی" },
+  g: { key: "category", label: "🏷 دسته‌بندی" },
 };
 
 function formatItemDetail(item) {
@@ -621,6 +903,8 @@ function formatItemDetail(item) {
     `🎨 نمونه‌کار\n\n` +
     `وضعیت: ${pfStatusLabel(item.status)}\n\n` +
     `📌 عنوان: ${item.title || "-"}\n` +
+    `🏷 دسته‌بندی: ${item.category || "-"}\n` +
+    `⭐ امتیاز: ${ratingStars(item.rating)}\n\n` +
     `📝 توضیح: ${item.description || "-"}\n` +
     `🔗 لینک سایت: ${item.url || "-"}\n` +
     `🖼 لینک تصویر: ${item.image || "-"}\n` +
@@ -640,6 +924,15 @@ function manageKeyboard(item) {
   }
 
   rows.push([
+    { text: "⭐️1", callback_data: `pfrate:${item.id}:1` },
+    { text: "⭐️2", callback_data: `pfrate:${item.id}:2` },
+    { text: "⭐️3", callback_data: `pfrate:${item.id}:3` },
+    { text: "⭐️4", callback_data: `pfrate:${item.id}:4` },
+    { text: "⭐️5", callback_data: `pfrate:${item.id}:5` },
+  ]);
+  rows.push([{ text: "✏️ تنظیم دستی امتیاز (هر عددی)", callback_data: `pfratecustom:${item.id}` }]);
+
+  rows.push([
     { text: "✏️ عنوان", callback_data: `pfedit:${item.id}:t` },
     { text: "✏️ توضیح", callback_data: `pfedit:${item.id}:d` },
   ]);
@@ -651,8 +944,9 @@ function manageKeyboard(item) {
     { text: "✏️ نام سازنده", callback_data: `pfedit:${item.id}:a` },
     { text: "✏️ راه ارتباطی", callback_data: `pfedit:${item.id}:c` },
   ]);
+  rows.push([{ text: "✏️ دسته‌بندی", callback_data: `pfedit:${item.id}:g` }]);
   rows.push([{ text: "🗑 حذف کامل این نمونه‌کار", callback_data: `pfdel:${item.id}` }]);
-  rows.push([{ text: "🔄 بروزرسانی این پیام", callback_data: `pfmanage:${item.id}` }]);
+  rows.push([{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }]);
 
   return { inline_keyboard: rows };
 }
@@ -675,9 +969,6 @@ export default {
 
     const url = new URL(request.url);
 
-    // ================== ثبت دستورهای ربات (یک‌بار بعد از هر دیپلوی، این آدرس رو باز کن) ==================
-    // این کار باعث می‌شه توی تلگرام کنار جعبه‌ی پیام یه دکمه «/» بیاد که با زدنش
-    // لیست همه‌ی دستورهای بات (مثل /managepf و /addpf) به‌صورت دکمه‌های قابل لمس نمایش داده بشه.
     if (url.pathname === "/setup-commands" && request.method === "GET") {
       try {
         const result = await tgSetCommands(env);
@@ -693,7 +984,6 @@ export default {
       }
     }
 
-    // ================== لیست عمومی نمونه‌کارهای تایید شده (برای نمایش در سایت) ==================
     if (url.pathname === "/api/portfolio" && request.method === "GET") {
       try {
         const items = (await getAllPortfolioItems(env)).filter((p) => p.status === "approved");
@@ -709,7 +999,6 @@ export default {
       }
     }
 
-    // ================== وضعیت پاسخگویی آنلاین/آفلاین (برای نمایش در سایت) ==================
     if (url.pathname === "/status" && request.method === "GET") {
       const status = await getStatus(env);
       return new Response(JSON.stringify({ ok: true, online: status.online }), {
@@ -718,7 +1007,6 @@ export default {
       });
     }
 
-    // ================== بنر اعلانات (برای نمایش در سایت) ==================
     if (url.pathname === "/banner" && request.method === "GET") {
       const banner = await getBanner(env);
       return new Response(JSON.stringify({ ok: true, banner }), {
@@ -727,7 +1015,6 @@ export default {
       });
     }
 
-    // ================== سوالات متداول (برای نمایش در صفحات خدمات) ==================
     if (url.pathname === "/api/faq" && request.method === "GET") {
       try {
         const service = url.searchParams.get("service");
@@ -746,7 +1033,6 @@ export default {
       }
     }
 
-    // ================== بلاگ (لیست منتشر شده + جزئیات یک پست) ==================
     if (url.pathname === "/api/blog" && request.method === "GET") {
       try {
         const id = url.searchParams.get("id");
@@ -795,7 +1081,6 @@ export default {
         const parts = data.split(":");
 
         if (parts[0] === "st") {
-          // وضعیت لید (تماس گرفتم / بعداً / رد شد)
           const leadId = parts[1];
           const newStatus = parts[2];
           const raw = await env.LEADS_KV.get(`lead:${leadId}`);
@@ -815,9 +1100,8 @@ export default {
             await tgAnswerCallback(env, cq.id, "این لید پیدا نشد.");
           }
         } else if (parts[0] === "pf") {
-          // تایید یا رد نمونه‌کار (از پیام اولیه‌ی ارسال کاربر یا از کارت مدیریت)
           const pfId = parts[1];
-          const newStatus = parts[2]; // approved | rejected
+          const newStatus = parts[2];
           const item = await getPortfolioItem(env, pfId);
           if (item) {
             item.status = newStatus;
@@ -833,8 +1117,34 @@ export default {
           } else {
             await tgAnswerCallback(env, cq.id, "این نمونه‌کار پیدا نشد.");
           }
+        } else if (parts[0] === "pfrate") {
+          const pfId = parts[1];
+          const rating = parseInt(parts[2], 10);
+          const item = await getPortfolioItem(env, pfId);
+          if (item) {
+            item.rating = rating;
+            await savePortfolioItem(env, item);
+            await tgEditText(env, chatId, messageId, formatItemDetail(item), { reply_markup: manageKeyboard(item) });
+            await tgAnswerCallback(env, cq.id, `امتیاز ${rating} ثبت شد ⭐️`);
+          } else {
+            await tgAnswerCallback(env, cq.id, "این نمونه‌کار پیدا نشد.");
+          }
+        } else if (parts[0] === "pfratecustom") {
+          const pfId = parts[1];
+          const item = await getPortfolioItem(env, pfId);
+          if (!item) {
+            await tgAnswerCallback(env, cq.id, "این نمونه‌کار پیدا نشد.");
+            return new Response("ok");
+          }
+          await setAdminState(env, chatId, { mode: "pfratefield", id: pfId });
+          await tgAnswerCallback(env, cq.id, "منتظر عدد امتیاز هستم...");
+          await tgSendTo(
+            env,
+            chatId,
+            `✏️ امتیاز دلخواه رو بفرست (هر عددی، مثلاً 3، 4.5، یا حتی بیشتر از ۵ برای مقیاس دلخواه خودت)، یا /cancel:`,
+            { reply_markup: { force_reply: true } }
+          );
         } else if (parts[0] === "pfmanage") {
-          // نمایش/بروزرسانی کارت مدیریت یک نمونه‌کار
           const pfId = parts[1];
           const item = await getPortfolioItem(env, pfId);
           if (item) {
@@ -846,7 +1156,6 @@ export default {
             await tgAnswerCallback(env, cq.id, "این نمونه‌کار دیگه وجود نداره (شاید حذف شده).");
           }
         } else if (parts[0] === "pfedit") {
-          // شروع ویرایش یک فیلد خاص
           const pfId = parts[1];
           const fieldCode = parts[2];
           const field = PF_FIELDS[fieldCode];
@@ -864,7 +1173,6 @@ export default {
             { reply_markup: { force_reply: true } }
           );
         } else if (parts[0] === "pfdel") {
-          // درخواست تاییدیه‌ی حذف
           const pfId = parts[1];
           const item = await getPortfolioItem(env, pfId);
           if (!item) {
@@ -897,86 +1205,93 @@ export default {
             chatId,
             messageId,
             `🗑 «${item ? item.title : "نمونه‌کار"}» با موفقیت حذف شد.`,
-            { reply_markup: { inline_keyboard: [] } }
+            { reply_markup: { inline_keyboard: [[{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }]] } }
           );
           await tgAnswerCallback(env, cq.id, "حذف شد ✅");
         } else if (parts[0] === "canceladd") {
           await clearAdminState(env, chatId);
           await tgEditText(env, chatId, messageId, "❌ افزودن نمونه‌کار لغو شد.", {
-            reply_markup: { inline_keyboard: [] },
+            reply_markup: { inline_keyboard: [[{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }]] },
           });
           await tgAnswerCallback(env, cq.id, "لغو شد");
 
-        // ---------- 🖥 داشبورد ----------
+        // ---------- 🖥 داشبورد و زیرمنوها ----------
         } else if (parts[0] === "dash") {
           const action = parts[1];
-          if (action === "refresh") {
-            const dData = await getDashboardData(env);
-            await tgEditText(env, chatId, messageId, formatDashboardText(dData), {
-              parse_mode: "Markdown",
-              reply_markup: dashboardKeyboard(),
-            });
+          const sub = parts[2];
+
+          if (action === "home") {
+            await showDashboardEdit(env, chatId, messageId);
             await tgAnswerCallback(env, cq.id, "بروزرسانی شد ✅");
           } else if (action === "leads") {
             await tgAnswerCallback(env, cq.id, "");
-            const leads = (await getAllLeads(env))
-              .filter((l) => ["contact", "profile", "abandoned_form"].includes(l.type))
-              .slice(0, 10);
-            if (leads.length === 0) {
-              await tgSendTo(env, chatId, "هنوز هیچ لیدی ثبت نشده.");
-            } else {
-              let msg = "📋 آخرین ۱۰ لید:\n\n";
-              leads.forEach((l, i) => {
-                const date = new Date(l.createdAt).toLocaleString("fa-IR", { timeZone: "Asia/Tehran" });
-                msg += `${i + 1}. ${statusLabel(l.status)}\n`;
-                if (l.type === "contact") msg += `   👤 ${l.name} | 📞 ${l.phone} | 🛠 ${l.service || "-"}\n`;
-                if (l.type === "profile") msg += `   📧 ${l.email}\n`;
-                if (l.type === "abandoned_form") msg += `   🕓 ${l.name || "-"} | 📞 ${l.phone || "-"} (رهاشده)\n`;
-                msg += `   🕐 ${date}\n\n`;
-              });
-              await tgSendTo(env, chatId, msg);
-            }
+            await sendLeadsList(env, chatId);
           } else if (action === "gallery") {
-            await tgAnswerCallback(env, cq.id, "");
-            const portfolioItems = await getAllPortfolioItems(env);
-            const pending = portfolioItems.filter((p) => p.status === "pending").slice(0, 15);
-            await tgSendTo(
-              env,
-              chatId,
-              pending.length === 0 ? "هیچ نمونه‌کاری در انتظار تایید نیست." : `🎨 ${pending.length} نمونه‌کار در انتظار تایید:`
-            );
-            for (const item of pending) {
-              await sendItemManageCard(env, chatId, item);
+            if (!sub) {
+              await tgEditText(env, chatId, messageId, "🎨 مدیریت گالری نمونه‌کارها\n\nیکی از گزینه‌ها رو انتخاب کن:", {
+                reply_markup: galleryMenuKeyboard(),
+              });
+              await tgAnswerCallback(env, cq.id, "");
+            } else if (sub === "pending") {
+              await tgAnswerCallback(env, cq.id, "");
+              await sendPortfolioPending(env, chatId);
+            } else if (sub === "all") {
+              await tgAnswerCallback(env, cq.id, "");
+              await sendPortfolioAll(env, chatId);
+            } else if (sub === "authors") {
+              await tgAnswerCallback(env, cq.id, "");
+              await sendPortfolioByAuthor(env, chatId);
+            } else if (sub === "add") {
+              await tgAnswerCallback(env, cq.id, "");
+              await startAddPortfolio(env, chatId);
             }
           } else if (action === "blog") {
-            await tgAnswerCallback(env, cq.id, "");
-            const posts = await getAllBlogPosts(env);
-            const drafts = posts.filter((p) => p.status !== "published");
-            await tgSendTo(
-              env,
-              chatId,
-              drafts.length === 0
-                ? "پیش‌نویس در انتظاری نیست. برای مدیریت کامل بلاگ: /manageblog"
-                : `📰 ${drafts.length} پیش‌نویس در انتظار:`
-            );
-            for (const item of drafts.slice(0, 15)) {
-              await sendBlogManageCard(env, chatId, item);
+            if (!sub) {
+              await tgEditText(env, chatId, messageId, "📰 مدیریت بلاگ\n\nیکی از گزینه‌ها رو انتخاب کن:", {
+                reply_markup: blogMenuKeyboard(),
+              });
+              await tgAnswerCallback(env, cq.id, "");
+            } else if (sub === "all") {
+              await tgAnswerCallback(env, cq.id, "");
+              await sendBlogAll(env, chatId);
+            } else if (sub === "add") {
+              await tgAnswerCallback(env, cq.id, "");
+              await startAddBlog(env, chatId);
+            } else if (sub === "ai") {
+              await tgAnswerCallback(env, cq.id, "شروع شد...");
+              await runWriteBlogAI(env, chatId);
             }
           } else if (action === "faq") {
-            await tgAnswerCallback(env, cq.id, "");
-            const items = await getAllFaq(env);
-            await tgSendTo(env, chatId, `❓ سوالات متداول (${items.length} مورد):`);
-            for (const item of items.slice(0, 15)) {
-              await sendFaqManageCard(env, chatId, item);
+            if (!sub) {
+              await tgEditText(env, chatId, messageId, "❓ مدیریت سوالات متداول\n\nیکی از گزینه‌ها رو انتخاب کن:", {
+                reply_markup: faqMenuKeyboard(),
+              });
+              await tgAnswerCallback(env, cq.id, "");
+            } else if (sub === "all") {
+              await tgAnswerCallback(env, cq.id, "");
+              await sendFaqAll(env, chatId);
+            } else if (sub === "add") {
+              await tgAnswerCallback(env, cq.id, "");
+              await askFaqService(env, chatId);
             }
           } else if (action === "banner") {
-            await tgAnswerCallback(env, cq.id, "");
             const banner = await getBanner(env);
-            await tgSendTo(env, chatId, formatBannerDetail(banner), { reply_markup: bannerKeyboard(banner) });
-          } else if (action === "status") {
+            await tgEditText(env, chatId, messageId, formatBannerDetail(banner), { reply_markup: bannerKeyboard(banner) });
             await tgAnswerCallback(env, cq.id, "");
+          } else if (action === "status") {
             const status = await getStatus(env);
-            await tgSendTo(env, chatId, formatStatusDetail(status), { reply_markup: statusKeyboard(status) });
+            await tgEditText(env, chatId, messageId, formatStatusDetail(status), { reply_markup: statusKeyboard(status) });
+            await tgAnswerCallback(env, cq.id, "");
+          } else if (action === "stats") {
+            await tgAnswerCallback(env, cq.id, "");
+            await sendFullStats(env, chatId);
+          } else if (action === "export") {
+            await tgAnswerCallback(env, cq.id, "در حال آماده‌سازی فایل...");
+            await exportLeadsFile(env, chatId);
+          } else if (action === "leadsearch") {
+            await setAdminState(env, chatId, { mode: "leadsearch" });
+            await tgAnswerCallback(env, cq.id, "");
+            await tgSendTo(env, chatId, "🔍 شماره تلفن یا اسم مورد نظر رو بفرست:", { reply_markup: { force_reply: true } });
           } else {
             await tgAnswerCallback(env, cq.id, "");
           }
@@ -990,7 +1305,7 @@ export default {
           await tgEditText(env, chatId, messageId, formatBannerDetail(banner), { reply_markup: bannerKeyboard(banner) });
           await tgAnswerCallback(env, cq.id, banner.enabled ? "بنر روشن شد ✅" : "بنر خاموش شد 🚫");
         } else if (parts[0] === "bnedit") {
-          const field = parts[1]; // text | link
+          const field = parts[1];
           await setAdminState(env, chatId, { mode: "bannerfield", field });
           await tgAnswerCallback(env, cq.id, "منتظر مقدار جدید هستم...");
           const label = field === "text" ? "📝 متن بنر" : "🔗 لینک بنر";
@@ -1055,7 +1370,9 @@ export default {
         } else if (parts[0] === "fqdelyes") {
           const item = await getFaqItem(env, parts[1]);
           await deleteFaqItem(env, parts[1]);
-          await tgEditText(env, chatId, messageId, `🗑 سوال با موفقیت حذف شد.`, { reply_markup: { inline_keyboard: [] } });
+          await tgEditText(env, chatId, messageId, `🗑 سوال با موفقیت حذف شد.`, {
+            reply_markup: { inline_keyboard: [[{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }]] },
+          });
           await tgAnswerCallback(env, cq.id, "حذف شد ✅");
 
         // ---------- بلاگ ----------
@@ -1109,7 +1426,9 @@ export default {
         } else if (parts[0] === "bldelyes") {
           const item = await getBlogPost(env, parts[1]);
           await deleteBlogPost(env, parts[1]);
-          await tgEditText(env, chatId, messageId, `🗑 «${item ? item.title : "پست"}» با موفقیت حذف شد.`, { reply_markup: { inline_keyboard: [] } });
+          await tgEditText(env, chatId, messageId, `🗑 «${item ? item.title : "پست"}» با موفقیت حذف شد.`, {
+            reply_markup: { inline_keyboard: [[{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }]] },
+          });
           await tgAnswerCallback(env, cq.id, "حذف شد ✅");
         } else {
           await tgAnswerCallback(env, cq.id, "");
@@ -1126,24 +1445,44 @@ export default {
           return new Response("ok");
         }
 
-        // لغو هر مکالمه‌ی در حال انجام (ویرایش یا افزودن دستی)
         if (text === "/cancel") {
           const had = await getAdminState(env, chatId);
           await clearAdminState(env, chatId);
-          await tgSendTo(env, chatId, had ? "❌ عملیات لغو شد." : "چیزی برای لغو کردن نیست.", {
-            reply_markup: mainMenu(),
-          });
+          await tgSendTo(env, chatId, had ? "❌ عملیات لغو شد." : "چیزی برای لغو کردن نیست.");
+          await sendDashboard(env, chatId);
           return new Response("ok");
         }
 
         // اگه یک مکالمه‌ی باز (ویرایش فیلد یا افزودن دستی) در جریانه، پیام رو به‌عنوان پاسخ اون مکالمه بگیر
         const state = await getAdminState(env, chatId);
-        const MENU_BUTTON_TEXTS = [
-          "🖥 داشبورد",
-          "📊 آمار", "📋 لیدها", "🎨 نمونه‌کارهای جدید", "🗂 مدیریت گالری", "➕ افزودن نمونه‌کار دستی",
-          "📰 مدیریت بلاگ", "➕ پست جدید", "❓ مدیریت سوالات متداول", "➕ سوال جدید", "📢 بنر سایت", "🟢 وضعیت پاسخگویی",
-        ];
-        if (state && !text.startsWith("/") && !MENU_BUTTON_TEXTS.includes(text)) {
+        if (state && !text.startsWith("/")) {
+          if (state.mode === "leadsearch") {
+            await clearAdminState(env, chatId);
+            await searchLeads(env, chatId, text);
+            return new Response("ok");
+          }
+
+          if (state.mode === "pfratefield") {
+            const item = await getPortfolioItem(env, state.id);
+            if (!item) {
+              await clearAdminState(env, chatId);
+              await tgSendTo(env, chatId, "این نمونه‌کار دیگه پیدا نشد.");
+              await sendDashboard(env, chatId);
+              return new Response("ok");
+            }
+            const num = parseFloat(text.replace(",", "."));
+            if (isNaN(num) || num < 0) {
+              await tgSendTo(env, chatId, "لطفاً یه عدد معتبر (مثبت) بفرست، یا /cancel:");
+              return new Response("ok");
+            }
+            item.rating = num;
+            await savePortfolioItem(env, item);
+            await clearAdminState(env, chatId);
+            await tgSendTo(env, chatId, `✅ امتیاز روی ${num} ثبت شد.`);
+            await sendItemManageCard(env, chatId, item);
+            return new Response("ok");
+          }
+
           if (state.mode === "bannerfield") {
             const banner = await getBanner(env);
             const value = text === "-" ? "" : text;
@@ -1152,7 +1491,7 @@ export default {
             banner.updatedAt = Date.now();
             await saveBanner(env, banner);
             await clearAdminState(env, chatId);
-            await tgSendTo(env, chatId, "✅ بنر بروزرسانی شد.", { reply_markup: mainMenu() });
+            await tgSendTo(env, chatId, "✅ بنر بروزرسانی شد.");
             await tgSendTo(env, chatId, formatBannerDetail(banner), { reply_markup: bannerKeyboard(banner) });
             return new Response("ok");
           }
@@ -1168,7 +1507,8 @@ export default {
               await sendFaqManageCard(env, chatId, item);
             } else {
               await clearAdminState(env, chatId);
-              await tgSendTo(env, chatId, "این سوال دیگه پیدا نشد.", { reply_markup: mainMenu() });
+              await tgSendTo(env, chatId, "این سوال دیگه پیدا نشد.");
+              await sendDashboard(env, chatId);
             }
             return new Response("ok");
           }
@@ -1184,7 +1524,7 @@ export default {
               await clearAdminState(env, chatId);
               const item = { id: crypto.randomUUID(), createdAt: Date.now(), service: data.service, question: data.question, answer: data.answer };
               await saveFaq(env, item);
-              await tgSendTo(env, chatId, "✅ سوال متداول جدید اضافه شد و همین الان روی صفحه مربوطه نمایش داده می‌شه:", { reply_markup: mainMenu() });
+              await tgSendTo(env, chatId, "✅ سوال متداول جدید اضافه شد و همین الان روی صفحه مربوطه نمایش داده می‌شه:");
               await sendFaqManageCard(env, chatId, item);
             }
             return new Response("ok");
@@ -1202,7 +1542,8 @@ export default {
               await sendBlogManageCard(env, chatId, item);
             } else {
               await clearAdminState(env, chatId);
-              await tgSendTo(env, chatId, "این پست دیگه پیدا نشد.", { reply_markup: mainMenu() });
+              await tgSendTo(env, chatId, "این پست دیگه پیدا نشد.");
+              await sendDashboard(env, chatId);
             }
             return new Response("ok");
           }
@@ -1241,7 +1582,7 @@ export default {
                 tag: data.tag || "",
               };
               await saveBlogPost(env, item);
-              await tgSendTo(env, chatId, "✅ پست به‌صورت پیش‌نویس ذخیره شد. برای نمایش روی سایت، دکمه «انتشار» رو بزن:", { reply_markup: mainMenu() });
+              await tgSendTo(env, chatId, "✅ پست به‌صورت پیش‌نویس ذخیره شد. برای نمایش روی سایت، دکمه «انتشار» رو بزن:");
               await sendBlogManageCard(env, chatId, item);
             }
             return new Response("ok");
@@ -1258,7 +1599,8 @@ export default {
               await sendItemManageCard(env, chatId, item);
             } else {
               await clearAdminState(env, chatId);
-              await tgSendTo(env, chatId, "این نمونه‌کار دیگه پیدا نشد، عملیات لغو شد.", { reply_markup: mainMenu() });
+              await tgSendTo(env, chatId, "این نمونه‌کار دیگه پیدا نشد، عملیات لغو شد.");
+              await sendDashboard(env, chatId);
             }
             return new Response("ok");
           }
@@ -1289,6 +1631,10 @@ export default {
               await tgSendTo(env, chatId, "📞 راه ارتباطی سازنده رو بفرست (اختیاریه، برای رد شدن بنویس -):");
             } else if (state.step === "authorContact") {
               data.authorContact = value.slice(0, 100);
+              await setAdminState(env, chatId, { mode: "add", step: "category", data });
+              await tgSendTo(env, chatId, "🏷 دسته‌بندی این نمونه‌کار چیه؟ (مثلاً «طراحی سایت»، اختیاریه، برای رد شدن بنویس -):");
+            } else if (state.step === "category") {
+              data.category = value.slice(0, 60);
               await clearAdminState(env, chatId);
 
               const item = {
@@ -1301,189 +1647,25 @@ export default {
                 image: data.image || "",
                 authorName: data.authorName || "-",
                 authorContact: data.authorContact || "-",
+                category: data.category || "",
+                rating: 0,
                 addedManually: true,
               };
               await savePortfolioItem(env, item);
-              await tgSendTo(env, chatId, "✅ نمونه‌کار جدید با موفقیت اضافه شد و همین الان روی سایت نمایش داده می‌شه:", {
-                reply_markup: mainMenu(),
-              });
+              await tgSendTo(env, chatId, "✅ نمونه‌کار جدید با موفقیت اضافه شد و همین الان روی سایت نمایش داده می‌شه:");
               await sendItemManageCard(env, chatId, item);
             }
             return new Response("ok");
           }
         }
 
-        // ---------- دستورات / دکمه‌های منو ----------
-        if (text === "/dashboard" || text === "🖥 داشبورد") {
-          await sendDashboard(env, chatId);
-        } else if (text === "/stats" || text === "📊 آمار") {
-          const leads = await getAllLeads(env);
-          const today = nowTehranDateStr();
-          const todays = leads.filter((l) => new Date(l.createdAt).toLocaleDateString("fa-IR-u-ca-gregory", { timeZone: "Asia/Tehran" }) === today);
-          const contacts = leads.filter((l) => l.type === "contact").length;
-          const profiles = leads.filter((l) => l.type === "profile").length;
-          const downloads = leads.filter((l) => l.type === "apk_download").length;
-          const visits = leads.filter((l) => l.type === "page_visit").length;
-          const abandoned = leads.filter((l) => l.type === "abandoned_form").length;
-          const contacted = leads.filter((l) => l.status === "contacted").length;
-          const rejected = leads.filter((l) => l.status === "rejected").length;
-          const later = leads.filter((l) => l.status === "later").length;
-          const pending = leads.filter((l) => !l.status || l.status === "new").length;
-
-          const portfolioItems = await getAllPortfolioItems(env);
-          const pfPending = portfolioItems.filter((p) => p.status === "pending").length;
-          const pfApproved = portfolioItems.filter((p) => p.status === "approved").length;
-          const pfRejected = portfolioItems.filter((p) => p.status === "rejected").length;
-
-          await tgSend(env,
-            `📊 آمار کلی بایت‌لب\n\n` +
-            `📅 امروز: ${todays.length} رویداد جدید\n` +
-            `📦 کل رویدادها: ${leads.length}\n` +
-            `📩 فرم تماس: ${contacts}\n` +
-            `👤 ثبت‌نام: ${profiles}\n` +
-            `📥 دانلود اپ: ${downloads}\n` +
-            `👀 بازدید صفحه: ${visits}\n` +
-            `🕓 فرم رهاشده: ${abandoned}\n\n` +
-            `✅ تماس گرفته شده: ${contacted}\n` +
-            `⏳ تماس بعداً: ${later}\n` +
-            `❌ رد شده: ${rejected}\n` +
-            `🆕 در انتظار پیگیری: ${pending}\n\n` +
-            `🎨 نمونه‌کار در انتظار تایید: ${pfPending}\n` +
-            `🎨 نمونه‌کار تایید شده: ${pfApproved}\n` +
-            `🎨 نمونه‌کار رد شده: ${pfRejected}`,
-            { reply_markup: mainMenu() }
-          );
-        } else if (text === "/leads" || text === "📋 لیدها") {
-          const leads = (await getAllLeads(env))
-            .filter((l) => ["contact", "profile", "abandoned_form"].includes(l.type))
-            .slice(0, 10);
-          if (leads.length === 0) {
-            await tgSend(env, "هنوز هیچ لیدی ثبت نشده.", { reply_markup: mainMenu() });
-          } else {
-            let msg = "📋 آخرین ۱۰ لید:\n\n";
-            leads.forEach((l, i) => {
-              const date = new Date(l.createdAt).toLocaleString("fa-IR", { timeZone: "Asia/Tehran" });
-              msg += `${i + 1}. ${statusLabel(l.status)}\n`;
-              if (l.type === "contact") msg += `   👤 ${l.name} | 📞 ${l.phone} | 🛠 ${l.service || "-"}\n`;
-              if (l.type === "profile") msg += `   📧 ${l.email}\n`;
-              if (l.type === "abandoned_form") msg += `   🕓 ${l.name || "-"} | 📞 ${l.phone || "-"} (رهاشده)\n`;
-              msg += `   🕐 ${date}\n\n`;
-            });
-            await tgSend(env, msg, { reply_markup: mainMenu() });
-          }
-        } else if (text === "/portfolio" || text === "🎨 نمونه‌کارهای جدید") {
-          // فقط موارد در انتظار تایید، هرکدوم با دکمه‌ی تایید/رد سریع + مدیریت کامل
-          const portfolioItems = await getAllPortfolioItems(env);
-          const pending = portfolioItems.filter((p) => p.status === "pending").slice(0, 15);
-
-          await tgSend(
-            env,
-            `🎨 نمونه‌کارهای در انتظار تایید:\n` +
-              `https://bytelabpro.xyz/portfolio.html\n\n` +
-              (pending.length === 0 ? "هیچ موردی در انتظار تایید نیست." : `${pending.length} مورد پیدا شد:`),
-            { reply_markup: mainMenu() }
-          );
-          for (const item of pending) {
-            await sendItemManageCard(env, chatId, item);
-          }
-        } else if (text === "/managepf" || text === "🗂 مدیریت گالری") {
-          // همه‌ی موارد (در انتظار + تایید شده)، هرکدوم با کارت مدیریت کامل
-          const portfolioItems = await getAllPortfolioItems(env);
-          const pending = portfolioItems.filter((p) => p.status === "pending");
-          const approved = portfolioItems.filter((p) => p.status === "approved");
-
-          await tgSend(
-            env,
-            `🗂 مدیریت کامل گالری نمونه‌کارها\n\n` +
-              `⏳ در انتظار تایید: ${pending.length}\n` +
-              `✅ تایید شده (روی سایت): ${approved.length}\n\n` +
-              `برای هرکدوم می‌تونی از دکمه‌های زیر پیام‌ها استفاده کنی: ویرایش فیلدها، تایید/رد، یا حذف کامل.`,
-            { reply_markup: mainMenu() }
-          );
-
-          const combined = [...pending, ...approved].slice(0, 25);
-          for (const item of combined) {
-            await sendItemManageCard(env, chatId, item);
-          }
-          if (portfolioItems.length > combined.length) {
-            await tgSend(env, `... و ${portfolioItems.length - combined.length} مورد دیگر (برای دیدن همه بعداً پیام بده).`);
-          }
-        } else if (text === "/addpf" || text === "➕ افزودن نمونه‌کار دستی") {
-          await setAdminState(env, chatId, { mode: "add", step: "title", data: {} });
-          await tgSendTo(env, chatId, "➕ افزودن نمونه‌کار جدید\n\n📌 عنوان پروژه رو بفرست (یا /cancel برای لغو):", {
-            reply_markup: { force_reply: true },
-          });
-        } else if (text === "/banner" || text === "📢 بنر سایت") {
-          const banner = await getBanner(env);
-          await tgSendTo(env, chatId, formatBannerDetail(banner), { reply_markup: bannerKeyboard(banner) });
-        } else if (text === "/status" || text === "🟢 وضعیت پاسخگویی") {
-          const status = await getStatus(env);
-          await tgSendTo(env, chatId, formatStatusDetail(status), { reply_markup: statusKeyboard(status) });
-        } else if (text === "/addfaq" || text === "➕ سوال جدید") {
-          await tgSendTo(env, chatId, "❓ این سوال برای کدوم خدمت اضافه بشه؟", {
-            reply_markup: {
-              inline_keyboard: FAQ_SERVICES.map((s) => [{ text: s.label, callback_data: `fqaddservice:${s.code}` }]),
-            },
-          });
-        } else if (text === "/managefaq" || text === "❓ مدیریت سوالات متداول") {
-          const items = await getAllFaq(env);
-          await tgSend(env, `❓ سوالات متداول (${items.length} مورد)\n\nهرکدوم رو می‌تونی ویرایش یا حذف کنی:`, { reply_markup: mainMenu() });
-          if (items.length === 0) {
-            await tgSend(env, "هنوز هیچ سوالی اضافه نشده. از دکمه «➕ سوال جدید» استفاده کن.");
-          }
-          for (const item of items.slice(0, 25)) {
-            await sendFaqManageCard(env, chatId, item);
-          }
-        } else if (text === "/addblog" || text === "➕ پست جدید") {
-          await setAdminState(env, chatId, { mode: "blogadd", step: "title", data: {} });
-          await tgSendTo(env, chatId, "📰 نوشتن پست جدید بلاگ\n\n📌 عنوان پست رو بفرست (یا /cancel برای لغو):", {
-            reply_markup: { force_reply: true },
-          });
-        } else if (text === "/writeblog" || text === "🤖 نوشتن فوری با AI") {
-          await tgSendTo(env, chatId, "🤖 در حال نوشتن پست جدید با هوش‌مصنوعی... چند ثانیه صبر کن.");
-          await generateAndPublishBlogPost(env);
-        } else if (text === "/manageblog" || text === "📰 مدیریت بلاگ") {
-          const posts = await getAllBlogPosts(env);
-          const drafts = posts.filter((p) => p.status !== "published");
-          const published = posts.filter((p) => p.status === "published");
-          await tgSend(
-            env,
-            `📰 مدیریت کامل بلاگ\n\n` +
-              `📝 پیش‌نویس: ${drafts.length}\n` +
-              `✅ منتشر شده: ${published.length}\n\n` +
-              `برای هرکدوم می‌تونی از دکمه‌های زیر پیام استفاده کنی: ویرایش، انتشار/برداشتن، یا حذف کامل.`,
-            { reply_markup: mainMenu() }
-          );
-          const combined = [...drafts, ...published].slice(0, 25);
-          for (const item of combined) {
-            await sendBlogManageCard(env, chatId, item);
-          }
-          if (posts.length > combined.length) {
-            await tgSend(env, `... و ${posts.length - combined.length} مورد دیگر.`);
-          }
-        } else if (text === "/start") {
-          // هر بار /start زده بشه، لیست دستورها هم دوباره با تلگرام سینک می‌شه (ارزون و بی‌خطره)
+        // ---------- دستورات ----------
+        if (text === "/start") {
           await tgSetCommands(env);
-          await tgSend(
-            env,
-            "سلام 👋 بات اطلاع‌رسانی و مدیریت بایت‌لب فعاله.\n\n" +
-              "از منوی پایین صفحه استفاده کن، یا این دستورات رو بفرست:\n" +
-              "/dashboard — 🖥 داشبورد مدیریت\n" +
-              "/stats — آمار کلی\n" +
-              "/leads — آخرین لیدها\n" +
-              "/portfolio — نمونه‌کارهای در انتظار تایید\n" +
-              "/managepf — مدیریت کامل گالری (ویرایش/حذف/تایید)\n" +
-              "/addpf — افزودن دستی یک نمونه‌کار\n" +
-              "/addblog — نوشتن پست جدید بلاگ\n" +
-              "/writeblog — نوشتن فوری پست با هوش‌مصنوعی\n" +
-              "/manageblog — مدیریت کامل بلاگ\n" +
-              "/addfaq — افزودن سوال متداول جدید\n" +
-              "/managefaq — مدیریت سوالات متداول\n" +
-              "/banner — مدیریت بنر اعلانات سایت\n" +
-              "/status — تغییر وضعیت آنلاین/آفلاین\n" +
-              "/cancel — لغو مکالمه‌ی در حال انجام",
-            { reply_markup: mainMenu() }
-          );
+          // حذف کامل کیبورد ثابت پایین صفحه (اگه از قبل مونده باشه) — از این به بعد فقط دکمه‌های شیشه‌ای استفاده می‌شن
+          await tgSendTo(env, chatId, "سلام 👋 بات مدیریت بایت‌لب فعاله.", { reply_markup: { remove_keyboard: true } });
+          await sendDashboard(env, chatId);
+        } else if (text === "/dashboard") {
           await sendDashboard(env, chatId);
         }
       }
@@ -1500,7 +1682,6 @@ export default {
       const id = crypto.randomUUID();
       const createdAt = Date.now();
 
-      // --- ارسال نمونه‌کار توسط کاربر: جدا از سیستم لیدها ذخیره می‌شه ---
       if (data.type === "portfolio_submit") {
         const item = {
           id,
@@ -1512,6 +1693,8 @@ export default {
           image: (data.image || "").slice(0, 300),
           authorName: (data.authorName || "-").slice(0, 80),
           authorContact: (data.authorContact || "-").slice(0, 100),
+          category: (data.category || "").slice(0, 60),
+          rating: 0,
         };
         await savePortfolioItem(env, item);
 
@@ -1626,8 +1809,7 @@ async function sendDailyReport(env) {
     `🌙 گزارش پایان روز بایت‌لب\n\n` +
     `📩 فرم تماس امروز: ${contacts}\n` +
     `👤 ثبت‌نام امروز: ${profiles}\n` +
-    `📦 مجموع لید امروز: ${todays.length}\n\n` +
-    `برای دیدن جزئیات: /leads`
+    `📦 مجموع لید امروز: ${todays.length}`
   );
 }
 
