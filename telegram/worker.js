@@ -1,4 +1,4 @@
-// worker.js — بایت‌لب: ارسال لید به تلگرام + مدیریت وضعیت + دستورات بات + گزارش روزانه + مدیریت کامل نمونه‌کارهای کاربران
+// worker.js — بایت‌لب: ارسال لید به تلگرام + مدیریت وضعیت + دستورات بات + گزارش روزانه + مدیریت کامل نمونه‌کارهای کاربران + داشبورد ادمین
 // نیازمند: Secret های TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 // نیازمند: Binding به KV با اسم LEADS_KV
 //
@@ -8,6 +8,11 @@
 //   - 🗑 حذف نمونه‌کار (با تاییدیه)
 //   - ➕ افزودن دستی یک نمونه‌کار جدید (بدون نیاز به ارسال از سایت)
 //   - 🗂 مشاهده و مدیریت کامل لیست نمونه‌کارها (در انتظار / تایید شده)
+//
+// 🖥 داشبورد ادمین:
+//   - با /dashboard یا دکمه «🖥 داشبورد» یک پیام واحد با آمار امروز، موارد نیازمند توجه،
+//     وضعیت آنلاین/بنر و یک شبکه‌ی دکمه‌ای برای پرش سریع به هر بخش نمایش داده می‌شه.
+//   - دکمه‌ی «🔄 بروزرسانی» همون پیام رو با آمار تازه ویرایش می‌کنه (بدون اسپم پیام جدید).
 
 const TG_API = (env) => `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}`;
 
@@ -56,6 +61,7 @@ async function tgAnswerCallback(env, callbackQueryId, text, showAlert = false) {
 // لیست دستورهایی که تو منوی «/» تلگرام (کنار جعبه‌ی پیام) به‌صورت دکمه نمایش داده می‌شن
 const BOT_COMMANDS = [
   { command: "start", description: "شروع و نمایش منوی اصلی" },
+  { command: "dashboard", description: "🖥 داشبورد مدیریت (آمار + دسترسی سریع)" },
   { command: "stats", description: "📊 آمار کلی سایت" },
   { command: "leads", description: "📋 آخرین لیدها (فرم تماس/ثبت‌نام)" },
   { command: "portfolio", description: "🎨 نمونه‌کارهای در انتظار تایید" },
@@ -432,6 +438,7 @@ function pfStatusLabel(status) {
 function mainMenu() {
   return {
     keyboard: [
+      [{ text: "🖥 داشبورد" }],
       [{ text: "📊 آمار" }, { text: "📋 لیدها" }],
       [{ text: "🎨 نمونه‌کارهای جدید" }, { text: "🗂 مدیریت گالری" }],
       [{ text: "➕ افزودن نمونه‌کار دستی" }],
@@ -443,6 +450,78 @@ function mainMenu() {
     resize_keyboard: true,
     is_persistent: true,
   };
+}
+
+// ================== 🖥 داشبورد ادمین ==================
+async function getDashboardData(env) {
+  const [leads, portfolioItems, blogPosts, banner, status] = await Promise.all([
+    getAllLeads(env),
+    getAllPortfolioItems(env),
+    getAllBlogPosts(env),
+    getBanner(env),
+    getStatus(env),
+  ]);
+
+  const today = nowTehranDateStr();
+  const isToday = (ts) =>
+    new Date(ts).toLocaleDateString("fa-IR-u-ca-gregory", { timeZone: "Asia/Tehran" }) === today;
+
+  const newLeadsToday = leads.filter((l) => ["contact", "profile"].includes(l.type) && isToday(l.createdAt)).length;
+  const portfolioToday = portfolioItems.filter((p) => isToday(p.createdAt)).length;
+  const blogToday = blogPosts.filter((b) => isToday(b.createdAt)).length;
+
+  const pendingLeads = leads.filter(
+    (l) => ["contact", "profile", "abandoned_form"].includes(l.type) && (!l.status || l.status === "new" || l.status === "later")
+  ).length;
+  const pendingPortfolio = portfolioItems.filter((p) => p.status === "pending").length;
+
+  return { newLeadsToday, portfolioToday, blogToday, pendingLeads, pendingPortfolio, banner, status };
+}
+
+function formatDashboardText(d) {
+  const now = new Date().toLocaleString("fa-IR", { timeZone: "Asia/Tehran" });
+  const lines = [];
+  lines.push("🖥 *داشبورد بایت‌لب*");
+  lines.push(`بروزرسانی: ${now}`);
+  lines.push("");
+  lines.push("```");
+  lines.push("📊 امروز");
+  lines.push(`  ${d.newLeadsToday} لید جدید · ${d.portfolioToday} نمونه‌کار · ${d.blogToday} پست بلاگ`);
+  lines.push("");
+  lines.push("⏳ نیاز به توجه");
+  lines.push(`  ${d.pendingLeads} لید در انتظار پیگیری`);
+  lines.push(`  ${d.pendingPortfolio} نمونه‌کار در انتظار تایید`);
+  lines.push("```");
+  lines.push(`${d.status.online ? "🟢 وضعیت: آنلاین" : "🔴 وضعیت: آفلاین"}   ${d.banner.enabled ? "📢 بنر: روشن" : "📢 بنر: خاموش"}`);
+  return lines.join("\n");
+}
+
+function dashboardKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        { text: "📋 لیدها", callback_data: "dash:leads" },
+        { text: "🎨 گالری", callback_data: "dash:gallery" },
+      ],
+      [
+        { text: "📰 بلاگ", callback_data: "dash:blog" },
+        { text: "❓ FAQ", callback_data: "dash:faq" },
+      ],
+      [
+        { text: "📢 بنر", callback_data: "dash:banner" },
+        { text: "🟢 وضعیت", callback_data: "dash:status" },
+      ],
+      [{ text: "🔄 بروزرسانی", callback_data: "dash:refresh" }],
+    ],
+  };
+}
+
+async function sendDashboard(env, chatId) {
+  const data = await getDashboardData(env);
+  return tgSendTo(env, chatId, formatDashboardText(data), {
+    parse_mode: "Markdown",
+    reply_markup: dashboardKeyboard(),
+  });
 }
 
 // ---- فیلدهای قابل ویرایش یک سوال متداول ----
@@ -828,6 +907,80 @@ export default {
           });
           await tgAnswerCallback(env, cq.id, "لغو شد");
 
+        // ---------- 🖥 داشبورد ----------
+        } else if (parts[0] === "dash") {
+          const action = parts[1];
+          if (action === "refresh") {
+            const dData = await getDashboardData(env);
+            await tgEditText(env, chatId, messageId, formatDashboardText(dData), {
+              parse_mode: "Markdown",
+              reply_markup: dashboardKeyboard(),
+            });
+            await tgAnswerCallback(env, cq.id, "بروزرسانی شد ✅");
+          } else if (action === "leads") {
+            await tgAnswerCallback(env, cq.id, "");
+            const leads = (await getAllLeads(env))
+              .filter((l) => ["contact", "profile", "abandoned_form"].includes(l.type))
+              .slice(0, 10);
+            if (leads.length === 0) {
+              await tgSendTo(env, chatId, "هنوز هیچ لیدی ثبت نشده.");
+            } else {
+              let msg = "📋 آخرین ۱۰ لید:\n\n";
+              leads.forEach((l, i) => {
+                const date = new Date(l.createdAt).toLocaleString("fa-IR", { timeZone: "Asia/Tehran" });
+                msg += `${i + 1}. ${statusLabel(l.status)}\n`;
+                if (l.type === "contact") msg += `   👤 ${l.name} | 📞 ${l.phone} | 🛠 ${l.service || "-"}\n`;
+                if (l.type === "profile") msg += `   📧 ${l.email}\n`;
+                if (l.type === "abandoned_form") msg += `   🕓 ${l.name || "-"} | 📞 ${l.phone || "-"} (رهاشده)\n`;
+                msg += `   🕐 ${date}\n\n`;
+              });
+              await tgSendTo(env, chatId, msg);
+            }
+          } else if (action === "gallery") {
+            await tgAnswerCallback(env, cq.id, "");
+            const portfolioItems = await getAllPortfolioItems(env);
+            const pending = portfolioItems.filter((p) => p.status === "pending").slice(0, 15);
+            await tgSendTo(
+              env,
+              chatId,
+              pending.length === 0 ? "هیچ نمونه‌کاری در انتظار تایید نیست." : `🎨 ${pending.length} نمونه‌کار در انتظار تایید:`
+            );
+            for (const item of pending) {
+              await sendItemManageCard(env, chatId, item);
+            }
+          } else if (action === "blog") {
+            await tgAnswerCallback(env, cq.id, "");
+            const posts = await getAllBlogPosts(env);
+            const drafts = posts.filter((p) => p.status !== "published");
+            await tgSendTo(
+              env,
+              chatId,
+              drafts.length === 0
+                ? "پیش‌نویس در انتظاری نیست. برای مدیریت کامل بلاگ: /manageblog"
+                : `📰 ${drafts.length} پیش‌نویس در انتظار:`
+            );
+            for (const item of drafts.slice(0, 15)) {
+              await sendBlogManageCard(env, chatId, item);
+            }
+          } else if (action === "faq") {
+            await tgAnswerCallback(env, cq.id, "");
+            const items = await getAllFaq(env);
+            await tgSendTo(env, chatId, `❓ سوالات متداول (${items.length} مورد):`);
+            for (const item of items.slice(0, 15)) {
+              await sendFaqManageCard(env, chatId, item);
+            }
+          } else if (action === "banner") {
+            await tgAnswerCallback(env, cq.id, "");
+            const banner = await getBanner(env);
+            await tgSendTo(env, chatId, formatBannerDetail(banner), { reply_markup: bannerKeyboard(banner) });
+          } else if (action === "status") {
+            await tgAnswerCallback(env, cq.id, "");
+            const status = await getStatus(env);
+            await tgSendTo(env, chatId, formatStatusDetail(status), { reply_markup: statusKeyboard(status) });
+          } else {
+            await tgAnswerCallback(env, cq.id, "");
+          }
+
         // ---------- بنر اعلانات ----------
         } else if (parts[0] === "bnenable") {
           const banner = await getBanner(env);
@@ -986,6 +1139,7 @@ export default {
         // اگه یک مکالمه‌ی باز (ویرایش فیلد یا افزودن دستی) در جریانه، پیام رو به‌عنوان پاسخ اون مکالمه بگیر
         const state = await getAdminState(env, chatId);
         const MENU_BUTTON_TEXTS = [
+          "🖥 داشبورد",
           "📊 آمار", "📋 لیدها", "🎨 نمونه‌کارهای جدید", "🗂 مدیریت گالری", "➕ افزودن نمونه‌کار دستی",
           "📰 مدیریت بلاگ", "➕ پست جدید", "❓ مدیریت سوالات متداول", "➕ سوال جدید", "📢 بنر سایت", "🟢 وضعیت پاسخگویی",
         ];
@@ -1160,7 +1314,9 @@ export default {
         }
 
         // ---------- دستورات / دکمه‌های منو ----------
-        if (text === "/stats" || text === "📊 آمار") {
+        if (text === "/dashboard" || text === "🖥 داشبورد") {
+          await sendDashboard(env, chatId);
+        } else if (text === "/stats" || text === "📊 آمار") {
           const leads = await getAllLeads(env);
           const today = nowTehranDateStr();
           const todays = leads.filter((l) => new Date(l.createdAt).toLocaleDateString("fa-IR-u-ca-gregory", { timeZone: "Asia/Tehran" }) === today);
@@ -1312,6 +1468,7 @@ export default {
             env,
             "سلام 👋 بات اطلاع‌رسانی و مدیریت بایت‌لب فعاله.\n\n" +
               "از منوی پایین صفحه استفاده کن، یا این دستورات رو بفرست:\n" +
+              "/dashboard — 🖥 داشبورد مدیریت\n" +
               "/stats — آمار کلی\n" +
               "/leads — آخرین لیدها\n" +
               "/portfolio — نمونه‌کارهای در انتظار تایید\n" +
@@ -1327,6 +1484,7 @@ export default {
               "/cancel — لغو مکالمه‌ی در حال انجام",
             { reply_markup: mainMenu() }
           );
+          await sendDashboard(env, chatId);
         }
       }
       return new Response("ok");
