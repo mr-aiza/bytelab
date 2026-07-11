@@ -244,6 +244,26 @@ async function saveLead(env, lead) {
   await env.LEADS_KV.put(`lead:${lead.id}`, JSON.stringify(lead));
 }
 
+// ================== محدودیت نرخ (ضد اسپم) بر اساس IP ==================
+// هر IP فقط تا سقف مشخصی درخواست موفق در بازه‌ی زمانی مشخص می‌تونه بفرسته
+async function checkRateLimit(env, ip, bucket, maxCount, windowSeconds) {
+  const key = `ratelimit:${bucket}:${ip}`;
+  const now = Date.now();
+  let data = null;
+  try {
+    const raw = await env.LEADS_KV.get(key);
+    data = raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    data = null;
+  }
+  if (!data || now > data.reset) {
+    data = { count: 0, reset: now + windowSeconds * 1000 };
+  }
+  data.count++;
+  await env.LEADS_KV.put(key, JSON.stringify(data), { expirationTtl: windowSeconds });
+  return data.count <= maxCount;
+}
+
 async function getAllLeads(env) {
   const list = await env.LEADS_KV.list({ prefix: "lead:" });
   const values = await Promise.all(list.keys.map((k) => env.LEADS_KV.get(k.name)));
@@ -901,7 +921,8 @@ const PF_FIELDS = {
 function formatItemDetail(item) {
   return (
     `🎨 نمونه‌کار\n\n` +
-    `وضعیت: ${pfStatusLabel(item.status)}\n\n` +
+    `وضعیت: ${pfStatusLabel(item.status)}\n` +
+    `${item.featured ? "📌 سنجاق‌شده (بالای گالری)" : ""}\n\n` +
     `📌 عنوان: ${item.title || "-"}\n` +
     `🏷 دسته‌بندی: ${item.category || "-"}\n` +
     `⭐ امتیاز: ${ratingStars(item.rating)}\n\n` +
@@ -922,6 +943,12 @@ function manageKeyboard(item) {
   if (item.status !== "rejected") {
     rows.push([{ text: "🚫 رد کردن / برداشتن از سایت", callback_data: `pf:${item.id}:rejected` }]);
   }
+
+  rows.push([
+    item.featured
+      ? { text: "📌 برداشتن سنجاق", callback_data: `pfpin:${item.id}:0` }
+      : { text: "📌 سنجاق کردن بالای گالری", callback_data: `pfpin:${item.id}:1` },
+  ]);
 
   rows.push([
     { text: "⭐️1", callback_data: `pfrate:${item.id}:1` },
@@ -947,6 +974,7 @@ function manageKeyboard(item) {
   rows.push([{ text: "✏️ دسته‌بندی", callback_data: `pfedit:${item.id}:g` }]);
   rows.push([{ text: "🗑 حذف کامل این نمونه‌کار", callback_data: `pfdel:${item.id}` }]);
   rows.push([{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }]);
+
 
   return { inline_keyboard: rows };
 }
@@ -986,7 +1014,9 @@ export default {
 
     if (url.pathname === "/api/portfolio" && request.method === "GET") {
       try {
-        const items = (await getAllPortfolioItems(env)).filter((p) => p.status === "approved");
+        const items = (await getAllPortfolioItems(env))
+          .filter((p) => p.status === "approved")
+          .sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || b.createdAt - a.createdAt);
         return new Response(JSON.stringify({ ok: true, items }), {
           status: 200,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -1114,6 +1144,18 @@ export default {
               cq.id,
               newStatus === "approved" ? "تایید شد و روی سایت نمایش داده می‌شه ✅" : "رد شد / از سایت برداشته شد ❌"
             );
+          } else {
+            await tgAnswerCallback(env, cq.id, "این نمونه‌کار پیدا نشد.");
+          }
+        } else if (parts[0] === "pfpin") {
+          const pfId = parts[1];
+          const featured = parts[2] === "1";
+          const item = await getPortfolioItem(env, pfId);
+          if (item) {
+            item.featured = featured;
+            await savePortfolioItem(env, item);
+            await tgEditText(env, chatId, messageId, formatItemDetail(item), { reply_markup: manageKeyboard(item) });
+            await tgAnswerCallback(env, cq.id, featured ? "سنجاق شد و بالای گالری میاد 📌" : "سنجاق برداشته شد");
           } else {
             await tgAnswerCallback(env, cq.id, "این نمونه‌کار پیدا نشد.");
           }
@@ -1649,6 +1691,7 @@ export default {
                 authorContact: data.authorContact || "-",
                 category: data.category || "",
                 rating: 0,
+                featured: false,
                 addedManually: true,
               };
               await savePortfolioItem(env, item);
@@ -1681,6 +1724,25 @@ export default {
       const data = await request.json();
       const id = crypto.randomUUID();
       const createdAt = Date.now();
+      const clientIp = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "unknown";
+
+      // ---- محدودیت نرخ (ضد اسپم) بر اساس نوع درخواست و IP ----
+      const RATE_LIMITS = {
+        portfolio_submit: { max: 3, windowSeconds: 3600 },
+        contact: { max: 5, windowSeconds: 3600 },
+        profile: { max: 5, windowSeconds: 3600 },
+        abandoned_form: { max: 10, windowSeconds: 3600 },
+      };
+      const rl = RATE_LIMITS[data.type];
+      if (rl) {
+        const allowed = await checkRateLimit(env, clientIp, data.type, rl.max, rl.windowSeconds);
+        if (!allowed) {
+          return new Response(
+            JSON.stringify({ ok: false, error: "rate_limited", message: "تعداد درخواست‌های شما در این بازه زیاده. کمی بعد دوباره امتحان کن." }),
+            { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+      }
 
       if (data.type === "portfolio_submit") {
         const item = {
@@ -1695,6 +1757,7 @@ export default {
           authorContact: (data.authorContact || "-").slice(0, 100),
           category: (data.category || "").slice(0, 60),
           rating: 0,
+          featured: false,
         };
         await savePortfolioItem(env, item);
 
