@@ -139,6 +139,13 @@
     padding:5px 10px;font-size:12px;font-weight:700;color:var(--gold);
     display:flex;align-items:center;gap:4px;
   }
+  .pf-featured-ribbon{
+    position:absolute;top:12px;right:12px;
+    background:linear-gradient(135deg,var(--gold),#e2a93b);
+    color:#241a04;font-weight:800;font-size:11px;
+    padding:5px 11px;border-radius:999px;
+    box-shadow:0 2px 10px rgba(245,196,81,.35);
+  }
 
   .pf-info{padding:22px 24px 26px;}
   .pf-tags-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
@@ -152,6 +159,45 @@
   .pf-desc{color:var(--muted);font-size:14px;}
   .pf-link{color:var(--cyan);font-size:13px;font-weight:700;margin-top:14px;display:inline-flex;align-items:center;gap:6px;}
   .pf-author{color:var(--muted);font-size:12.5px;margin-top:10px;display:block;}
+
+  /* ---- اسکلتون لودینگ (تا وقتی نمونه‌کارهای API لود بشن) ---- */
+  .pf-skeleton-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .pf-skeleton-preview{
+    height:200px;
+    background:linear-gradient(90deg, var(--panel-2) 25%, #1b2532 37%, var(--panel-2) 63%);
+    background-size:400% 100%;animation:pfShimmer 1.4s ease infinite;
+  }
+  .pf-skeleton-info{padding:22px 24px 26px;}
+  .pf-skeleton-line{height:11px;border-radius:6px;background:var(--panel-2);margin-bottom:12px;overflow:hidden;position:relative;}
+  .pf-skeleton-line::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(90deg, transparent 25%, rgba(255,255,255,.06) 37%, transparent 63%);
+    background-size:400% 100%;animation:pfShimmer 1.4s ease infinite;
+  }
+  .pf-skeleton-line.short{width:55%;}
+  @keyframes pfShimmer{0%{background-position:100% 50%}100%{background-position:0 50%}}
+
+  /* ---- پیام خطا در بارگذاری نمونه‌کارهای API ---- */
+  .pf-error-box{
+    grid-column:1/-1;text-align:center;padding:34px 20px;color:var(--muted);font-size:14px;
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;display:none;
+  }
+  .pf-error-box button{
+    margin-top:14px;background:var(--panel-2);border:1px solid var(--line);color:var(--paper);
+    padding:9px 22px;border-radius:999px;font-family:'Vazirmatn',sans-serif;font-size:13.5px;
+    cursor:pointer;transition:border-color .2s ease, color .2s ease;
+  }
+  .pf-error-box button:hover{border-color:var(--cyan);color:var(--cyan);}
+
+  /* ---- دکمه‌ی نمایش بیشتر ---- */
+  .pf-loadmore-wrap{text-align:center;margin-top:34px;display:none;}
+  .pf-loadmore-btn{
+    background:var(--panel);border:1px solid var(--line);color:var(--paper);
+    padding:12px 30px;border-radius:999px;font-family:'Vazirmatn',sans-serif;
+    font-size:14px;font-weight:700;cursor:pointer;transition:border-color .2s ease, color .2s ease, transform .2s ease;
+  }
+  .pf-loadmore-btn:hover{border-color:var(--cyan);color:var(--cyan);transform:translateY(-2px);}
+
 
   .empty-note{color:var(--muted);font-size:14px;text-align:center;padding:40px 0;grid-column:1/-1;display:none;}
 
@@ -233,7 +279,7 @@
 <section class="portfolio-all">
   <div class="wrap">
     <div class="pf-grid" id="pfGrid">
-      <a href="https://bytelabpro.xyz/index.html" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="1">
+      <a href="https://bytelabpro.xyz/index.html" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="1" data-featured="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="https://bytelabpro.xyz/index.html" loading="lazy" tabindex="-1" title="سایت شرکتی بایت‌لب"></iframe>
@@ -250,7 +296,7 @@
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="https://mr-aiza.github.io/Bytelab2/tarahi-app.html" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="2">
+      <a href="https://mr-aiza.github.io/Bytelab2/tarahi-app.html" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="2" data-featured="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="https://mr-aiza.github.io/Bytelab2/tarahi-app.html" loading="lazy" tabindex="-1" title="سایت شرکتی بایت‌لب نسخه ۲"></iframe>
@@ -267,7 +313,7 @@
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="portfolio/cafe-restoran-amber.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="3">
+      <a href="portfolio/cafe-restoran-amber.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="3" data-featured="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="portfolio/cafe-restoran-amber.html" loading="lazy" tabindex="-1" title="کافه و رستوران اِمبر"></iframe>
@@ -284,7 +330,7 @@
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="https://mr-aiza.github.io/224/" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="4">
+      <a href="https://mr-aiza.github.io/224/" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="4" data-featured="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="https://mr-aiza.github.io/224/" loading="lazy" tabindex="-1" title="تشریفات رویایی"></iframe>
@@ -301,7 +347,7 @@
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="portfolio/tasharifat-royaee-v2.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="5">
+      <a href="portfolio/tasharifat-royaee-v2.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="5" data-featured="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="portfolio/tasharifat-royaee-v2.html" loading="lazy" tabindex="-1" title="تشریفات رویایی ورژن ۲"></iframe>
@@ -318,7 +364,7 @@
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="portfolio/galeriy-mashin.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="6">
+      <a href="portfolio/galeriy-mashin.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="6" data-featured="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="portfolio/galeriy-mashin.html" loading="lazy" tabindex="-1" title="گالری اتومبیل پرستیژ"></iframe>
@@ -335,7 +381,7 @@
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="portfolio/zarrin-gallery-gold-shop.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="7">
+      <a href="portfolio/zarrin-gallery-gold-shop.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="7" data-featured="0">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="portfolio/zarrin-gallery-gold-shop.html" loading="lazy" tabindex="-1" title="زرّین گالری"></iframe>
@@ -353,7 +399,25 @@
         </div>
       </a>
     </div>
+
+    <!-- اسکلتون لودینگ: تا وقتی نمونه‌کارهای کاربران از API لود بشن نشون داده می‌شه -->
+    <div class="pf-grid" id="pfSkeletonGrid">
+      <div class="pf-skeleton-card"><div class="pf-skeleton-preview"></div><div class="pf-skeleton-info"><div class="pf-skeleton-line short"></div><div class="pf-skeleton-line" style="width:85%"></div><div class="pf-skeleton-line" style="width:65%"></div></div></div>
+      <div class="pf-skeleton-card"><div class="pf-skeleton-preview"></div><div class="pf-skeleton-info"><div class="pf-skeleton-line short"></div><div class="pf-skeleton-line" style="width:85%"></div><div class="pf-skeleton-line" style="width:65%"></div></div></div>
+      <div class="pf-skeleton-card"><div class="pf-skeleton-preview"></div><div class="pf-skeleton-info"><div class="pf-skeleton-line short"></div><div class="pf-skeleton-line" style="width:85%"></div><div class="pf-skeleton-line" style="width:65%"></div></div></div>
+    </div>
+
+    <div class="pf-error-box" id="pfErrorBox">
+      مشکلی در بارگذاری نمونه‌کارهای کاربران پیش اومد. اتصال اینترنتت رو چک کن.
+      <br>
+      <button id="pfRetryBtn">تلاش مجدد</button>
+    </div>
+
     <p class="empty-note" id="pfEmptyNote">هیچ نمونه‌کاری با این فیلتر پیدا نشد.</p>
+
+    <div class="pf-loadmore-wrap" id="pfLoadMoreWrap">
+      <button class="pf-loadmore-btn" id="pfLoadMoreBtn">نمایش بیشتر ↓</button>
+    </div>
   </div>
 </section>
 
@@ -426,7 +490,6 @@
   function ratingStarsHTML(rating){
     const r = Number(rating) || 0;
     if (r <= 0) return "";
-    const rounded = Math.max(0, Math.min(5, Math.round(r)));
     return `<span class="pf-rating-badge">⭐ ${r}</span>`;
   }
 
@@ -452,6 +515,7 @@
 
     const category = item.category || "";
     const rating = Number(item.rating) || 0;
+    const featured = !!item.featured;
 
     const card = document.createElement('a');
     card.href = link;
@@ -461,8 +525,9 @@
     if (category) card.dataset.category = category;
     card.dataset.rating = String(rating);
     card.dataset.created = String(item.createdAt || Date.now());
+    card.dataset.featured = featured ? "1" : "0";
     card.innerHTML = `
-      <div class="pf-preview">${previewHTML}${ratingStarsHTML(rating)}</div>
+      <div class="pf-preview">${previewHTML}${ratingStarsHTML(rating)}${featured ? `<span class="pf-featured-ribbon">📌 ویژه</span>` : ""}</div>
       <div class="pf-info">
         <div class="pf-tags-row">
           <span class="pf-label">نمونه‌کار ارسالی کاربران</span>
@@ -483,7 +548,7 @@
     const categories = new Set();
     cards.forEach(c => { if (c.dataset.category) categories.add(c.dataset.category); });
 
-    // پاک کردن گزینه‌های قبلی (به‌جز «همه»)
+    const prevValue = select.value;
     while (select.options.length > 1) select.remove(1);
 
     [...categories].sort().forEach(cat => {
@@ -492,10 +557,17 @@
       opt.textContent = cat;
       select.appendChild(opt);
     });
+    if ([...select.options].some(o => o.value === prevValue)) select.value = prevValue;
   }
 
-  // --- فیلتر، جستجو و مرتب‌سازی زنده روی کارت‌ها ---
-  function applyPortfolioFilters(){
+  // --- صفحه‌بندی (نمایش بیشتر) ---
+  const PF_PAGE_SIZE = 6;
+  let pfCurrentPage = 1;
+
+  // --- فیلتر، جستجو، مرتب‌سازی و صفحه‌بندی زنده روی کارت‌ها ---
+  function applyPortfolioFilters(resetPage){
+    if (resetPage) pfCurrentPage = 1;
+
     const searchInput = document.getElementById('pfSearchInput');
     const categorySelect = document.getElementById('pfCategoryFilter');
     const sortSelect = document.getElementById('pfSortFilter');
@@ -506,60 +578,99 @@
     const grid = document.getElementById('pfGrid');
     let cards = Array.from(grid.querySelectorAll('.pf-card'));
 
-    // مرتب‌سازی (روی کل کارت‌ها، صرف‌نظر از فیلتر، تا ترتیب DOM درست بمونه)
+    // مرتب‌سازی (نمونه‌کارهای سنجاق‌شده همیشه اول، مگر اینکه صریحاً مرتب‌سازی دیگه‌ای انتخاب شده باشه)
     if (sortBy === 'newest'){
-      cards.sort((a, b) => (Number(b.dataset.created) || 0) - (Number(a.dataset.created) || 0));
+      cards.sort((a, b) => (Number(b.dataset.featured) - Number(a.dataset.featured)) || ((Number(b.dataset.created) || 0) - (Number(a.dataset.created) || 0)));
     } else if (sortBy === 'oldest'){
-      cards.sort((a, b) => (Number(a.dataset.created) || 0) - (Number(b.dataset.created) || 0));
+      cards.sort((a, b) => (Number(b.dataset.featured) - Number(a.dataset.featured)) || ((Number(a.dataset.created) || 0) - (Number(b.dataset.created) || 0)));
     } else if (sortBy === 'rating'){
-      cards.sort((a, b) => (Number(b.dataset.rating) || 0) - (Number(a.dataset.rating) || 0));
+      cards.sort((a, b) => (Number(b.dataset.featured) - Number(a.dataset.featured)) || ((Number(b.dataset.rating) || 0) - (Number(a.dataset.rating) || 0)));
+    } else {
+      cards.sort((a, b) => Number(b.dataset.featured) - Number(a.dataset.featured));
     }
     cards.forEach(card => grid.appendChild(card));
 
-    let visibleCount = 0;
-    cards.forEach(card => {
+    // اعمال فیلتر جستجو و دسته‌بندی
+    const matching = cards.filter(card => {
       const title = (card.querySelector('.pf-title')?.textContent || "").toLowerCase();
       const desc = (card.querySelector('.pf-desc')?.textContent || "").toLowerCase();
       const category = card.dataset.category || "";
-
       const matchesQuery = !query || title.includes(query) || desc.includes(query);
       const matchesCategory = !selectedCategory || category === selectedCategory;
-
-      const visible = matchesQuery && matchesCategory;
-      card.classList.toggle('pf-hidden', !visible);
-      if (visible) visibleCount++;
+      return matchesQuery && matchesCategory;
     });
 
-    document.getElementById('pfEmptyNote').style.display = visibleCount === 0 ? 'block' : 'none';
+    const visibleLimit = pfCurrentPage * PF_PAGE_SIZE;
+    cards.forEach(card => {
+      const idxInMatching = matching.indexOf(card);
+      const visible = idxInMatching !== -1 && idxInMatching < visibleLimit;
+      card.classList.toggle('pf-hidden', !visible);
+    });
+
+    document.getElementById('pfEmptyNote').style.display = matching.length === 0 ? 'block' : 'none';
+
+    const loadMoreWrap = document.getElementById('pfLoadMoreWrap');
+    loadMoreWrap.style.display = matching.length > visibleLimit ? 'block' : 'none';
 
     const countEl = document.getElementById('pfResultsCount');
     countEl.textContent = (query || selectedCategory || sortBy !== 'default')
-      ? `${visibleCount} نمونه‌کار پیدا شد`
+      ? `${matching.length} نمونه‌کار پیدا شد`
       : "";
   }
 
-  document.getElementById('pfSearchInput').addEventListener('input', applyPortfolioFilters);
-  document.getElementById('pfCategoryFilter').addEventListener('change', applyPortfolioFilters);
-  document.getElementById('pfSortFilter').addEventListener('change', applyPortfolioFilters);
+  document.getElementById('pfSearchInput').addEventListener('input', () => applyPortfolioFilters(true));
+  document.getElementById('pfCategoryFilter').addEventListener('change', () => applyPortfolioFilters(true));
+  document.getElementById('pfSortFilter').addEventListener('change', () => applyPortfolioFilters(true));
+  document.getElementById('pfLoadMoreBtn').addEventListener('click', () => {
+    pfCurrentPage++;
+    applyPortfolioFilters(false);
+  });
 
-  // --- گرفتن نمونه‌کارهای تایید شده‌ی کاربران و افزودن به گرید ---
-  fetch(TELEGRAM_WORKER_URL + "/api/portfolio")
-    .then(r => r.json())
-    .then(res => {
-      if (res && res.ok && Array.isArray(res.items) && res.items.length){
-        const grid = document.getElementById('pfGrid');
-        res.items.forEach(item => grid.appendChild(buildPortfolioCard(item)));
-        document.querySelectorAll('.pf-card.reveal').forEach(el => obs.observe(el));
-        scaleLivePreviews();
-      }
-    })
-    .catch(() => { /* اگه شبکه یا Worker مشکل داشت، فقط نمونه‌کارهای ثابت نمایش داده می‌شن */ })
-    .finally(() => {
-      populateCategoryFilter();
-    });
+  // --- گرفتن نمونه‌کارهای تایید شده‌ی کاربران (با وضعیت لودینگ/خطا و قابلیت تلاش مجدد) ---
+  function loadDynamicPortfolio(){
+    const skeleton = document.getElementById('pfSkeletonGrid');
+    const errorBox = document.getElementById('pfErrorBox');
+    skeleton.style.display = 'grid';
+    errorBox.style.display = 'none';
 
-  // اگه fetch به هر دلیلی هیچ‌وقت resolve/reject نشه (بعید ولی برای اطمینان)، حداقل روی کارت‌های ثابت فیلتر رو فعال کن
+    fetch(TELEGRAM_WORKER_URL + "/api/portfolio")
+      .then(r => {
+        if (!r.ok) throw new Error('bad_status');
+        return r.json();
+      })
+      .then(res => {
+        if (!res || !res.ok) throw new Error('bad_response');
+        if (Array.isArray(res.items) && res.items.length){
+          const grid = document.getElementById('pfGrid');
+          // جلوگیری از کارت‌های تکراری در صورت تلاش مجدد
+          grid.querySelectorAll('.pf-card[data-dynamic="1"]').forEach(el => el.remove());
+          res.items.forEach(item => {
+            const card = buildPortfolioCard(item);
+            card.dataset.dynamic = "1";
+            grid.appendChild(card);
+          });
+          document.querySelectorAll('.pf-card.reveal').forEach(el => obs.observe(el));
+          scaleLivePreviews();
+        }
+        populateCategoryFilter();
+        applyPortfolioFilters(true);
+      })
+      .catch(() => {
+        errorBox.style.display = 'block';
+        populateCategoryFilter();
+        applyPortfolioFilters(true);
+      })
+      .finally(() => {
+        skeleton.style.display = 'none';
+      });
+  }
+
+  document.getElementById('pfRetryBtn').addEventListener('click', loadDynamicPortfolio);
+
+  // فیلتر رو حتی قبل از لود شدن نمونه‌کارهای داینامیک، روی کارت‌های ثابت فعال کن
   populateCategoryFilter();
+  applyPortfolioFilters(true);
+  loadDynamicPortfolio();
 </script>
 
 <script src="header.js"></script>
