@@ -75,13 +75,13 @@
     background:var(--panel);border:1px solid var(--line);border-radius:16px;
   }
   .pf-search-box{
-    flex:1 1 260px;position:relative;display:flex;align-items:center;
+    flex:1 1 180px;max-width:240px;position:relative;display:flex;align-items:center;
   }
-  .pf-search-box svg{position:absolute;right:16px;color:var(--muted);pointer-events:none;}
+  .pf-search-box svg{position:absolute;right:12px;color:var(--muted);pointer-events:none;width:14px;height:14px;}
   .pf-search-box input{
     width:100%;background:var(--panel-2);border:1px solid var(--line);
-    border-radius:12px;padding:12px 44px 12px 16px;color:var(--paper);
-    font-family:'Vazirmatn',sans-serif;font-size:14.5px;outline:none;
+    border-radius:10px;padding:9px 34px 9px 12px;color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;font-size:13.5px;outline:none;
     transition:border-color .2s ease;
   }
   .pf-search-box input:focus{border-color:var(--cyan);}
@@ -91,9 +91,9 @@
   .pf-select-wrap select{
     appearance:none;-webkit-appearance:none;
     background:var(--panel-2);border:1px solid var(--line);
-    border-radius:12px;padding:12px 40px 12px 16px;color:var(--paper);
-    font-family:'Vazirmatn',sans-serif;font-size:14.5px;outline:none;
-    cursor:pointer;min-width:170px;transition:border-color .2s ease;
+    border-radius:10px;padding:9px 34px 9px 14px;color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;font-size:13.5px;outline:none;
+    cursor:pointer;min-width:150px;transition:border-color .2s ease;
   }
   .pf-select-wrap select:focus{border-color:var(--cyan);}
   .pf-select-wrap::after{
@@ -212,6 +212,14 @@
           <option value="">همه‌ی دسته‌بندی‌ها</option>
         </select>
       </div>
+      <div class="pf-select-wrap">
+        <select id="pfSortFilter">
+          <option value="default">مرتب‌سازی: پیش‌فرض</option>
+          <option value="newest">🆕 جدیدترین‌ها</option>
+          <option value="oldest">قدیمی‌ترین‌ها</option>
+          <option value="rating">⭐ بالاترین امتیاز</option>
+        </select>
+      </div>
     </div>
     <p class="pf-results-count" id="pfResultsCount"></p>
   </div>
@@ -220,7 +228,7 @@
 <section class="portfolio-all">
   <div class="wrap">
     <div class="pf-grid" id="pfGrid">
-      <a href="https://bytelabpro.xyz/index.html" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
+      <a href="https://bytelabpro.xyz/index.html" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="1">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="https://bytelabpro.xyz/index.html" loading="lazy" tabindex="-1" title="سایت شرکتی بایت‌لب"></iframe>
@@ -237,7 +245,7 @@
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="https://mr-aiza.github.io/Bytelab2/tarahi-app.html" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
+      <a href="https://mr-aiza.github.io/Bytelab2/tarahi-app.html" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="2">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="https://mr-aiza.github.io/Bytelab2/tarahi-app.html" loading="lazy" tabindex="-1" title="سایت شرکتی بایت‌لب نسخه ۲"></iframe>
@@ -254,7 +262,7 @@
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="portfolio/cafe-restoran-amber.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
+      <a href="portfolio/cafe-restoran-amber.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="3">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="portfolio/cafe-restoran-amber.html" loading="lazy" tabindex="-1" title="کافه و رستوران اِمبر"></iframe>
@@ -271,7 +279,7 @@
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="https://mr-aiza.github.io/224/" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
+      <a href="https://mr-aiza.github.io/224/" target="_blank" rel="noopener" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="4">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="https://mr-aiza.github.io/224/" loading="lazy" tabindex="-1" title="تشریفات رویایی"></iframe>
@@ -288,7 +296,7 @@
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="portfolio/tasharifat-royaee-v2.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
+      <a href="portfolio/tasharifat-royaee-v2.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="5">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="portfolio/tasharifat-royaee-v2.html" loading="lazy" tabindex="-1" title="تشریفات رویایی ورژن ۲"></iframe>
@@ -305,7 +313,7 @@
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="portfolio/galeriy-mashin.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
+      <a href="portfolio/galeriy-mashin.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="6">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="portfolio/galeriy-mashin.html" loading="lazy" tabindex="-1" title="گالری اتومبیل پرستیژ"></iframe>
@@ -322,7 +330,7 @@
           <span class="pf-link">مشاهده نمونه‌کار ←</span>
         </div>
       </a>
-      <a href="portfolio/zarrin-gallery-gold-shop.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0">
+      <a href="portfolio/zarrin-gallery-gold-shop.html" target="_blank" class="pf-card reveal" data-category="طراحی سایت" data-rating="0" data-created="7">
         <div class="pf-preview">
           <div class="live-preview">
             <iframe src="portfolio/zarrin-gallery-gold-shop.html" loading="lazy" tabindex="-1" title="زرّین گالری"></iframe>
@@ -447,6 +455,7 @@
     card.className = "pf-card reveal";
     if (category) card.dataset.category = category;
     card.dataset.rating = String(rating);
+    card.dataset.created = String(item.createdAt || Date.now());
     card.innerHTML = `
       <div class="pf-preview">${previewHTML}${ratingStarsHTML(rating)}</div>
       <div class="pf-info">
@@ -480,16 +489,29 @@
     });
   }
 
-  // --- فیلتر و جستجوی زنده روی کارت‌ها ---
+  // --- فیلتر، جستجو و مرتب‌سازی زنده روی کارت‌ها ---
   function applyPortfolioFilters(){
     const searchInput = document.getElementById('pfSearchInput');
     const categorySelect = document.getElementById('pfCategoryFilter');
+    const sortSelect = document.getElementById('pfSortFilter');
     const query = (searchInput.value || "").trim().toLowerCase();
     const selectedCategory = categorySelect.value;
+    const sortBy = sortSelect.value;
 
-    const cards = document.querySelectorAll('#pfGrid .pf-card');
+    const grid = document.getElementById('pfGrid');
+    let cards = Array.from(grid.querySelectorAll('.pf-card'));
+
+    // مرتب‌سازی (روی کل کارت‌ها، صرف‌نظر از فیلتر، تا ترتیب DOM درست بمونه)
+    if (sortBy === 'newest'){
+      cards.sort((a, b) => (Number(b.dataset.created) || 0) - (Number(a.dataset.created) || 0));
+    } else if (sortBy === 'oldest'){
+      cards.sort((a, b) => (Number(a.dataset.created) || 0) - (Number(b.dataset.created) || 0));
+    } else if (sortBy === 'rating'){
+      cards.sort((a, b) => (Number(b.dataset.rating) || 0) - (Number(a.dataset.rating) || 0));
+    }
+    cards.forEach(card => grid.appendChild(card));
+
     let visibleCount = 0;
-
     cards.forEach(card => {
       const title = (card.querySelector('.pf-title')?.textContent || "").toLowerCase();
       const desc = (card.querySelector('.pf-desc')?.textContent || "").toLowerCase();
@@ -506,13 +528,14 @@
     document.getElementById('pfEmptyNote').style.display = visibleCount === 0 ? 'block' : 'none';
 
     const countEl = document.getElementById('pfResultsCount');
-    countEl.textContent = (query || selectedCategory)
+    countEl.textContent = (query || selectedCategory || sortBy !== 'default')
       ? `${visibleCount} نمونه‌کار پیدا شد`
       : "";
   }
 
   document.getElementById('pfSearchInput').addEventListener('input', applyPortfolioFilters);
   document.getElementById('pfCategoryFilter').addEventListener('change', applyPortfolioFilters);
+  document.getElementById('pfSortFilter').addEventListener('change', applyPortfolioFilters);
 
   // --- گرفتن نمونه‌کارهای تایید شده‌ی کاربران و افزودن به گرید ---
   fetch(TELEGRAM_WORKER_URL + "/api/portfolio")
