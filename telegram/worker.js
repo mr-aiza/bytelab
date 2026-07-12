@@ -287,6 +287,86 @@ async function getAllPortfolioItems(env) {
   return values.filter(Boolean).map((v) => JSON.parse(v)).sort((a, b) => b.createdAt - a.createdAt);
 }
 
+// یک نمونه‌کار می‌تونه تا ۵ دسته‌بندی داشته باشه؛ با کاما (، یا ,) از هم جدا می‌شن.
+// این تابع ورودی خام رو تمیز می‌کنه، تکراری‌ها رو حذف می‌کنه و حداکثر ۵ تا نگه می‌داره.
+const PF_MAX_CATEGORIES = 5;
+function sanitizeCategories(raw) {
+  const parts = String(raw || "")
+    .split(/[،,]/)
+    .map((c) => c.trim())
+    .filter(Boolean)
+    .slice(0, PF_MAX_CATEGORIES);
+  return [...new Set(parts)].join(",");
+}
+function categoryListOf(item) {
+  return String(item.category || "").split(",").map((c) => c.trim()).filter(Boolean);
+}
+function categoryDisplayOf(item) {
+  const list = categoryListOf(item);
+  return list.length ? list.join("، ") : "-";
+}
+
+// ================== نمونه‌کارهای ثابتِ لوکال سایت (فایل‌هایی که داخل پوشه‌ی خود سایت گذاشته شدن) ==================
+// این‌ها قبلاً مستقیم داخل portfolio.html هاردکد شده بودن؛ حالا اینجا تعریف می‌شن تا از همین
+// داشبورد تلگرام (مثل بقیه‌ی نمونه‌کارها) قابل ویرایش، امتیازدهی، سنجاق کردن و حذف باشن.
+// آیدی‌های ثابت (local-1 ... local-7) باعث می‌شه وارد کردن دوباره، آیتم تکراری نسازه.
+const LOCAL_SITE_ITEMS = [
+  {
+    id: "local-1", title: "سایت شرکتی بایت‌لب", description: "سایت معرفی خدمات با دستیار هوش مصنوعی اختصاصی برای پاسخ‌گویی به مشتری.",
+    url: "https://bytelabpro.xyz/index.html", image: "", category: "طراحی سایت,هوش مصنوعی", rating: 4.9, featured: true,
+  },
+  {
+    id: "local-2", title: "سایت شرکتی بایت‌لب (ورژن ۲)", description: "بازطراحی صفحه‌ی معرفی خدمات با چیدمان و ظاهر متفاوت.",
+    url: "https://mr-aiza.github.io/Bytelab2/tarahi-app.html", image: "", category: "طراحی سایت,شرکتی", rating: 4.5, featured: false,
+  },
+  {
+    id: "local-3", title: "کافه و رستوران اِمبر", description: "منوی دیجیتال ریسپانسیو کافه و رستوران با دسته‌بندی متحرک و انیمیشن‌های ظریف اسکرول.",
+    url: "portfolio/cafe-restoran-amber.html", image: "", category: "طراحی سایت,کافه و رستوران", rating: 4.7, featured: true,
+  },
+  {
+    id: "local-4", title: "تشریفات رویایی", description: "سایت معرفی خدمات برگزاری مراسم عروسی و رویدادهای لاکچری.",
+    url: "https://mr-aiza.github.io/224/", image: "", category: "طراحی سایت,خدماتی", rating: 4.2, featured: false,
+  },
+  {
+    id: "local-5", title: "تشریفات رویایی ورژن ۲", description: "بازطراحی صفحه‌ی معرفی خدمات برگزاری مراسم عروسی با چیدمان و ظاهر جدید.",
+    url: "portfolio/tasharifat-royaee-v2.html", image: "", category: "طراحی سایت,خدماتی", rating: 4.3, featured: false,
+  },
+  {
+    id: "local-6", title: "گالری اتومبیل پرستیژ", description: "نمایشگاه آنلاین خودروهای لوکس و کلاسیک با معرفی هر خودرو.",
+    url: "portfolio/galeriy-mashin.html", image: "", category: "طراحی سایت,گالری خودرو", rating: 4.6, featured: false,
+  },
+  {
+    id: "local-7", title: "زرّین گالری", description: "سایت فروشگاه طلا و جواهرات با نمایش قیمت لحظه‌ای.",
+    url: "portfolio/zarrin-gallery-gold-shop.html", image: "", category: "طراحی سایت,فروشگاهی", rating: 4.8, featured: true,
+  },
+];
+
+async function seedLocalPortfolioItems(env) {
+  let added = 0, updated = 0;
+  for (let i = 0; i < LOCAL_SITE_ITEMS.length; i++) {
+    const base = LOCAL_SITE_ITEMS[i];
+    const existing = await getPortfolioItem(env, base.id);
+    const item = {
+      id: base.id,
+      status: "approved",
+      createdAt: existing?.createdAt || (i + 1), // زمان ساخت قدیمی نگه داشته می‌شه تا ترتیبشون عوض نشه
+      title: base.title,
+      description: base.description,
+      url: base.url,
+      image: base.image,
+      authorName: existing?.authorName || "بایت‌لب",
+      authorContact: existing?.authorContact || "-",
+      category: existing?.category ?? base.category,
+      rating: existing?.rating ?? base.rating,
+      featured: existing?.featured ?? base.featured,
+      isLocalSite: true,
+    };
+    await savePortfolioItem(env, item);
+    existing ? updated++ : added++;
+  }
+  return { added, updated, total: LOCAL_SITE_ITEMS.length };
+}
+
 // ================== بنر اعلانات سایت ==================
 async function getBanner(env) {
   const raw = await env.LEADS_KV.get("config:banner");
@@ -625,6 +705,7 @@ function galleryMenuKeyboard() {
       [{ text: "🗂 مدیریت کامل گالری", callback_data: "dash:gallery:all" }],
       [{ text: "👥 لیست بر اساس سازنده", callback_data: "dash:gallery:authors" }],
       [{ text: "➕ افزودن دستی", callback_data: "dash:gallery:add" }],
+      [{ text: "📥 وارد کردن / بروزرسانی فایل‌های لوکال سایت", callback_data: "dash:gallery:seedlocal" }],
       [{ text: "⬅️ بازگشت", callback_data: "dash:home" }],
     ],
   };
@@ -685,7 +766,7 @@ async function sendPortfolioByAuthor(env, chatId) {
   for (const key of authorNames) {
     const authorItems = groups[key];
     const first = authorItems[0];
-    const categories = [...new Set(authorItems.map((i) => i.category).filter(Boolean))];
+    const categories = [...new Set(authorItems.flatMap((i) => categoryListOf(i)))];
     const approvedCount = authorItems.filter((i) => i.status === "approved").length;
 
     const header =
@@ -924,7 +1005,7 @@ function formatItemDetail(item) {
     `وضعیت: ${pfStatusLabel(item.status)}\n` +
     `${item.featured ? "📌 سنجاق‌شده (بالای گالری)" : ""}\n\n` +
     `📌 عنوان: ${item.title || "-"}\n` +
-    `🏷 دسته‌بندی: ${item.category || "-"}\n` +
+    `🏷 دسته‌بندی: ${categoryDisplayOf(item)}\n` +
     `⭐ امتیاز: ${ratingStars(item.rating)}\n\n` +
     `📝 توضیح: ${item.description || "-"}\n` +
     `🔗 لینک سایت: ${item.url || "-"}\n` +
@@ -1208,10 +1289,11 @@ export default {
           }
           await setAdminState(env, chatId, { mode: "editfield", id: pfId, field: fieldCode });
           await tgAnswerCallback(env, cq.id, "منتظر مقدار جدید هستم...");
+          const categoryHint = fieldCode === "g" ? "\n\n(تا ۵ دسته‌بندی، با ویرگول (,) از هم جدا کن — مثلاً: طراحی سایت, فروشگاهی)" : "";
           await tgSendTo(
             env,
             chatId,
-            `✏️ در حال ویرایش «${field.label}»\n\nمقدار فعلی:\n${item[field.key] || "-"}\n\nمقدار جدید رو بفرست، یا برای لغو /cancel رو بزن.`,
+            `✏️ در حال ویرایش «${field.label}»\n\nمقدار فعلی:\n${fieldCode === "g" ? categoryDisplayOf(item) : (item[field.key] || "-")}${categoryHint}\n\nمقدار جدید رو بفرست، یا برای لغو /cancel رو بزن.`,
             { reply_markup: { force_reply: true } }
           );
         } else if (parts[0] === "pfdel") {
@@ -1286,6 +1368,17 @@ export default {
             } else if (sub === "add") {
               await tgAnswerCallback(env, cq.id, "");
               await startAddPortfolio(env, chatId);
+            } else if (sub === "seedlocal") {
+              await tgAnswerCallback(env, cq.id, "در حال وارد کردن...");
+              const result = await seedLocalPortfolioItems(env);
+              await tgSendTo(
+                env, chatId,
+                `📥 فایل‌های لوکال سایت همگام‌سازی شدن.\n\n` +
+                `🆕 جدید اضافه‌شده: ${result.added}\n` +
+                `♻️ بروزرسانی‌شده (چون از قبل بودن): ${result.updated}\n` +
+                `📦 مجموع: ${result.total}\n\n` +
+                `از این به بعد این‌ها هم مثل بقیه‌ی نمونه‌کارها از همینجا قابل ویرایش، امتیازدهی، تغییر دسته‌بندی و حذف هستن.`
+              );
             }
           } else if (action === "blog") {
             if (!sub) {
@@ -1634,7 +1727,7 @@ export default {
             const item = await getPortfolioItem(env, state.id);
             const field = PF_FIELDS[state.field];
             if (item && field) {
-              item[field.key] = text.slice(0, 400);
+              item[field.key] = field.key === "category" ? sanitizeCategories(text) : text.slice(0, 400);
               await savePortfolioItem(env, item);
               await clearAdminState(env, chatId);
               await tgSendTo(env, chatId, `✅ «${field.label}» بروزرسانی شد.`);
@@ -1674,9 +1767,9 @@ export default {
             } else if (state.step === "authorContact") {
               data.authorContact = value.slice(0, 100);
               await setAdminState(env, chatId, { mode: "add", step: "category", data });
-              await tgSendTo(env, chatId, "🏷 دسته‌بندی این نمونه‌کار چیه؟ (مثلاً «طراحی سایت»، اختیاریه، برای رد شدن بنویس -):");
+              await tgSendTo(env, chatId, "🏷 دسته‌بندی این نمونه‌کار چیه؟\nمی‌تونی تا ۵ تا دسته‌بندی بفرستی، با ویرگول (,) از هم جدا کن.\nمثلاً: طراحی سایت, فروشگاهی\n(اختیاریه، برای رد شدن بنویس -):");
             } else if (state.step === "category") {
-              data.category = value.slice(0, 60);
+              data.category = sanitizeCategories(value);
               await clearAdminState(env, chatId);
 
               const item = {
@@ -1755,7 +1848,7 @@ export default {
           image: (data.image || "").slice(0, 300),
           authorName: (data.authorName || "-").slice(0, 80),
           authorContact: (data.authorContact || "-").slice(0, 100),
-          category: (data.category || "").slice(0, 60),
+          category: sanitizeCategories(data.category),
           rating: 0,
           featured: false,
         };
