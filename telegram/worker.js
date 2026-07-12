@@ -650,6 +650,7 @@ function dashboardKeyboard() {
       ],
       [
         { text: "📤 خروجی لیدها", callback_data: "dash:export" },
+        { text: "💾 بکاپ کامل", callback_data: "dash:backup" },
       ],
       [{ text: "🔄 بروزرسانی", callback_data: "dash:home" }],
     ],
@@ -751,6 +752,40 @@ async function exportLeadsFile(env, chatId) {
   await fetch(`${TG_API(env)}/sendDocument`, { method: "POST", body: formData });
 }
 
+// ---- 💾 بکاپ کامل از همه‌چیز (لیدها، نمونه‌کارها، بلاگ، FAQ، بنر، وضعیت) به‌صورت یک فایل JSON ----
+async function exportFullBackup(env, chatId) {
+  const [leads, portfolioItems, blogPosts, faqItems, banner, status] = await Promise.all([
+    getAllLeads(env),
+    getAllPortfolioItems(env),
+    getAllBlogPosts(env),
+    getAllFaq(env),
+    getBanner(env),
+    getStatus(env),
+  ]);
+
+  const backup = {
+    exportedAt: new Date().toISOString(),
+    exportedAtTehran: nowTehranDateStr(),
+    leads,
+    portfolioItems,
+    blogPosts,
+    faqItems,
+    banner,
+    status,
+  };
+
+  const content = JSON.stringify(backup, null, 2);
+  const formData = new FormData();
+  formData.append("chat_id", chatId);
+  formData.append("document", new Blob([content], { type: "application/json" }), `bytelab-backup-${nowTehranDateStr()}.json`);
+  formData.append(
+    "caption",
+    `💾 بکاپ کامل بایت‌لب\n\n📩 ${leads.length} لید | 🎨 ${portfolioItems.length} نمونه‌کار | 📰 ${blogPosts.length} پست بلاگ | ❓ ${faqItems.length} سوال متداول`
+  );
+
+  await fetch(`${TG_API(env)}/sendDocument`, { method: "POST", body: formData });
+}
+
 // ---- زیرمنوی گالری ----
 function galleryMenuKeyboard() {
   return {
@@ -838,41 +873,71 @@ function authorKey(item) {
   return (item.authorContact && item.authorContact !== "-" ? item.authorContact : item.authorName) || "نامشخص";
 }
 
-async function sendPortfolioByAuthor(env, chatId) {
-  const items = await getAllPortfolioItems(env);
-  if (items.length === 0) {
-    await tgSendTo(env, chatId, "هنوز هیچ نمونه‌کاری ثبت نشده.");
-    return;
-  }
-
+function groupPortfolioByAuthor(items) {
   const groups = {};
   for (const item of items) {
     const key = authorKey(item);
     if (!groups[key]) groups[key] = [];
     groups[key].push(item);
   }
+  return groups;
+}
 
-  const authorNames = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
+// خلاصه‌ی سریع: فقط اسم هر سازنده و تعداد نمونه‌کارش، به‌ترتیب بیشترین به کمترین
+async function sendAuthorsSummary(env, chatId) {
+  const items = await getAllPortfolioItems(env);
+  if (items.length === 0) {
+    await tgSendTo(env, chatId, "هنوز هیچ نمونه‌کاری ثبت نشده.");
+    return;
+  }
 
-  await tgSendTo(env, chatId, `👥 لیست سازنده‌ها (${authorNames.length} نفر):`);
+  const groups = groupPortfolioByAuthor(items);
+  const keys = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
 
-  for (const key of authorNames) {
+  let text = `👥 لیست سازنده‌ها (${keys.length} نفر)\n\n`;
+  keys.forEach((key, i) => {
     const authorItems = groups[key];
-    const first = authorItems[0];
-    const categories = [...new Set(authorItems.flatMap((i) => categoryListOf(i)))];
-    const approvedCount = authorItems.filter((i) => i.status === "approved").length;
+    const name = authorItems[0].authorName || key;
+    const approvedCount = authorItems.filter((it) => it.status === "approved").length;
+    text += `${i + 1}. ${name} — ${authorItems.length} تا${approvedCount !== authorItems.length ? ` (${approvedCount} تایید‌شده)` : ""}\n`;
+  });
+  text += `\nبرای دیدن نمونه‌کارهای هر سازنده، روی دکمه‌ی اسمش بزن:`;
 
-    const header =
-      `👤 ${first.authorName || "-"}\n` +
-      `📞 ${first.authorContact || "-"}\n` +
-      `📦 ${authorItems.length} نمونه‌کار (${approvedCount} تایید شده)\n` +
-      (categories.length ? `🏷 دسته‌ها: ${categories.join("، ")}\n` : "");
+  const rows = keys.slice(0, 40).map((key) => {
+    const authorItems = groups[key];
+    const name = authorItems[0].authorName || key;
+    return [{ text: `👤 ${name} (${authorItems.length})`, callback_data: `pfauth:${authorItems[0].id}` }];
+  });
+  rows.push([{ text: "⬅️ بازگشت", callback_data: "dash:gallery" }]);
 
-    await tgSendTo(env, chatId, header);
+  await tgSendTo(env, chatId, text, { reply_markup: { inline_keyboard: rows } });
+}
 
-    for (const item of authorItems.slice(0, 10)) {
-      await sendItemManageCard(env, chatId, item);
-    }
+// جزئیات کامل یک سازنده‌ی خاص: پروفایل + تک‌تک کارت‌های نمونه‌کارش
+async function sendAuthorDetail(env, chatId, repItemId) {
+  const rep = await getPortfolioItem(env, repItemId);
+  if (!rep) {
+    await tgSendTo(env, chatId, "این سازنده دیگه پیدا نشد.");
+    return;
+  }
+  const key = authorKey(rep);
+  const items = await getAllPortfolioItems(env);
+  const authorItems = items.filter((it) => authorKey(it) === key);
+  const categories = [...new Set(authorItems.flatMap((i) => categoryListOf(i)))];
+  const approvedCount = authorItems.filter((i) => i.status === "approved").length;
+
+  const header =
+    `👤 ${rep.authorName || "-"}\n` +
+    `📞 ${rep.authorContact || "-"}\n` +
+    `📦 ${authorItems.length} نمونه‌کار (${approvedCount} تایید شده)\n` +
+    (categories.length ? `🏷 دسته‌ها: ${categories.join("، ")}\n` : "");
+
+  await tgSendTo(env, chatId, header, {
+    reply_markup: { inline_keyboard: [[{ text: "⬅️ بازگشت به لیست سازنده‌ها", callback_data: "dash:gallery:authors" }]] },
+  });
+
+  for (const item of authorItems.slice(0, 20)) {
+    await sendItemManageCard(env, chatId, item);
   }
 }
 
@@ -986,6 +1051,7 @@ async function sendLeadsList(env, chatId) {
     if (l.type === "contact") msg += `   👤 ${l.name} | 📞 ${l.phone} | 🛠 ${l.service || "-"}\n`;
     if (l.type === "profile") msg += `   📧 ${l.email}\n`;
     if (l.type === "abandoned_form") msg += `   🕓 ${l.name || "-"} | 📞 ${l.phone || "-"} (رهاشده)\n`;
+    if (l.note) msg += `   📝 ${l.note}\n`;
     msg += `   🕐 ${date}\n\n`;
   });
   await tgSendTo(env, chatId, msg);
@@ -1000,7 +1066,8 @@ async function searchLeads(env, chatId, query) {
       (l) =>
         (l.name || "").toLowerCase().includes(q) ||
         (l.phone || "").includes(q) ||
-        (l.email || "").toLowerCase().includes(q)
+        (l.email || "").toLowerCase().includes(q) ||
+        (l.note || "").toLowerCase().includes(q)
     )
     .slice(0, 10);
 
@@ -1017,6 +1084,7 @@ async function searchLeads(env, chatId, query) {
     if (l.phone) msg += `   📞 ${l.phone}\n`;
     if (l.email) msg += `   📧 ${l.email}\n`;
     if (l.service) msg += `   🛠 ${l.service}\n`;
+    if (l.note) msg += `   📝 ${l.note}\n`;
     msg += `   🕐 ${date}\n\n`;
   });
   await tgSendTo(env, chatId, msg);
@@ -1324,12 +1392,35 @@ export default {
             }
             await saveLead(env, lead);
             await tgEditMarkup(env, chatId, messageId, {
-              inline_keyboard: [[{ text: statusLabel(newStatus) + " (ثبت شد)", callback_data: "noop" }]],
+              inline_keyboard: [
+                [{ text: statusLabel(newStatus) + " (ثبت شد)", callback_data: "noop" }],
+                [{ text: lead.note ? "📝 ویرایش یادداشت" : "📝 افزودن یادداشت", callback_data: `stnote:${leadId}` }],
+              ],
             });
             await tgAnswerCallback(env, cq.id, "وضعیت ثبت شد ✅");
           } else {
             await tgAnswerCallback(env, cq.id, "این لید پیدا نشد.");
           }
+        } else if (parts[0] === "stnote") {
+          const leadId = parts[1];
+          const raw = await env.LEADS_KV.get(`lead:${leadId}`);
+          if (!raw) {
+            await tgAnswerCallback(env, cq.id, "این لید پیدا نشد.");
+            return new Response("ok");
+          }
+          const lead = JSON.parse(raw);
+          await setAdminState(env, chatId, { mode: "leadnote", id: leadId });
+          await tgAnswerCallback(env, cq.id, "منتظر متن یادداشت هستم...");
+          await tgSendTo(
+            env,
+            chatId,
+            `📝 یادداشت این لید رو بفرست${lead.note ? `\n\nیادداشت فعلی:\n${lead.note}` : ""}\n\n(برای پاک‌کردن یادداشت بنویس -)، یا /cancel:`,
+            { reply_markup: { force_reply: true } }
+          );
+        } else if (parts[0] === "pfauth") {
+          const repItemId = parts[1];
+          await tgAnswerCallback(env, cq.id, "");
+          await sendAuthorDetail(env, chatId, repItemId);
         } else if (parts[0] === "pf") {
           const pfId = parts[1];
           const newStatus = parts[2];
@@ -1497,7 +1588,7 @@ export default {
               });
             } else if (sub === "authors") {
               await tgAnswerCallback(env, cq.id, "");
-              await sendPortfolioByAuthor(env, chatId);
+              await sendAuthorsSummary(env, chatId);
             } else if (sub === "add") {
               await tgAnswerCallback(env, cq.id, "");
               await startAddPortfolio(env, chatId);
@@ -1556,6 +1647,9 @@ export default {
           } else if (action === "export") {
             await tgAnswerCallback(env, cq.id, "در حال آماده‌سازی فایل...");
             await exportLeadsFile(env, chatId);
+          } else if (action === "backup") {
+            await tgAnswerCallback(env, cq.id, "در حال آماده‌سازی بکاپ...");
+            await exportFullBackup(env, chatId);
           } else if (action === "leadsearch") {
             await setAdminState(env, chatId, { mode: "leadsearch" });
             await tgAnswerCallback(env, cq.id, "");
@@ -1769,6 +1863,21 @@ export default {
             await tgSendTo(env, chatId, "✅ پرامپت جدید ذخیره شد. پست‌های بعدی بلاگ با همین دستورالعمل نوشته می‌شن.");
             const isCustom = await isBlogSystemPromptCustom(env);
             await tgSendTo(env, chatId, await formatAiSettingsText(env), { reply_markup: aiSettingsKeyboard(isCustom) });
+            return new Response("ok");
+          }
+
+          if (state.mode === "leadnote") {
+            const raw = await env.LEADS_KV.get(`lead:${state.id}`);
+            if (!raw) {
+              await clearAdminState(env, chatId);
+              await tgSendTo(env, chatId, "این لید دیگه پیدا نشد.");
+              return new Response("ok");
+            }
+            const lead = JSON.parse(raw);
+            lead.note = text === "-" ? "" : text.slice(0, 500);
+            await saveLead(env, lead);
+            await clearAdminState(env, chatId);
+            await tgSendTo(env, chatId, lead.note ? "✅ یادداشت ذخیره شد." : "✅ یادداشت پاک شد.");
             return new Response("ok");
           }
 
@@ -2100,11 +2209,14 @@ export default {
         if (withButtons) {
           sendResult = await tgSend(env, text, {
             reply_markup: {
-              inline_keyboard: [[
-                { text: "✅ تماس گرفتم", callback_data: `st:${id}:contacted` },
-                { text: "⏳ بعداً", callback_data: `st:${id}:later` },
-                { text: "❌ رد شد", callback_data: `st:${id}:rejected` },
-              ]],
+              inline_keyboard: [
+                [
+                  { text: "✅ تماس گرفتم", callback_data: `st:${id}:contacted` },
+                  { text: "⏳ بعداً", callback_data: `st:${id}:later` },
+                  { text: "❌ رد شد", callback_data: `st:${id}:rejected` },
+                ],
+                [{ text: "📝 افزودن یادداشت", callback_data: `stnote:${id}` }],
+              ],
             },
           });
         } else {
@@ -2137,6 +2249,10 @@ export default {
       ctx.waitUntil(checkFollowUps(env));
     } else if (event.cron === "30 4,9,16 * * *") {
       ctx.waitUntil(generateAndPublishBlogPost(env));
+    } else if (event.cron === "0 20 * * 5") {
+      // بکاپ خودکار هفتگی (هر جمعه ساعت ۲۰:۰۰ به وقت UTC ≈ ۲۳:۳۰ ایران)
+      // برای فعال‌شدن این خط، باید تریگر "0 20 * * 5" رو به cron_triggers توی wrangler.toml اضافه کنی
+      ctx.waitUntil(exportFullBackup(env, env.TELEGRAM_CHAT_ID));
     }
   },
 };
