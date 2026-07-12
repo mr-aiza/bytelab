@@ -88,9 +88,32 @@ const BLOG_WRITER_SYSTEM = `
 - محتوا رو با پاراگراف‌های کوتاه (۲ تا ۴ جمله) بنویس و بین هر پاراگراف دقیقاً یک خط خالی بذار؛ از هیچ تگ HTML یا Markdown (مثل **، ##، -) داخل content استفاده نکن، فقط متن ساده.
 - حتماً به موضوعاتی که قبلاً نوشته شده دوباره نپرداز (لیست موضوعات قبلی رو در پیام کاربر می‌بینی).
 
-خروجی: فقط و فقط یک JSON خام و معتبر با این ساختار دقیق برگردون، بدون هیچ توضیح اضافه، بدون بک‌تیک یا Markdown دورش:
-{"title":"...","excerpt":"...","tag":"طراحی سایت | طراحی اپلیکیشن | خدمات کامپیوتر | نکات فنی","content":"پاراگراف اول...\\n\\nپاراگراف دوم...\\n\\n..."}
+فیلد tag: باید دقیقاً و فقط یکی از این چهار مقدار باشه (متن رو عیناً کپی کن، بدون کاراکتر اضافه، بدون |، بدون ترکیب چند مورد):
+"طراحی سایت"
+"طراحی اپلیکیشن"
+"خدمات کامپیوتر"
+"نکات فنی"
+بر اساس موضوع واقعی مقاله، همون یکی که مرتبط‌تره رو انتخاب کن.
+
+خروجی: فقط و فقط یک JSON خام و معتبر با این ساختار دقیق برگردون، بدون هیچ توضیح اضافه، بدون بک‌تیک یا Markdown دورش (نمونه‌ی زیر فقط برای شکل ساختاره، مقادیر واقعی رو خودت بر اساس مقاله بنویس):
+{"title":"...","excerpt":"...","tag":"نکات فنی","content":"پاراگراف اول...\\n\\nپاراگراف دوم...\\n\\n..."}
 `;
+
+// ---- پرامپت قابل‌ویرایش از داخل بات: اگه ادمین یه نسخه‌ی سفارشی ذخیره کرده باشه، همون استفاده می‌شه؛
+// وگرنه پرامپت پیش‌فرض بالا. این‌طوری بدون نیاز به دیپلوی دوباره‌ی کد، لحن/قوانین محتوا قابل تغییره.
+async function getBlogSystemPrompt(env) {
+  const custom = await env.LEADS_KV.get("config:blogPrompt");
+  return custom || BLOG_WRITER_SYSTEM;
+}
+async function setBlogSystemPrompt(env, text) {
+  await env.LEADS_KV.put("config:blogPrompt", text);
+}
+async function resetBlogSystemPrompt(env) {
+  await env.LEADS_KV.delete("config:blogPrompt");
+}
+async function isBlogSystemPromptCustom(env) {
+  return !!(await env.LEADS_KV.get("config:blogPrompt"));
+}
 
 function parseBlogJSON(raw) {
   if (raw && typeof raw === "object") {
@@ -180,12 +203,38 @@ async function callAIWorker(env, system, userText) {
   return typeof textBlock.text === "string" ? textBlock.text : JSON.stringify(textBlock.text);
 }
 
-async function generateAndPublishBlogPost(env) {
+const BLOG_ALLOWED_TAGS = ["طراحی سایت", "طراحی اپلیکیشن", "خدمات کامپیوتر", "نکات فنی"];
+
+// اگه هوش‌مصنوعی تگ معتبری برنگردونه، به‌جای افتادن روی «بایت‌لب»، از روی عنوان/متن حدس می‌زنیم
+function guessBlogTag(text) {
+  const s = String(text || "");
+  if (/اپلیکیشن|اپ اندروید|اپ آی‌?او?اس|اندروید|iOS|موبایل\s*اپ/i.test(s)) return "طراحی اپلیکیشن";
+  if (/سایت|وب‌?سایت|دامنه|هاست|فروشگاه اینترنتی|landing/i.test(s)) return "طراحی سایت";
+  if (/کامپیوتر|رایانه|سخت‌?افزار|شبکه|رفع اشکال|قطعه|ویندوز|فرمت/.test(s)) return "خدمات کامپیوتر";
+  return "نکات فنی";
+}
+
+// برای سئوی متوازن، به‌جای اینکه بذاریم هوش‌مصنوعی خودش تگ رو انتخاب کنه (که همیشه یه سمت کج می‌شه)،
+// از قبل به‌ترتیب بین هر ۴ دسته می‌چرخیم تا هر ۴ تا به‌طور مساوی پست بگیرن.
+async function getNextBlogTag(env) {
+  const raw = await env.LEADS_KV.get("blogauto:tagindex");
+  const idx = raw ? (parseInt(raw, 10) + 1) % BLOG_ALLOWED_TAGS.length : 0;
+  return { tag: BLOG_ALLOWED_TAGS[idx], idx };
+}
+async function saveBlogTagIndex(env, idx) {
+  await env.LEADS_KV.put("blogauto:tagindex", String(idx));
+}
+
+async function generateAndPublishBlogPost(env, forcedTag = null) {
   const existing = await getAllBlogPosts(env);
   const recentTitles = existing.slice(0, 30).map((p) => `- ${p.title}`).join("\n") || "(هنوز پستی نوشته نشده)";
 
+  const { tag: nextTag, idx: nextIdx } = await getNextBlogTag(env);
+  const assignedTag = forcedTag && BLOG_ALLOWED_TAGS.includes(forcedTag) ? forcedTag : nextTag;
+
   const userMsg =
     `موضوعات قبلاً نوشته‌شده (تکرار نکن):\n${recentTitles}\n\n` +
+    `این پست باید دقیقاً درباره‌ی دسته‌بندی «${assignedTag}» باشه (موضوع مقاله رو کاملاً منطبق با همین دسته انتخاب کن).\n` +
     `یک پست جدید و متفاوت با موضوعات بالا، طبق قوانین سیستم بنویس و فقط JSON خروجی بده.`;
 
   const MAX_ATTEMPTS = 2;
@@ -193,12 +242,15 @@ async function generateAndPublishBlogPost(env) {
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
-      const raw = await callAIWorker(env, BLOG_WRITER_SYSTEM, userMsg);
+      const raw = await callAIWorker(env, await getBlogSystemPrompt(env), userMsg);
       const parsed = parseBlogJSON(raw);
 
       if (!parsed.title || !parsed.content || String(parsed.content).trim().length < 150) {
         throw new Error("خروجی هوش‌مصنوعی ناقص یا خیلی کوتاه بود.");
       }
+
+      // تگ رو به‌جای اعتماد به خروجی مدل، همون دسته‌ای که از قبل تعیین کردیم می‌ذاریم (تضمین چرخش درست)
+      const finalTag = assignedTag;
 
       const item = {
         id: crypto.randomUUID(),
@@ -209,15 +261,16 @@ async function generateAndPublishBlogPost(env) {
         excerpt: String(parsed.excerpt || "").slice(0, 400),
         content: String(parsed.content).slice(0, 8000),
         image: "",
-        tag: String(parsed.tag || "بایت‌لب").slice(0, 60),
+        tag: finalTag.slice(0, 60),
         autoGenerated: true,
       };
 
       await saveBlogPost(env, item);
+      if (!forcedTag) await saveBlogTagIndex(env, nextIdx);
       await env.LEADS_KV.put("blogauto:failstreak", "0");
       await tgSend(
         env,
-        `📰 پست جدید بلاگ به‌صورت خودکار منتشر شد:\n\n«${item.title}»\n\nhttps://bytelabpro.xyz/blog-post.html?id=${item.id}`
+        `📰 پست جدید بلاگ به‌صورت خودکار منتشر شد:\n\n«${item.title}»\n🏷 دسته: ${item.tag}\n\nhttps://bytelabpro.xyz/blog-post.html?id=${item.id}`
       );
       return;
     } catch (err) {
@@ -585,6 +638,7 @@ function dashboardKeyboard() {
       ],
       [
         { text: "🤖 نوشتن فوری با AI", callback_data: "dash:blog:ai" },
+        { text: "⚙️ تنظیمات AI", callback_data: "dash:ai" },
       ],
       [
         { text: "❓ مدیریت سوالات متداول", callback_data: "dash:faq" },
@@ -703,6 +757,8 @@ function galleryMenuKeyboard() {
     inline_keyboard: [
       [{ text: "⏳ در انتظار تایید", callback_data: "dash:gallery:pending" }],
       [{ text: "🗂 مدیریت کامل گالری", callback_data: "dash:gallery:all" }],
+      [{ text: "❌ رد شده‌ها", callback_data: "dash:gallery:rejected" }],
+      [{ text: "🔍 جستجوی نمونه‌کار", callback_data: "dash:gallery:search" }],
       [{ text: "👥 لیست بر اساس سازنده", callback_data: "dash:gallery:authors" }],
       [{ text: "➕ افزودن دستی", callback_data: "dash:gallery:add" }],
       [{ text: "📥 وارد کردن / بروزرسانی فایل‌های لوکال سایت", callback_data: "dash:gallery:seedlocal" }],
@@ -737,6 +793,43 @@ async function sendPortfolioAll(env, chatId) {
   }
   if (items.length > combined.length) {
     await tgSendTo(env, chatId, `... و ${items.length - combined.length} مورد دیگر.`);
+  }
+}
+
+async function sendPortfolioRejected(env, chatId) {
+  const items = await getAllPortfolioItems(env);
+  const rejected = items.filter((p) => p.status === "rejected").slice(0, 25);
+  await tgSendTo(
+    env,
+    chatId,
+    rejected.length === 0 ? "هیچ نمونه‌کار رد‌شده‌ای نیست." : `❌ ${rejected.length} نمونه‌کار رد شده:`
+  );
+  for (const item of rejected) {
+    await sendItemManageCard(env, chatId, item);
+  }
+}
+
+// ---- 🔍 جستجوی نمونه‌کار بر اساس عنوان/سازنده/دسته‌بندی ----
+async function searchPortfolio(env, chatId, query) {
+  const items = await getAllPortfolioItems(env);
+  const q = query.toLowerCase().trim();
+  const results = items
+    .filter(
+      (p) =>
+        (p.title || "").toLowerCase().includes(q) ||
+        (p.authorName || "").toLowerCase().includes(q) ||
+        (p.authorContact || "").toLowerCase().includes(q) ||
+        categoryDisplayOf(p).toLowerCase().includes(q)
+    )
+    .slice(0, 15);
+
+  if (results.length === 0) {
+    await tgSendTo(env, chatId, "چیزی پیدا نشد.");
+    return;
+  }
+  await tgSendTo(env, chatId, `🔍 ${results.length} نتیجه پیدا شد:`);
+  for (const item of results) {
+    await sendItemManageCard(env, chatId, item);
   }
 }
 
@@ -788,6 +881,30 @@ async function startAddPortfolio(env, chatId) {
   await tgSendTo(env, chatId, "➕ افزودن نمونه‌کار جدید\n\n📌 عنوان پروژه رو بفرست (یا /cancel برای لغو):", {
     reply_markup: { force_reply: true },
   });
+}
+
+// ---- زیرمنوی ⚙️ تنظیمات هوش‌مصنوعی (پرامپت نویسنده‌ی بلاگ) ----
+async function formatAiSettingsText(env) {
+  const isCustom = await isBlogSystemPromptCustom(env);
+  const { tag: nextTag } = await getNextBlogTag(env);
+  return (
+    `⚙️ تنظیمات هوش‌مصنوعی (نویسنده‌ی خودکار بلاگ)\n\n` +
+    `📄 وضعیت پرامپت: ${isCustom ? "✏️ سفارشی (ویرایش‌شده توسط تو)" : "🏭 پیش‌فرض"}\n` +
+    `🏷 دسته‌ی پست بعدی (چرخشی): ${nextTag}\n` +
+    `⏰ زمان‌بندی خودکار: روزی ۳ بار (۴:۳۰ / ۹:۰۰ / ۱۶:۳۰ به وقت ایران)\n\n` +
+    `از دکمه‌های زیر می‌تونی متن کامل پرامپت رو ببینی، ویرایش کنی، یا به حالت پیش‌فرض برگردونی.`
+  );
+}
+function aiSettingsKeyboard(isCustom) {
+  const rows = [];
+  rows.push([{ text: "📄 مشاهده‌ی پرامپت فعلی", callback_data: "dash:ai:view" }]);
+  rows.push([{ text: "✏️ ویرایش پرامپت", callback_data: "dash:ai:edit" }]);
+  if (isCustom) {
+    rows.push([{ text: "♻️ بازگردانی به پیش‌فرض", callback_data: "dash:ai:reset" }]);
+  }
+  rows.push([{ text: "🤖 نوشتن فوری با AI (تست)", callback_data: "dash:blog:ai" }]);
+  rows.push([{ text: "⬅️ بازگشت", callback_data: "dash:home" }]);
+  return { inline_keyboard: rows };
 }
 
 // ---- زیرمنوی بلاگ ----
@@ -1024,6 +1141,9 @@ function manageKeyboard(item) {
   if (item.status !== "rejected") {
     rows.push([{ text: "🚫 رد کردن / برداشتن از سایت", callback_data: `pf:${item.id}:rejected` }]);
   }
+  if (item.status === "approved" || item.status === "rejected") {
+    rows.push([{ text: "↩️ بازگشت به «در انتظار تایید»", callback_data: `pf:${item.id}:pending` }]);
+  }
 
   rows.push([
     item.featured
@@ -1223,7 +1343,11 @@ export default {
             await tgAnswerCallback(
               env,
               cq.id,
-              newStatus === "approved" ? "تایید شد و روی سایت نمایش داده می‌شه ✅" : "رد شد / از سایت برداشته شد ❌"
+              newStatus === "approved"
+                ? "تایید شد و روی سایت نمایش داده می‌شه ✅"
+                : newStatus === "pending"
+                ? "به «در انتظار تایید» برگشت ↩️"
+                : "رد شد / از سایت برداشته شد ❌"
             );
           } else {
             await tgAnswerCallback(env, cq.id, "این نمونه‌کار پیدا نشد.");
@@ -1362,6 +1486,15 @@ export default {
             } else if (sub === "all") {
               await tgAnswerCallback(env, cq.id, "");
               await sendPortfolioAll(env, chatId);
+            } else if (sub === "rejected") {
+              await tgAnswerCallback(env, cq.id, "");
+              await sendPortfolioRejected(env, chatId);
+            } else if (sub === "search") {
+              await setAdminState(env, chatId, { mode: "pfsearch" });
+              await tgAnswerCallback(env, cq.id, "");
+              await tgSendTo(env, chatId, "🔍 عنوان، نام سازنده یا دسته‌بندی مورد نظر رو بفرست:", {
+                reply_markup: { force_reply: true },
+              });
             } else if (sub === "authors") {
               await tgAnswerCallback(env, cq.id, "");
               await sendPortfolioByAuthor(env, chatId);
@@ -1427,6 +1560,40 @@ export default {
             await setAdminState(env, chatId, { mode: "leadsearch" });
             await tgAnswerCallback(env, cq.id, "");
             await tgSendTo(env, chatId, "🔍 شماره تلفن یا اسم مورد نظر رو بفرست:", { reply_markup: { force_reply: true } });
+          } else if (action === "ai") {
+            if (!sub) {
+              const isCustom = await isBlogSystemPromptCustom(env);
+              await tgEditText(env, chatId, messageId, await formatAiSettingsText(env), {
+                reply_markup: aiSettingsKeyboard(isCustom),
+              });
+              await tgAnswerCallback(env, cq.id, "");
+            } else if (sub === "view") {
+              await tgAnswerCallback(env, cq.id, "");
+              const current = await getBlogSystemPrompt(env);
+              // تلگرام هر پیام حداکثر ۴۰۹۶ کاراکتره؛ پرامپت رو در صورت نیاز تکه‌تکه می‌فرستیم
+              for (let i = 0; i < current.length; i += 3500) {
+                await tgSendTo(env, chatId, current.slice(i, i + 3500));
+              }
+              await tgSendTo(env, chatId, "⬆️ این متن دقیق پرامپتیه که الان استفاده می‌شه.", {
+                reply_markup: { inline_keyboard: [[{ text: "⬅️ بازگشت", callback_data: "dash:ai" }]] },
+              });
+            } else if (sub === "edit") {
+              await setAdminState(env, chatId, { mode: "aipromptedit" });
+              await tgAnswerCallback(env, cq.id, "منتظر متن جدید پرامپت هستم...");
+              await tgSendTo(
+                env,
+                chatId,
+                "✏️ متن کامل پرامپت جدید رو بفرست (کل پیام رو یک‌جا بفرست؛ این دقیقاً جایگزین دستورالعمل فعلی هوش‌مصنوعی می‌شه). می‌تونی از «مشاهده پرامپت فعلی» متن فعلی رو کپی و ویرایش کنی. برای لغو /cancel:",
+                { reply_markup: { force_reply: true } }
+              );
+            } else if (sub === "reset") {
+              await resetBlogSystemPrompt(env);
+              const isCustom = await isBlogSystemPromptCustom(env);
+              await tgEditText(env, chatId, messageId, await formatAiSettingsText(env), {
+                reply_markup: aiSettingsKeyboard(isCustom),
+              });
+              await tgAnswerCallback(env, cq.id, "پرامپت به حالت پیش‌فرض برگشت ✅");
+            }
           } else {
             await tgAnswerCallback(env, cq.id, "");
           }
@@ -1591,6 +1758,26 @@ export default {
         // اگه یک مکالمه‌ی باز (ویرایش فیلد یا افزودن دستی) در جریانه، پیام رو به‌عنوان پاسخ اون مکالمه بگیر
         const state = await getAdminState(env, chatId);
         if (state && !text.startsWith("/")) {
+          if (state.mode === "aipromptedit") {
+            const newPrompt = update.message.text; // بدون trim/slice، چون پرامپت می‌تونه چندخطی و دقیق باشه
+            if (!newPrompt || newPrompt.trim().length < 30) {
+              await tgSendTo(env, chatId, "این متن خیلی کوتاهه به‌نظر پرامپت کامل نیست. یه متن کامل‌تر بفرست، یا /cancel:");
+              return new Response("ok");
+            }
+            await setBlogSystemPrompt(env, newPrompt);
+            await clearAdminState(env, chatId);
+            await tgSendTo(env, chatId, "✅ پرامپت جدید ذخیره شد. پست‌های بعدی بلاگ با همین دستورالعمل نوشته می‌شن.");
+            const isCustom = await isBlogSystemPromptCustom(env);
+            await tgSendTo(env, chatId, await formatAiSettingsText(env), { reply_markup: aiSettingsKeyboard(isCustom) });
+            return new Response("ok");
+          }
+
+          if (state.mode === "pfsearch") {
+            await clearAdminState(env, chatId);
+            await searchPortfolio(env, chatId, text);
+            return new Response("ok");
+          }
+
           if (state.mode === "leadsearch") {
             await clearAdminState(env, chatId);
             await searchLeads(env, chatId, text);
