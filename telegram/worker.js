@@ -359,6 +359,103 @@ function categoryDisplayOf(item) {
   return list.length ? list.join("، ") : "-";
 }
 
+// ================== انتخابگر دسته‌بندی (برای جلوگیری از املای مشابه/تکراری هنگام افزودن دستی) ==================
+// به‌جای اینکه ادمین دسته‌بندی رو آزاد تایپ کنه (و مثلاً یه‌بار «فروشگاهی» یه‌بار «فروشگاه» بنویسه)،
+// دسته‌های موجود رو به‌صورت دکمه نشون می‌دیم تا انتخاب کنه؛ امکان افزودن دسته‌ی کاملاً جدید هم هست.
+async function getAllCategories(env) {
+  const items = await getAllPortfolioItems(env);
+  const counts = {};
+  for (const item of items) {
+    for (const c of categoryListOf(item)) {
+      const key = c.trim();
+      if (!key) continue;
+      counts[key] = (counts[key] || 0) + 1;
+    }
+  }
+  return Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+}
+
+function catPickerText(catList, selectedIdx) {
+  const selectedNames = selectedIdx.map((i) => catList[i]).filter(Boolean);
+  return (
+    `🏷 دسته‌بندی رو انتخاب کن (تا ${PF_MAX_CATEGORIES} تا)\n\n` +
+    `انتخاب فعلی: ${selectedNames.length ? selectedNames.join("، ") : "(هیچی)"}\n\n` +
+    (catList.length
+      ? "روی هرکدوم از دسته‌های موجود بزن (چندتا هم می‌شه)، یا اگه دسته‌ی جدیدی می‌خوای «➕ دسته‌بندی جدید» رو بزن."
+      : "هنوز دسته‌بندی‌ای ثبت نشده. «➕ دسته‌بندی جدید» رو بزن و اولین دسته رو بساز.")
+  );
+}
+
+function catPickerKeyboard(catList, selectedIdx) {
+  const rows = [];
+  for (let i = 0; i < catList.length; i += 2) {
+    const row = [];
+    for (let j = i; j < Math.min(i + 2, catList.length); j++) {
+      const mark = selectedIdx.includes(j) ? "✅ " : "";
+      row.push({ text: `${mark}${catList[j]}`, callback_data: `catpick:${j}` });
+    }
+    rows.push(row);
+  }
+  rows.push([{ text: "➕ دسته‌بندی جدید", callback_data: "catpicknew" }]);
+  rows.push([{ text: "✅ ثبت و ادامه", callback_data: "catpickdone" }]);
+  rows.push([{ text: "❌ لغو", callback_data: "catpickcancel" }]);
+  return { inline_keyboard: rows };
+}
+
+// شروع انتخابگر؛ next مشخص می‌کنه بعد از تموم‌شدن انتخاب، نتیجه کجا برگرده:
+//   { kind: "add", data }        → ادامه‌ی فرآیند افزودن دستی نمونه‌کار جدید
+//   { kind: "editfield", id }    → ویرایش دسته‌بندی یه نمونه‌کار موجود
+async function startCategoryPicker(env, chatId, next, preSelectedCategories = []) {
+  const catList = await getAllCategories(env);
+  for (const c of preSelectedCategories) {
+    if (c && !catList.includes(c)) catList.push(c);
+  }
+  const selected = preSelectedCategories.map((c) => catList.indexOf(c)).filter((i) => i >= 0);
+  await setAdminState(env, chatId, { mode: "catpick", next, catList, selected });
+  await tgSendTo(env, chatId, catPickerText(catList, selected), { reply_markup: catPickerKeyboard(catList, selected) });
+}
+
+// وقتی انتخاب دسته‌بندی تموم شد (دکمه‌ی «ثبت و ادامه» زده شد)، بسته به این‌که برای افزودن بود یا ویرایش، نتیجه رو اعمال کن
+async function finishCategoryPicker(env, chatId, state, categoryStr) {
+  const next = state.next;
+  await clearAdminState(env, chatId);
+
+  if (next.kind === "editfield") {
+    const item = await getPortfolioItem(env, next.id);
+    if (!item) {
+      await tgSendTo(env, chatId, "این نمونه‌کار دیگه پیدا نشد.");
+      return;
+    }
+    item.category = categoryStr;
+    await savePortfolioItem(env, item);
+    await tgSendTo(env, chatId, "✅ دسته‌بندی بروزرسانی شد.");
+    await sendItemManageCard(env, chatId, item);
+    return;
+  }
+
+  // next.kind === "add"
+  const data = next.data || {};
+  data.category = categoryStr;
+  const item = {
+    id: crypto.randomUUID(),
+    status: "approved",
+    createdAt: Date.now(),
+    title: data.title || "-",
+    description: data.description || "-",
+    url: data.url || "",
+    image: data.image || "",
+    authorName: data.authorName || "-",
+    authorContact: data.authorContact || "-",
+    category: data.category || "",
+    rating: 0,
+    featured: false,
+    addedManually: true,
+  };
+  await savePortfolioItem(env, item);
+  await tgSendTo(env, chatId, "✅ نمونه‌کار جدید با موفقیت اضافه شد و همین الان روی سایت نمایش داده می‌شه:");
+  await sendItemManageCard(env, chatId, item);
+}
+
 // ================== نمونه‌کارهای ثابتِ لوکال سایت (فایل‌هایی که داخل پوشه‌ی خود سایت گذاشته شدن) ==================
 // این‌ها قبلاً مستقیم داخل portfolio.html هاردکد شده بودن؛ حالا اینجا تعریف می‌شن تا از همین
 // داشبورد تلگرام (مثل بقیه‌ی نمونه‌کارها) قابل ویرایش، امتیازدهی، سنجاق کردن و حذف باشن.
@@ -1417,6 +1514,51 @@ export default {
             `📝 یادداشت این لید رو بفرست${lead.note ? `\n\nیادداشت فعلی:\n${lead.note}` : ""}\n\n(برای پاک‌کردن یادداشت بنویس -)، یا /cancel:`,
             { reply_markup: { force_reply: true } }
           );
+        } else if (parts[0] === "catpick") {
+          const idx = parseInt(parts[1], 10);
+          const state = await getAdminState(env, chatId);
+          if (!state || state.mode !== "catpick") {
+            await tgAnswerCallback(env, cq.id, "این انتخابگر منقضی شده، دوباره امتحان کن.");
+            return new Response("ok");
+          }
+          const selected = state.selected || [];
+          const already = selected.includes(idx);
+          if (!already && selected.length >= PF_MAX_CATEGORIES) {
+            await tgAnswerCallback(env, cq.id, `حداکثر ${PF_MAX_CATEGORIES} دسته‌بندی می‌شه انتخاب کرد.`);
+            return new Response("ok");
+          }
+          const newSelected = already ? selected.filter((i) => i !== idx) : [...selected, idx];
+          await setAdminState(env, chatId, { ...state, selected: newSelected });
+          await tgEditText(env, chatId, messageId, catPickerText(state.catList, newSelected), {
+            reply_markup: catPickerKeyboard(state.catList, newSelected),
+          });
+          await tgAnswerCallback(env, cq.id, "");
+        } else if (parts[0] === "catpicknew") {
+          const state = await getAdminState(env, chatId);
+          if (!state || state.mode !== "catpick") {
+            await tgAnswerCallback(env, cq.id, "این انتخابگر منقضی شده، دوباره امتحان کن.");
+            return new Response("ok");
+          }
+          await setAdminState(env, chatId, { ...state, mode: "catpicknewtext" });
+          await tgAnswerCallback(env, cq.id, "");
+          await tgSendTo(env, chatId, "✏️ اسم دسته‌بندی جدید رو بفرست (فقط یکی، بدون ویرگول):", {
+            reply_markup: { force_reply: true },
+          });
+        } else if (parts[0] === "catpickdone") {
+          const state = await getAdminState(env, chatId);
+          if (!state || state.mode !== "catpick") {
+            await tgAnswerCallback(env, cq.id, "این انتخابگر منقضی شده، دوباره امتحان کن.");
+            return new Response("ok");
+          }
+          const categoryStr = (state.selected || []).map((i) => state.catList[i]).filter(Boolean).join(",");
+          await tgAnswerCallback(env, cq.id, "ثبت شد ✅");
+          await finishCategoryPicker(env, chatId, state, categoryStr);
+        } else if (parts[0] === "catpickcancel") {
+          await clearAdminState(env, chatId);
+          await tgEditText(env, chatId, messageId, "❌ انتخاب دسته‌بندی لغو شد.", {
+            reply_markup: { inline_keyboard: [[{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }]] },
+          });
+          await tgAnswerCallback(env, cq.id, "لغو شد");
         } else if (parts[0] === "pfauth") {
           const repItemId = parts[1];
           await tgAnswerCallback(env, cq.id, "");
@@ -1502,13 +1644,17 @@ export default {
             await tgAnswerCallback(env, cq.id, "امکان ویرایش نیست.");
             return new Response("ok");
           }
+          if (fieldCode === "g") {
+            await tgAnswerCallback(env, cq.id, "");
+            await startCategoryPicker(env, chatId, { kind: "editfield", id: pfId }, categoryListOf(item));
+            return new Response("ok");
+          }
           await setAdminState(env, chatId, { mode: "editfield", id: pfId, field: fieldCode });
           await tgAnswerCallback(env, cq.id, "منتظر مقدار جدید هستم...");
-          const categoryHint = fieldCode === "g" ? "\n\n(تا ۵ دسته‌بندی، با ویرگول (,) از هم جدا کن — مثلاً: طراحی سایت, فروشگاهی)" : "";
           await tgSendTo(
             env,
             chatId,
-            `✏️ در حال ویرایش «${field.label}»\n\nمقدار فعلی:\n${fieldCode === "g" ? categoryDisplayOf(item) : (item[field.key] || "-")}${categoryHint}\n\nمقدار جدید رو بفرست، یا برای لغو /cancel رو بزن.`,
+            `✏️ در حال ویرایش «${field.label}»\n\nمقدار فعلی:\n${item[field.key] || "-"}\n\nمقدار جدید رو بفرست، یا برای لغو /cancel رو بزن.`,
             { reply_markup: { force_reply: true } }
           );
         } else if (parts[0] === "pfdel") {
@@ -1866,6 +2012,25 @@ export default {
             return new Response("ok");
           }
 
+          if (state.mode === "catpicknewtext") {
+            const newCat = text.replace(/[،,]/g, " ").trim().slice(0, 40);
+            if (!newCat) {
+              await tgSendTo(env, chatId, "یه اسم معتبر بفرست، یا /cancel:");
+              return new Response("ok");
+            }
+            const catList = [...state.catList];
+            let idx = catList.findIndex((c) => c.toLowerCase() === newCat.toLowerCase());
+            if (idx === -1) {
+              catList.push(newCat);
+              idx = catList.length - 1;
+            }
+            const selected = state.selected.includes(idx) ? state.selected : [...state.selected, idx];
+            if (selected.length > PF_MAX_CATEGORIES) selected.splice(0, selected.length - PF_MAX_CATEGORIES);
+            await setAdminState(env, chatId, { ...state, mode: "catpick", catList, selected });
+            await tgSendTo(env, chatId, catPickerText(catList, selected), { reply_markup: catPickerKeyboard(catList, selected) });
+            return new Response("ok");
+          }
+
           if (state.mode === "leadnote") {
             const raw = await env.LEADS_KV.get(`lead:${state.id}`);
             if (!raw) {
@@ -2062,9 +2227,9 @@ export default {
               await tgSendTo(env, chatId, "📞 راه ارتباطی سازنده رو بفرست (اختیاریه، برای رد شدن بنویس -):");
             } else if (state.step === "authorContact") {
               data.authorContact = value.slice(0, 100);
-              await setAdminState(env, chatId, { mode: "add", step: "category", data });
-              await tgSendTo(env, chatId, "🏷 دسته‌بندی این نمونه‌کار چیه؟\nمی‌تونی تا ۵ تا دسته‌بندی بفرستی، با ویرگول (,) از هم جدا کن.\nمثلاً: طراحی سایت, فروشگاهی\n(اختیاریه، برای رد شدن بنویس -):");
+              await startCategoryPicker(env, chatId, { kind: "add", data }, []);
             } else if (state.step === "category") {
+              // این مسیر دیگه استفاده نمی‌شه (جایگزین با انتخابگر دسته‌بندی شد) و فقط برای اطمینان نگه داشته شده
               data.category = sanitizeCategories(value);
               await clearAdminState(env, chatId);
 
@@ -2179,123 +2344,3 @@ export default {
           `💬 پیام: ${data.message || "-"}`;
       } else if (data.type === "profile") {
         isLead = true; withButtons = true;
-        text =
-          `👤 کاربر جدید ثبت‌نام کرد\n\n` +
-          `📧 ایمیل: ${data.email || "-"}\n` +
-          `🆔 UID: ${data.uid || "-"}\n` +
-          `📱 منبع: ${data.source || "سایت/اپ"}`;
-      } else if (data.type === "apk_download") {
-        isLead = true; withButtons = false;
-        text = `📥 دانلود اپلیکیشن\n\nیک کاربر فایل APK بایت‌لب رو دانلود کرد.`;
-      } else if (data.type === "page_visit") {
-        isLead = true; withButtons = false;
-        text = `👀 بازدید صفحه\n\nیک کاربر صفحه‌ی «${data.page || "-"}» رو باز کرد.`;
-      } else if (data.type === "abandoned_form") {
-        isLead = true; withButtons = true;
-        text =
-          `🕓 فرم تماس نیمه‌کاره رها شد\n\n` +
-          `👤 نام: ${data.name || "-"}\n` +
-          `📞 شماره: ${data.phone || "-"}\n` +
-          `🛠 خدمات: ${data.service || "-"}\n` +
-          `⚠️ کاربر بدون ارسال، صفحه رو ترک کرد. شاید ارزش پیگیری داشته باشه.`;
-      } else {
-        text = `📦 داده دریافتی:\n${JSON.stringify(data, null, 2)}`;
-      }
-
-      let sendResult;
-      if (isLead) {
-        const lead = { id, type: data.type, status: "new", createdAt, ...data };
-        await saveLead(env, lead);
-        if (withButtons) {
-          sendResult = await tgSend(env, text, {
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  { text: "✅ تماس گرفتم", callback_data: `st:${id}:contacted` },
-                  { text: "⏳ بعداً", callback_data: `st:${id}:later` },
-                  { text: "❌ رد شد", callback_data: `st:${id}:rejected` },
-                ],
-                [{ text: "📝 افزودن یادداشت", callback_data: `stnote:${id}` }],
-              ],
-            },
-          });
-        } else {
-          sendResult = await tgSend(env, text);
-        }
-      } else {
-        sendResult = await tgSend(env, text);
-      }
-
-      if (!sendResult.ok) {
-        return new Response(JSON.stringify({ ok: false, error: sendResult }), {
-          status: 502, headers: { "Content-Type": "application/json", ...corsHeaders },
-        });
-      }
-
-      return new Response(JSON.stringify({ ok: true }), {
-        status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    } catch (err) {
-      return new Response(JSON.stringify({ ok: false, error: String(err) }), {
-        status: 400, headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-  },
-
-  async scheduled(event, env, ctx) {
-    if (event.cron === "30 18 * * *") {
-      ctx.waitUntil(sendDailyReport(env));
-    } else if (event.cron === "0 * * * *") {
-      ctx.waitUntil(checkFollowUps(env));
-    } else if (event.cron === "30 4,9,16 * * *") {
-      ctx.waitUntil(generateAndPublishBlogPost(env));
-    } else if (event.cron === "0 20 * * 5") {
-      // بکاپ خودکار هفتگی (هر جمعه ساعت ۲۰:۰۰ به وقت UTC ≈ ۲۳:۳۰ ایران)
-      // برای فعال‌شدن این خط، باید تریگر "0 20 * * 5" رو به cron_triggers توی wrangler.toml اضافه کنی
-      ctx.waitUntil(exportFullBackup(env, env.TELEGRAM_CHAT_ID));
-    }
-  },
-};
-
-async function sendDailyReport(env) {
-  const leads = await getAllLeads(env);
-  const today = nowTehranDateStr();
-  const todays = leads.filter((l) => new Date(l.createdAt).toLocaleDateString("fa-IR-u-ca-gregory", { timeZone: "Asia/Tehran" }) === today);
-  const contacts = todays.filter((l) => l.type === "contact").length;
-  const profiles = todays.filter((l) => l.type === "profile").length;
-
-  await tgSend(env,
-    `🌙 گزارش پایان روز بایت‌لب\n\n` +
-    `📩 فرم تماس امروز: ${contacts}\n` +
-    `👤 ثبت‌نام امروز: ${profiles}\n` +
-    `📦 مجموع لید امروز: ${todays.length}`
-  );
-}
-
-async function checkFollowUps(env) {
-  const leads = await getAllLeads(env);
-  const dayMs = 24 * 60 * 60 * 1000;
-  const now = Date.now();
-
-  for (const lead of leads) {
-    if (!["contact", "profile", "abandoned_form"].includes(lead.type)) continue;
-
-    if (lead.status === "later") {
-      if (!lead.reminded && lead.snoozeUntil && now > lead.snoozeUntil) {
-        const label = lead.type === "contact" ? `${lead.name} (${lead.phone})` : `${lead.email}`;
-        await tgSend(env, `⏰ یادآوری «تماس بعداً»\n\nموقع پیگیری این لیده:\n${label}`);
-        lead.reminded = true;
-        await saveLead(env, lead);
-      }
-      continue;
-    }
-
-    const isPending = !lead.status || lead.status === "new";
-    if (isPending && !lead.reminded && now - lead.createdAt > dayMs) {
-      const label = lead.type === "contact" ? `${lead.name} (${lead.phone})` : `${lead.email}`;
-      await tgSend(env, `⏰ یادآوری پیگیری\n\nاین لید بیش از ۲۴ ساعته بدون پیگیریه:\n${label}`);
-      lead.reminded = true;
-      await saveLead(env, lead);
-    }
-  }
-}
