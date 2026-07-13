@@ -227,15 +227,33 @@ async function saveBlogTagIndex(env, idx) {
 
 async function generateAndPublishBlogPost(env, forcedTag = null) {
   const existing = await getAllBlogPosts(env);
-  const recentTitles = existing.slice(0, 30).map((p) => `- ${p.title}`).join("\n") || "(هنوز پستی نوشته نشده)";
+
+  // فقط چند تای اخیر رو می‌فرستیم، هرکدوم رو هم کوتاه می‌کنیم، وگرنه با زیاد شدن تعداد پست‌ها
+  // (که خودش نشونه‌ی موفقیته!) این پیام هی بزرگ‌تر می‌شه تا یه جایی از سقف طول پیام AI Worker رد بشه.
+  const RECENT_TITLES_COUNT = 12;
+  const TITLE_TRUNCATE = 45;
+  const recentTitlesArr = existing
+    .slice(0, RECENT_TITLES_COUNT)
+    .map((p) => `- ${String(p.title).slice(0, TITLE_TRUNCATE)}`);
+  let recentTitles = recentTitlesArr.join("\n") || "(هنوز پستی نوشته نشده)";
 
   const { tag: nextTag, idx: nextIdx } = await getNextBlogTag(env);
   const assignedTag = forcedTag && BLOG_ALLOWED_TAGS.includes(forcedTag) ? forcedTag : nextTag;
 
-  const userMsg =
-    `موضوعات قبلاً نوشته‌شده (تکرار نکن):\n${recentTitles}\n\n` +
+  const buildUserMsg = (titlesBlock) =>
+    `موضوعات قبلاً نوشته‌شده (تکرار نکن):\n${titlesBlock}\n\n` +
     `این پست باید دقیقاً درباره‌ی دسته‌بندی «${assignedTag}» باشه (موضوع مقاله رو کاملاً منطبق با همین دسته انتخاب کن).\n` +
     `یک پست جدید و متفاوت با موضوعات بالا، طبق قوانین سیستم بنویس و فقط JSON خروجی بده.`;
+
+  // سقف مطمئن روی کل پیام کاربر؛ اگه هنوز بزرگ بود، تعداد عنوان‌های اخیر رو بیشتر کم می‌کنیم
+  const USER_MSG_HARD_CAP = 900;
+  let userMsg = buildUserMsg(recentTitles);
+  let keepCount = recentTitlesArr.length;
+  while (userMsg.length > USER_MSG_HARD_CAP && keepCount > 0) {
+    keepCount -= 3;
+    recentTitles = recentTitlesArr.slice(0, Math.max(keepCount, 0)).join("\n") || "(هنوز پستی نوشته نشده)";
+    userMsg = buildUserMsg(recentTitles);
+  }
 
   const MAX_ATTEMPTS = 2;
   let lastError = null;
@@ -2000,8 +2018,17 @@ export default {
         if (state && !text.startsWith("/")) {
           if (state.mode === "aipromptedit") {
             const newPrompt = update.message.text; // بدون trim/slice، چون پرامپت می‌تونه چندخطی و دقیق باشه
+            const AI_PROMPT_MAX_LEN = 2500;
             if (!newPrompt || newPrompt.trim().length < 30) {
               await tgSendTo(env, chatId, "این متن خیلی کوتاهه به‌نظر پرامپت کامل نیست. یه متن کامل‌تر بفرست، یا /cancel:");
+              return new Response("ok");
+            }
+            if (newPrompt.length > AI_PROMPT_MAX_LEN) {
+              await tgSendTo(
+                env,
+                chatId,
+                `این پرامپت ${newPrompt.length} کاراکتره، خیلی بلنده و ممکنه AI Worker بعداً همینو رد کنه (پیام خیلی طولانی).\nلطفاً به کمتر از ${AI_PROMPT_MAX_LEN} کاراکتر کوتاهش کن و دوباره بفرست، یا /cancel:`
+              );
               return new Response("ok");
             }
             await setBlogSystemPrompt(env, newPrompt);
@@ -2308,159 +2335,4 @@ export default {
           url: (data.url || "").slice(0, 300),
           image: (data.image || "").slice(0, 300),
           authorName: (data.authorName || "-").slice(0, 80),
-          authorContact: (data.authorContact || "-").slice(0, 100),
-          category: sanitizeCategories(data.category),
-          rating: 0,
-          featured: false,
-        };
-        await savePortfolioItem(env, item);
-
-        const sendResult = await tgSend(env, formatItemDetail(item) + "\n\n🆕 این یک ارسال جدید از سایته که منتظر بررسیه.", {
-          reply_markup: manageKeyboard(item),
-        });
-
-        if (!sendResult.ok) {
-          return new Response(JSON.stringify({ ok: false, error: sendResult }), {
-            status: 502, headers: { "Content-Type": "application/json", ...corsHeaders },
-          });
-        }
-
-        return new Response(JSON.stringify({ ok: true }), {
-          status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
-        });
-      }
-
-      let text = "";
-      let isLead = false;
-      let withButtons = false;
-
-      if (data.type === "contact") {
-        isLead = true; withButtons = true;
-        text =
-          `📩 پیام جدید از فرم تماس\n\n` +
-          `👤 نام: ${data.name || "-"}\n` +
-          `📞 شماره: ${data.phone || "-"}\n` +
-          `🛠 خدمات: ${data.service || "-"}\n` +
-          `💬 پیام: ${data.message || "-"}`;
-      } else if (data.type === "profile") {
-        isLead = true; withButtons = true;
-        text =
-          `👤 کاربر جدید ثبت‌نام کرد\n\n` +
-          `📧 ایمیل: ${data.email || "-"}\n` +
-          `🆔 UID: ${data.uid || "-"}\n` +
-          `📱 منبع: ${data.source || "سایت/اپ"}`;
-      } else if (data.type === "apk_download") {
-        isLead = true; withButtons = false;
-        text = `📥 دانلود اپلیکیشن\n\nیک کاربر فایل APK بایت‌لب رو دانلود کرد.`;
-      } else if (data.type === "page_visit") {
-        isLead = true; withButtons = false;
-        text = `👀 بازدید صفحه\n\nیک کاربر صفحه‌ی «${data.page || "-"}» رو باز کرد.`;
-      } else if (data.type === "abandoned_form") {
-        isLead = true; withButtons = true;
-        text =
-          `🕓 فرم تماس نیمه‌کاره رها شد\n\n` +
-          `👤 نام: ${data.name || "-"}\n` +
-          `📞 شماره: ${data.phone || "-"}\n` +
-          `🛠 خدمات: ${data.service || "-"}\n` +
-          `⚠️ کاربر بدون ارسال، صفحه رو ترک کرد. شاید ارزش پیگیری داشته باشه.`;
-      } else {
-        text = `📦 داده دریافتی:\n${JSON.stringify(data, null, 2)}`;
-      }
-
-      let sendResult;
-      if (isLead) {
-        const lead = { id, type: data.type, status: "new", createdAt, ...data };
-        await saveLead(env, lead);
-        if (withButtons) {
-          sendResult = await tgSend(env, text, {
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  { text: "✅ تماس گرفتم", callback_data: `st:${id}:contacted` },
-                  { text: "⏳ بعداً", callback_data: `st:${id}:later` },
-                  { text: "❌ رد شد", callback_data: `st:${id}:rejected` },
-                ],
-                [{ text: "📝 افزودن یادداشت", callback_data: `stnote:${id}` }],
-              ],
-            },
-          });
-        } else {
-          sendResult = await tgSend(env, text);
-        }
-      } else {
-        sendResult = await tgSend(env, text);
-      }
-
-      if (!sendResult.ok) {
-        return new Response(JSON.stringify({ ok: false, error: sendResult }), {
-          status: 502, headers: { "Content-Type": "application/json", ...corsHeaders },
-        });
-      }
-
-      return new Response(JSON.stringify({ ok: true }), {
-        status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    } catch (err) {
-      return new Response(JSON.stringify({ ok: false, error: String(err) }), {
-        status: 400, headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-  },
-
-  async scheduled(event, env, ctx) {
-    if (event.cron === "30 18 * * *") {
-      ctx.waitUntil(sendDailyReport(env));
-    } else if (event.cron === "0 * * * *") {
-      ctx.waitUntil(checkFollowUps(env));
-    } else if (event.cron === "30 4,9,16 * * *") {
-      ctx.waitUntil(generateAndPublishBlogPost(env));
-    } else if (event.cron === "0 20 * * 5") {
-      // بکاپ خودکار هفتگی (هر جمعه ساعت ۲۰:۰۰ به وقت UTC ≈ ۲۳:۳۰ ایران)
-      // برای فعال‌شدن این خط، باید تریگر "0 20 * * 5" رو به cron_triggers توی wrangler.toml اضافه کنی
-      ctx.waitUntil(exportFullBackup(env, env.TELEGRAM_CHAT_ID));
-    }
-  },
-};
-
-async function sendDailyReport(env) {
-  const leads = await getAllLeads(env);
-  const today = nowTehranDateStr();
-  const todays = leads.filter((l) => new Date(l.createdAt).toLocaleDateString("fa-IR-u-ca-gregory", { timeZone: "Asia/Tehran" }) === today);
-  const contacts = todays.filter((l) => l.type === "contact").length;
-  const profiles = todays.filter((l) => l.type === "profile").length;
-
-  await tgSend(env,
-    `🌙 گزارش پایان روز بایت‌لب\n\n` +
-    `📩 فرم تماس امروز: ${contacts}\n` +
-    `👤 ثبت‌نام امروز: ${profiles}\n` +
-    `📦 مجموع لید امروز: ${todays.length}`
-  );
-}
-
-async function checkFollowUps(env) {
-  const leads = await getAllLeads(env);
-  const dayMs = 24 * 60 * 60 * 1000;
-  const now = Date.now();
-
-  for (const lead of leads) {
-    if (!["contact", "profile", "abandoned_form"].includes(lead.type)) continue;
-
-    if (lead.status === "later") {
-      if (!lead.reminded && lead.snoozeUntil && now > lead.snoozeUntil) {
-        const label = lead.type === "contact" ? `${lead.name} (${lead.phone})` : `${lead.email}`;
-        await tgSend(env, `⏰ یادآوری «تماس بعداً»\n\nموقع پیگیری این لیده:\n${label}`);
-        lead.reminded = true;
-        await saveLead(env, lead);
-      }
-      continue;
-    }
-
-    const isPending = !lead.status || lead.status === "new";
-    if (isPending && !lead.reminded && now - lead.createdAt > dayMs) {
-      const label = lead.type === "contact" ? `${lead.name} (${lead.phone})` : `${lead.email}`;
-      await tgSend(env, `⏰ یادآوری پیگیری\n\nاین لید بیش از ۲۴ ساعته بدون پیگیریه:\n${label}`);
-      lead.reminded = true;
-      await saveLead(env, lead);
-    }
-  }
-}
+ 
