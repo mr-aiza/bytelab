@@ -220,6 +220,7 @@ async function callAIWorker(env, system, userText) {
       system,
       messages: [{ role: "user", content: userText }],
       max_tokens: 3200,
+      prefer_heavy: true,
     }),
   });
 
