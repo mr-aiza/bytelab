@@ -121,9 +121,15 @@ function parseBlogJSON(raw) {
     raw = JSON.stringify(raw);
   }
 
-  let text = String(raw).replace(/```json|```/g, "").trim();
+  let text = String(raw)
+    .replace(/```json|```/g, "")
+    .replace(/<\/?(code|pre|p|div|span|br)[^>]*>/gi, "") // بعضی وقتا مدل دور JSON یه تگ HTML مثل <code> می‌پیچه
+    .trim();
   const match = text.match(/\{[\s\S]*\}/);
   if (match) text = match[0];
+  else {
+    throw new Error("خروجی هوش‌مصنوعی هیچ JSON قابل‌تشخیصی نداشت (احتمالاً به‌جای JSON، متن/HTML عادی برگردونده).");
+  }
 
   let sanitized = "";
   let inString = false;
@@ -266,6 +272,34 @@ async function saveBlogTagIndex(env, idx) {
   await env.LEADS_KV.put("blogauto:tagindex", String(idx));
 }
 
+// ---- پرامپت ساده‌ی پشتیبان: وقتی پرامپت کامل (با تگ/عکس/طول دقیق) مدام شکست می‌خوره،
+// به‌جای هیچی منتشر نکردن، با یه درخواست خیلی ساده‌تر (فقط عنوان+خلاصه+متن) یه تلاش آخر می‌زنیم
+const FALLBACK_SIMPLE_BLOG_SYSTEM = `
+تو یه نویسنده‌ی محتوای فارسی برای وبلاگ «بایت‌لب» هستی؛ یک مجموعه خدمات فناوری در کرج (طراحی سایت، طراحی اپلیکیشن، خدمات کامپیوتر).
+
+فقط یک مقاله‌ی کوتاه، ساده و مفید فارسی درباره‌ی یکی از همین حوزه‌ها بنویس. حدود ۲۵۰ تا ۳۵۰ کلمه، پاراگراف‌های کوتاه (۲ تا ۴ جمله)، بین هر پاراگراف یک خط خالی. کاملاً و فقط فارسی بنویس؛ هیچ کلمه یا حرفی از زبان‌های دیگه (چینی، ژاپنی، کره‌ای، ویتنامی، عربی غیرمرتبط) استفاده نکن. بدون HTML، بدون Markdown، بدون ایموجی.
+
+خروجی فقط و فقط یک JSON خام باشه، بدون هیچ متن، توضیح، یا تگ HTML (مثل <code> یا <pre>) قبل یا بعدش:
+{"title":"...","excerpt":"...","content":"پاراگراف اول...\\n\\nپاراگراف دوم...\\n\\nپاراگراف سوم..."}
+`;
+
+async function attemptBlogGeneration(env, systemPrompt, userMsg, minWords) {
+  const raw = await callAIWorker(env, systemPrompt, userMsg);
+  const parsed = parseBlogJSON(raw);
+
+  if (!parsed.title || !parsed.content || String(parsed.content).trim().length < 150) {
+    throw new Error("خروجی هوش‌مصنوعی ناقص یا خیلی کوتاه بود.");
+  }
+  if (hasForeignScriptContamination(parsed.title) || hasForeignScriptContamination(parsed.content)) {
+    throw new Error("خروجی هوش‌مصنوعی آلوده به کاراکترهای زبان دیگه بود (خرابی مدل)، دوباره تلاش می‌کنم.");
+  }
+  const wordCount = countWords(parsed.content);
+  if (wordCount < minWords) {
+    throw new Error(`محتوای تولیدشده فقط ${wordCount} کلمه بود، خیلی کوتاه‌تر از حد قابل‌قبوله.`);
+  }
+  return parsed;
+}
+
 async function generateAndPublishBlogPost(env, forcedTag = null) {
   const existing = await getAllBlogPosts(env);
 
@@ -284,7 +318,8 @@ async function generateAndPublishBlogPost(env, forcedTag = null) {
   const buildUserMsg = (titlesBlock) =>
     `موضوعات قبلاً نوشته‌شده (تکرار نکن):\n${titlesBlock}\n\n` +
     `این پست باید دقیقاً درباره‌ی دسته‌بندی «${assignedTag}» باشه (موضوع مقاله رو کاملاً منطبق با همین دسته انتخاب کن).\n` +
-    `یک پست جدید و متفاوت با موضوعات بالا، طبق قوانین سیستم بنویس و فقط JSON خروجی بده.`;
+    `یک پست جدید و متفاوت با موضوعات بالا، طبق قوانین سیستم بنویس.\n` +
+    `مهم: خروجی فقط و فقط یک JSON خام باشه؛ هیچ تگ HTML مثل <code> یا <pre>، هیچ Markdown، و هیچ متن قبل یا بعد از JSON ننویس.`;
 
   // سقف مطمئن روی کل پیام کاربر؛ اگه هنوز بزرگ بود، تعداد عنوان‌های اخیر رو بیشتر کم می‌کنیم
   const USER_MSG_HARD_CAP = 900;
@@ -298,70 +333,76 @@ async function generateAndPublishBlogPost(env, forcedTag = null) {
 
 const MAX_ATTEMPTS = 3;
   let lastError = null;
+  let parsed = null;
+  let usedFallback = false;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
-      const raw = await callAIWorker(env, await getBlogSystemPrompt(env), userMsg);
-      const parsed = parseBlogJSON(raw);
-
-      if (!parsed.title || !parsed.content || String(parsed.content).trim().length < 150) {
-        throw new Error("خروجی هوش‌مصنوعی ناقص یا خیلی کوتاه بود.");
-      }
-
-      if (hasForeignScriptContamination(parsed.title) || hasForeignScriptContamination(parsed.content)) {
-        throw new Error("خروجی هوش‌مصنوعی آلوده به کاراکترهای زبان دیگه بود (خرابی مدل)، دوباره تلاش می‌کنم.");
-      }
-
-      const wordCount = countWords(parsed.content);
-      if (wordCount < 180) {
-        throw new Error(`محتوای تولیدشده فقط ${wordCount} کلمه بود، خیلی کوتاه‌تر از حد قابل‌قبوله.`);
-      }
-
-      // تگ رو به‌جای اعتماد به خروجی مدل، همون دسته‌ای که از قبل تعیین کردیم می‌ذاریم (تضمین چرخش درست دسته‌بندی اصلی)
-      const finalTag = assignedTag;
-
-      // برچسب‌های سئوی اضافی (کلمات کلیدی) که مدل با | از هم جدا کرده، جدا از دسته‌بندی اصلی نگه می‌داریم
-      const seoTags = String(parsed.tag || "")
-        .split("|")
-        .map((t) => t.trim())
-        .filter(Boolean)
-        .slice(0, 8);
-
-      const item = {
-        id: crypto.randomUUID(),
-        slug: slugify(parsed.title),
-        status: "published",
-        createdAt: Date.now(),
-        title: String(parsed.title).slice(0, 150),
-        excerpt: String(parsed.excerpt || "").slice(0, 400),
-        content: String(parsed.content).slice(0, 8000),
-        image: "",
-        tag: finalTag.slice(0, 60),
-        seoTags,
-        autoGenerated: true,
-      };
-
-      // تولید تصویر شاخص از روی image_prompt (فقط اگه AI binding وصل باشه، پرامپت وجود داشته باشه، و واقعاً مرتبط با حوزه‌ی کاری بایت‌لب باشه)
-      if (parsed.image_prompt && isImagePromptRelevant(parsed.image_prompt)) {
-        const enrichedPrompt = `${parsed.image_prompt}. Modern technology and digital workspace theme, clean and professional, no text overlay, high quality.`;
-        const imageResult = await generateBlogImage(env, enrichedPrompt);
-        if (imageResult) {
-          await env.LEADS_KV.put(`blogimage:${item.id}`, imageResult, { metadata: { contentType: "image/png" } });
-          item.image = `/blog-image/${item.id}`;
-        }
-      }
-
-      await saveBlogPost(env, item);
-      if (!forcedTag) await saveBlogTagIndex(env, nextIdx);
-      await env.LEADS_KV.put("blogauto:failstreak", "0");
-      await tgSend(
-        env,
-        `📰 پست جدید بلاگ به‌صورت خودکار منتشر شد:\n\n«${item.title}»\n🏷 دسته: ${item.tag}${item.image ? "\n🖼 تصویر شاخص: ساخته شد ✅" : ""}\n\nhttps://bytelabpro.xyz/blog-post.html?id=${item.id}`
-      );
-      return;
+      parsed = await attemptBlogGeneration(env, await getBlogSystemPrompt(env), userMsg, 180);
+      break;
     } catch (err) {
       lastError = err;
     }
+  }
+
+  // پرامپت کامل (با تگ/عکس) مدام شکست خورد؛ به‌جای هیچی منتشر نکردن، یه تلاش آخر با یه درخواست خیلی ساده‌تر می‌زنیم
+  if (!parsed) {
+    try {
+      const fallbackUserMsg =
+        `موضوعات قبلاً نوشته‌شده (تکرار نکن):\n${recentTitles}\n\n` +
+        `موضوع مقاله باید درباره‌ی «${assignedTag}» باشه. فقط JSON بده.`;
+      parsed = await attemptBlogGeneration(env, FALLBACK_SIMPLE_BLOG_SYSTEM, fallbackUserMsg, 150);
+      usedFallback = true;
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  if (parsed) {
+    // تگ رو به‌جای اعتماد به خروجی مدل، همون دسته‌ای که از قبل تعیین کردیم می‌ذاریم (تضمین چرخش درست دسته‌بندی اصلی)
+    const finalTag = assignedTag;
+
+    // برچسب‌های سئوی اضافی (کلمات کلیدی) که مدل با | از هم جدا کرده، جدا از دسته‌بندی اصلی نگه می‌داریم
+    const seoTags = usedFallback
+      ? []
+      : String(parsed.tag || "")
+          .split("|")
+          .map((t) => t.trim())
+          .filter(Boolean)
+          .slice(0, 8);
+
+    const item = {
+      id: crypto.randomUUID(),
+      slug: slugify(parsed.title),
+      status: "published",
+      createdAt: Date.now(),
+      title: String(parsed.title).slice(0, 150),
+      excerpt: String(parsed.excerpt || "").slice(0, 400),
+      content: String(parsed.content).slice(0, 8000),
+      image: "",
+      tag: finalTag.slice(0, 60),
+      seoTags,
+      autoGenerated: true,
+    };
+
+    // تولید تصویر شاخص از روی image_prompt (فقط تو مسیر کامل، نه مسیر پشتیبان، و فقط اگه واقعاً مرتبط با حوزه‌ی کاری بایت‌لب باشه)
+    if (!usedFallback && parsed.image_prompt && isImagePromptRelevant(parsed.image_prompt)) {
+      const enrichedPrompt = `${parsed.image_prompt}. Modern technology and digital workspace theme, clean and professional, no text overlay, high quality.`;
+      const imageResult = await generateBlogImage(env, enrichedPrompt);
+      if (imageResult) {
+        await env.LEADS_KV.put(`blogimage:${item.id}`, imageResult, { metadata: { contentType: "image/png" } });
+        item.image = `/blog-image/${item.id}`;
+      }
+    }
+
+    await saveBlogPost(env, item);
+    if (!forcedTag) await saveBlogTagIndex(env, nextIdx);
+    await env.LEADS_KV.put("blogauto:failstreak", "0");
+    await tgSend(
+      env,
+      `📰 پست جدید بلاگ به‌صورت خودکار منتشر شد${usedFallback ? " (با حالت ساده‌ی پشتیبان، چون پرامپت اصلی چندبار شکست خورد)" : ""}:\n\n«${item.title}»\n🏷 دسته: ${item.tag}${item.image ? "\n🖼 تصویر شاخص: ساخته شد ✅" : ""}\n\nhttps://bytelabpro.xyz/blog-post.html?id=${item.id}`
+    );
+    return;
   }
 
   const prevStreak = parseInt((await env.LEADS_KV.get("blogauto:failstreak")) || "0", 10);
@@ -370,12 +411,12 @@ const MAX_ATTEMPTS = 3;
 
   const streakNote =
     streak >= 3
-      ? `\n\n⚠️ این ${streak}مین باره پشت‌سرهم که کلاً ناموفقه — به‌نظر یه مشکل واقعی (مثلاً قطع بودن Service Binding به bytelab-ai) هست، نه فقط بدشانسی. لطفاً چک کن.`
+      ? `\n\n⚠️ این ${streak}مین باره پشت‌سرهم که کلاً ناموفقه (حتی با پرامپت ساده‌ی پشتیبان). این دیگه بدشانسی نیست — یا خود مدل زیرین bytelab-ai به‌شدت ضعیف/ناپایدار شده، یا Service Binding واقعاً قطعه. لطفاً چک کن.`
       : "";
 
   await tgSend(
     env,
-    `⚠️ نوشتن خودکار پست بلاگ بعد از ${MAX_ATTEMPTS} تلاش موفق نشد (چیزی منتشر نشد):\n${String(lastError)}${streakNote}`
+    `⚠️ نوشتن خودکار پست بلاگ بعد از ${MAX_ATTEMPTS} تلاش کامل + ۱ تلاش با پرامپت ساده‌ی پشتیبان، موفق نشد:\n${String(lastError)}${streakNote}`
   );
 }
 
