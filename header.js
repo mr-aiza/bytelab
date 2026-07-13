@@ -251,9 +251,8 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     <div class="nav-right">
       <div class="header-actions">
         <a href="chat.html" class="nav-cta-chat"><span class="ico">💬</span><span class="lbl">چت با هوش مصنوعی</span></a>
-        <a href="profile/login.html" class="nav-cta-app"><span class="ico">👤</span><span class="lbl">ورود / پروفایل</span></a>
         <a href="${PORTFOLIO_SUBMIT_HREF}" class="nav-cta-app"><span class="ico">🎨</span><span class="lbl">نمونه‌کارها</span></a>
-        <a href="Byte_Lab.apk" download class="nav-cta-app"><span class="ico">⬇️</span><span class="lbl">دانلود اپلیکیشن</span></a>
+        <a href="https://cafebazaar.ir/app/com.bytelab.app" target="_blank" rel="noopener" class="nav-cta-app"><span class="ico">⬇️</span><span class="lbl">دانلود از کافه‌بازار</span></a>
       </div>
       <button class="burger" id="burger" aria-label="باز کردن منو">
         <span></span><span></span><span></span>
@@ -278,8 +277,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   <div class="mm-actions">
     <a href="chat.html" class="mm-action accent">💬<span>چت با هوش مصنوعی</span></a>
     <a href="${PORTFOLIO_SUBMIT_HREF}" class="mm-action">🎨<span>نمونه‌کارها</span></a>
-    <a href="Byte_Lab.apk" download class="mm-action">⬇️<span>دانلود اپلیکیشن</span></a>
-    <a href="profile/login.html" class="mm-action">👤<span>ورود / پروفایل</span></a>
+    <a href="https://cafebazaar.ir/app/com.bytelab.app" target="_blank" rel="noopener" class="mm-action">⬇️<span>دانلود از کافه‌بازار</span></a>
   </div>
 </div>
   `;
@@ -317,33 +315,6 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
     }
-
-    // --- چک وضعیت لاگین کاربر تا دکمه «ورود / پروفایل» هوشمند بشه ---
-    // اگه کاربر از قبل لاگین بود، به‌جای صفحه ورود، مستقیم بره صفحه پروفایل
-    import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js").then(({ initializeApp }) => {
-      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js").then(({ getAuth, onAuthStateChanged }) => {
-        const firebaseConfig = {
-          apiKey: "AIzaSyC4H9JHfDNCFiNWSx9JXA-L2MzleiQvzQI",
-          authDomain: "bytelab-bot-7a303.firebaseapp.com",
-          projectId: "bytelab-bot-7a303",
-          storageBucket: "bytelab-bot-7a303.firebasestorage.app",
-          messagingSenderId: "350774453186",
-          appId: "1:350774453186:web:15d2c832986804812c6c5b",
-          measurementId: "G-76F34JK2RY"
-        };
-        const fbApp = initializeApp(firebaseConfig);
-        const auth = getAuth(fbApp);
-        onAuthStateChanged(auth, (user) => {
-          if (user) {
-            const displayText = user.displayName || (user.email ? user.email.split("@")[0] : "پروفایل");
-            document.querySelectorAll('a[href="profile/login.html"]').forEach(a => {
-              a.href = "profile/profile.html";
-              a.textContent = "👤 " + displayText;
-            });
-          }
-        });
-      });
-    }).catch(() => { /* اگه فایربیس لود نشد، دکمه همون لینک پیش‌فرض ورود رو نگه می‌داره */ });
 
     // --- اطلاع‌رسانی دانلود اپلیکیشن به تلگرام (بدون کند کردن دانلود کاربر) ---
     const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab-workerbytelab.workers.dev";
@@ -395,7 +366,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
         })
         .catch(() => { /* اگه وضعیت لود نشد، بی‌سروصدا رد شو */ });
     })();
-    document.querySelectorAll('a[href="Byte_Lab.apk"]').forEach(a => {
+    document.querySelectorAll('a[href="https://cafebazaar.ir/app/com.bytelab.app"]').forEach(a => {
       a.addEventListener('click', () => {
         fetch(TELEGRAM_WORKER_URL, {
           method: "POST",
