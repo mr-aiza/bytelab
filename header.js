@@ -317,7 +317,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     }
 
     // --- اطلاع‌رسانی دانلود اپلیکیشن به تلگرام (بدون کند کردن دانلود کاربر) ---
-    const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab-workerbytelab.workers.dev";
+    const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab.workers.dev/";
 
     // --- بنر اعلانات سایت: از تلگرام روشن/خاموش می‌شه ---
     (function loadBanner() {
