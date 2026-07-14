@@ -893,6 +893,9 @@ function dashboardKeyboard() {
         { text: "📤 خروجی لیدها", callback_data: "dash:export" },
         { text: "💾 بکاپ کامل", callback_data: "dash:backup" },
       ],
+      [
+        { text: "📥 بازگردانی از بکاپ", callback_data: "dash:restore" },
+      ],
       [{ text: "🔄 بروزرسانی", callback_data: "dash:home" }],
     ],
   };
@@ -1025,6 +1028,65 @@ async function exportFullBackup(env, chatId) {
   );
 
   await fetch(`${TG_API(env)}/sendDocument`, { method: "POST", body: formData });
+}
+
+// ---- 📥 بازگردانی کامل از فایل بکاپ JSON (جایگزینی کامل: لید، نمونه‌کار، بلاگ، FAQ، بنر، وضعیت) ----
+async function tgGetFileUrl(env, fileId) {
+  const res = await fetch(`${TG_API(env)}/getFile?file_id=${fileId}`);
+  const data = await res.json();
+  if (!data.ok) throw new Error("خطا در دریافت فایل از تلگرام: " + JSON.stringify(data));
+  return `https://api.telegram.org/file/bot${env.TELEGRAM_BOT_TOKEN}/${data.result.file_path}`;
+}
+
+function isValidBackupShape(obj) {
+  if (!obj || typeof obj !== "object") return false;
+  return ["leads", "portfolioItems", "blogPosts", "faqItems"].every((k) => Array.isArray(obj[k]));
+}
+
+// پاک کردن کامل همه‌ی کلیدهای یک پیشوند از KV (با پشتیبانی از pagination)
+async function wipeKvPrefix(env, prefix) {
+  let cursor = undefined;
+  for (;;) {
+    const list = await env.LEADS_KV.list({ prefix, cursor });
+    await Promise.all(list.keys.map((k) => env.LEADS_KV.delete(k.name)));
+    if (list.list_complete || !list.cursor) break;
+    cursor = list.cursor;
+  }
+}
+
+async function restoreFullBackup(env, backup) {
+  // اول همه‌چیز رو کاملاً پاک می‌کنیم، بعد از روی بکاپ دوباره می‌سازیم (جایگزینی کامل)
+  await Promise.all([
+    wipeKvPrefix(env, "lead:"),
+    wipeKvPrefix(env, "portfolio:"),
+    wipeKvPrefix(env, "blog:"),
+    wipeKvPrefix(env, "faq:"),
+  ]);
+
+  const puts = [];
+  for (const lead of backup.leads || []) {
+    if (lead && lead.id) puts.push(env.LEADS_KV.put(`lead:${lead.id}`, JSON.stringify(lead)));
+  }
+  for (const item of backup.portfolioItems || []) {
+    if (item && item.id) puts.push(env.LEADS_KV.put(`portfolio:${item.id}`, JSON.stringify(item)));
+  }
+  for (const post of backup.blogPosts || []) {
+    if (post && post.id) puts.push(env.LEADS_KV.put(`blog:${post.id}`, JSON.stringify(post)));
+  }
+  for (const faq of backup.faqItems || []) {
+    if (faq && faq.id) puts.push(env.LEADS_KV.put(`faq:${faq.id}`, JSON.stringify(faq)));
+  }
+  if (backup.banner) puts.push(env.LEADS_KV.put("config:banner", JSON.stringify(backup.banner)));
+  if (backup.status) puts.push(env.LEADS_KV.put("config:status", JSON.stringify(backup.status)));
+
+  await Promise.all(puts);
+
+  return {
+    leads: (backup.leads || []).length,
+    portfolioItems: (backup.portfolioItems || []).length,
+    blogPosts: (backup.blogPosts || []).length,
+    faqItems: (backup.faqItems || []).length,
+  };
 }
 
 // ---- زیرمنوی گالری ----
@@ -1643,7 +1705,35 @@ export default {
 
         const parts = data.split(":");
 
-        if (parts[0] === "st") {
+        if (parts[0] === "restoreyes") {
+          const state = await getAdminState(env, chatId);
+          if (!state || state.mode !== "restoreconfirm" || !state.backup) {
+            await tgAnswerCallback(env, cq.id, "این درخواست منقضی شده.", true);
+            return new Response("ok");
+          }
+          await tgAnswerCallback(env, cq.id, "در حال بازگردانی...");
+          await tgEditText(env, chatId, messageId, "⏳ در حال جایگزینی کامل داده‌ها... چند ثانیه صبر کن.");
+          try {
+            const result = await restoreFullBackup(env, state.backup);
+            await clearAdminState(env, chatId);
+            await tgSendTo(
+              env, chatId,
+              "✅ بازگردانی با موفقیت انجام شد.\n\n" +
+                `📩 ${result.leads} لید\n🎨 ${result.portfolioItems} نمونه‌کار\n📰 ${result.blogPosts} پست بلاگ\n❓ ${result.faqItems} سوال متداول`
+            );
+            await sendDashboard(env, chatId);
+          } catch (e) {
+            await tgSendTo(env, chatId, "❌ خطا در بازگردانی: " + (e && e.message ? e.message : String(e)));
+          }
+          return new Response("ok");
+        } else if (parts[0] === "restoreno") {
+          await clearAdminState(env, chatId);
+          await tgEditText(env, chatId, messageId, "❌ بازگردانی لغو شد. داده‌ها دست‌نخورده موندن.", {
+            reply_markup: { inline_keyboard: [[{ text: "⬅️ بازگشت به داشبورد", callback_data: "dash:home" }]] },
+          });
+          await tgAnswerCallback(env, cq.id, "لغو شد");
+          return new Response("ok");
+        } else if (parts[0] === "st") {
           const leadId = parts[1];
           const newStatus = parts[2];
           const raw = await env.LEADS_KV.get(`lead:${leadId}`);
@@ -1963,6 +2053,15 @@ export default {
           } else if (action === "backup") {
             await tgAnswerCallback(env, cq.id, "در حال آماده‌سازی بکاپ...");
             await exportFullBackup(env, chatId);
+          } else if (action === "restore") {
+            await setAdminState(env, chatId, { mode: "restorebackup" });
+            await tgAnswerCallback(env, cq.id, "");
+            await tgSendTo(
+              env, chatId,
+              "📥 بازگردانی از بکاپ\n\n" +
+                "فایل JSON بکاپ رو همینجا به‌صورت «فایل/سند» بفرست (نه به‌صورت متن یا عکس).\n\n" +
+                "⚠️ توجه: این کار همه‌ی لیدها، نمونه‌کارها، پست‌های بلاگ و FAQ فعلی رو کاملاً پاک و با محتوای همون فایل جایگزین می‌کنه. برای لغو /cancel بزن."
+            );
           } else if (action === "leadsearch") {
             await setAdminState(env, chatId, { mode: "leadsearch" });
             await tgAnswerCallback(env, cq.id, "");
@@ -2141,6 +2240,62 @@ export default {
           await tgAnswerCallback(env, cq.id, "حذف شد ✅");
         } else {
           await tgAnswerCallback(env, cq.id, "");
+        }
+        return new Response("ok");
+      }
+
+      // ---------- فایل/سند ارسالی (فعلاً فقط برای بازگردانی بکاپ استفاده می‌شه) ----------
+      if (update.message && update.message.document) {
+        const chatId = update.message.chat.id;
+        if (String(chatId) !== String(env.TELEGRAM_CHAT_ID)) {
+          return new Response("ok");
+        }
+
+        const state = await getAdminState(env, chatId);
+        if (!state || state.mode !== "restorebackup") {
+          return new Response("ok");
+        }
+
+        const doc = update.message.document;
+        if (!/\.json$/i.test(doc.file_name || "")) {
+          await tgSendTo(env, chatId, "این فایل JSON نیست. یه فایل با پسوند .json بفرست، یا /cancel برای لغو.");
+          return new Response("ok");
+        }
+
+        try {
+          const fileUrl = await tgGetFileUrl(env, doc.file_id);
+          const fileRes = await fetch(fileUrl);
+          if (!fileRes.ok) throw new Error("دانلود فایل از تلگرام ناموفق بود.");
+          const raw = await fileRes.text();
+          const backup = JSON.parse(raw);
+
+          if (!isValidBackupShape(backup)) {
+            await tgSendTo(
+              env, chatId,
+              "❌ ساختار این فایل با فایل بکاپ بایت‌لب مطابقت نداره (فیلدهای leads/portfolioItems/blogPosts/faqItems پیدا نشد). یه فایل دیگه بفرست یا /cancel."
+            );
+            return new Response("ok");
+          }
+
+          await setAdminState(env, chatId, { mode: "restoreconfirm", backup });
+          await tgSendTo(
+            env, chatId,
+            "📋 این فایل پیدا شد:\n\n" +
+              `📩 ${backup.leads.length} لید\n🎨 ${backup.portfolioItems.length} نمونه‌کار\n📰 ${backup.blogPosts.length} پست بلاگ\n❓ ${backup.faqItems.length} سوال متداول\n\n` +
+              "⚠️ با تأیید، همه‌ی داده‌های فعلی (لید، نمونه‌کار، بلاگ، FAQ، بنر، وضعیت) پاک و با همین‌ها جایگزین می‌شه. مطمئنی؟",
+            {
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    { text: "✅ بله، جایگزین کن", callback_data: "restoreyes" },
+                    { text: "❌ لغو", callback_data: "restoreno" },
+                  ],
+                ],
+              },
+            }
+          );
+        } catch (e) {
+          await tgSendTo(env, chatId, "❌ خطا در پردازش فایل: " + (e && e.message ? e.message : String(e)));
         }
         return new Response("ok");
       }
