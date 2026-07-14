@@ -72,7 +72,7 @@ function nowTehranDateStr() {
 }
 
 // ================== نویسنده خودکار بلاگ (سئو) ==================
-const AI_WORKER_URL = "https://bytelab-ai.bytelab-workerbytelab.workers.dev";
+const AI_WORKER_URL = "https://bytelab-ai.bytelab.workers.dev";
 
 const BLOG_WRITER_SYSTEM = `
 تو یه نویسنده محتوای سئوی حرفه‌ای برای وبلاگ «بایت‌لب» هستی؛ یک کسب‌وکار خدمات فناوری در کرج با سه حوزه: طراحی وب‌سایت، طراحی اپلیکیشن اندروید/iOS، و خدمات کامپیوتر (نصب، رفع اشکال، پشتیبانی شبکه، خرید و فروش قطعه).
