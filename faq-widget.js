@@ -4,7 +4,7 @@
 // مقدار data-service باید یکی از این‌ها باشد: site (طراحی سایت) | app (طراحی اپلیکیشن) | computer (خدمات کامپیوتر)
 // سپس این فایل را در پایین صفحه لینک بده: <script src="faq-widget.js"></script>
 (function () {
-  const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab-workerbytelab.workers.dev";
+  const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab.workers.dev/";
 
   document.addEventListener("DOMContentLoaded", function () {
     const container = document.getElementById("faqWidget");
