@@ -12,7 +12,7 @@
 //   - اگه هنوز هیچ پستی منتشر نشده یا اتصال به سرور مشکل داشت، کارت‌های ثابت همون‌طور که هستن می‌مونن
 //     تا صفحه‌ی بلاگ هیچ‌وقت خالی نباشه.
 (function () {
-  const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab-workerbytelab.workers.dev";
+  const TELEGRAM_WORKER_URL = "https://bytelab-ai.bytelab.workers.dev/";
 
   document.addEventListener("DOMContentLoaded", function () {
     const list = document.getElementById("blogList");
