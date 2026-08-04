@@ -181,6 +181,30 @@
   };
 
   /* ---------------------------------------------------------------------
+     ۱.۵) اتصال به AI (زیرساخت bytelab-ai)
+     -------------------------------------------------------------------- */
+  // آدرس Worker هوش مصنوعی خودت رو این‌جا بذار (همون bytelab-ai که برای JARVIS ساختی).
+  // تا وقتی خالیه، دکمه‌های AI با یه پیام روشن غیرفعال می‌مونن و بقیه‌ی سیستم
+  // (ویرایش دستی، دانلود، ریست) بدون مشکل کار می‌کنه.
+  const AI_ENDPOINT = 'https://bytelab-ai.bytelab.workers.dev'; // مثال: 'https://bytelab-ai.<account>.workers.dev/chat'
+
+  // این تابع رو با شکل واقعی ورودی/خروجی API خودت هماهنگ کن.
+  // فرض شده: POST با بدنه‌ی { message: '...' } و پاسخ JSON که یکی از
+  // فیلدهای reply/response/text/content/message متن نهایی رو داره.
+  async function callAI(prompt) {
+    if (!AI_ENDPOINT) throw new Error('AI_NOT_CONFIGURED');
+    const res = await fetch(AI_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: prompt })
+    });
+    if (!res.ok) throw new Error('AI_REQUEST_FAILED');
+    const data = await res.json();
+    if (typeof data === 'string') return data.trim();
+    return (data.reply || data.response || data.text || data.content || data.message || '').toString().trim();
+  }
+
+  /* ---------------------------------------------------------------------
      ۲) وضعیت اجرا
      -------------------------------------------------------------------- */
   const state = {
@@ -209,7 +233,11 @@
     downloadBtn: document.getElementById('edDownload'),
     inlineToggle: document.getElementById('edInlineToggle'),
     currentLabel: document.getElementById('edCurrentLabel'),
-    loading: document.getElementById('edLoading')
+    loading: document.getElementById('edLoading'),
+    bizName: document.getElementById('edBizName'),
+    bizDesc: document.getElementById('edBizDesc'),
+    personalizeBtn: document.getElementById('edPersonalize'),
+    personalizeStatus: document.getElementById('edPersonalizeStatus')
   };
 
   function setLoading(on) {
@@ -294,6 +322,70 @@
     if (!state.tpl) return;
     state.tpl.fields.forEach(f => applyField(f, state.values[f.key]));
     state.tpl.colors.forEach(c => applyColor(c.varName, state.values['color:' + c.varName]));
+  }
+
+  /* ---------------------------------------------------------------------
+     ۴.۲) شخصی‌سازی خودکار کل قالب با یه اسم کسب‌وکار
+     نام برند همیشه مستقیم اعمال می‌شه؛ عنوان هیرو و توضیحش اگه AI وصل
+     باشه با AI بازنویسی می‌شه، وگرنه یه نسخه‌ی ساده‌ی جایگزین‌شده جاش می‌شینه.
+     -------------------------------------------------------------------- */
+  function setPersonalizeStatus(msg, kind) {
+    if (!els.personalizeStatus) return;
+    els.personalizeStatus.textContent = msg || '';
+    els.personalizeStatus.className = 'ed-status' + (kind ? ' ' + kind : '');
+  }
+
+  async function personalizeTemplate() {
+    if (!state.tpl) return;
+    const name = (els.bizName && els.bizName.value.trim()) || '';
+    const desc = (els.bizDesc && els.bizDesc.value.trim()) || '';
+    if (!name) {
+      setPersonalizeStatus('اول اسم کسب‌وکار رو بنویس.', 'err');
+      if (els.bizName) els.bizName.focus();
+      return;
+    }
+
+    const doc = frameDoc();
+    if (!doc) return;
+
+    const brandField = state.tpl.fields.find(f => f.key === 'brand');
+    const h1Field = state.tpl.fields.find(f => f.key === 'h1');
+    const subField = state.tpl.fields.find(f => f.key === 'sub');
+
+    // اسم برند همیشه مستقیم و فوری اعمال می‌شه
+    if (brandField) {
+      state.values.brand = name;
+      applyField(brandField, name);
+    }
+
+    if (els.personalizeBtn) els.personalizeBtn.disabled = true;
+    setPersonalizeStatus('در حال شخصی‌سازی…');
+
+    let heroTitle = h1Field ? h1Field.default : '';
+    let heroSub = subField ? subField.default : '';
+    let usedAI = false;
+
+    try {
+      const prompt = 'برای یه کسب‌وکار به اسم «' + name + '»' +
+        (desc ? ' (' + desc + ')' : ' (' + state.tpl.sub + ')') +
+        ' یه عنوان کوتاه و جذاب هیرو (حداکثر ۱۰ کلمه) به فارسی و یه توضیح یک‌خطی زیرش بنویس. ' +
+        'دقیقاً همین فرمت رو برگردون، بدون هیچ توضیح اضافه:\nعنوان: ...\nتوضیح: ...';
+      const aiText = await callAI(prompt);
+      const m1 = aiText.match(/عنوان:\s*(.+)/);
+      const m2 = aiText.match(/توضیح:\s*(.+)/);
+      if (m1 && m1[1].trim()) { heroTitle = m1[1].trim(); usedAI = true; }
+      if (m2 && m2[1].trim()) { heroSub = m2[1].trim(); usedAI = true; }
+    } catch (err) {
+      // AI وصل نیست یا خطا داد — بی‌سروصدا می‌ریم سراغ حالت ساده‌ی جایگزینی
+      if (h1Field) heroTitle = name + ' — ' + (desc || state.tpl.sub);
+      if (subField) heroSub = desc ? desc : ('خدمات ' + name + ' رو با کیفیت و دقت انجام می‌دیم.');
+    }
+
+    if (h1Field) { state.values.h1 = heroTitle; applyField(h1Field, heroTitle); }
+    if (subField) { state.values.sub = heroSub; applyField(subField, heroSub); }
+
+    if (els.personalizeBtn) els.personalizeBtn.disabled = false;
+    setPersonalizeStatus(usedAI ? '✓ با AI شخصی‌سازی شد.' : '✓ اعمال شد (بدون AI — آدرس AI_ENDPOINT رو تو editor.js تنظیم کن).', 'ok');
   }
 
   function applyDeviceSize() {
@@ -392,6 +484,33 @@
     const textarea = doc.createElement('textarea');
     textarea.value = el.textContent.trim();
     textarea.addEventListener('input', () => { el.textContent = textarea.value; });
+
+    const aiBtn = doc.createElement('button');
+    aiBtn.type = 'button';
+    aiBtn.textContent = '✨ بهترش کن با AI';
+    aiBtn.style.cssText = 'width:100%;margin-top:8px;background:#9c7bff;color:#0f1620;border-color:#9c7bff;';
+    const aiStatus = doc.createElement('div');
+    aiStatus.style.cssText = 'font-size:11px;color:#7c8b9c;margin-top:6px;min-height:14px;';
+    aiBtn.addEventListener('click', async () => {
+      aiBtn.disabled = true;
+      aiStatus.textContent = 'در حال بازنویسی…';
+      try {
+        const prompt = 'این متن رو برای یه سایت حرفه‌ای، جذاب‌تر و مختصرتر به فارسی بازنویسی کن. فقط و فقط خودِ متن نهایی رو برگردون، بدون گیومه و بدون توضیح اضافه:\n' + textarea.value;
+        const improved = await callAI(prompt);
+        if (improved) {
+          textarea.value = improved;
+          el.textContent = improved;
+          aiStatus.textContent = '✓ بازنویسی شد.';
+        } else {
+          aiStatus.textContent = 'پاسخی برنگشت.';
+        }
+      } catch (err) {
+        aiStatus.textContent = err && err.message === 'AI_NOT_CONFIGURED'
+          ? 'برای فعال‌شدن این دکمه، AI_ENDPOINT رو تو editor.js تنظیم کن.'
+          : 'خطا تو اتصال به AI.';
+      }
+      aiBtn.disabled = false;
+    });
 
     const colorRow = doc.createElement('div');
     colorRow.className = 'bl-row';
@@ -503,6 +622,8 @@
 
     pop.appendChild(title);
     pop.appendChild(textarea);
+    pop.appendChild(aiBtn);
+    pop.appendChild(aiStatus);
     pop.appendChild(colorRow);
     pop.appendChild(bgRow);
     pop.appendChild(sizeRow);
@@ -519,7 +640,7 @@
     const vw = doc.documentElement.clientWidth;
     const vh = doc.documentElement.clientHeight;
     if (left + popW > vw - 8) left = Math.max(8, vw - popW - 8);
-    if (top + 380 > vh - 8) top = Math.max(8, rect.top - 388);
+    if (top + 420 > vh - 8) top = Math.max(8, rect.top - 428);
     pop.style.left = left + 'px';
     pop.style.top = top + 'px';
 
@@ -602,6 +723,7 @@
     }
     if (els.resetBtn) els.resetBtn.addEventListener('click', resetAll);
     if (els.downloadBtn) els.downloadBtn.addEventListener('click', downloadCurrent);
+    if (els.personalizeBtn) els.personalizeBtn.addEventListener('click', personalizeTemplate);
     if (els.inlineToggle) {
       els.inlineToggle.addEventListener('click', () => {
         state.inlineEdit = !state.inlineEdit;
