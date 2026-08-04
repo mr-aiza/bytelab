@@ -193,6 +193,49 @@
   .pf-title{font-weight:700;font-size:17px;margin-bottom:6px;}
   .pf-desc{color:var(--muted);font-size:14px;}
 
+  /* live preview generator */
+  .live-gen{padding:100px 0;}
+  .lg-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:24px;
+    padding:36px;display:grid;grid-template-columns:.85fr 1.15fr;gap:36px;align-items:start;
+  }
+  .lg-form{display:flex;flex-direction:column;gap:14px;padding-top:6px;}
+  .lg-input{
+    background:var(--panel-2);border:1px solid var(--line);border-radius:14px;
+    color:var(--paper);font-family:'Vazirmatn',sans-serif;font-size:15px;font-weight:600;
+    padding:14px 16px;outline:none;transition:border-color .2s ease;width:100%;
+  }
+  .lg-input:focus{border-color:var(--cyan);}
+  .lg-input::placeholder{color:var(--muted);font-weight:400;}
+  .lg-dots{display:flex;flex-direction:column;gap:8px;}
+  .lg-dot{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:13.5px;color:var(--muted);
+    border:1px solid var(--line);border-radius:12px;padding:11px 15px;background:transparent;cursor:pointer;
+    transition:border-color .2s ease,color .2s ease,background .2s ease;text-align:right;
+  }
+  .lg-dot-mark{width:8px;height:8px;border-radius:50%;background:var(--line);flex-shrink:0;transition:background .2s ease,box-shadow .2s ease;}
+  .lg-dot:hover{color:var(--paper);border-color:var(--cyan);}
+  .lg-dot.active{color:var(--paper);border-color:var(--cyan);background:rgba(77,240,201,.06);}
+  .lg-dot.active .lg-dot-mark{background:var(--cyan);box-shadow:0 0 8px var(--cyan);}
+  .lg-name-row{display:flex;flex-direction:column;gap:8px;margin-top:6px;padding-top:14px;border-top:1px dashed var(--line);}
+  .lg-hint{color:var(--muted);font-size:12.5px;line-height:1.6;}
+  .lg-preview{position:relative;background:#0a0f17;border:1px solid var(--line);border-radius:16px;overflow:hidden;height:420px;}
+  .lg-preview-inner{width:100%;height:100%;overflow:hidden;position:relative;}
+  .lg-preview-inner iframe{
+    width:1280px;height:800px;position:absolute;top:0;left:0;
+    transform-origin:top left;border:0;pointer-events:none;background:#fff;
+  }
+  .lg-badge{
+    position:absolute;bottom:14px;right:14px;z-index:2;
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink);font-weight:700;
+    background:var(--cyan);padding:6px 12px;border-radius:999px;box-shadow:0 0 20px rgba(77,240,201,.35);
+  }
+  @media (max-width:900px){
+    .lg-card{grid-template-columns:1fr;}
+    .lg-preview{height:280px;}
+  }
+
   /* blog preview */
   .blog-preview{padding:100px 0;}
   .bp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
@@ -473,6 +516,44 @@
   </div>
 </section>
 
+<section class="live-gen" id="live-gen">
+  <div class="wrap">
+    <div class="sec-head reveal" style="max-width:680px;">
+      <span class="sec-eyebrow">پیش‌نمایش زنده</span>
+      <h2 class="sec-title">این قالب‌ها همین الان جلوی چشمته</h2>
+      <p class="sec-sub">بدون اینکه چیزی تایپ یا ثبت کنی، چند تا از قالب‌های واقعی بایت‌لب رو خودکار جلوت رد می‌کنیم؛ هر کدوم خوشت اومد نگه‌دار یا اسم خودتو جاش بذار.</p>
+    </div>
+
+    <div class="lg-card reveal">
+      <div class="lg-form">
+        <div class="lg-dots" id="lgDots">
+          <button type="button" class="lg-dot" data-cat="gold"><span class="lg-dot-mark"></span>طلا و جواهر</button>
+          <button type="button" class="lg-dot" data-cat="cafe"><span class="lg-dot-mark"></span>کافه و رستوران</button>
+          <button type="button" class="lg-dot" data-cat="car"><span class="lg-dot-mark"></span>گالری خودرو</button>
+          <button type="button" class="lg-dot" data-cat="generic"><span class="lg-dot-mark"></span>فروشگاه / عمومی</button>
+        </div>
+        <span class="lg-hint" id="lgHint">قالب‌ها هر چند ثانیه خودکار عوض می‌شن؛ روی هرکدوم بزنی همونجا نگه می‌داریم.</span>
+        <div class="lg-name-row">
+          <input type="text" id="lgName" class="lg-input" maxlength="40" placeholder="اختیاری: اسم کسب‌وکارتو بذار جای اسم نمونه" autocomplete="off">
+          <span class="lg-hint">این فیلد اختیاریه؛ فقط برای اینه که اسم خودتو روی همون قالبی که پسندیدی ببینی.</span>
+        </div>
+      </div>
+
+      <div class="lg-preview">
+        <div class="lg-preview-inner">
+          <iframe id="lgFrame" loading="lazy" tabindex="-1" title="پیش‌نمایش زنده سایت"></iframe>
+        </div>
+        <div class="lp-fade"></div>
+        <span class="lg-badge">پیش‌نمایش خودکار — بدون ثبت سفارش</span>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:36px;">
+      <a href="#contact" class="btn-primary" id="lgCta">دقیقاً همینو برای من بساز ←</a>
+    </div>
+  </div>
+</section>
+
 <section class="blog-preview" id="blog-preview">
   <div class="wrap">
     <div class="sec-head reveal">
@@ -653,6 +734,241 @@
           </a>`).join('');
       })
       .catch(() => { /* اگه لود نشد، کارت‌های ثابت همون‌طور می‌مونن */ });
+  })();
+
+  // --- پیش‌نمایش زنده: خودکار بین چند قالب واقعی می‌چرخه؛ تایپ اسم فقط شخصی‌سازیش می‌کنه ---
+  (function livePreviewGenerator(){
+    const nameEl = document.getElementById('lgName');
+    const frame = document.getElementById('lgFrame');
+    const dotsWrap = document.getElementById('lgDots');
+    const preview = document.querySelector('.lg-preview');
+    const hint = document.getElementById('lgHint');
+    const ctaLink = document.getElementById('lgCta');
+    if(!nameEl || !frame) return;
+
+    const ORDER = ['gold','cafe','car','generic'];
+    const CATS = {
+      gold:{
+        label:'طلا و جواهر', sample:'زرّین گالری', bg:'#0F1115', panel:'#161922', line:'#2A2D35',
+        accent:'#C9A84C', accent2:'#D9BC68', text:'#E8DCC0', icon:'💍',
+        tagline:'ویترین آنلاین طلا و جواهرات با نمایش قیمت لحظه‌ای',
+        nav:['محصولات','قیمت طلا','درباره ما','تماس'],
+        featItem:{t:'گردنبند طلا ۱۸ عیار', s:'وزن ۵.۲ گرم', p:'۴۲,۰۰۰,۰۰۰ تومان'},
+        items:[
+          {t:'انگشتر جواهر', s:'نگین برلیان درجه ۱', p:'۲۸,۵۰۰,۰۰۰ تومان'},
+          {t:'دستبند طلای زنانه', s:'طرح ظریف پیچازی', p:'۱۶,۲۰۰,۰۰۰ تومان'},
+          {t:'گوشواره طلا', s:'طرح روز، وزن ۲.۱ گرم', p:'۹,۸۰۰,۰۰۰ تومان'}
+        ],
+        stats:[{v:'۱۲+', l:'سال سابقه'}, {v:'۴.۹', l:'امتیاز مشتریان'}, {v:'ضمانت', l:'اصالت کالا'}]
+      },
+      cafe:{
+        label:'کافه و رستوران', sample:'کافه اِمبر', bg:'#07090d', panel:'#11141d', line:'rgba(255,255,255,.08)',
+        accent:'#f0a94e', accent2:'#ff6b4a', text:'#f2f0ea', icon:'☕',
+        tagline:'منوی دیجیتال شیک با دسته‌بندی متحرک و سفارش سریع',
+        nav:['منو','رزرو میز','درباره ما','تماس'],
+        featItem:{t:'اسپرسو دوبل', s:'دان تازه‌برشت روزانه', p:'۸۵,۰۰۰ تومان'},
+        items:[
+          {t:'کیک شکلاتی خانگی', s:'سرو با بستنی وانیل', p:'۱۲۰,۰۰۰ تومان'},
+          {t:'صبحانه کامل', s:'مناسب ۲ نفر', p:'۳۹۰,۰۰۰ تومان'},
+          {t:'لیموناد نعنا', s:'خنک و تازه', p:'۶۵,۰۰۰ تومان'}
+        ],
+        stats:[{v:'۴.۸', l:'امتیاز در گوگل'}, {v:'۲۰+', l:'آیتم منو'}, {v:'روزانه', l:'دان تازه‌برشت'}]
+      },
+      car:{
+        label:'گالری خودرو', sample:'گالری پرستیژ', bg:'#0A0A0C', panel:'#111318', line:'rgba(192,200,216,.12)',
+        accent:'#D42B2B', accent2:'#E8A020', text:'#D8DCE8', icon:'🚗',
+        tagline:'نمایشگاه آنلاین خودرو با معرفی کامل هر خودرو',
+        nav:['خودروها','مشاوره','درباره ما','تماس'],
+        featItem:{t:'مرسدس بنز E200', s:'مدل ۲۰۲۲ · اتومات', p:'استعلام قیمت'},
+        items:[
+          {t:'بی‌ام‌و X5', s:'مدل ۲۰۲۱ · دوگانه‌سوز', p:'استعلام قیمت'},
+          {t:'پورشه ماکان', s:'مدل ۲۰۲۳ · صفر کیلومتر', p:'استعلام قیمت'},
+          {t:'اودی A6', s:'مدل ۲۰۲۰ · فول‌آپشن', p:'استعلام قیمت'}
+        ],
+        stats:[{v:'۵۰+', l:'خودرو موجود'}, {v:'کارشناسی', l:'قبل از خرید'}, {v:'ضمانت', l:'اصالت خودرو'}]
+      },
+      generic:{
+        label:'فروشگاه / عمومی', sample:'کسب‌وکار شما', bg:'#070b12', panel:'#0f1620', line:'#1e2a38',
+        accent:'#4df0c9', accent2:'#9c7bff', text:'#eaf0f4', icon:'🧩',
+        tagline:'سایت معرفی خدمات با طراحی مدرن، سریع و آماده برای مشتری‌های شما',
+        nav:['خدمات','نمونه‌کارها','درباره ما','تماس'],
+        featItem:{t:'مشاوره اولیه', s:'رایگان و بدون تعهد', p:'رایگان'},
+        items:[
+          {t:'بسته استاندارد', s:'مناسب کسب‌وکارهای کوچک', p:'شروع از ۵,۰۰۰,۰۰۰ تومان'},
+          {t:'بسته اختصاصی', s:'طراحی کامل بر اساس نیاز شما', p:'قیمت پس از مشاوره'},
+          {t:'پشتیبانی ماهانه', s:'رفع مشکل و آپدیت', p:'اختیاری'}
+        ],
+        stats:[{v:'رایگان', l:'مشاوره اولیه'}, {v:'شفاف', l:'قیمت‌گذاری'}, {v:'پس از تحویل', l:'پشتیبانی'}]
+      }
+    };
+
+    let idx = 0;
+    let timer = null;
+    const AUTOPLAY_MS = 4200;
+
+    function esc(str){
+      const d = document.createElement('div');
+      d.textContent = str || '';
+      return d.innerHTML;
+    }
+
+    function buildDoc(catKey, rawName){
+      const c = CATS[catKey];
+      const name = esc((rawName || '').trim() || 'کسب‌وکار شما');
+      const initial = esc((rawName || 'ب').trim().charAt(0) || 'ب');
+      const fi = c.featItem;
+      return `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:${c.bg};color:${c.text};font-family:'Vazirmatn',sans-serif;overflow:hidden;}
+  .glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.2;pointer-events:none;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:22px 44px;position:relative;z-index:2;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .mark{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,${c.accent},${c.accent2});
+    display:flex;align-items:center;justify-content:center;font-weight:800;color:${c.bg};font-size:17px;flex-shrink:0;
+    box-shadow:0 0 24px ${c.accent}66;}
+  .bname{font-weight:800;font-size:18px;}
+  nav{display:flex;gap:28px;}
+  nav span{font-size:13px;color:${c.text}99;}
+  .navcta{border:1px solid ${c.line};border-radius:999px;padding:9px 20px;font-size:12.5px;font-weight:700;color:${c.text};white-space:nowrap;}
+
+  .hero{position:relative;z-index:1;padding:30px 44px 36px;display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:${c.accent};
+    border:1px solid ${c.line};border-radius:999px;padding:6px 14px;margin-bottom:20px;}
+  h1{font-size:37px;font-weight:800;line-height:1.3;}
+  h1 span{background:linear-gradient(90deg,${c.accent},${c.accent2});-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .sub{color:${c.text}99;font-size:14.5px;max-width:460px;margin-top:16px;line-height:1.8;}
+  .ctas{display:flex;gap:12px;margin-top:26px;}
+  .btn1{background:${c.accent};color:${c.bg};font-weight:700;padding:12px 22px;border-radius:999px;font-size:13px;}
+  .btn2{border:1px solid ${c.line};color:${c.text};padding:12px 22px;border-radius:999px;font-size:13px;}
+  .trust{display:flex;gap:18px;margin-top:26px;flex-wrap:wrap;}
+  .trust span{display:flex;align-items:center;gap:7px;font-size:11.5px;color:${c.text}90;}
+  .trust i{width:5px;height:5px;border-radius:50%;background:${c.accent2};display:block;}
+
+  .visual{position:relative;height:250px;}
+  .vcard-back{position:absolute;right:6%;top:0;width:80%;height:190px;background:${c.panel};
+    border:1px solid ${c.line};border-radius:20px;opacity:.55;transform:rotate(-4deg);}
+  .vcard-front{position:absolute;right:0;top:44px;width:82%;height:200px;padding:22px 24px;
+    background:linear-gradient(160deg,${c.panel},${c.bg});border:1px solid ${c.accent}55;border-radius:20px;
+    box-shadow:0 28px 55px -18px ${c.accent}55;}
+  .vicon{width:48px;height:48px;border-radius:13px;background:linear-gradient(135deg,${c.accent},${c.accent2});
+    display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;}
+  .vtitle{font-weight:800;font-size:15.5px;margin-bottom:4px;}
+  .vsub{color:${c.text}80;font-size:11.5px;margin-bottom:12px;}
+  .vprice{font-weight:800;font-size:14.5px;color:${c.accent};}
+  .vstars{margin-top:10px;font-size:12px;letter-spacing:2px;color:${c.accent2};}
+
+  .items{position:relative;z-index:1;padding:6px 44px 22px;}
+  .items-head{font-weight:800;font-size:16.5px;margin-bottom:16px;}
+  .items-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .item{background:${c.panel};border:1px solid ${c.line};border-radius:15px;padding:16px 18px;}
+  .item .ic{font-size:19px;margin-bottom:10px;}
+  .item .it{font-weight:700;font-size:13.5px;margin-bottom:4px;}
+  .item .is{color:${c.text}80;font-size:11px;margin-bottom:10px;}
+  .item .ip{font-weight:800;font-size:12.5px;color:${c.accent};}
+
+  .stats{position:relative;z-index:1;display:flex;justify-content:space-around;
+    padding:18px 44px;border-top:1px solid ${c.line};border-bottom:1px solid ${c.line};}
+  .stat{text-align:center;}
+  .stat .sv{font-weight:800;font-size:19px;color:${c.accent};}
+  .stat .sl{font-size:11px;color:${c.text}80;margin-top:4px;}
+
+  footer{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;
+    padding:16px 44px;font-size:11.5px;color:${c.text}70;}
+</style></head><body>
+  <div class="glow" style="width:420px;height:420px;background:${c.accent};top:-150px;right:-100px;"></div>
+  <div class="glow" style="width:380px;height:380px;background:${c.accent2};bottom:-130px;left:-100px;"></div>
+  <header>
+    <div class="brand"><div class="mark">${initial}</div><div class="bname">${name}</div></div>
+    <nav>${c.nav.map(n => `<span>${esc(n)}</span>`).join('')}</nav>
+    <div class="navcta">تماس با ما</div>
+  </header>
+  <div class="hero">
+    <div>
+      <span class="eyebrow">${c.icon} پیش‌نمایش زنده — بایت‌لب</span>
+      <h1>به <span>${name}</span> خوش اومدید</h1>
+      <p class="sub">${esc(c.tagline)}</p>
+      <div class="ctas"><span class="btn1">مشاهده بیشتر ←</span><span class="btn2">تماس با ما</span></div>
+      <div class="trust"><span><i></i>مشاوره رایگان</span><span><i></i>پشتیبانی پس از تحویل</span><span><i></i>قیمت شفاف</span></div>
+    </div>
+    <div class="visual">
+      <div class="vcard-back"></div>
+      <div class="vcard-front">
+        <div class="vicon">${c.icon}</div>
+        <div class="vtitle">${esc(fi.t)}</div>
+        <div class="vsub">${esc(fi.s)}</div>
+        <div class="vprice">${esc(fi.p)}</div>
+        <div class="vstars">★★★★★</div>
+      </div>
+    </div>
+  </div>
+  <div class="items">
+    <div class="items-head">پرفروش‌ترین‌ها</div>
+    <div class="items-grid">
+      ${c.items.map(it => `<div class="item"><div class="ic">${c.icon}</div><div class="it">${esc(it.t)}</div><div class="is">${esc(it.s)}</div><div class="ip">${esc(it.p)}</div></div>`).join('')}
+    </div>
+  </div>
+  <div class="stats">
+    ${c.stats.map(s => `<div class="stat"><div class="sv">${esc(s.v)}</div><div class="sl">${esc(s.l)}</div></div>`).join('')}
+  </div>
+  <footer>
+    <span>© ${name}</span>
+    <span>ساخته‌شده با بایت‌لب</span>
+  </footer>
+</body></html>`;
+    }
+
+    function render(catKey){
+      const cat = catKey;
+      const custom = nameEl.value.trim();
+      const name = custom || CATS[cat].sample;
+      dotsWrap.querySelectorAll('.lg-dot').forEach(d => d.classList.toggle('active', d.dataset.cat === cat));
+      hint.textContent = custom
+        ? `این «${CATS[cat].label}» با اسم خودته؛ چرخش خودکار موقتاً متوقفه.`
+        : `الان قالب «${CATS[cat].label}» رو نشونت می‌دیم — قالب بعدی خودکار میاد.`;
+      frame.srcdoc = buildDoc(cat, name);
+      ctaLink.textContent = custom
+        ? `دقیقاً همینو برای «${custom}» بساز ←`
+        : `دقیقاً همینو برای من بساز ←`;
+    }
+
+    function startAutoplay(){
+      stopAutoplay();
+      timer = setInterval(() => {
+        idx = (idx + 1) % ORDER.length;
+        render(ORDER[idx]);
+      }, AUTOPLAY_MS);
+    }
+    function stopAutoplay(){ if(timer){ clearInterval(timer); timer = null; } }
+
+    let resumeT, inputT;
+    dotsWrap.querySelectorAll('.lg-dot').forEach(d => {
+      d.addEventListener('click', () => {
+        idx = ORDER.indexOf(d.dataset.cat);
+        render(ORDER[idx]);
+        stopAutoplay();
+        clearTimeout(resumeT);
+        resumeT = setTimeout(startAutoplay, 8000);
+      });
+    });
+
+    nameEl.addEventListener('input', () => {
+      clearTimeout(inputT);
+      inputT = setTimeout(() => {
+        render(ORDER[idx]);
+        if(nameEl.value.trim()) stopAutoplay(); else startAutoplay();
+      }, 250);
+    });
+
+    if(preview){
+      preview.addEventListener('mouseenter', stopAutoplay);
+      preview.addEventListener('mouseleave', () => { if(!nameEl.value.trim()) startAutoplay(); });
+    }
+
+    render(ORDER[idx]);
+    startAutoplay();
   })();
 </script>
   <script src="header.js"></script>
