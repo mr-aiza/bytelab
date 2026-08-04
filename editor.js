@@ -192,8 +192,8 @@
     inlineEdit: true // ویرایش مستقیم با کلیک روی متن‌های داخل پیش‌نمایش
   };
 
-  // تگ‌هایی که به‌عنوان «متن قابل‌کلیک» در پیش‌نمایش در نظر گرفته می‌شن
-  const INLINE_SELECTOR = 'h1,h2,h3,h4,h5,h6,p,span,a,button,li,small,em,strong,b,label';
+  // تگ‌هایی که معمولاً متن مستقیم دارن (برای تصمیم اینکه باکس متن نشون بدیم یا نه)
+  const TEXTY_TAGS = 'h1,h2,h3,h4,h5,h6,p,span,a,button,li,small,em,strong,b,label,div';
 
   const qs = new URLSearchParams(location.search);
 
@@ -240,12 +240,18 @@
 
     setLoading(true);
     try {
-      const res = await fetch(tpl.file, { cache: 'no-store' });
-      state.rawHTML = await res.text();
+      if (window.BYTELAB_TEMPLATES_HTML && window.BYTELAB_TEMPLATES_HTML[key]) {
+        // اولویت با نسخه‌ی جاسازی‌شده (templates-data.js)؛ نیازی به fetch/شبکه نداره
+        // و تحت file:// یا webviewهای محدود هم بی‌مشکل کار می‌کنه.
+        state.rawHTML = window.BYTELAB_TEMPLATES_HTML[key];
+      } else {
+        const res = await fetch(tpl.file, { cache: 'no-store' });
+        state.rawHTML = await res.text();
+      }
     } catch (err) {
       setLoading(false);
       if (els.frameWrap) {
-        els.frameWrap.innerHTML = '<div class="ed-error">قالب لود نشد. اگه این صفحه رو به‌صورت فایل محلی باز کردی، باید از یه سرور (مثل همون هاست سایت) اجرا بشه تا fetch کار کنه.</div>';
+        els.frameWrap.innerHTML = '<div class="ed-error">قالب لود نشد. مطمئن شو فایل templates-data.js هم کنار editor.js لینک شده.</div>';
       }
       return;
     }
@@ -456,6 +462,48 @@
     bgRow.appendChild(bgLabel);
     bgRow.appendChild(bgInput);
 
+    const sizeRow = doc.createElement('div');
+    sizeRow.className = 'bl-row';
+    const sizeLabel = doc.createElement('span');
+    const startSize = parseFloat(getComputedStyle(el).fontSize) || 16;
+    sizeLabel.textContent = 'اندازه متن';
+    const sizeControls = doc.createElement('div');
+    sizeControls.style.cssText = 'display:flex;align-items:center;gap:6px;';
+    const sizeMinus = doc.createElement('button');
+    sizeMinus.type = 'button'; sizeMinus.textContent = '−';
+    sizeMinus.style.cssText = 'width:26px;height:26px;padding:0;';
+    const sizeVal = doc.createElement('span');
+    sizeVal.className = 'mono';
+    sizeVal.style.cssText = 'min-width:38px;text-align:center;font-size:11.5px;color:#7c8b9c;';
+    const sizePlus = doc.createElement('button');
+    sizePlus.type = 'button'; sizePlus.textContent = '+';
+    sizePlus.style.cssText = 'width:26px;height:26px;padding:0;';
+    let curSize = startSize;
+    function renderSize() {
+      sizeVal.textContent = Math.round(curSize) + 'px';
+      el.style.fontSize = curSize + 'px';
+    }
+    sizeMinus.addEventListener('click', () => { curSize = Math.max(8, curSize - 2); renderSize(); });
+    sizePlus.addEventListener('click', () => { curSize = Math.min(140, curSize + 2); renderSize(); });
+    sizeVal.textContent = Math.round(curSize) + 'px';
+    sizeControls.appendChild(sizeMinus);
+    sizeControls.appendChild(sizeVal);
+    sizeControls.appendChild(sizePlus);
+    sizeRow.appendChild(sizeLabel);
+    sizeRow.appendChild(sizeControls);
+
+    const boldRow = doc.createElement('div');
+    boldRow.className = 'bl-row';
+    const boldLabel = doc.createElement('span');
+    boldLabel.textContent = 'ضخیم (Bold)';
+    const boldInput = doc.createElement('input');
+    boldInput.type = 'checkbox';
+    boldInput.checked = parseInt(getComputedStyle(el).fontWeight, 10) >= 600;
+    boldInput.style.cssText = 'width:18px;height:18px;cursor:pointer;';
+    boldInput.addEventListener('change', () => { el.style.fontWeight = boldInput.checked ? '700' : '400'; });
+    boldRow.appendChild(boldLabel);
+    boldRow.appendChild(boldInput);
+
     const actions = doc.createElement('div');
     actions.className = 'bl-actions';
     const clearBtn = doc.createElement('button');
@@ -474,6 +522,8 @@
     pop.appendChild(textarea);
     pop.appendChild(colorRow);
     pop.appendChild(bgRow);
+    pop.appendChild(sizeRow);
+    pop.appendChild(boldRow);
     pop.appendChild(actions);
     doc.body.appendChild(pop);
 
@@ -484,7 +534,7 @@
     const vw = doc.documentElement.clientWidth;
     const vh = doc.documentElement.clientHeight;
     if (left + popW > vw - 8) left = Math.max(8, vw - popW - 8);
-    if (top + 220 > vh - 8) top = Math.max(8, rect.top - 228);
+    if (top + 300 > vh - 8) top = Math.max(8, rect.top - 308);
     pop.style.left = left + 'px';
     pop.style.top = top + 'px';
 
@@ -493,33 +543,37 @@
 
   function initInlineEditing(doc) {
     if (!doc || !doc.body) return;
-    injectInlineStyles(doc);
+    try {
+      injectInlineStyles(doc);
 
-    if (doc.body.dataset.blBound) return; // فقط یه‌بار برای هر لود جدید iframe وصل می‌شیم
-    doc.body.dataset.blBound = '1';
+      if (doc.body.dataset.blBound) return; // فقط یه‌بار برای هر لود جدید iframe وصل می‌شیم
+      doc.body.dataset.blBound = '1';
 
-    doc.addEventListener('mouseover', e => {
-      if (!state.inlineEdit) return;
-      const el = e.target.closest(INLINE_SELECTOR);
-      if (el && isEditableCandidate(el)) el.classList.add('bl-hl');
-    });
-    doc.addEventListener('mouseout', e => {
-      const el = e.target.closest(INLINE_SELECTOR);
-      if (el && !el.matches('.bl-pop *') && !doc.querySelector('.bl-pop')) el.classList.remove('bl-hl');
-    });
+      doc.addEventListener('mouseover', e => {
+        if (!state.inlineEdit) return;
+        const el = e.target.closest(INLINE_SELECTOR);
+        if (el && isEditableCandidate(el)) el.classList.add('bl-hl');
+      });
+      doc.addEventListener('mouseout', e => {
+        const el = e.target.closest(INLINE_SELECTOR);
+        if (el && !doc.querySelector('.bl-pop')) el.classList.remove('bl-hl');
+      });
 
-    doc.addEventListener('click', e => {
-      if (!state.inlineEdit) return; // اگه حالت ویرایش خاموشه، رفتار عادی قالب (ناوبری داخلی) دست‌نخورده می‌مونه
-      if (e.target.closest('.bl-pop')) return; // کلیک داخل خود کادر ویرایش
-      e.preventDefault();
-      e.stopPropagation();
-      const el = e.target.closest(INLINE_SELECTOR);
-      if (el && isEditableCandidate(el)) {
-        openInlinePopup(doc, el);
-      } else {
-        closeInlinePopup(doc);
-      }
-    }, true);
+      doc.addEventListener('click', e => {
+        if (!state.inlineEdit) return; // اگه حالت ویرایش خاموشه، رفتار عادی قالب (ناوبری داخلی) دست‌نخورده می‌مونه
+        if (e.target.closest('.bl-pop')) return; // کلیک داخل خود کادر ویرایش
+        e.preventDefault();
+        e.stopPropagation();
+        const el = e.target.closest(INLINE_SELECTOR);
+        if (el && isEditableCandidate(el)) {
+          openInlinePopup(doc, el);
+        } else {
+          closeInlinePopup(doc);
+        }
+      }, true);
+    } catch (err) {
+      console.error('[bytelab-editor] initInlineEditing failed:', err);
+    }
   }
 
   /* ---------------------------------------------------------------------
