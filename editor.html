@@ -125,6 +125,10 @@
 
   .ed-bottom-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:22px;}
 
+  .ed-inline-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;}
+  .ed-inline-hint{color:var(--muted);font-size:12.5px;flex:1;min-width:220px;}
+  #edInlineToggle.active{background:var(--cyan);color:#06120f;border-color:var(--cyan);}
+
   footer.ed-foot{border-top:1px solid var(--line);padding:26px 0;color:var(--muted);font-size:12.5px;text-align:center;}
 </style>
 </head>
@@ -151,6 +155,11 @@
       <button type="button" class="ed-tab" data-key="cafe">کافه اِمبر <em>کافه و رستوران</em></button>
       <button type="button" class="ed-tab" data-key="car">گالری پرستیژ <em>نمایشگاه خودرو</em></button>
       <button type="button" class="ed-tab" data-key="tashrifat">تشریفات رویایی <em>خدمات مراسم</em></button>
+    </div>
+
+    <div class="ed-inline-bar">
+      <button type="button" class="ed-btn" id="edInlineToggle">✎ ویرایش مستقیم: فعال</button>
+      <span class="ed-inline-hint">وقتی روشنه، رو هر متنی تو پیش‌نمایش پایین بزنی، یه کادر برای تغییر همون متن و رنگش باز می‌شه. خاموشش کن تا بتونی داخل قالب مثل یه بازدیدکننده عادی بین صفحه‌هاش جابه‌جا بشی.</span>
     </div>
   </div>
 </section>
