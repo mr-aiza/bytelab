@@ -186,7 +186,7 @@
   // آدرس Worker هوش مصنوعی خودت رو این‌جا بذار (همون bytelab-ai که برای JARVIS ساختی).
   // تا وقتی خالیه، دکمه‌های AI با یه پیام روشن غیرفعال می‌مونن و بقیه‌ی سیستم
   // (ویرایش دستی، دانلود، ریست) بدون مشکل کار می‌کنه.
-  const AI_ENDPOINT = 'https://bytelab-ai.bytelab.workers.dev'; // مثال: 'https://bytelab-ai.<account>.workers.dev/chat'
+  const AI_ENDPOINT = 'https://bytelab-ai.bytelab.workers.dev/'; // مثال: 'https://bytelab-ai.<account>.workers.dev/chat'
 
   // این تابع رو با شکل واقعی ورودی/خروجی API خودت هماهنگ کن.
   // فرض شده: POST با بدنه‌ی { message: '...' } و پاسخ JSON که یکی از
