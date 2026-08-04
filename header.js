@@ -217,37 +217,44 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
 
     /* --- دسترسی سریع شناور (Meniscus Dock): بشقاب SVG با یه بریدگی پارامتریک که مهره‌ی نورانی توش می‌شینه --- */
     .mn-dock{
-      position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:56;
-      width:min(280px,86vw);height:64px;
+      position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:56;
+      width:min(430px,95vw);height:58px;
     }
     .mn-dock .dock__skin{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 12px 30px rgba(0,0,0,.5));}
     .mn-dock .dock__bead{
-      position:absolute;top:0;left:0;width:44px;height:44px;margin:-22px 0 0 -22px;
+      position:absolute;top:0;left:0;width:38px;height:38px;margin:-19px 0 0 -19px;
       border-radius:50%;pointer-events:auto;z-index:3;cursor:grab;touch-action:none;
       background:radial-gradient(circle at 32% 28%, #fff, #4df0c9 55%, #0f1620 100%);
-      box-shadow:0 0 22px 2px rgba(77,240,201,.55), 0 0 0 5px rgba(77,240,201,.14);
+      box-shadow:0 0 20px 2px rgba(77,240,201,.55), 0 0 0 4px rgba(77,240,201,.14);
       background:radial-gradient(circle at 32% 28%, #fff, var(--acc,#4df0c9) 55%, color-mix(in srgb, var(--acc,#4df0c9) 60%, #000) 100%);
-      box-shadow:0 0 22px 2px color-mix(in srgb, var(--acc,#4df0c9) 70%, transparent), 0 0 0 5px color-mix(in srgb, var(--acc,#4df0c9) 14%, transparent);
+      box-shadow:0 0 20px 2px color-mix(in srgb, var(--acc,#4df0c9) 70%, transparent), 0 0 0 4px color-mix(in srgb, var(--acc,#4df0c9) 14%, transparent);
       transition:box-shadow .25s ease;
     }
     .mn-dock .dock__bead:active{cursor:grabbing;}
     .mn-dock .dock__tabs{position:relative;z-index:2;display:flex;width:100%;height:100%;}
     .mn-dock .tab{
-      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-      background:none;border:none;color:#7c8b9c;text-decoration:none;cursor:pointer;
+      flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+      background:none;border:none;color:#7c8b9c;text-decoration:none;cursor:pointer;padding:0 1px;
       transition:color .25s ease, transform .15s ease;
     }
-    .mn-dock .tab:active{transform:scale(.92);}
-    .mn-dock .tab .tab__icon{font-size:19px;line-height:1;transition:transform .3s cubic-bezier(.34,1.56,.4,1);}
+    .mn-dock .tab:active{transform:scale(.9);}
+    .mn-dock .tab .tab__icon{font-size:16px;line-height:1;transition:transform .3s cubic-bezier(.34,1.56,.4,1);}
     .mn-dock .tab .tab__label{
-      font-size:9px;font-weight:700;max-height:0;opacity:0;overflow:hidden;
+      font-size:8px;font-weight:700;max-height:0;opacity:0;overflow:hidden;
+      white-space:nowrap;max-width:100%;text-overflow:ellipsis;
       transition:max-height .25s ease, opacity .2s ease;
     }
     .mn-dock .tab.is-active{color:var(--acc,#4df0c9);}
-    .mn-dock .tab.is-active .tab__icon{transform:translateY(-16px) scale(1.05);}
-    .mn-dock .tab.is-active .tab__label{max-height:14px;opacity:1;}
+    .mn-dock .tab.is-active .tab__icon{transform:translateY(-14px) scale(1.05);}
+    .mn-dock .tab.is-active .tab__label{max-height:12px;opacity:1;}
     body{padding-bottom:0;}
-    body.has-mn-dock{padding-bottom:96px;}
+    body.has-mn-dock{padding-bottom:88px;}
+    @media (max-width:360px){
+      .mn-dock{height:54px;}
+      .mn-dock .dock__bead{width:34px;height:34px;margin:-17px 0 0 -17px;}
+      .mn-dock .tab .tab__icon{font-size:14px;}
+      .mn-dock .tab.is-active .tab__icon{transform:translateY(-12px) scale(1.05);}
+    }
     @media (min-width:641px){
       .mn-dock{display:none;}
       body.has-mn-dock{padding-bottom:0;}
@@ -276,14 +283,18 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
 
   // --- دسترسی سریع شناور: توی صفحه چت (که خودش صفحه هوش مصنوعیه) نمایش داده نمی‌شه ---
   const SHOW_QUICK_DOCK = current !== "chat.html";
-  const isChatPage = current === "chat.html";
   const isPortfolioPage = current === "portfolio.html" || location.pathname.indexOf("/portfolio/") !== -1;
 
+  // --- صفحات مهم سایت + دسترسی‌های سریع، همه با هم توی همین یه نوار ---
   const DOCK_TABS = [
-    { id: "chat", href: "chat.html", icon: "💬", label: "هوش مصنوعی", acc: "#4df0c9", external: false, active: isChatPage },
-    { id: "portfolio", href: PORTFOLIO_SUBMIT_HREF, icon: "🎨", label: "نمونه‌کار", acc: "#9c7bff", external: false, active: isPortfolioPage },
-    { id: "bazaar", href: "https://cafebazaar.ir/app/com.bytelab.app", icon: "⬇️", label: "دانلود", acc: "#f2c14e", external: true, active: false }
-  ];
+    { id: "home", href: "index.html", icon: "🏠", label: "خانه", acc: "#4df0c9", match: ["index.html", ""] },
+    { id: "site", href: "tarahi-site.html", icon: "🌐", label: "سایت", acc: "#4df0c9", match: ["tarahi-site.html"] },
+    { id: "app", href: "tarahi-app.html", icon: "📱", label: "اپلیکیشن", acc: "#9c7bff", match: ["tarahi-app.html"] },
+    { id: "computer", href: "khadamat-computer.html", icon: "🖥️", label: "کامپیوتر", acc: "#f2c14e", match: ["khadamat-computer.html"] },
+    { id: "chat", href: "chat.html", icon: "💬", label: "هوش مصنوعی", acc: "#4df0c9", match: ["chat.html"] },
+    { id: "portfolio", href: PORTFOLIO_SUBMIT_HREF, icon: "🎨", label: "نمونه‌کار", acc: "#9c7bff", match: [], forceActive: isPortfolioPage },
+    { id: "bazaar", href: "https://cafebazaar.ir/app/com.bytelab.app", icon: "⬇️", label: "دانلود", acc: "#f2c14e", external: true, match: [] }
+  ].map(t => ({ ...t, active: t.forceActive || isActive(t.match) }));
   const dockDefaultTab = DOCK_TABS.find(t => t.active) || DOCK_TABS[0];
 
   const quickDockHTML = SHOW_QUICK_DOCK ? `
@@ -417,13 +428,16 @@ ${quickDockHTML}
       const rimStop1 = document.getElementById('mnRimStop1');
       const rimStop2 = document.getElementById('mnRimStop2');
 
-      const R = 24, D = 14;
+      let R = 20, D = 12; // شعاع/عمق بریدگی؛ از روی اندازه‌ی واقعی مهره (که با رسپانسیو عوض می‌شه) دوباره محاسبه می‌شه
       let W = 0, H = 0, centers = [];
       let bx = 0, dragging = false, dragMoved = false, startX = 0;
 
       function measure() {
         const rect = mnDock.getBoundingClientRect();
         W = rect.width; H = rect.height;
+        const beadRect = bead.getBoundingClientRect();
+        R = beadRect.width / 2;
+        D = R * 0.6;
         skin.setAttribute('viewBox', `0 0 ${W} ${H}`);
         skin.setAttribute('width', W);
         skin.setAttribute('height', H);
