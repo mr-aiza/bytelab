@@ -1,7 +1,7 @@
 // sw.js — بایت‌لب PWA service worker
 // دیگه لازم نیست هر بار عدد ورژن رو دستی عوض کنی — فایل‌های استاتیک
 // خودشون در پس‌زمینه چک و به‌روز می‌شن (stale-while-revalidate).
-const CACHE_VERSION = 'bytelab-v4';
+const CACHE_VERSION = 'bytelab-v5';
 const CACHE_NAME = CACHE_VERSION;
 
 // صفحات و فایل‌های اصلی که از همون اول نصب کش می‌شن (App Shell)
@@ -48,6 +48,14 @@ self.addEventListener('fetch', (event) => {
 
   // فقط درخواست‌های GET همین سایت رو مدیریت کن (نه API چت و نه دامنه‌های خارجی)
   if (req.method !== 'GET' || !req.url.startsWith(self.location.origin)) return;
+
+  // صفحه‌ی ویرایشگر و اسکریپتش هنوز در حال توسعه‌ست؛ همیشه مستقیم از شبکه بیا
+  // تا با هر آپدیت، بدون گیر کردن تو کش قدیمی، فوراً نسخه‌ی تازه لود بشه.
+  const urlObj = new URL(req.url);
+  if (urlObj.pathname.endsWith('/editor.html') || urlObj.pathname.endsWith('/editor.js')) {
+    event.respondWith(fetch(req, { cache: 'no-store' }).catch(() => caches.match(req)));
+    return;
+  }
 
   const isHTML = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
 

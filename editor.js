@@ -192,8 +192,10 @@
     inlineEdit: true // ویرایش مستقیم با کلیک روی متن‌های داخل پیش‌نمایش
   };
 
-  // تگ‌هایی که معمولاً متن مستقیم دارن (برای تصمیم اینکه باکس متن نشون بدیم یا نه)
-  const TEXTY_TAGS = 'h1,h2,h3,h4,h5,h6,p,span,a,button,li,small,em,strong,b,label,div';
+  // تگ‌هایی که به‌عنوان «متن قابل‌کلیک» در نظر گرفته می‌شن — div/li/td هم اضافه شدن
+  // تا عملاً هر متنی تو صفحه (نه فقط چند فیلد ثابت) قابل‌کلیک باشه. فیلتر
+  // isEditableCandidate جلوی این‌رو می‌گیره که یه دیوِ فقط-پوششی (بدون متن مستقیم) قابل‌کلیک بشه.
+  const INLINE_SELECTOR = 'h1,h2,h3,h4,h5,h6,p,span,a,button,li,small,em,strong,b,label,div,td,th,dt,dd,figcaption,blockquote,footer';
 
   const qs = new URLSearchParams(location.search);
 
@@ -390,7 +392,8 @@
       .bl-hl{outline:2px dashed #4df0c9 !important;outline-offset:2px;cursor:pointer !important;}
       .bl-pop{
         position:fixed;z-index:2147483647;background:#0f1620;border:1px solid #1e2a38;
-        border-radius:14px;padding:14px;width:260px;box-shadow:0 12px 34px rgba(0,0,0,.5);
+        border-radius:14px;padding:14px;width:260px;max-height:82vh;overflow-y:auto;
+        box-shadow:0 12px 34px rgba(0,0,0,.5);
         font-family:'Vazirmatn',sans-serif;direction:rtl;color:#eaf0f4;
       }
       .bl-pop textarea{
@@ -504,6 +507,35 @@
     boldRow.appendChild(boldLabel);
     boldRow.appendChild(boldInput);
 
+    const italicRow = doc.createElement('div');
+    italicRow.className = 'bl-row';
+    const italicLabel = doc.createElement('span');
+    italicLabel.textContent = 'کج (Italic)';
+    const italicInput = doc.createElement('input');
+    italicInput.type = 'checkbox';
+    italicInput.checked = getComputedStyle(el).fontStyle === 'italic';
+    italicInput.style.cssText = 'width:18px;height:18px;cursor:pointer;';
+    italicInput.addEventListener('change', () => { el.style.fontStyle = italicInput.checked ? 'italic' : 'normal'; });
+    italicRow.appendChild(italicLabel);
+    italicRow.appendChild(italicInput);
+
+    const alignRow = doc.createElement('div');
+    alignRow.className = 'bl-row';
+    const alignLabel = doc.createElement('span');
+    alignLabel.textContent = 'چینش متن';
+    const alignControls = doc.createElement('div');
+    alignControls.style.cssText = 'display:flex;gap:4px;';
+    [['right', 'راست'], ['center', 'وسط'], ['left', 'چپ']].forEach(([val, txt]) => {
+      const b = doc.createElement('button');
+      b.type = 'button';
+      b.textContent = txt;
+      b.style.cssText = 'padding:4px 8px;font-size:11px;';
+      b.addEventListener('click', () => { el.style.textAlign = val; });
+      alignControls.appendChild(b);
+    });
+    alignRow.appendChild(alignLabel);
+    alignRow.appendChild(alignControls);
+
     const actions = doc.createElement('div');
     actions.className = 'bl-actions';
     const clearBtn = doc.createElement('button');
@@ -524,6 +556,8 @@
     pop.appendChild(bgRow);
     pop.appendChild(sizeRow);
     pop.appendChild(boldRow);
+    pop.appendChild(italicRow);
+    pop.appendChild(alignRow);
     pop.appendChild(actions);
     doc.body.appendChild(pop);
 
@@ -534,7 +568,7 @@
     const vw = doc.documentElement.clientWidth;
     const vh = doc.documentElement.clientHeight;
     if (left + popW > vw - 8) left = Math.max(8, vw - popW - 8);
-    if (top + 300 > vh - 8) top = Math.max(8, rect.top - 308);
+    if (top + 380 > vh - 8) top = Math.max(8, rect.top - 388);
     pop.style.left = left + 'px';
     pop.style.top = top + 'px';
 

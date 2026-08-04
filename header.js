@@ -289,8 +289,8 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   const DOCK_TABS = [
     { id: "home", href: "index.html", icon: "🏠", label: "خانه", acc: "#4df0c9", match: ["index.html", ""] },
     { id: "portfolio", href: PORTFOLIO_SUBMIT_HREF, icon: "🎨", label: "نمونه‌کار", acc: "#9c7bff", match: [], forceActive: isPortfolioPage },
-    { id: "chat", href: "chat.html", icon: "🤖", label: "🤖", acc: "#4df0c9", match: ["chat.html"] },
-    { id: "bazaar", href: "https://cafebazaar.ir/app/com.bytelab.app", icon: "📲", label: "دانلود", acc: "#f2c14e", external: true, match: [] }
+    { id: "chat", href: "chat.html", icon: "💬", label: "هوش مصنوعی", acc: "#4df0c9", match: ["chat.html"] },
+    { id: "bazaar", href: "https://cafebazaar.ir/app/com.bytelab.app", icon: "⬇️", label: "دانلود", acc: "#f2c14e", external: true, match: [] }
   ].map(t => ({ ...t, active: t.forceActive || isActive(t.match) }));
   const dockDefaultTab = DOCK_TABS.find(t => t.active) || DOCK_TABS[0];
 
