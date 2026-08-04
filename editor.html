@@ -85,6 +85,9 @@
   }
 
   .ed-actions{display:flex;flex-direction:column;gap:10px;margin-top:22px;}
+  .ed-status{font-size:12px;color:var(--muted);margin-top:8px;min-height:16px;}
+  .ed-status.ok{color:var(--cyan);}
+  .ed-status.err{color:#ff8a8a;}
   .ed-btn{
     border-radius:999px;padding:11px 18px;font-family:inherit;font-size:13.5px;font-weight:700;
     cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--paper);text-align:center;
@@ -167,9 +170,24 @@
 <section class="wrap">
   <div class="ed-layout">
     <aside class="ed-panel">
+      <h3>شخصی‌سازی خودکار ✨</h3>
+      <p style="font-size:12.5px;color:var(--muted);line-height:1.8;margin-bottom:12px;">
+        اسم کسب‌وکارت رو بگو، برند و عنوان هیرو و توضیحش تو کل قالب یه‌جا با AI عوض می‌شه.
+      </p>
+      <div class="ed-field">
+        <span class="ed-field-label">اسم کسب‌وکار</span>
+        <input type="text" id="edBizName" placeholder="مثلاً: کافه ستاره">
+      </div>
+      <div class="ed-field">
+        <span class="ed-field-label">یه‌خط توضیح (اختیاری)</span>
+        <input type="text" id="edBizDesc" placeholder="مثلاً: کافه سنتی با فضای گرم">
+      </div>
+      <button type="button" class="ed-btn primary" id="edPersonalize" style="width:100%;">✨ اعمال روی کل قالب</button>
+      <div id="edPersonalizeStatus" class="ed-status"></div>
+
       <h3>راهنما</h3>
       <p style="font-size:13px;color:var(--muted);line-height:1.9;">
-        دکمه‌ی «✎ ویرایش مستقیم» بالای پیش‌نمایش رو فعال کن، بعد رو هر متنی تو پیش‌نمایش بزن — یه کادر همون‌جا باز می‌شه که می‌تونی متن، رنگ، اندازه، چینش و استایلش رو کامل عوض کنی.
+        دکمه‌ی «✎ ویرایش مستقیم» بالای پیش‌نمایش رو فعال کن، بعد رو هر متنی تو پیش‌نمایش بزن — یه کادر همون‌جا باز می‌شه که می‌تونی متن، رنگ، اندازه، چینش و استایلش رو کامل عوض کنی. تو همون کادر یه دکمه‌ی «✨ بهترش کن با AI» هم هست که متن رو حرفه‌ای‌تر بازنویسی می‌کنه.
       </p>
 
       <div class="ed-actions">
