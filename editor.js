@@ -188,8 +188,12 @@
     tpl: null,
     device: 'desktop',
     rawHTML: '',
-    values: {} // مقدار فعلی هر فیلد متنی + رنگ‌ها، فقط تو حافظه
+    values: {}, // مقدار فعلی هر فیلد متنی + رنگ‌ها، فقط تو حافظه
+    inlineEdit: true // ویرایش مستقیم با کلیک روی متن‌های داخل پیش‌نمایش
   };
+
+  // تگ‌هایی که به‌عنوان «متن قابل‌کلیک» در پیش‌نمایش در نظر گرفته می‌شن
+  const INLINE_SELECTOR = 'h1,h2,h3,h4,h5,h6,p,span,a,button,li,small,em,strong,b,label';
 
   const qs = new URLSearchParams(location.search);
 
@@ -203,6 +207,7 @@
     colorsWrap: document.getElementById('edColors'),
     resetBtn: document.getElementById('edReset'),
     downloadBtn: document.getElementById('edDownload'),
+    inlineToggle: document.getElementById('edInlineToggle'),
     currentLabel: document.getElementById('edCurrentLabel'),
     loading: document.getElementById('edLoading')
   };
@@ -305,6 +310,7 @@
     els.frame.onload = () => {
       applyAllValues();
       applyDeviceSize();
+      initInlineEditing(frameDoc());
       setLoading(false);
     };
   }
@@ -339,6 +345,181 @@
     const scale = els.frameWrap.clientWidth / d.w;
     els.frame.style.transform = 'scale(' + scale + ')';
     els.frameWrap.classList.toggle('is-mobile', state.device === 'mobile');
+  }
+
+  /* ---------------------------------------------------------------------
+     ۴.۵) ویرایش مستقیم با کلیک: روی هر متنی تو پیش‌نمایش بزنی، یه کادر
+     کوچیک همون‌جا باز می‌شه که می‌تونی متن و رنگ همون المنت رو عوض کنی.
+     چیزی ذخیره نمی‌شه؛ فقط DOM همون iframe (تو حافظه) تغییر می‌کنه.
+     -------------------------------------------------------------------- */
+  function rgbToHex(rgb) {
+    if (!rgb) return '#000000';
+    const m = rgb.match(/\d+(\.\d+)?/g);
+    if (!m || m.length < 3) return '#000000';
+    const toHex = n => Math.max(0, Math.min(255, parseInt(n, 10))).toString(16).padStart(2, '0');
+    return '#' + toHex(m[0]) + toHex(m[1]) + toHex(m[2]);
+  }
+
+  // true اگه رنگ پس‌زمینه‌ی محاسبه‌شده، شفاف/بی‌رنگ باشه (نه یه رنگ واقعی)
+  function isTransparentColor(rgb) {
+    if (!rgb || rgb === 'transparent') return true;
+    const m = rgb.match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/);
+    if (!m) return true;
+    const alpha = m[4] === undefined ? 1 : parseFloat(m[4]);
+    return alpha === 0;
+  }
+
+  function isEditableCandidate(el) {
+    if (!el || !el.matches || !el.matches(INLINE_SELECTOR)) return false;
+    if (el.closest('.bl-pop')) return false;
+    const hasDirectText = Array.prototype.some.call(el.childNodes, n => n.nodeType === 3 && n.textContent.trim().length > 0);
+    return hasDirectText;
+  }
+
+  function injectInlineStyles(doc) {
+    if (doc.getElementById('bl-editor-style')) return;
+    const style = doc.createElement('style');
+    style.id = 'bl-editor-style';
+    style.textContent = `
+      .bl-hl{outline:2px dashed #4df0c9 !important;outline-offset:2px;cursor:pointer !important;}
+      .bl-pop{
+        position:fixed;z-index:2147483647;background:#0f1620;border:1px solid #1e2a38;
+        border-radius:14px;padding:14px;width:260px;box-shadow:0 12px 34px rgba(0,0,0,.5);
+        font-family:'Vazirmatn',sans-serif;direction:rtl;color:#eaf0f4;
+      }
+      .bl-pop textarea{
+        width:100%;min-height:64px;background:#141d2b;border:1px solid #1e2a38;border-radius:8px;
+        color:#eaf0f4;font-family:inherit;font-size:13px;padding:8px;resize:vertical;box-sizing:border-box;
+      }
+      .bl-pop .bl-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font-size:12.5px;color:#7c8b9c;}
+      .bl-pop input[type=color]{width:32px;height:26px;border:1px solid #1e2a38;border-radius:6px;padding:1px;background:none;cursor:pointer;}
+      .bl-pop .bl-actions{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+      .bl-pop button{
+        font-family:inherit;font-size:12px;font-weight:700;border-radius:999px;padding:6px 12px;cursor:pointer;border:1px solid #1e2a38;background:none;color:#eaf0f4;
+      }
+      .bl-pop .bl-close{color:#7c8b9c;border:none;background:none;font-size:16px;line-height:1;padding:2px 6px;}
+      .bl-pop .bl-clear{color:#7c8b9c;}
+    `;
+    doc.head.appendChild(style);
+  }
+
+  function closeInlinePopup(doc) {
+    const old = doc.querySelector('.bl-pop');
+    if (old) old.remove();
+    const hl = doc.querySelector('.bl-hl');
+    if (hl) hl.classList.remove('bl-hl');
+  }
+
+  function openInlinePopup(doc, el) {
+    closeInlinePopup(doc);
+    el.classList.add('bl-hl');
+
+    const rect = el.getBoundingClientRect();
+    const pop = doc.createElement('div');
+    pop.className = 'bl-pop';
+
+    const closeBtn = doc.createElement('button');
+    closeBtn.className = 'bl-close';
+    closeBtn.type = 'button';
+    closeBtn.textContent = '✕';
+    closeBtn.addEventListener('click', () => closeInlinePopup(doc));
+
+    const title = doc.createElement('div');
+    title.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;font-size:12px;font-weight:700;color:#9c7bff;margin-bottom:8px;';
+    title.textContent = 'ویرایش این متن';
+    title.appendChild(closeBtn);
+
+    const textarea = doc.createElement('textarea');
+    textarea.value = el.textContent.trim();
+    textarea.addEventListener('input', () => { el.textContent = textarea.value; });
+
+    const colorRow = doc.createElement('div');
+    colorRow.className = 'bl-row';
+    const colorLabel = doc.createElement('span');
+    colorLabel.textContent = 'رنگ متن';
+    const colorInput = doc.createElement('input');
+    colorInput.type = 'color';
+    colorInput.value = rgbToHex(getComputedStyle(el).color);
+    colorInput.addEventListener('input', () => { el.style.color = colorInput.value; });
+    colorRow.appendChild(colorLabel);
+    colorRow.appendChild(colorInput);
+
+    const bgRow = doc.createElement('div');
+    bgRow.className = 'bl-row';
+    const bgLabel = doc.createElement('span');
+    bgLabel.textContent = 'رنگ پس‌زمینه';
+    const bgInput = doc.createElement('input');
+    bgInput.type = 'color';
+    const bgComputed = getComputedStyle(el).backgroundColor;
+    bgInput.value = isTransparentColor(bgComputed) ? '#000000' : rgbToHex(bgComputed);
+    bgInput.addEventListener('input', () => { el.style.backgroundColor = bgInput.value; });
+    bgRow.appendChild(bgLabel);
+    bgRow.appendChild(bgInput);
+
+    const actions = doc.createElement('div');
+    actions.className = 'bl-actions';
+    const clearBtn = doc.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.className = 'bl-clear';
+    clearBtn.textContent = 'حذف پس‌زمینه';
+    clearBtn.addEventListener('click', () => { el.style.backgroundColor = ''; });
+    const doneBtn = doc.createElement('button');
+    doneBtn.type = 'button';
+    doneBtn.textContent = 'باشه ✓';
+    doneBtn.addEventListener('click', () => closeInlinePopup(doc));
+    actions.appendChild(clearBtn);
+    actions.appendChild(doneBtn);
+
+    pop.appendChild(title);
+    pop.appendChild(textarea);
+    pop.appendChild(colorRow);
+    pop.appendChild(bgRow);
+    pop.appendChild(actions);
+    doc.body.appendChild(pop);
+
+    // موقعیت‌دهی: زیر المنت، با جلوگیری از بیرون‌زدن از صفحه
+    const popW = 260;
+    let left = rect.left;
+    let top = rect.bottom + 8;
+    const vw = doc.documentElement.clientWidth;
+    const vh = doc.documentElement.clientHeight;
+    if (left + popW > vw - 8) left = Math.max(8, vw - popW - 8);
+    if (top + 220 > vh - 8) top = Math.max(8, rect.top - 228);
+    pop.style.left = left + 'px';
+    pop.style.top = top + 'px';
+
+    textarea.focus();
+  }
+
+  function initInlineEditing(doc) {
+    if (!doc || !doc.body) return;
+    injectInlineStyles(doc);
+
+    if (doc.body.dataset.blBound) return; // فقط یه‌بار برای هر لود جدید iframe وصل می‌شیم
+    doc.body.dataset.blBound = '1';
+
+    doc.addEventListener('mouseover', e => {
+      if (!state.inlineEdit) return;
+      const el = e.target.closest(INLINE_SELECTOR);
+      if (el && isEditableCandidate(el)) el.classList.add('bl-hl');
+    });
+    doc.addEventListener('mouseout', e => {
+      const el = e.target.closest(INLINE_SELECTOR);
+      if (el && !el.matches('.bl-pop *') && !doc.querySelector('.bl-pop')) el.classList.remove('bl-hl');
+    });
+
+    doc.addEventListener('click', e => {
+      if (!state.inlineEdit) return; // اگه حالت ویرایش خاموشه، رفتار عادی قالب (ناوبری داخلی) دست‌نخورده می‌مونه
+      if (e.target.closest('.bl-pop')) return; // کلیک داخل خود کادر ویرایش
+      e.preventDefault();
+      e.stopPropagation();
+      const el = e.target.closest(INLINE_SELECTOR);
+      if (el && isEditableCandidate(el)) {
+        openInlinePopup(doc, el);
+      } else {
+        closeInlinePopup(doc);
+      }
+    }, true);
   }
 
   /* ---------------------------------------------------------------------
@@ -382,6 +563,17 @@
     }
     if (els.resetBtn) els.resetBtn.addEventListener('click', resetAll);
     if (els.downloadBtn) els.downloadBtn.addEventListener('click', downloadCurrent);
+    if (els.inlineToggle) {
+      els.inlineToggle.addEventListener('click', () => {
+        state.inlineEdit = !state.inlineEdit;
+        els.inlineToggle.classList.toggle('active', state.inlineEdit);
+        els.inlineToggle.textContent = state.inlineEdit
+          ? '✎ ویرایش مستقیم: فعال'
+          : '✎ ویرایش مستقیم: غیرفعال';
+        const doc = frameDoc();
+        if (doc) closeInlinePopup(doc);
+      });
+    }
     window.addEventListener('resize', applyDeviceSize);
   }
 
@@ -390,6 +582,7 @@
      -------------------------------------------------------------------- */
   function init() {
     bindEvents();
+    if (els.inlineToggle) els.inlineToggle.classList.toggle('active', state.inlineEdit);
     const requested = qs.get('t');
     const startKey = TEMPLATES[requested] ? requested : 'tashrifat';
     loadTemplate(startKey);
