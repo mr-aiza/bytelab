@@ -205,8 +205,6 @@
     frame: document.getElementById('edFrame'),
     frameWrap: document.getElementById('edFrameWrap'),
     deviceWrap: document.getElementById('edDevice'),
-    fieldsWrap: document.getElementById('edFields'),
-    colorsWrap: document.getElementById('edColors'),
     resetBtn: document.getElementById('edReset'),
     downloadBtn: document.getElementById('edDownload'),
     inlineToggle: document.getElementById('edInlineToggle'),
@@ -258,54 +256,7 @@
       return;
     }
 
-    buildFieldForm();
-    buildColorForm();
     renderFrame();
-  }
-
-  function buildFieldForm() {
-    if (!els.fieldsWrap) return;
-    els.fieldsWrap.innerHTML = '';
-    state.tpl.fields.forEach(f => {
-      const row = document.createElement('label');
-      row.className = 'ed-field';
-      const cap = document.createElement('span');
-      cap.className = 'ed-field-label';
-      cap.textContent = f.label;
-      row.appendChild(cap);
-
-      const input = document.createElement(f.type === 'textarea' ? 'textarea' : 'input');
-      if (f.type !== 'textarea') input.type = 'text';
-      if (f.maxLength) input.maxLength = f.maxLength;
-      input.value = state.values[f.key];
-      input.addEventListener('input', () => {
-        state.values[f.key] = input.value;
-        applyField(f, input.value);
-      });
-      row.appendChild(input);
-      els.fieldsWrap.appendChild(row);
-    });
-  }
-
-  function buildColorForm() {
-    if (!els.colorsWrap) return;
-    els.colorsWrap.innerHTML = '';
-    state.tpl.colors.forEach(c => {
-      const row = document.createElement('label');
-      row.className = 'ed-color';
-      const cap = document.createElement('span');
-      cap.textContent = c.label;
-      row.appendChild(cap);
-      const input = document.createElement('input');
-      input.type = 'color';
-      input.value = state.values['color:' + c.varName];
-      input.addEventListener('input', () => {
-        state.values['color:' + c.varName] = input.value;
-        applyColor(c.varName, input.value);
-      });
-      row.appendChild(input);
-      els.colorsWrap.appendChild(row);
-    });
   }
 
   /* ---------------------------------------------------------------------
