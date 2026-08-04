@@ -281,18 +281,15 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   // مسیر صفحه‌ی نمونه‌کارها (دکمه‌ی هدر اول به همین‌جا میره، دکمه‌ی ارسال داخل خودشه)
   const PORTFOLIO_SUBMIT_HREF = "portfolio.html";
 
-  // --- دسترسی سریع شناور: توی صفحه چت (که خودش صفحه هوش مصنوعیه) نمایش داده نمی‌شه ---
-  const SHOW_QUICK_DOCK = current !== "chat.html";
+  // --- دسترسی سریع شناور: حالا توی همه صفحات (از جمله چت) نمایش داده می‌شه ---
+  const SHOW_QUICK_DOCK = true;
   const isPortfolioPage = current === "portfolio.html" || location.pathname.indexOf("/portfolio/") !== -1;
 
-  // --- صفحات مهم سایت + دسترسی‌های سریع، همه با هم توی همین یه نوار ---
+  // --- فقط ۴ صفحه مهم سایت روی نوار پایین ---
   const DOCK_TABS = [
     { id: "home", href: "index.html", icon: "🏠", label: "خانه", acc: "#4df0c9", match: ["index.html", ""] },
-    { id: "site", href: "tarahi-site.html", icon: "🌐", label: "سایت", acc: "#4df0c9", match: ["tarahi-site.html"] },
-    { id: "app", href: "tarahi-app.html", icon: "📱", label: "اپلیکیشن", acc: "#9c7bff", match: ["tarahi-app.html"] },
-    { id: "computer", href: "khadamat-computer.html", icon: "🖥️", label: "کامپیوتر", acc: "#f2c14e", match: ["khadamat-computer.html"] },
-    { id: "chat", href: "chat.html", icon: "💬", label: "هوش مصنوعی", acc: "#4df0c9", match: ["chat.html"] },
     { id: "portfolio", href: PORTFOLIO_SUBMIT_HREF, icon: "🎨", label: "نمونه‌کار", acc: "#9c7bff", match: [], forceActive: isPortfolioPage },
+    { id: "chat", href: "chat.html", icon: "💬", label: "هوش مصنوعی", acc: "#4df0c9", match: ["chat.html"] },
     { id: "bazaar", href: "https://cafebazaar.ir/app/com.bytelab.app", icon: "⬇️", label: "دانلود", acc: "#f2c14e", external: true, match: [] }
   ].map(t => ({ ...t, active: t.forceActive || isActive(t.match) }));
   const dockDefaultTab = DOCK_TABS.find(t => t.active) || DOCK_TABS[0];
