@@ -214,6 +214,38 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       #siteStatusBadge{left:10px;bottom:10px;padding:8px 14px 8px 10px;font-size:11.5px;}
       #siteAnnouncementBanner{font-size:12.5px;padding:9px 40px 9px 12px;}
     }
+
+    /* --- دسترسی سریع شناور (Quick Dock): نوار پایین صفحه با یه "مهره" نورانی که پشت آیتم فعال میاد --- */
+    .quick-dock{
+      position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:56;
+      display:flex;align-items:center;gap:4px;
+      background:rgba(15,22,32,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+      border:1px solid #1e2a38;border-radius:999px;
+      padding:7px;box-shadow:0 12px 34px rgba(0,0,0,.5);
+    }
+    .qd-bead{
+      position:absolute;top:7px;right:7px;width:58px;height:58px;border-radius:50%;
+      background:linear-gradient(135deg,#4df0c9,#9c7bff);
+      box-shadow:0 0 26px rgba(77,240,201,.55), 0 0 0 4px rgba(77,240,201,.08);
+      transition:transform .38s cubic-bezier(.34,1.4,.4,1);
+      z-index:0;pointer-events:none;
+    }
+    .qd-item{
+      position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:2px;width:58px;height:58px;border-radius:50%;color:#eaf0f4;text-decoration:none;
+      transition:color .25s ease, transform .18s ease;
+    }
+    .qd-item:active{transform:scale(.9);}
+    .qd-item .qd-ico{font-size:20px;line-height:1;filter:drop-shadow(0 0 6px rgba(0,0,0,.4));}
+    .qd-item .qd-lbl{font-size:9px;font-weight:700;white-space:nowrap;opacity:.75;}
+    .qd-item.active{color:#06120f;}
+    .qd-item.active .qd-lbl{opacity:1;}
+    body{padding-bottom:0;}
+    body.has-quick-dock{padding-bottom:92px;}
+    @media (min-width:641px){
+      .quick-dock{display:none;}
+      body.has-quick-dock{padding-bottom:0;}
+    }
   `;
   const styleTag = document.createElement("style");
   styleTag.textContent = headerCSS;
@@ -235,6 +267,24 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
 
   // مسیر صفحه‌ی نمونه‌کارها (دکمه‌ی هدر اول به همین‌جا میره، دکمه‌ی ارسال داخل خودشه)
   const PORTFOLIO_SUBMIT_HREF = "portfolio.html";
+
+  // --- دسترسی سریع شناور: توی صفحه چت (که خودش صفحه هوش مصنوعیه) نمایش داده نمی‌شه ---
+  const SHOW_QUICK_DOCK = current !== "chat.html";
+  const isChatPage = current === "chat.html";
+  const isPortfolioPage = current === "portfolio.html" || location.pathname.indexOf("/portfolio/") !== -1;
+  const quickDockHTML = SHOW_QUICK_DOCK ? `
+<div class="quick-dock" id="quickDock" role="navigation" aria-label="دسترسی سریع">
+  <span class="qd-bead" id="qdBead"></span>
+  <a href="chat.html" class="qd-item${isChatPage ? " active" : ""}" data-qd="chat">
+    <span class="qd-ico">💬</span><span class="qd-lbl">هوش مصنوعی</span>
+  </a>
+  <a href="${PORTFOLIO_SUBMIT_HREF}" class="qd-item${isPortfolioPage ? " active" : ""}" data-qd="portfolio">
+    <span class="qd-ico">🎨</span><span class="qd-lbl">نمونه‌کار</span>
+  </a>
+  <a href="https://cafebazaar.ir/app/com.bytelab.app" target="_blank" rel="noopener" class="qd-item" data-qd="bazaar">
+    <span class="qd-ico">⬇️</span><span class="qd-lbl">دانلود</span>
+  </a>
+</div>` : "";
 
   const linksHTML = NAV_LINKS.map(l => {
     const cls = isActive(l.match) ? ' class="active"' : "";
@@ -280,6 +330,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     <a href="https://cafebazaar.ir/app/com.bytelab.app" target="_blank" rel="noopener" class="mm-action">⬇️<span>دانلود از کافه‌بازار</span></a>
   </div>
 </div>
+${quickDockHTML}
   `;
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -314,6 +365,31 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       if (closeBtn) closeBtn.addEventListener('click', closeMenu);
       menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+    }
+
+    // --- دسترسی سریع شناور: مهره‌ی نورانی رو پشت آیتم فعال (یا پیش‌فرض هوش مصنوعی) می‌بریم ---
+    const quickDock = document.getElementById('quickDock');
+    const qdBead = document.getElementById('qdBead');
+    if (quickDock && qdBead) {
+      document.body.classList.add('has-quick-dock');
+      function positionBead() {
+        if (window.innerWidth > 640) return;
+        const activeItem = quickDock.querySelector('.qd-item.active') || quickDock.querySelector('.qd-item');
+        if (!activeItem) return;
+        const dockRect = quickDock.getBoundingClientRect();
+        const itemRect = activeItem.getBoundingClientRect();
+        const offsetX = itemRect.left - dockRect.left;
+        qdBead.style.transform = `translateX(${offsetX}px)`;
+      }
+      requestAnimationFrame(positionBead);
+      window.addEventListener('resize', positionBead);
+      quickDock.querySelectorAll('.qd-item').forEach(item => {
+        item.addEventListener('click', () => {
+          quickDock.querySelectorAll('.qd-item').forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+          positionBead();
+        });
+      });
     }
 
     // --- اطلاع‌رسانی دانلود اپلیکیشن به تلگرام (بدون کند کردن دانلود کاربر) ---
