@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ویرایش آنلاین قالب | بایت‌لب</title>
+<meta name="description" content="یکی از قالب‌های نمونه‌کار بایت‌لب رو انتخاب کن و متن و رنگ‌هاش رو همین‌جا آنلاین ویرایش کن و پیش‌نمایش بگیر؛ بدون ثبت نهایی.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://bytelabpro.xyz/editor.html">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070b12;
+    --panel:#0f1620;
+    --panel-2:#141d2b;
+    --line:#1e2a38;
+    --cyan:#4df0c9;
+    --violet:#9c7bff;
+    --paper:#eaf0f4;
+    --muted:#7c8b9c;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;
+    line-height:1.7;
+    min-height:100vh;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.02em;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 24px;}
+
+  .ed-hero{padding:150px 0 28px;}
+  .ed-crumb{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);margin-bottom:18px;flex-wrap:wrap;}
+  .ed-crumb a{color:var(--cyan);}
+  .ed-eyebrow{font-weight:700;font-size:13px;color:var(--violet);display:block;margin-bottom:12px;}
+  .ed-title{font-size:clamp(24px,3.2vw,34px);font-weight:800;max-width:780px;}
+  .ed-note{
+    margin-top:16px;display:flex;gap:10px;align-items:flex-start;
+    background:rgba(77,240,201,.06);border:1px solid var(--line);border-radius:14px;
+    padding:14px 16px;color:var(--muted);font-size:13.5px;max-width:720px;
+  }
+  .ed-note b{color:var(--paper);}
+
+  .ed-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:26px 0 30px;}
+  .ed-tab{
+    border:1px solid var(--line);background:var(--panel);color:var(--paper);
+    padding:10px 18px;border-radius:999px;font-family:inherit;font-size:13.5px;font-weight:600;
+    cursor:pointer;transition:border-color .2s ease,background .2s ease,color .2s ease;
+  }
+  .ed-tab em{font-style:normal;color:var(--muted);font-weight:400;margin-right:6px;font-size:12px;}
+  .ed-tab:hover{border-color:var(--cyan);}
+  .ed-tab.active{background:var(--cyan);color:#06120f;border-color:var(--cyan);}
+  .ed-tab.active em{color:#06120f;opacity:.7;}
+
+  .ed-layout{display:grid;grid-template-columns:320px 1fr;gap:24px;padding-bottom:90px;align-items:start;}
+  @media (max-width:880px){ .ed-layout{grid-template-columns:1fr;} }
+
+  .ed-panel{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px;position:sticky;top:100px;
+  }
+  @media (max-width:880px){ .ed-panel{position:static;} }
+  .ed-panel h3{font-size:14px;font-weight:700;color:var(--violet);margin-bottom:14px;}
+  .ed-panel h3:not(:first-child){margin-top:22px;}
+
+  .ed-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;font-size:13px;color:var(--muted);}
+  .ed-field-label{font-weight:600;color:var(--paper);}
+  .ed-field input, .ed-field textarea{
+    background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;color:var(--paper);font-family:inherit;font-size:13.5px;
+    resize:vertical;
+  }
+  .ed-field input:focus, .ed-field textarea:focus{outline:none;border-color:var(--cyan);}
+
+  .ed-color{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;font-size:13.5px;}
+  .ed-color input[type=color]{
+    width:38px;height:32px;border:1px solid var(--line);border-radius:8px;background:none;padding:2px;cursor:pointer;
+  }
+
+  .ed-actions{display:flex;flex-direction:column;gap:10px;margin-top:22px;}
+  .ed-btn{
+    border-radius:999px;padding:11px 18px;font-family:inherit;font-size:13.5px;font-weight:700;
+    cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--paper);text-align:center;
+    transition:border-color .2s ease,color .2s ease;
+  }
+  .ed-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .ed-btn.primary{background:var(--cyan);color:#06120f;border-color:var(--cyan);}
+  .ed-btn.primary:hover{color:#06120f;opacity:.9;}
+
+  .ed-preview-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px;}
+  .ed-current{font-size:13.5px;color:var(--muted);}
+  .ed-current b{color:var(--paper);}
+  .ed-device{display:flex;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px;}
+  .ed-dev-btn{
+    border:none;background:none;color:var(--muted);font-family:inherit;font-size:13px;font-weight:600;
+    padding:8px 16px;border-radius:999px;cursor:pointer;transition:background .2s ease,color .2s ease;
+    display:flex;align-items:center;gap:6px;
+  }
+  .ed-dev-btn.active{background:var(--cyan);color:#06120f;}
+
+  .ed-frame-outer{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px;position:relative;min-height:420px;
+  }
+  #edFrameWrap{
+    width:100%;height:640px;overflow:hidden;border-radius:12px;border:1px solid var(--line);
+    position:relative;background:#0a0f17;
+  }
+  #edFrameWrap.is-mobile{width:320px;height:640px;margin:0 auto;border-radius:26px;border-width:2px;}
+  #edFrame{
+    border:0;transform-origin:top right;position:absolute;top:0;right:0;
+  }
+  .ed-error{padding:40px;text-align:center;color:var(--muted);font-size:14px;}
+  #edLoading{
+    position:absolute;inset:16px;display:none;align-items:center;justify-content:center;
+    background:rgba(10,15,23,.7);border-radius:12px;color:var(--cyan);font-size:13px;font-weight:600;z-index:5;
+  }
+
+  .ed-bottom-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:22px;}
+
+  footer.ed-foot{border-top:1px solid var(--line);padding:26px 0;color:var(--muted);font-size:12.5px;text-align:center;}
+</style>
+</head>
+<body>
+
+<section class="ed-hero">
+  <div class="wrap">
+    <div class="ed-crumb">
+      <a href="index.html">بایت‌لب</a>
+      <span>←</span>
+      <a href="portfolio.html">نمونه‌کارها</a>
+      <span>←</span>
+      <span>ویرایش آنلاین</span>
+    </div>
+    <span class="ed-eyebrow">نسخه آزمایشی — پیش‌نمایش شخصی‌سازی</span>
+    <h1 class="ed-title">قالب رو انتخاب کن، متن و رنگ‌هاش رو بچرخون، همین‌جا ببین چه شکلی می‌شه</h1>
+    <div class="ed-note">
+      <span>ⓘ</span>
+      <span><b>هیچ‌چیزی ذخیره یا ثبت نهایی نمی‌شه.</b> این فقط یه محیط آزمایشیه که رو مرورگر خودت اجرا می‌شه؛ با رفرش صفحه همه‌چی به حالت اول برمی‌گرده. اگه از نتیجه راضی بودی، برای ساخت نسخه‌ی واقعی و اختصاصی باهامون تماس بگیر.</span>
+    </div>
+
+    <div class="ed-tabs" id="edTabs">
+      <button type="button" class="ed-tab" data-key="gold">زرّین گالری <em>طلا و جواهر</em></button>
+      <button type="button" class="ed-tab" data-key="cafe">کافه اِمبر <em>کافه و رستوران</em></button>
+      <button type="button" class="ed-tab" data-key="car">گالری پرستیژ <em>نمایشگاه خودرو</em></button>
+      <button type="button" class="ed-tab" data-key="tashrifat">تشریفات رویایی <em>خدمات مراسم</em></button>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="ed-layout">
+    <aside class="ed-panel">
+      <h3>متن‌ها</h3>
+      <div id="edFields"></div>
+
+      <h3>رنگ‌ها</h3>
+      <div id="edColors"></div>
+
+      <div class="ed-actions">
+        <button type="button" class="ed-btn" id="edReset">بازنشانی به حالت پیش‌فرض</button>
+        <button type="button" class="ed-btn" id="edDownload">دانلود همین پیش‌نمایش (HTML)</button>
+        <a href="index.html#contact" class="ed-btn primary">دقیقاً شبیه همینو برام بساز ←</a>
+      </div>
+    </aside>
+
+    <div>
+      <div class="ed-preview-head">
+        <span class="ed-current" id="edCurrentLabel">در حال بارگذاری…</span>
+        <div class="ed-device" id="edDevice">
+          <button type="button" class="ed-dev-btn active" data-device="desktop">دسکتاپ</button>
+          <button type="button" class="ed-dev-btn" data-device="mobile">موبایل</button>
+        </div>
+      </div>
+      <div class="ed-frame-outer">
+        <div id="edFrameWrap">
+          <iframe id="edFrame" title="پیش‌نمایش زنده و قابل‌ویرایش"></iframe>
+          <div id="edLoading">در حال بارگذاری قالب…</div>
+        </div>
+      </div>
+      <div class="ed-bottom-links">
+        <a href="portfolio.html" class="ed-btn">مشاهده همه نمونه‌کارها ←</a>
+        <a href="index.html#live-gen" class="ed-btn">بازگشت به پیش‌نمایش زنده ←</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="ed-foot">© ۱۴۰۵ بایت‌لب — این صفحه فقط برای پیش‌نمایش آزمایشیه.</footer>
+
+<script src="editor.js"></script>
+<script src="header.js"></script>
+</body>
+</html>
