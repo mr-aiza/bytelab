@@ -215,36 +215,42 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       #siteAnnouncementBanner{font-size:12.5px;padding:9px 40px 9px 12px;}
     }
 
-    /* --- دسترسی سریع شناور (Quick Dock): نوار پایین صفحه با یه "مهره" نورانی که پشت آیتم فعال میاد --- */
-    .quick-dock{
+    /* --- دسترسی سریع شناور (Meniscus Dock): بشقاب SVG با یه بریدگی پارامتریک که مهره‌ی نورانی توش می‌شینه --- */
+    .mn-dock{
       position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:56;
-      display:flex;align-items:center;gap:4px;
-      background:rgba(15,22,32,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-      border:1px solid #1e2a38;border-radius:999px;
-      padding:7px;box-shadow:0 12px 34px rgba(0,0,0,.5);
+      width:min(280px,86vw);height:64px;
     }
-    .qd-bead{
-      position:absolute;top:7px;right:7px;width:58px;height:58px;border-radius:50%;
-      background:linear-gradient(135deg,#4df0c9,#9c7bff);
-      box-shadow:0 0 26px rgba(77,240,201,.55), 0 0 0 4px rgba(77,240,201,.08);
-      transition:transform .38s cubic-bezier(.34,1.4,.4,1);
-      z-index:0;pointer-events:none;
+    .mn-dock .dock__skin{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 12px 30px rgba(0,0,0,.5));}
+    .mn-dock .dock__bead{
+      position:absolute;top:0;left:0;width:44px;height:44px;margin:-22px 0 0 -22px;
+      border-radius:50%;pointer-events:auto;z-index:3;cursor:grab;touch-action:none;
+      background:radial-gradient(circle at 32% 28%, #fff, #4df0c9 55%, #0f1620 100%);
+      box-shadow:0 0 22px 2px rgba(77,240,201,.55), 0 0 0 5px rgba(77,240,201,.14);
+      background:radial-gradient(circle at 32% 28%, #fff, var(--acc,#4df0c9) 55%, color-mix(in srgb, var(--acc,#4df0c9) 60%, #000) 100%);
+      box-shadow:0 0 22px 2px color-mix(in srgb, var(--acc,#4df0c9) 70%, transparent), 0 0 0 5px color-mix(in srgb, var(--acc,#4df0c9) 14%, transparent);
+      transition:box-shadow .25s ease;
     }
-    .qd-item{
-      position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:2px;width:58px;height:58px;border-radius:50%;color:#eaf0f4;text-decoration:none;
-      transition:color .25s ease, transform .18s ease;
+    .mn-dock .dock__bead:active{cursor:grabbing;}
+    .mn-dock .dock__tabs{position:relative;z-index:2;display:flex;width:100%;height:100%;}
+    .mn-dock .tab{
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+      background:none;border:none;color:#7c8b9c;text-decoration:none;cursor:pointer;
+      transition:color .25s ease, transform .15s ease;
     }
-    .qd-item:active{transform:scale(.9);}
-    .qd-item .qd-ico{font-size:20px;line-height:1;filter:drop-shadow(0 0 6px rgba(0,0,0,.4));}
-    .qd-item .qd-lbl{font-size:9px;font-weight:700;white-space:nowrap;opacity:.75;}
-    .qd-item.active{color:#06120f;}
-    .qd-item.active .qd-lbl{opacity:1;}
+    .mn-dock .tab:active{transform:scale(.92);}
+    .mn-dock .tab .tab__icon{font-size:19px;line-height:1;transition:transform .3s cubic-bezier(.34,1.56,.4,1);}
+    .mn-dock .tab .tab__label{
+      font-size:9px;font-weight:700;max-height:0;opacity:0;overflow:hidden;
+      transition:max-height .25s ease, opacity .2s ease;
+    }
+    .mn-dock .tab.is-active{color:var(--acc,#4df0c9);}
+    .mn-dock .tab.is-active .tab__icon{transform:translateY(-16px) scale(1.05);}
+    .mn-dock .tab.is-active .tab__label{max-height:14px;opacity:1;}
     body{padding-bottom:0;}
-    body.has-quick-dock{padding-bottom:92px;}
+    body.has-mn-dock{padding-bottom:96px;}
     @media (min-width:641px){
-      .quick-dock{display:none;}
-      body.has-quick-dock{padding-bottom:0;}
+      .mn-dock{display:none;}
+      body.has-mn-dock{padding-bottom:0;}
     }
   `;
   const styleTag = document.createElement("style");
@@ -272,18 +278,36 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   const SHOW_QUICK_DOCK = current !== "chat.html";
   const isChatPage = current === "chat.html";
   const isPortfolioPage = current === "portfolio.html" || location.pathname.indexOf("/portfolio/") !== -1;
+
+  const DOCK_TABS = [
+    { id: "chat", href: "chat.html", icon: "💬", label: "هوش مصنوعی", acc: "#4df0c9", external: false, active: isChatPage },
+    { id: "portfolio", href: PORTFOLIO_SUBMIT_HREF, icon: "🎨", label: "نمونه‌کار", acc: "#9c7bff", external: false, active: isPortfolioPage },
+    { id: "bazaar", href: "https://cafebazaar.ir/app/com.bytelab.app", icon: "⬇️", label: "دانلود", acc: "#f2c14e", external: true, active: false }
+  ];
+  const dockDefaultTab = DOCK_TABS.find(t => t.active) || DOCK_TABS[0];
+
   const quickDockHTML = SHOW_QUICK_DOCK ? `
-<div class="quick-dock" id="quickDock" role="navigation" aria-label="دسترسی سریع">
-  <span class="qd-bead" id="qdBead"></span>
-  <a href="chat.html" class="qd-item${isChatPage ? " active" : ""}" data-qd="chat">
-    <span class="qd-ico">💬</span><span class="qd-lbl">هوش مصنوعی</span>
-  </a>
-  <a href="${PORTFOLIO_SUBMIT_HREF}" class="qd-item${isPortfolioPage ? " active" : ""}" data-qd="portfolio">
-    <span class="qd-ico">🎨</span><span class="qd-lbl">نمونه‌کار</span>
-  </a>
-  <a href="https://cafebazaar.ir/app/com.bytelab.app" target="_blank" rel="noopener" class="qd-item" data-qd="bazaar">
-    <span class="qd-ico">⬇️</span><span class="qd-lbl">دانلود</span>
-  </a>
+<div class="mn-dock" id="mnDock" style="--acc:${dockDefaultTab.acc}">
+  <svg class="dock__skin" id="dockSkin" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="mnPlate" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#141d2b"/>
+        <stop offset="1" stop-color="#0f1620"/>
+      </linearGradient>
+      <linearGradient id="mnRim" x1="0" y1="0" x2="1" y2="0">
+        <stop id="mnRimStop1" offset="0" stop-color="${dockDefaultTab.acc}" stop-opacity=".9"/>
+        <stop id="mnRimStop2" offset="1" stop-color="${dockDefaultTab.acc}" stop-opacity=".25"/>
+      </linearGradient>
+    </defs>
+    <path id="skinFill" fill="url(#mnPlate)" stroke="url(#mnRim)" stroke-width="1.5"></path>
+  </svg>
+  <span class="dock__bead" id="dockBead"></span>
+  <div class="dock__tabs" role="tablist" id="dockTabs">
+    ${DOCK_TABS.map(t => `
+    <a href="${t.href}"${t.external ? ' target="_blank" rel="noopener"' : ""} class="tab${t.active ? " is-active" : ""}" role="tab" data-acc="${t.acc}">
+      <span class="tab__icon">${t.icon}</span><span class="tab__label">${t.label}</span>
+    </a>`).join("")}
+  </div>
 </div>` : "";
 
   const linksHTML = NAV_LINKS.map(l => {
@@ -367,27 +391,119 @@ ${quickDockHTML}
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
     }
 
-    // --- دسترسی سریع شناور: مهره‌ی نورانی رو پشت آیتم فعال (یا پیش‌فرض هوش مصنوعی) می‌بریم ---
-    const quickDock = document.getElementById('quickDock');
-    const qdBead = document.getElementById('qdBead');
-    if (quickDock && qdBead) {
-      document.body.classList.add('has-quick-dock');
-      function positionBead() {
-        if (window.innerWidth > 640) return;
-        const activeItem = quickDock.querySelector('.qd-item.active') || quickDock.querySelector('.qd-item');
-        if (!activeItem) return;
-        const dockRect = quickDock.getBoundingClientRect();
-        const itemRect = activeItem.getBoundingClientRect();
-        const offsetX = itemRect.left - dockRect.left;
-        qdBead.style.transform = `translateX(${offsetX}px)`;
+    // --- دسترسی سریع شناور (Meniscus Dock): مسیر SVG بریدگی رو پشت مهره‌ی فعال می‌سازه ---
+    // بریدگی، یه کمان مماس بر دایره‌ی مهره‌ست: reach = sqrt(R² − (R−D)²)
+    // شبیه یه قطره که با سطح بشقاب یکی شده (منیسکوس)
+    function buildDockPath(bx, w, h, R, D) {
+      const CR = h / 2;
+      const reach = Math.sqrt(Math.max(1, R * R - Math.pow(R - D, 2)));
+      let nx1 = Math.max(CR + 6, bx - reach);
+      let nx2 = Math.min(w - CR - 6, bx + reach);
+      if (nx2 - nx1 < 10) { const m = (nx1 + nx2) / 2; nx1 = m - 5; nx2 = m + 5; }
+      const hL = (bx - nx1) * 0.55, hR = (nx2 - bx) * 0.55;
+      return `M ${CR} 0 L ${nx1} 0 C ${nx1 + hL} 0 ${bx - hL * 0.4} ${D} ${bx} ${D} `
+        + `C ${bx + hR * 0.4} ${D} ${nx2 - hR} 0 ${nx2} 0 L ${w - CR} 0 `
+        + `A ${CR} ${CR} 0 0 1 ${w - CR} ${h} L ${CR} ${h} A ${CR} ${CR} 0 0 1 ${CR} 0 Z`;
+    }
+
+    const mnDock = document.getElementById('mnDock');
+    if (mnDock) {
+      document.body.classList.add('has-mn-dock');
+      const skin = document.getElementById('dockSkin');
+      const skinFill = document.getElementById('skinFill');
+      const bead = document.getElementById('dockBead');
+      const tabsWrap = document.getElementById('dockTabs');
+      const tabs = Array.from(tabsWrap.querySelectorAll('.tab'));
+      const rimStop1 = document.getElementById('mnRimStop1');
+      const rimStop2 = document.getElementById('mnRimStop2');
+
+      const R = 24, D = 14;
+      let W = 0, H = 0, centers = [];
+      let bx = 0, dragging = false, dragMoved = false, startX = 0;
+
+      function measure() {
+        const rect = mnDock.getBoundingClientRect();
+        W = rect.width; H = rect.height;
+        skin.setAttribute('viewBox', `0 0 ${W} ${H}`);
+        skin.setAttribute('width', W);
+        skin.setAttribute('height', H);
+        centers = tabs.map(t => {
+          const r = t.getBoundingClientRect();
+          return (r.left - rect.left) + r.width / 2;
+        });
       }
-      requestAnimationFrame(positionBead);
-      window.addEventListener('resize', positionBead);
-      quickDock.querySelectorAll('.qd-item').forEach(item => {
-        item.addEventListener('click', () => {
-          quickDock.querySelectorAll('.qd-item').forEach(i => i.classList.remove('active'));
-          item.classList.add('active');
-          positionBead();
+
+      function paint(x) {
+        skinFill.setAttribute('d', buildDockPath(x, W, H, R, D));
+        bead.style.transform = `translate(${x}px, ${D}px)`;
+      }
+
+      function setAccent(hex) {
+        mnDock.style.setProperty('--acc', hex);
+        if (rimStop1) rimStop1.setAttribute('stop-color', hex);
+        if (rimStop2) rimStop2.setAttribute('stop-color', hex);
+      }
+
+      function nearestIndex(x) {
+        let bi = 0, bd = Infinity;
+        centers.forEach((c, i) => { const d = Math.abs(c - x); if (d < bd) { bd = d; bi = i; } });
+        return bi;
+      }
+
+      function setActiveTab(i, animate) {
+        tabs.forEach((t, idx) => t.classList.toggle('is-active', idx === i));
+        setAccent(tabs[i].dataset.acc);
+        bead.style.transition = animate ? 'transform .38s cubic-bezier(.34,1.4,.4,1)' : 'none';
+        paint(centers[i]);
+        bx = centers[i];
+        if (animate) setTimeout(() => { bead.style.transition = ''; }, 400);
+      }
+
+      measure();
+      const initialActive = tabs.findIndex(t => t.classList.contains('is-active'));
+      setActiveTab(initialActive >= 0 ? initialActive : 0, false);
+
+      window.addEventListener('resize', () => {
+        measure();
+        const ai = tabs.findIndex(t => t.classList.contains('is-active'));
+        setActiveTab(ai >= 0 ? ai : 0, false);
+      });
+
+      // --- درگ مهره روی نوار: بریدگی و مهره زنده دنبال انگشت می‌رن ---
+      bead.addEventListener('pointerdown', (e) => {
+        dragging = true; dragMoved = false; startX = e.clientX;
+        bead.setPointerCapture(e.pointerId);
+        bead.style.transition = 'none';
+      });
+      bead.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        if (Math.abs(e.clientX - startX) > 4) dragMoved = true;
+        const rect = mnDock.getBoundingClientRect();
+        const x = Math.max(28, Math.min(W - 28, e.clientX - rect.left));
+        paint(x);
+        bx = x;
+      });
+      function endDrag() {
+        if (!dragging) return;
+        dragging = false;
+        const i = nearestIndex(bx);
+        setActiveTab(i, true);
+        if (dragMoved) {
+          const tab = tabs[i];
+          setTimeout(() => {
+            if (tab.target === '_blank') window.open(tab.href, '_blank', 'noopener');
+            else window.location.href = tab.href;
+          }, 260);
+        }
+      }
+      bead.addEventListener('pointerup', endDrag);
+      bead.addEventListener('pointercancel', endDrag);
+
+      // --- تپ روی هر تب ---
+      tabs.forEach((t, i) => {
+        t.addEventListener('click', (e) => {
+          if (dragMoved) { e.preventDefault(); dragMoved = false; return; }
+          setActiveTab(i, true);
         });
       });
     }
