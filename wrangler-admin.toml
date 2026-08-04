@@ -1,0 +1,37 @@
+# ============================================================
+#  پیکربندی Worker پنل مدیریت (bytelab-admin-worker.js)
+#  این وورکر جدا از bytelab-telegram دیپلوی می‌شه، ولی باید دقیقاً
+#  به همون KV Namespace وورکر تلگرام وصل بشه (LEADS_KV).
+# ============================================================
+
+name = "bytelab-admin"
+main = "bytelab-admin-worker.js"
+compatibility_date = "2024-01-01"
+
+# همون namespace id ای که در wrangler.toml وورکر bytelab-telegram
+# زیر LEADS_KV نوشته شده رو اینجا هم بگذار — باید دقیقاً یکی باشن.
+[[kv_namespaces]]
+binding = "LEADS_KV"
+id = "REPLACE_WITH_SAME_KV_NAMESPACE_ID_AS_TELEGRAM_WORKER"
+
+[vars]
+# مدت اعتبار نشست ورود به پنل، به ساعت (اختیاری — پیش‌فرض ۱۲)
+ADMIN_SESSION_HOURS = "12"
+
+# دامنه‌ی مجاز برای CORS (اختیاری — پیش‌فرض «*»). بهتره دامنه‌ی
+# سایتت رو اینجا بگذاری تا فقط از همون‌جا بشه به API درخواست زد:
+# ADMIN_ALLOWED_ORIGIN = "https://bytelabpro.xyz"
+
+# آدرس Worker هوش‌مصنوعی bytelab-ai (اختیاری — اگه خالی بمونه از
+# آدرس پیش‌فرض توی خود کد استفاده می‌شه، همونی که در editor.js هست)
+# AI_ENDPOINT = "https://bytelab-ai.bytelab.workers.dev/"
+
+# ------------------------------------------------------------
+# این سه‌تا رو حتماً از داشبورد Cloudflare → Workers → این وورکر →
+# Settings → Variables and Secrets → Add Secret اضافه کن
+# (توی همین فایل ننویسشون، چون این‌ها محرمانه‌ن):
+#
+#   ADMIN_PANEL_PASSWORD   رمز عبور ورود به پنل وب مدیریت (اجباری)
+#   TELEGRAM_BOT_TOKEN     توکن ربات تلگرام (همون وورکر bytelab-telegram) — اختیاری، فقط برای ارسال بک‌آپ
+#   TELEGRAM_CHAT_ID       چت‌آیدی مالک ربات — اختیاری، فقط برای ارسال بک‌آپ
+# ------------------------------------------------------------

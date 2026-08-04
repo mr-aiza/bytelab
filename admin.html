@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل مدیریت | بایت‌لب</title>
+
+<!-- قالب اختصاصی پنل مدیریت — کاملاً مستقل، بدون وابستگی به CDN خارجی -->
+<link rel="stylesheet" href="assets/admin-theme.css" />
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- ==================== ناوبری بالا ==================== -->
+  <nav class="app-header navbar navbar-expand bg-white shadow-sm">
+    <div class="container-fluid">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="#" role="button" onclick="toggleSidebar();return false;"><i class="bi bi-list"></i></a></li>
+      </ul>
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item me-2 small text-muted d-none d-md-block" id="clockBox"></li>
+        <li class="nav-item me-2">
+          <button class="rg-theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="حالت تاریک/روشن">
+            <i class="bi bi-moon-stars"></i>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-sm btn-outline-secondary" onclick="doLogout()"><i class="bi bi-box-arrow-left"></i> خروج</button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ==================== سایدبار ==================== -->
+  <div class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+  <aside class="app-sidebar shadow">
+    <div class="sidebar-brand">
+      <a href="#" class="brand-link">
+        <i class="bi bi-bolt text-gold fs-4 ms-2"></i>
+        <span class="brand-text fw-bold">بایت‌لب</span>
+      </a>
+    </div>
+    <div class="sidebar-wrapper">
+      <nav class="mt-2">
+        <ul class="nav sidebar-menu flex-column" role="menu">
+          <li class="nav-item"><a href="#" class="nav-link nav-view active" data-view="dashboard"><i class="nav-icon bi bi-speedometer2"></i><p>داشبورد</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link nav-view" data-view="blog"><i class="nav-icon bi bi-newspaper"></i><p>مدیریت بلاگ</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link nav-view" data-view="faq"><i class="nav-icon bi bi-question-circle"></i><p>سوالات متداول</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link nav-view" data-view="gallery"><i class="nav-icon bi bi-images"></i><p>گالری نمونه‌کار</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link nav-view" data-view="leads"><i class="nav-icon bi bi-inbox"></i><p>لیدها</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link nav-view" data-view="banner"><i class="nav-icon bi bi-megaphone"></i><p>بنر سایت</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link nav-view" data-view="status"><i class="nav-icon bi bi-toggle-on"></i><p>وضعیت آنلاین</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link nav-view" data-view="activity"><i class="nav-icon bi bi-clock-history"></i><p>لاگ فعالیت‌ها</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link nav-view" data-view="backup"><i class="nav-icon bi bi-cloud-arrow-down"></i><p>بک‌آپ و بازگردانی</p></a></li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- ==================== محتوای اصلی ==================== -->
+  <main class="app-main">
+
+    <!-- ---------- داشبورد ---------- -->
+    <div class="view active" id="view-dashboard">
+      <div class="app-content-header"><div class="container-fluid"><h3 class="mb-0">داشبورد</h3></div></div>
+      <div class="app-content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-lg-3 col-6">
+              <div class="small-box text-bg-info">
+                <div class="inner"><h3 id="statLeadsToday">۰</h3><p>لید امروز</p></div>
+                <i class="bi bi-inbox small-box-icon"></i>
+              </div>
+            </div>
+            <div class="col-lg-3 col-6">
+              <div class="small-box text-bg-warning">
+                <div class="inner"><h3 id="statLeadsNew">۰</h3><p>لید بررسی‌نشده</p></div>
+                <i class="bi bi-hourglass-split small-box-icon"></i>
+              </div>
+            </div>
+            <div class="col-lg-3 col-6">
+              <div class="small-box text-bg-success">
+                <div class="inner"><h3 id="statBlogPublished">۰</h3><p>پست منتشرشده</p></div>
+                <i class="bi bi-newspaper small-box-icon"></i>
+              </div>
+            </div>
+            <div class="col-lg-3 col-6">
+              <div class="small-box text-bg-danger">
+                <div class="inner"><h3 id="statGalleryPending">۰</h3><p>نمونه‌کار در انتظار</p></div>
+                <i class="bi bi-images small-box-icon"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card card-gold">
+                <div class="card-header"><h3 class="card-title">وضعیت کلی</h3></div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">کل لیدها <span id="statLeadsTotal" class="fw-bold">۰</span></li>
+                    <li class="list-group-item d-flex justify-content-between">لیدهای تماس‌گرفته‌شده <span id="statLeadsContacted" class="fw-bold text-success">۰</span></li>
+                    <li class="list-group-item d-flex justify-content-between">کل پست‌های بلاگ <span id="statBlogTotal" class="fw-bold">۰</span></li>
+                    <li class="list-group-item d-flex justify-content-between">پیش‌نویس بلاگ <span id="statBlogDraft" class="fw-bold">۰</span></li>
+                    <li class="list-group-item d-flex justify-content-between">سوالات متداول <span id="statFaqTotal" class="fw-bold">۰</span></li>
+                    <li class="list-group-item d-flex justify-content-between">نمونه‌کار تایید‌شده <span id="statGalleryApproved" class="fw-bold text-success">۰</span></li>
+                    <li class="list-group-item d-flex justify-content-between">نمونه‌کار ویژه <span id="statGalleryFeatured" class="fw-bold">۰</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card card-gold">
+                <div class="card-header"><h3 class="card-title">دسترسی سریع</h3></div>
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>وضعیت پاسخگویی سایت</span>
+                    <span id="dashStatusBadge" class="badge">-</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>بنر اعلانات</span>
+                    <span id="dashBannerBadge" class="badge">-</span>
+                  </div>
+                  <button class="btn btn-sm btn-outline-secondary w-100" onclick="switchView('status')">مدیریت وضعیت / بنر</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- بلاگ ---------- -->
+    <div class="view" id="view-blog">
+      <div class="app-content-header">
+        <div class="container-fluid d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <h3 class="mb-0">مدیریت بلاگ</h3>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary" onclick="openBlogAIModal()"><i class="bi bi-magic"></i> نوشتن با AI</button>
+            <button class="btn btn-sm btn-gold" onclick="openBlogModal()"><i class="bi bi-plus-lg"></i> پست جدید</button>
+          </div>
+        </div>
+      </div>
+      <div class="app-content">
+        <div class="container-fluid">
+          <div class="card">
+            <div class="card-body table-responsive">
+              <table class="table align-middle">
+                <thead><tr><th>عنوان</th><th>دسته</th><th>وضعیت</th><th>تاریخ</th><th></th></tr></thead>
+                <tbody id="blogBody"><tr><td colspan="5" class="text-center text-muted py-4">در حال بارگذاری…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- FAQ ---------- -->
+    <div class="view" id="view-faq">
+      <div class="app-content-header">
+        <div class="container-fluid d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <h3 class="mb-0">سوالات متداول</h3>
+          <button class="btn btn-sm btn-gold" onclick="openFaqModal()"><i class="bi bi-plus-lg"></i> سوال جدید</button>
+        </div>
+      </div>
+      <div class="app-content">
+        <div class="container-fluid">
+          <div class="card">
+            <div class="card-body table-responsive">
+              <table class="table align-middle">
+                <thead><tr><th>سوال</th><th>خدمت مرتبط</th><th></th></tr></thead>
+                <tbody id="faqBody"><tr><td colspan="3" class="text-center text-muted py-4">در حال بارگذاری…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- گالری ---------- -->
+    <div class="view" id="view-gallery">
+      <div class="app-content-header">
+        <div class="container-fluid d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <h3 class="mb-0">گالری نمونه‌کار</h3>
+          <button class="btn btn-sm btn-gold" onclick="openGalleryModal()"><i class="bi bi-plus-lg"></i> نمونه‌کار جدید</button>
+        </div>
+      </div>
+      <div class="app-content">
+        <div class="container-fluid">
+          <div class="d-flex gap-2 mb-2 flex-wrap" id="galleryFilterTabs">
+            <button class="btn btn-sm btn-gold" data-status="all" onclick="setGalleryFilter('all')">همه</button>
+            <button class="btn btn-sm btn-outline-secondary" data-status="approved" onclick="setGalleryFilter('approved')">تایید‌شده</button>
+            <button class="btn btn-sm btn-outline-secondary" data-status="pending" onclick="setGalleryFilter('pending')">در انتظار</button>
+            <button class="btn btn-sm btn-outline-secondary" data-status="rejected" onclick="setGalleryFilter('rejected')">رد‌شده</button>
+          </div>
+          <div class="card">
+            <div class="card-body table-responsive">
+              <table class="table align-middle">
+                <thead><tr><th>عنوان</th><th>سازنده</th><th>دسته</th><th>وضعیت</th><th>ویژه</th><th></th></tr></thead>
+                <tbody id="galleryBody"><tr><td colspan="6" class="text-center text-muted py-4">در حال بارگذاری…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- لیدها ---------- -->
+    <div class="view" id="view-leads">
+      <div class="app-content-header">
+        <div class="container-fluid d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <h3 class="mb-0">لیدها</h3>
+          <button class="btn btn-sm btn-outline-secondary" onclick="exportLeadsCsv()"><i class="bi bi-file-earmark-spreadsheet"></i> خروجی CSV</button>
+        </div>
+      </div>
+      <div class="app-content">
+        <div class="container-fluid">
+          <div class="d-flex gap-2 mb-2 flex-wrap align-items-center">
+            <div class="rg-search-box">
+              <i class="bi bi-search"></i>
+              <input type="text" class="form-control form-control-sm" id="leadSearchInput" placeholder="جستجوی نام/شماره/خدمت…" oninput="renderLeadsTable()">
+            </div>
+            <select class="form-select form-select-sm" style="max-width:160px" id="leadStatusFilter" onchange="renderLeadsTable()">
+              <option value="all">همه وضعیت‌ها</option>
+              <option value="new">جدید</option>
+              <option value="contacted">تماس‌گرفته‌شده</option>
+              <option value="later">بعداً</option>
+              <option value="rejected">رد‌شده</option>
+            </select>
+          </div>
+          <div class="card">
+            <div class="card-body table-responsive">
+              <table class="table align-middle">
+                <thead><tr><th>نام</th><th>شماره</th><th>خدمت</th><th>نوع</th><th>وضعیت</th><th>تاریخ</th><th></th></tr></thead>
+                <tbody id="leadsBody"><tr><td colspan="7" class="text-center text-muted py-4">در حال بارگذاری…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- بنر ---------- -->
+    <div class="view" id="view-banner">
+      <div class="app-content-header"><div class="container-fluid"><h3 class="mb-0">بنر اعلانات سایت</h3></div></div>
+      <div class="app-content">
+        <div class="container-fluid">
+          <div class="card" style="max-width:560px">
+            <div class="card-body">
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="bnEnabled">
+                <label class="form-check-label" for="bnEnabled">روشن (روی سایت نمایش داده بشه)</label>
+              </div>
+              <div class="mb-3"><label class="form-label">متن بنر</label><textarea class="form-control" id="bnText" rows="2"></textarea></div>
+              <div class="mb-3"><label class="form-label">لینک (اختیاری)</label><input class="form-control" id="bnLink" placeholder="https://…"></div>
+              <div class="mb-3"><label class="form-label">استایل</label>
+                <select class="form-select" id="bnStyle">
+                  <option value="info">اطلاع‌رسانی</option>
+                  <option value="success">موفقیت</option>
+                  <option value="warning">هشدار</option>
+                  <option value="danger">فوری</option>
+                </select>
+              </div>
+              <button class="btn btn-gold" onclick="saveBanner()">ذخیره بنر</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- وضعیت آنلاین ---------- -->
+    <div class="view" id="view-status">
+      <div class="app-content-header"><div class="container-fluid"><h3 class="mb-0">وضعیت پاسخگویی آنلاین/آفلاین</h3></div></div>
+      <div class="app-content">
+        <div class="container-fluid">
+          <div class="card" style="max-width:480px">
+            <div class="card-body text-center">
+              <p class="text-muted mb-3">این وضعیت روی نشانگر آنلاین/آفلاین سایت و ویجت چت نمایش داده می‌شه.</p>
+              <h2 id="statusCurrentLabel" class="mb-4">-</h2>
+              <button class="btn btn-gold" onclick="toggleStatus()" id="statusToggleBtn">تغییر وضعیت</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- لاگ فعالیت‌ها ---------- -->
+    <div class="view" id="view-activity">
+      <div class="app-content-header"><div class="container-fluid"><h3 class="mb-0">لاگ فعالیت‌های ادمین</h3></div></div>
+      <div class="app-content">
+        <div class="container-fluid">
+          <div class="card"><div class="card-body" id="activityBody">در حال بارگذاری…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- بک‌آپ ---------- -->
+    <div class="view" id="view-backup">
+      <div class="app-content-header"><div class="container-fluid"><h3 class="mb-0">بک‌آپ و بازگردانی</h3></div></div>
+      <div class="app-content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header"><h3 class="card-title">بک‌آپ فوری</h3></div>
+                <div class="card-body">
+                  <p class="text-muted small">یه فایل JSON کامل از همه‌ی داده‌ها (لیدها، بلاگ، FAQ، گالری، بنر، وضعیت) می‌سازه، توی KV ذخیره می‌کنه، و دانلودش می‌کنه.</p>
+                  <button class="btn btn-gold" onclick="triggerBackup()"><i class="bi bi-cloud-arrow-down"></i> ساخت و دانلود بک‌آپ</button>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header"><h3 class="card-title">بازگردانی از فایل بک‌آپ</h3></div>
+                <div class="card-body">
+                  <p class="text-danger small">هشدار: این عمل کل داده‌های فعلی رو با محتوای فایل جایگزین می‌کنه و برگشت‌ناپذیره.</p>
+                  <input type="file" class="form-control mb-3" id="restoreFile" accept=".json">
+                  <button class="btn btn-outline-danger" onclick="restoreBackup()"><i class="bi bi-cloud-upload"></i> بازگردانی</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ==================== صفحه‌ی ورود ==================== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h1><i class="bi bi-bolt"></i> بایت‌لب</h1>
+    <p>پنل مدیریت وب — ورود با رمز عبور</p>
+    <input type="password" class="form-control mb-2" id="loginPassword" placeholder="رمز عبور" onkeydown="if(event.key==='Enter')doLogin();">
+    <button class="btn btn-gold w-100 mt-2" onclick="doLogin()">ورود</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+
+<!-- ==================== مودال بلاگ ==================== -->
+<div class="modal" id="blogModal">
+  <div class="modal-dialog" style="max-width:640px">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">پست بلاگ</h5><button class="btn-close" data-bs-dismiss="modal">&times;</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="blogId">
+        <div class="mb-2"><label class="form-label">عنوان</label><input class="form-control" id="blogTitle" maxlength="150"></div>
+        <div class="mb-2"><label class="form-label">خلاصه</label><textarea class="form-control" id="blogExcerpt" rows="2" maxlength="400"></textarea></div>
+        <div class="mb-2"><label class="form-label">متن کامل</label><textarea class="form-control" id="blogContent" rows="8" maxlength="8000"></textarea></div>
+        <div class="row">
+          <div class="col-6 mb-2">
+            <label class="form-label">دسته</label>
+            <select class="form-select" id="blogTag">
+              <option>طراحی سایت</option>
+              <option>طراحی اپلیکیشن</option>
+              <option>خدمات کامپیوتر</option>
+              <option>نکات فنی</option>
+            </select>
+          </div>
+          <div class="col-6 mb-2">
+            <label class="form-label">وضعیت</label>
+            <select class="form-select" id="blogStatus">
+              <option value="draft">پیش‌نویس</option>
+              <option value="published">منتشرشده</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-2"><label class="form-label">لینک تصویر شاخص (اختیاری)</label><input class="form-control" id="blogImage" placeholder="https://…"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">انصراف</button>
+        <button class="btn btn-gold" onclick="saveBlogPost()">ذخیره</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== مودال نوشتن با AI ==================== -->
+<div class="modal" id="blogAIModal">
+  <div class="modal-dialog" style="max-width:480px">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title"><i class="bi bi-magic"></i> نوشتن پیش‌نویس با AI</h5><button class="btn-close" data-bs-dismiss="modal">&times;</button></div>
+      <div class="modal-body">
+        <div class="mb-2"><label class="form-label">موضوع (اختیاری — اگه خالی بذاری، AI خودش یه موضوع مرتبط با کار بایت‌لب انتخاب می‌کنه)</label><input class="form-control" id="aiTopic" placeholder="مثلاً: نکات امنیت وردپرس"></div>
+        <div class="mb-2"><label class="form-label">دسته پیشنهادی (اختیاری)</label>
+          <select class="form-select" id="aiTag">
+            <option value="">— بدون ترجیح —</option>
+            <option>طراحی سایت</option>
+            <option>طراحی اپلیکیشن</option>
+            <option>خدمات کامپیوتر</option>
+            <option>نکات فنی</option>
+          </select>
+        </div>
+        <div id="aiStatusBox" class="small text-muted"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">انصراف</button>
+        <button class="btn btn-gold" id="aiGenerateBtn" onclick="generateBlogAI()"><i class="bi bi-magic"></i> بساز</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== مودال FAQ ==================== -->
+<div class="modal" id="faqModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">سوال متداول</h5><button class="btn-close" data-bs-dismiss="modal">&times;</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="faqId">
+        <div class="mb-2"><label class="form-label">سوال</label><input class="form-control" id="faqQuestion" maxlength="300"></div>
+        <div class="mb-2"><label class="form-label">پاسخ</label><textarea class="form-control" id="faqAnswer" rows="4" maxlength="2000"></textarea></div>
+        <div class="mb-2"><label class="form-label">خدمت مرتبط</label>
+          <select class="form-select" id="faqService">
+            <option value="عمومی">عمومی</option>
+            <option value="طراحی سایت">طراحی سایت</option>
+            <option value="طراحی اپلیکیشن">طراحی اپلیکیشن</option>
+            <option value="خدمات کامپیوتر">خدمات کامپیوتر</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">انصراف</button>
+        <button class="btn btn-gold" onclick="saveFaq()">ذخیره</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== مودال گالری ==================== -->
+<div class="modal" id="galleryModal">
+  <div class="modal-dialog" style="max-width:560px">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">نمونه‌کار</h5><button class="btn-close" data-bs-dismiss="modal">&times;</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="galId">
+        <div class="mb-2"><label class="form-label">عنوان</label><input class="form-control" id="galTitle" maxlength="150"></div>
+        <div class="mb-2"><label class="form-label">توضیح</label><textarea class="form-control" id="galDescription" rows="2" maxlength="600"></textarea></div>
+        <div class="mb-2"><label class="form-label">لینک نمونه‌کار</label><input class="form-control" id="galUrl" placeholder="https://…"></div>
+        <div class="mb-2"><label class="form-label">لینک تصویر</label><input class="form-control" id="galImage" placeholder="https://…"></div>
+        <div class="row">
+          <div class="col-6 mb-2"><label class="form-label">نام سازنده</label><input class="form-control" id="galAuthorName"></div>
+          <div class="col-6 mb-2"><label class="form-label">راه ارتباطی سازنده</label><input class="form-control" id="galAuthorContact"></div>
+        </div>
+        <div class="row">
+          <div class="col-6 mb-2"><label class="form-label">دسته‌بندی</label><input class="form-control" id="galCategory" placeholder="مثلاً: طراحی سایت,کافه و رستوران"></div>
+          <div class="col-6 mb-2 d-flex align-items-end">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="galFeatured">
+              <label class="form-check-label" for="galFeatured">نمونه‌کار ویژه</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">انصراف</button>
+        <button class="btn btn-gold" onclick="saveGalleryItem()">ذخیره</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== مودال یادداشت لید ==================== -->
+<div class="modal" id="leadNoteModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">یادداشت لید</h5><button class="btn-close" data-bs-dismiss="modal">&times;</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="leadNoteId">
+        <div id="leadDetailBox" class="mb-3 small"></div>
+        <textarea class="form-control" id="leadNoteText" rows="4" placeholder="یادداشت…"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">انصراف</button>
+        <button class="btn btn-gold" onclick="saveLeadNote()">ذخیره یادداشت</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ============================================================
+   جایگزین سبک بوت‌استرپ مودال — بدون وابستگی به CDN خارجی
+   ============================================================ */
+const bootstrap = {
+  Modal: function(el){
+    this.el = el;
+    this.show = function(){ el.classList.add("show"); document.body.style.overflow = "hidden"; };
+    this.hide = function(){ el.classList.remove("show"); document.body.style.overflow = ""; };
+  }
+};
+document.addEventListener("click", function(e){
+  const dismiss = e.target.closest("[data-bs-dismiss='modal']");
+  if(dismiss){
+    const modalEl = dismiss.closest(".modal");
+    if(modalEl){ modalEl.classList.remove("show"); document.body.style.overflow = ""; }
+    return;
+  }
+  if(e.target.classList && e.target.classList.contains("modal")){
+    e.target.classList.remove("show");
+    document.body.style.overflow = "";
+  }
+});
+
+function toggleSidebar(force){
+  const open = typeof force === "boolean" ? force : !document.body.classList.contains("sidebar-open");
+  document.body.classList.toggle("sidebar-open", open);
+}
+
+/* ============================================================
+   تنظیمات پایه — این آدرس رو با آدرس واقعی Worker پنل مدیریت
+   (bytelab-admin-worker.js) جایگزین کن
+   ============================================================ */
+const API_BASE = "https://bytelab-admin.YOUR_SUBDOMAIN.workers.dev";
+const TOKEN_KEY = "bl_admin_token";
+const THEME_KEY = "bl_admin_theme";
+
+function getToken(){ try{ return localStorage.getItem(TOKEN_KEY); }catch(e){ return null; } }
+function setToken(t){ try{ if(t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+
+async function api(path, opts){
+  opts = opts || {};
+  const token = getToken();
+  const headers = Object.assign({ "Content-Type":"application/json" }, opts.headers||{});
+  if(token) headers["Authorization"] = "Bearer " + token;
+  const res = await fetch(API_BASE + "/api/admin" + path, Object.assign({}, opts, { headers }));
+  let data = {};
+  try{ data = await res.json(); }catch(e){}
+  if(res.status === 401){ setToken(null); showLogin(); throw new Error(data.error||"وارد نشدی."); }
+  if(!res.ok) throw new Error(data.error || "خطای ناشناخته");
+  return data;
+}
+
+function toast(msg, type){
+  const el = document.createElement("div");
+  el.className = "alert alert-" + (type||"success") + " shadow";
+  el.style.minWidth = "240px";
+  el.textContent = msg;
+  document.getElementById("toastWrap").appendChild(el);
+  setTimeout(()=>el.remove(), 3500);
+}
+function fmtDate(ts){ return ts ? new Date(ts).toLocaleDateString("fa-IR", {year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}) : "-"; }
+function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ---------------- حالت تاریک/روشن ---------------- */
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-rg-theme", theme);
+  const icon = document.querySelector("#themeToggleBtn i");
+  if(icon) icon.className = theme === "dark" ? "bi bi-sun" : "bi bi-moon-stars";
+}
+function toggleTheme(){
+  const current = document.documentElement.getAttribute("data-rg-theme") === "dark" ? "dark" : "light";
+  const next = current === "dark" ? "light" : "dark";
+  try{ localStorage.setItem(THEME_KEY, next); }catch(e){}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = "dark"; // بایت‌لب پیش‌فرض تاریکه
+  try{ saved = localStorage.getItem(THEME_KEY) || "dark"; }catch(e){}
+  applyTheme(saved);
+})();
+
+/* ---------------- ورود / خروج ---------------- */
+function showLogin(){ document.getElementById("loginScreen").style.display = "flex"; }
+function hideLogin(){ document.getElementById("loginScreen").style.display = "none"; }
+
+async function doLogin(){
+  const password = document.getElementById("loginPassword").value;
+  const errBox = document.getElementById("loginError");
+  errBox.textContent = "";
+  try{
+    const res = await fetch(API_BASE + "/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ password })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || "ورود ناموفق بود.");
+    setToken(data.token);
+    hideLogin();
+    boot();
+  }catch(e){ errBox.textContent = e.message; }
+}
+async function doLogout(){
+  try{ await api("/logout", { method:"POST" }); }catch(e){}
+  setToken(null);
+  location.reload();
+}
+
+/* ---------------- ناوبری بین صفحات ---------------- */
+function switchView(view){
+  document.querySelectorAll(".nav-view").forEach(x=>x.classList.toggle("active", x.dataset.view===view));
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById("view-"+view).classList.add("active");
+  loadView(view);
+}
+document.querySelectorAll(".nav-view").forEach(function(a){
+  a.addEventListener("click", function(e){
+    e.preventDefault();
+    switchView(this.dataset.view);
+    toggleSidebar(false);
+  });
+});
+
+function loadView(view){
+  if(view==="dashboard") loadDashboard();
+  if(view==="blog") loadBlog();
+  if(view==="faq") loadFaq();
+  if(view==="gallery") loadGallery();
+  if(view==="leads") loadLeads();
+  if(view==="banner") loadBanner();
+  if(view==="status") loadStatus();
+  if(view==="activity") loadActivity();
+}
+
+/* ---------------- داشبورد ---------------- */
+async function loadDashboard(){
+  try{
+    const s = await api("/stats");
+    document.getElementById("statLeadsToday").textContent = s.leads.today;
+    document.getElementById("statLeadsNew").textContent = s.leads.new;
+    document.getElementById("statLeadsTotal").textContent = s.leads.total;
+    document.getElementById("statLeadsContacted").textContent = s.leads.contacted;
+    document.getElementById("statBlogPublished").textContent = s.blog.published;
+    document.getElementById("statBlogTotal").textContent = s.blog.total;
+    document.getElementById("statBlogDraft").textContent = s.blog.draft;
+    document.getElementById("statFaqTotal").textContent = s.faq.total;
+    document.getElementById("statGalleryPending").textContent = s.portfolio.pending;
+    document.getElementById("statGalleryApproved").textContent = s.portfolio.approved;
+    document.getElementById("statGalleryFeatured").textContent = s.portfolio.featured;
+
+    const statusBadge = document.getElementById("dashStatusBadge");
+    statusBadge.textContent = s.status.online ? "آنلاین" : "آفلاین";
+    statusBadge.className = "badge " + (s.status.online ? "text-bg-success" : "text-bg-danger");
+
+    const bannerBadge = document.getElementById("dashBannerBadge");
+    bannerBadge.textContent = s.banner.enabled ? "روشن" : "خاموش";
+    bannerBadge.className = "badge " + (s.banner.enabled ? "text-bg-success" : "text-bg-secondary");
+  }catch(e){ toast(e.message, "danger"); }
+}
+
+/* ---------------- بلاگ ---------------- */
+let blogCache = [];
+async function loadBlog(){
+  try{
+    const data = await api("/blog");
+    blogCache = data.posts;
+    document.getElementById("blogBody").innerHTML = blogCache.map(p =>
+      "<tr><td class='fw-bold'>"+escapeHtml(p.title)+"</td><td class='small'>"+escapeHtml(p.tag||"-")+"</td>"+
+      "<td><span class='badge "+(p.status==="published"?"text-bg-success":"text-bg-secondary")+"'>"+(p.status==="published"?"منتشرشده":"پیش‌نویس")+"</span></td>"+
+      "<td class='small'>"+fmtDate(p.createdAt)+"</td>"+
+      "<td class='text-end'>"+
+        "<button class='btn btn-sm btn-outline-secondary' onclick='toggleBlogStatus(\""+p.id+"\",\""+(p.status==="published"?"draft":"published")+"\")'>"+(p.status==="published"?"بازگشت به پیش‌نویس":"انتشار")+"</button> "+
+        "<button class='btn btn-sm btn-outline-secondary' onclick='openBlogModal(\""+p.id+"\")'><i class='bi bi-pencil'></i></button> "+
+        "<button class='btn btn-sm btn-outline-danger' onclick='deleteBlogPost(\""+p.id+"\")'><i class='bi bi-trash'></i></button>"+
+      "</td></tr>"
+    ).join("") || "<tr><td colspan='5' class='text-center text-muted py-4'>پستی ثبت نشده</td></tr>";
+  }catch(e){ toast(e.message, "danger"); }
+}
+let blogModal;
+function openBlogModal(id, prefill){
+  blogModal = blogModal || new bootstrap.Modal(document.getElementById("blogModal"));
+  const p = id ? blogCache.find(x=>x.id===id) : null;
+  document.getElementById("blogId").value = id || "";
+  document.getElementById("blogTitle").value = (p && p.title) || (prefill && prefill.title) || "";
+  document.getElementById("blogExcerpt").value = (p && p.excerpt) || (prefill && prefill.excerpt) || "";
+  document.getElementById("blogContent").value = (p && p.content) || (prefill && prefill.content) || "";
+  document.getElementById("blogTag").value = (p && p.tag) || (prefill && prefill.tag) || "نکات فنی";
+  document.getElementById("blogStatus").value = (p && p.status) || "draft";
+  document.getElementById("blogImage").value = (p && p.image) || "";
+  blogModal.show();
+}
+async function saveBlogPost(){
+  const id = document.getElementById("blogId").value;
+  const payload = {
+    id: id || undefined,
+    title: document.getElementById("blogTitle").value.trim(),
+    excerpt: document.getElementById("blogExcerpt").value.trim(),
+    content: document.getElementById("blogContent").value.trim(),
+    tag: document.getElementById("blogTag").value,
+    status: document.getElementById("blogStatus").value,
+    image: document.getElementById("blogImage").value.trim(),
+  };
+  if(!payload.title || !payload.content) return toast("عنوان و متن الزامیه.", "warning");
+  try{ await api("/blog", { method:"POST", body: JSON.stringify(payload) }); blogModal.hide(); toast("ذخیره شد."); loadBlog(); }
+  catch(e){ toast(e.message, "danger"); }
+}
+async function toggleBlogStatus(id, status){
+  try{ await api("/blog/status", { method:"POST", body: JSON.stringify({id, status}) }); toast("وضعیت تغییر کرد."); loadBlog(); }
+  catch(e){ toast(e.message, "danger"); }
+}
+async function deleteBlogPost(id){
+  if(!confirm("این پست حذف بشه؟")) return;
+  try{ await api("/blog/delete", { method:"POST", body: JSON.stringify({id}) }); toast("حذف شد."); loadBlog(); }
+  catch(e){ toast(e.message, "danger"); }
+}
+
+/* ---------------- نوشتن بلاگ با AI ---------------- */
+let blogAIModal;
+function openBlogAIModal(){
+  blogAIModal = blogAIModal || new bootstrap.Modal(document.getElementById("blogAIModal"));
+  document.getElementById("aiTopic").value = "";
+  document.getElementById("aiTag").value = "";
+  document.getElementById("aiStatusBox").textContent = "";
+  blogAIModal.show();
+}
+async function generateBlogAI(){
+  const btn = document.getElementById("aiGenerateBtn");
+  const statusBox = document.getElementById("aiStatusBox");
+  const topic = document.getElementById("aiTopic").value.trim();
+  const tag = document.getElementById("aiTag").value;
+  btn.disabled = true;
+  statusBox.textContent = "در حال نوشتن پیش‌نویس با AI… ممکنه چند ثانیه طول بکشه.";
+  try{
+    const data = await api("/blog/ai", { method:"POST", body: JSON.stringify({topic, tag}) });
+    blogAIModal.hide();
+    openBlogModal(null, data.draft);
+    toast("پیش‌نویس ساخته شد — قبل از ذخیره بازبینی و ویرایشش کن.");
+  }catch(e){ statusBox.textContent = e.message; }
+  btn.disabled = false;
+}
+
+/* ---------------- FAQ ---------------- */
+let faqCache = [];
+async function loadFaq(){
+  try{
+    const data = await api("/faq");
+    faqCache = data.faqs;
+    document.getElementById("faqBody").innerHTML = faqCache.map(f =>
+      "<tr><td>"+escapeHtml(f.question)+"</td><td class='small'>"+escapeHtml(f.service||"-")+"</td>"+
+      "<td class='text-end'>"+
+        "<button class='btn btn-sm btn-outline-secondary' onclick='openFaqModal(\""+f.id+"\")'><i class='bi bi-pencil'></i></button> "+
+        "<button class='btn btn-sm btn-outline-danger' onclick='deleteFaq(\""+f.id+"\")'><i class='bi bi-trash'></i></button>"+
+      "</td></tr>"
+    ).join("") || "<tr><td colspan='3' class='text-center text-muted py-4'>سوالی ثبت نشده</td></tr>";
+  }catch(e){ toast(e.message, "danger"); }
+}
+let faqModal;
+function openFaqModal(id){
+  faqModal = faqModal || new bootstrap.Modal(document.getElementById("faqModal"));
+  const f = id ? faqCache.find(x=>x.id===id) : null;
+  document.getElementById("faqId").value = id || "";
+  document.getElementById("faqQuestion").value = (f && f.question) || "";
+  document.getElementById("faqAnswer").value = (f && f.answer) || "";
+  document.getElementById("faqService").value = (f && f.service) || "عمومی";
+  faqModal.show();
+}
+async function saveFaq(){
+  const id = document.getElementById("faqId").value;
+  const payload = {
+    id: id || undefined,
+    question: document.getElementById("faqQuestion").value.trim(),
+    answer: document.getElementById("faqAnswer").value.trim(),
+    service: document.getElementById("faqService").value,
+  };
+  if(!payload.question || !payload.answer) return toast("سوال و پاسخ الزامیه.", "warning");
+  try{ await api("/faq", { method:"POST", body: JSON.stringify(payload) }); faqModal.hide(); toast("ذخیره شد."); loadFaq(); }
+  catch(e){ toast(e.message, "danger"); }
+}
+async function deleteFaq(id){
+  if(!confirm("این سوال حذف بشه؟")) return;
+  try{ await api("/faq/delete", { method:"POST", body: JSON.stringify({id}) }); toast("حذف شد."); loadFaq(); }
+  catch(e){ toast(e.message, "danger"); }
+}
+
+/* ---------------- گالری ---------------- */
+let galleryCache = [];
+let galleryFilter = "all";
+function setGalleryFilter(status){
+  galleryFilter = status;
+  document.querySelectorAll("#galleryFilterTabs button").forEach(b=>{
+    b.className = "btn btn-sm " + (b.dataset.status===status ? "btn-gold" : "btn-outline-secondary");
+  });
+  loadGallery();
+}
+async function loadGallery(){
+  try{
+    const qs = galleryFilter && galleryFilter!=="all" ? ("?status="+galleryFilter) : "";
+    const data = await api("/gallery"+qs);
+    galleryCache = data.items;
+    document.getElementById("galleryBody").innerHTML = galleryCache.map(g =>
+      "<tr><td class='fw-bold'>"+escapeHtml(g.title)+"</td><td class='small'>"+escapeHtml(g.authorName||"-")+"</td>"+
+      "<td class='small'>"+escapeHtml(g.category||"-")+"</td>"+
+      "<td><span class='badge "+galleryStatusClass(g.status)+"'>"+galleryStatusLabel(g.status)+"</span></td>"+
+      "<td>"+(g.featured ? "<i class='bi bi-star-fill text-gold'></i>" : "-")+"</td>"+
+      "<td class='text-end'>"+
+        (g.status!=="approved" ? "<button class='btn btn-sm btn-outline-secondary' onclick='setGalleryStatus(\""+g.id+"\",\"approved\")'>تایید</button> " : "")+
+        (g.status!=="rejected" ? "<button class='btn btn-sm btn-outline-secondary' onclick='setGalleryStatus(\""+g.id+"\",\"rejected\")'>رد</button> " : "")+
+        "<button class='btn btn-sm btn-outline-secondary' onclick='openGalleryModal(\""+g.id+"\")'><i class='bi bi-pencil'></i></button> "+
+        "<button class='btn btn-sm btn-outline-danger' onclick='deleteGalleryItem(\""+g.id+"\")'><i class='bi bi-trash'></i></button>"+
+      "</td></tr>"
+    ).join("") || "<tr><td colspan='6' class='text-center text-muted py-4'>نمونه‌کاری ثبت نشده</td></tr>";
+  }catch(e){ toast(e.message, "danger"); }
+}
+function galleryStatusLabel(s){ return {approved:"تایید‌شده", pending:"در انتظار", rejected:"رد‌شده"}[s] || s; }
+function galleryStatusClass(s){ return {approved:"text-bg-success", pending:"text-bg-warning", rejected:"text-bg-danger"}[s] || "text-bg-secondary"; }
+let galleryModal;
+function openGalleryModal(id){
+  galleryModal = galleryModal || new bootstrap.Modal(document.getElementById("galleryModal"));
+  const g = id ? galleryCache.find(x=>x.id===id) : null;
+  document.getElementById("galId").value = id || "";
+  document.getElementById("galTitle").value = (g && g.title) || "";
+  document.getElementById("galDescription").value = (g && g.description) || "";
+  document.getElementById("galUrl").value = (g && g.url) || "";
+  document.getElementById("galImage").value = (g && g.image) || "";
+  document.getElementById("galAuthorName").value = (g && g.authorName) || "";
+  document.getElementById("galAuthorContact").value = (g && g.authorContact) || "";
+  document.getElementById("galCategory").value = (g && g.category) || "";
+  document.getElementById("galFeatured").checked = !!(g && g.featured);
+  galleryModal.show();
+}
+async function saveGalleryItem(){
+  const id = document.getElementById("galId").value;
+  const payload = {
+    id: id || undefined,
+    title: document.getElementById("galTitle").value.trim(),
+    description: document.getElementById("galDescription").value.trim(),
+    url: document.getElementById("galUrl").value.trim(),
+    image: document.getElementById("galImage").value.trim(),
+    authorName: document.getElementById("galAuthorName").value.trim(),
+    authorContact: document.getElementById("galAuthorContact").value.trim(),
+    category: document.getElementById("galCategory").value.trim(),
+    featured: document.getElementById("galFeatured").checked,
+  };
+  if(!payload.title) return toast("عنوان الزامیه.", "warning");
+  try{ await api("/gallery", { method:"POST", body: JSON.stringify(payload) }); galleryModal.hide(); toast("ذخیره شد."); loadGallery(); }
+  catch(e){ toast(e.message, "danger"); }
+}
+async function setGalleryStatus(id, status){
+  try{ await api("/gallery/status", { method:"POST", body: JSON.stringify({id, status}) }); toast("وضعیت تغییر کرد."); loadGallery(); }
+  catch(e){ toast(e.message, "danger"); }
+}
+async function deleteGalleryItem(id){
+  if(!confirm("این نمونه‌کار حذف بشه؟")) return;
+  try{ await api("/gallery/delete", { method:"POST", body: JSON.stringify({id}) }); toast("حذف شد."); loadGallery(); }
+  catch(e){ toast(e.message, "danger"); }
+}
+
+/* ---------------- لیدها ---------------- */
+let leadsCache = [];
+async function loadLeads(){
+  try{ const data = await api("/leads"); leadsCache = data.leads; renderLeadsTable(); }
+  catch(e){ toast(e.message, "danger"); }
+}
+function leadStatusLabel(s){ return {new:"جدید", contacted:"تماس‌گرفته‌شده", later:"بعداً", rejected:"رد‌شده"}[s] || s; }
+function leadStatusClass(s){ return {new:"text-bg-warning", contacted:"text-bg-success", later:"text-bg-info", rejected:"text-bg-secondary"}[s] || "text-bg-secondary"; }
+function renderLeadsTable(){
+  const q = (document.getElementById("leadSearchInput").value || "").trim().toLowerCase();
+  const statusFilter = document.getElementById("leadStatusFilter").value;
+  let list = leadsCache;
+  if(statusFilter !== "all") list = list.filter(l=>l.status===statusFilter);
+  if(q) list = list.filter(l => [l.name,l.phone,l.email,l.service,l.message].filter(Boolean).some(f=>String(f).toLowerCase().includes(q)));
+  document.getElementById("leadsBody").innerHTML = list.map(l =>
+    "<tr><td class='fw-bold'>"+escapeHtml(l.name||"-")+"</td><td>"+escapeHtml(l.phone||"-")+"</td>"+
+    "<td class='small'>"+escapeHtml(l.service||"-")+"</td><td class='small'>"+escapeHtml(l.type||"-")+"</td>"+
+    "<td><span class='badge "+leadStatusClass(l.status)+"'>"+leadStatusLabel(l.status)+"</span></td>"+
+    "<td class='small'>"+fmtDate(l.createdAt)+"</td>"+
+    "<td class='text-end'>"+
+      "<button class='btn btn-sm btn-outline-secondary' onclick='setLeadStatus(\""+l.id+"\",\"contacted\")'>تماس گرفتم</button> "+
+      "<button class='btn btn-sm btn-outline-secondary' onclick='openLeadNoteModal(\""+l.id+"\")'><i class='bi bi-pencil'></i> یادداشت</button> "+
+      "<button class='btn btn-sm btn-outline-danger' onclick='deleteLead(\""+l.id+"\")'><i class='bi bi-trash'></i></button>"+
+    "</td></tr>"
+  ).join("") || "<tr><td colspan='7' class='text-center text-muted py-4'>لیدی پیدا نشد</td></tr>";
+}
+async function setLeadStatus(id, status){
+  try{ await api("/leads/status", { method:"POST", body: JSON.stringify({id, status}) }); toast("وضعیت تغییر کرد."); loadLeads(); }
+  catch(e){ toast(e.message, "danger"); }
+}
+async function deleteLead(id){
+  if(!confirm("این لید حذف بشه؟")) return;
+  try{ await api("/leads/delete", { method:"POST", body: JSON.stringify({id}) }); toast("حذف شد."); loadLeads(); }
+  catch(e){ toast(e.message, "danger"); }
+}
+let leadNoteModal;
+function openLeadNoteModal(id){
+  leadNoteModal = leadNoteModal || new bootstrap.Modal(document.getElementById("leadNoteModal"));
+  const l = leadsCache.find(x=>x.id===id);
+  document.getElementById("leadNoteId").value = id;
+  document.getElementById("leadNoteText").value = (l && l.note) || "";
+  document.getElementById("leadDetailBox").innerHTML = l ?
+    "نام: "+escapeHtml(l.name||"-")+"<br>شماره: "+escapeHtml(l.phone||"-")+"<br>خدمت: "+escapeHtml(l.service||"-")+
+    (l.message ? "<br>پیام: "+escapeHtml(l.message) : "") : "";
+  leadNoteModal.show();
+}
+async function saveLeadNote(){
+  const id = document.getElementById("leadNoteId").value;
+  const note = document.getElementById("leadNoteText").value.trim();
+  try{ await api("/leads/note", { method:"POST", body: JSON.stringify({id, note}) }); leadNoteModal.hide(); toast("یادداشت ذخیره شد."); loadLeads(); }
+  catch(e){ toast(e.message, "danger"); }
+}
+function exportLeadsCsv(){
+  if(!leadsCache.length) return toast("لیدی برای خروجی نیست.", "warning");
+  const headers = ["نام","شماره","ایمیل","خدمت","نوع","وضعیت","تاریخ","یادداشت"];
+  const rows = leadsCache.map(l => [l.name,l.phone,l.email,l.service,l.type,leadStatusLabel(l.status),fmtDate(l.createdAt),l.note]
+    .map(v => '"' + String(v||"").replace(/"/g,'""') + '"').join(","));
+  const csv = "\uFEFF" + headers.join(",") + "\n" + rows.join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "bytelab-leads-" + new Date().toISOString().slice(0,10) + ".csv";
+  link.click();
+}
+
+/* ---------------- بنر ---------------- */
+async function loadBanner(){
+  try{
+    const data = await api("/banner");
+    document.getElementById("bnEnabled").checked = !!data.banner.enabled;
+    document.getElementById("bnText").value = data.banner.text || "";
+    document.getElementById("bnLink").value = data.banner.link || "";
+    document.getElementById("bnStyle").value = data.banner.style || "info";
+  }catch(e){ toast(e.message, "danger"); }
+}
+async function saveBanner(){
+  const payload = {
+    enabled: document.getElementById("bnEnabled").checked,
+    text: document.getElementById("bnText").value.trim(),
+    link: document.getElementById("bnLink").value.trim(),
+    style: document.getElementById("bnStyle").value,
+  };
+  try{ await api("/banner", { method:"POST", body: JSON.stringify(payload) }); toast("بنر ذخیره شد."); }
+  catch(e){ toast(e.message, "danger"); }
+}
+
+/* ---------------- وضعیت آنلاین ---------------- */
+let currentStatus = { online: true };
+async function loadStatus(){
+  try{
+    const data = await api("/status");
+    currentStatus = data.status;
+    renderStatusView();
+  }catch(e){ toast(e.message, "danger"); }
+}
+function renderStatusView(){
+  const label = document.getElementById("statusCurrentLabel");
+  label.textContent = currentStatus.online ? "🟢 آنلاین" : "🔴 آفلاین";
+  document.getElementById("statusToggleBtn").textContent = currentStatus.online ? "تغییر به آفلاین" : "تغییر به آنلاین";
+}
+async function toggleStatus(){
+  try{
+    const data = await api("/status", { method:"POST", body: JSON.stringify({ online: !currentStatus.online }) });
+    currentStatus = data.status;
+    renderStatusView();
+    toast("وضعیت تغییر کرد.");
+  }catch(e){ toast(e.message, "danger"); }
+}
+
+/* ---------------- لاگ فعالیت‌ها ---------------- */
+function activityActionIcon(action){
+  if(action.indexOf("حذف")===0) return "bi-trash text-danger";
+  if(action.indexOf("جدید")>-1) return "bi-plus-circle text-success";
+  if(action.indexOf("ورود")===0) return "bi-box-arrow-in-left text-gold";
+  if(action.indexOf("بک‌آپ")>-1 || action.indexOf("بازگردانی")>-1) return "bi-cloud-arrow-down text-info";
+  return "bi-pencil-square text-gold";
+}
+async function loadActivity(){
+  try{
+    const data = await api("/activity");
+    document.getElementById("activityBody").innerHTML = data.logs.map(l =>
+      "<div class='rg-activity-item'><div class='rg-activity-dot'></div><div class='rg-activity-body'>"+
+        "<div><i class='bi "+activityActionIcon(l.action)+" me-1'></i><strong>"+escapeHtml(l.action)+"</strong></div>"+
+        (l.detail ? "<div class='small'>"+escapeHtml(l.detail)+"</div>" : "")+
+        "<small>"+fmtDate(l.time)+"</small></div></div>"
+    ).join("") || "<div class='text-center text-muted py-4'>هنوز فعالیتی ثبت نشده</div>";
+  }catch(e){ toast(e.message, "danger"); }
+}
+
+/* ---------------- بک‌آپ ---------------- */
+async function triggerBackup(){
+  try{
+    const data = await api("/backup", { method:"POST" });
+    const json = JSON.stringify(data.payload, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = data.filename || "bytelab-backup.json";
+    link.click();
+    toast("بک‌آپ ساخته و دانلود شد.");
+  }catch(e){ toast(e.message, "danger"); }
+}
+async function restoreBackup(){
+  const input = document.getElementById("restoreFile");
+  const file = input.files && input.files[0];
+  if(!file) return toast("اول یه فایل بک‌آپ JSON انتخاب کن.", "warning");
+  let text;
+  try{ text = await file.text(); JSON.parse(text); }
+  catch(e){ return toast("فایل انتخاب‌شده JSON معتبر نیست.", "danger"); }
+  if(!confirm("مطمئنی؟ کل داده‌های فعلی (لیدها، بلاگ، FAQ، گالری، بنر، وضعیت) پاک و با این فایل جایگزین می‌شه.")) return;
+  if(!confirm("یه بار دیگه تأیید کن — این آخرین هشداره. ادامه بدم؟")) return;
+  try{
+    await api("/backup/restore", { method:"POST", body: text });
+    toast("بازگردانی با موفقیت انجام شد.");
+    input.value = "";
+    loadDashboard();
+  }catch(e){ toast(e.message, "danger"); }
+}
+
+/* ---------------- ساعت بالای صفحه ---------------- */
+function tickClock(){
+  document.getElementById("clockBox").textContent = new Date().toLocaleString("fa-IR", { dateStyle:"medium", timeStyle:"short" });
+}
+setInterval(tickClock, 30000);
+
+/* ---------------- بوت اولیه ---------------- */
+function boot(){
+  tickClock();
+  loadDashboard();
+}
+
+if(getToken()){ hideLogin(); boot(); } else { showLogin(); }
+</script>
+</body>
+</html>
