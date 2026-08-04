@@ -196,12 +196,23 @@
     const res = await fetch(AI_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: prompt })
+      // ورکر bytelab-ai این فرمت رو می‌خواد: { system, messages:[{role,content}] }
+      // (دقیقاً همون چیزی که chat.html و chat-widget.html می‌فرستن)
+      body: JSON.stringify({
+        system: 'تو دستیار نوشتن محتوای فارسی برای سایت بایت‌لب هستی. فقط خروجی خواسته‌شده رو برگردون، بدون توضیح اضافه.',
+        messages: [{ role: 'user', content: prompt }]
+      })
     });
-    if (!res.ok) throw new Error('AI_REQUEST_FAILED');
-    const data = await res.json();
+    const raw = await res.text();
+    let data;
+    try { data = JSON.parse(raw); } catch (e) { throw new Error('AI_BAD_RESPONSE'); }
+    if (!res.ok || data.error) throw new Error(data.error || 'AI_REQUEST_FAILED');
+    // پاسخ ورکر به سبک Anthropic هست: { content: [{ type:'text', text:'...' }] }
+    if (data.content && Array.isArray(data.content) && data.content[0] && data.content[0].text) {
+      return data.content[0].text.toString().trim();
+    }
     if (typeof data === 'string') return data.trim();
-    return (data.reply || data.response || data.text || data.content || data.message || '').toString().trim();
+    return (data.reply || data.response || data.text || data.message || '').toString().trim();
   }
 
   /* ---------------------------------------------------------------------
