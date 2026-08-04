@@ -193,6 +193,19 @@
   .pf-title{font-weight:700;font-size:17px;margin-bottom:6px;}
   .pf-desc{color:var(--muted);font-size:14px;}
 
+  /* blog preview */
+  .blog-preview{padding:100px 0;}
+  .bp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .bp-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 26px;display:block;transition:border-color .25s ease, transform .25s ease;
+  }
+  .bp-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
+  .bp-meta{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--violet);margin-bottom:14px;display:block;}
+  .bp-title{font-size:18px;font-weight:700;margin-bottom:10px;line-height:1.5;}
+  .bp-desc{color:var(--muted);font-size:14px;margin-bottom:16px;}
+  .bp-link{color:var(--cyan);font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;}
+
   /* stats band */
   .stats{padding:70px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
   .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;}
@@ -252,7 +265,7 @@
   }
 
   @media (max-width: 900px){
-    .svc-grid,.pf-grid{grid-template-columns:1fr;}
+    .svc-grid,.pf-grid,.bp-grid{grid-template-columns:1fr;}
     .proc-grid{grid-template-columns:1fr 1fr;row-gap:36px;}
     .proc-grid::before{display:none;}
     .stats-grid{grid-template-columns:1fr 1fr;row-gap:28px;}
@@ -460,6 +473,37 @@
   </div>
 </section>
 
+<section class="blog-preview" id="blog-preview">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">بلاگ</span>
+      <h2 class="sec-title">تازه‌ترین یادداشت‌ها</h2>
+      <p class="sec-sub">نکات عملی درباره طراحی سایت، اپلیکیشن و نگهداری سیستم؛ تازه‌ترین مطالب بلاگ بایت‌لب.</p>
+    </div>
+    <div class="bp-grid" id="blogPreviewGrid">
+      <!-- کارت‌های ثابت پیش‌فرض؛ اگه پست‌های دینامیک از تلگرام لود بشن، جایگزین همین‌ها می‌شن -->
+      <a href="hazine-tarahi-site.html" class="bp-card reveal">
+        <span class="bp-meta">طراحی سایت</span>
+        <div class="bp-title">هزینه طراحی سایت چطور محاسبه می‌شود؟</div>
+        <div class="bp-desc">عوامل موثر بر قیمت طراحی سایت و اینکه چطور یک برآورد واقع‌بینانه بگیرید.</div>
+        <span class="bp-link">ادامه مطلب ←</span>
+      </a>
+      <a href="app-ekhtesasi.html" class="bp-card reveal">
+        <span class="bp-meta">طراحی اپلیکیشن</span>
+        <div class="bp-title">چه زمانی کسب‌وکار شما به اپلیکیشن اختصاصی نیاز دارد؟</div>
+        <div class="bp-desc">نشانه‌هایی که می‌گویند وقت ساخت اپلیکیشن اختصاصی رسیده.</div>
+        <span class="bp-link">ادامه مطلب ←</span>
+      </a>
+      <a href="blog.html" class="bp-card reveal">
+        <span class="bp-meta">بایت‌لب</span>
+        <div class="bp-title">همه یادداشت‌های بلاگ رو ببین</div>
+        <div class="bp-desc">راهنما و نکات بیشتر درباره طراحی سایت، اپلیکیشن و خدمات کامپیوتر.</div>
+        <span class="bp-link">مشاهده بلاگ ←</span>
+      </a>
+    </div>
+  </div>
+</section>
+
 <section class="stats">
   <div class="wrap stats-grid">
     <div class="reveal">
@@ -585,6 +629,31 @@
   }
   window.addEventListener('load', scaleLivePreviews);
   window.addEventListener('resize', scaleLivePreviews);
+
+  // --- ۳ پست آخر بلاگ رو از همون سرور تلگرام می‌گیریم؛ اگه چیزی نیومد، کارت‌های ثابت بالا می‌مونن ---
+  (function loadBlogPreview(){
+    const grid = document.getElementById('blogPreviewGrid');
+    if(!grid) return;
+    function escapeHTML(str){
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+    fetch('https://bytelab-telegram.bytelab.workers.dev/api/blog')
+      .then(r => r.json())
+      .then(res => {
+        const posts = (res && res.posts) || [];
+        if(posts.length === 0) return;
+        grid.innerHTML = posts.slice(0, 3).map(p => `
+          <a href="blog-post.html?id=${encodeURIComponent(p.id)}" class="bp-card reveal in">
+            <span class="bp-meta">${escapeHTML(p.tag || 'بایت‌لب')}</span>
+            <div class="bp-title">${escapeHTML(p.title)}</div>
+            <div class="bp-desc">${escapeHTML(p.excerpt || '')}</div>
+            <span class="bp-link">ادامه مطلب ←</span>
+          </a>`).join('');
+      })
+      .catch(() => { /* اگه لود نشد، کارت‌های ثابت همون‌طور می‌مونن */ });
+  })();
 </script>
   <script src="header.js"></script>
 </body>
