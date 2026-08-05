@@ -274,6 +274,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     { href: "tarahi-site.html", text: "طراحی سایت", match: ["tarahi-site.html"] },
     { href: "tarahi-app.html", text: "طراحی اپلیکیشن", match: ["tarahi-app.html"] },
     { href: "khadamat-computer.html", text: "خدمات کامپیوتر", match: ["khadamat-computer.html"] },
+    { href: "playground.html", text: "پلی‌گراند کد", match: ["playground.html"] },
     { href: "blog.html", text: "بلاگ", match: ["blog.html", "hazine-tarahi-site.html", "app-ekhtesasi.html"] },
     { href: "telegram/contact.html", text: "تماس", match: [] },
     { href: "account.html", text: "حساب کاربری", match: ["account.html", "profile.html", "favorites.html"] }
