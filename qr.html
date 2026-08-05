@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>QR کد ساز | بایت‌لب</title>
+<meta name="description" content="لینک، شماره تماس، تلگرام یا هر متنی رو به QR کد با رنگ برند خودت تبدیل کن — رایگان و آنی.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --ink:#070b12;
+    --panel:#0f1620;
+    --panel-2:#141d2b;
+    --line:#1e2a38;
+    --cyan:#4df0c9;
+    --violet:#9c7bff;
+    --paper:#eaf0f4;
+    --muted:#7c8b9c;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{
+    background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;
+    line-height:1.7;overflow-x:hidden;width:100%;min-height:100vh;
+    padding:88px 24px 60px;
+  }
+  .wrap{max-width:620px;margin:0 auto;}
+  header.page-header{margin-bottom:48px;}
+  .sec-eyebrow{
+    font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:13px;
+    color:var(--violet);letter-spacing:.02em;margin-bottom:14px;display:block;
+  }
+  h1.sec-title{font-size:clamp(26px,3.6vw,40px);font-weight:800;}
+  .sec-sub{color:var(--muted);margin-top:14px;font-size:16px;}
+
+  .card{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);padding:32px 26px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+    margin-bottom:16px;
+  }
+
+  .tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+  .tab{
+    flex:1;min-width:70px;text-align:center;
+    background:var(--panel-2);border:1px solid var(--line);
+    border-radius:10px;padding:9px 6px;font-size:13px;cursor:pointer;
+    color:var(--muted);transition:all .2s ease;
+  }
+  .tab.active{
+    background:var(--cyan);color:var(--ink);font-weight:800;border-color:transparent;
+  }
+  .tab:hover:not(.active){border-color:var(--cyan);}
+
+  label{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px;}
+  input[type=text], textarea{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:12px;padding:12px 14px;color:var(--paper);
+    font-family:inherit;font-size:14.5px;resize:vertical;
+  }
+  input[type=text]:focus, textarea:focus{outline:2px solid var(--cyan);border-color:var(--cyan);}
+
+  .color-row{display:flex;gap:14px;margin-top:14px;}
+  .color-item{flex:1;text-align:center;}
+  .color-item input[type=color]{
+    width:100%;height:44px;border:1px solid var(--line);
+    border-radius:10px;background:var(--panel-2);cursor:pointer;
+  }
+  .color-item span{display:block;font-size:12px;color:var(--muted);margin-top:6px;}
+
+  .presets{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .preset{
+    width:34px;height:34px;border-radius:50%;cursor:pointer;
+    border:2px solid var(--line);transition:all .2s ease;
+  }
+  .preset:hover{border-color:var(--cyan);transform:scale(1.1);}
+
+  button.generate{
+    width:100%;margin-top:18px;
+    background:var(--cyan);border:none;border-radius:12px;padding:14px;
+    color:var(--ink);font-weight:800;font-family:inherit;font-size:15px;
+    cursor:pointer;transition:transform .2s ease;
+  }
+  button.generate:hover{transform:translateY(-2px);}
+
+  #qrResult{display:none;text-align:center;}
+  #qrCanvasWrap{
+    background:#fff;border-radius:16px;padding:20px;
+    display:inline-block;margin-top:6px;
+  }
+  .actions{display:flex;gap:10px;margin-top:16px;}
+  .actions button{
+    flex:1;background:var(--panel-2);border:1px solid var(--line);
+    color:var(--paper);border-radius:12px;padding:12px;font-family:inherit;
+    font-size:14px;cursor:pointer;transition:all .2s ease;
+  }
+  .actions button:hover{border-color:var(--cyan);color:var(--cyan);}
+  .actions button:first-child{
+    background:var(--cyan);color:var(--ink);font-weight:800;border:none;
+  }
+  .actions button:first-child:hover{transform:translateY(-2px);}
+  .hint{color:var(--muted);font-size:12px;margin-top:8px;text-align:center;}
+  @media (max-width:768px){
+    body{padding:88px 16px 60px;}
+    .card{padding:20px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page-header">
+    <span class="sec-eyebrow">📱 ابزار رایگان</span>
+    <h1 class="sec-title">QR کد ساز</h1>
+    <p class="sec-sub">برای کارت ویزیت، استند مغازه یا پک محصول — با رنگ دلخواه خودت.</p>
+  </header>
+
+  <div class="card">
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-type="url">لینک</div>
+      <div class="tab" data-type="tel">شماره تماس</div>
+      <div class="tab" data-type="telegram">تلگرام</div>
+      <div class="tab" data-type="text">متن آزاد</div>
+    </div>
+
+    <div id="fieldArea">
+      <label id="fieldLabel">آدرس سایت</label>
+      <input type="text" id="fieldInput" placeholder="example.com" inputmode="url">
+    </div>
+
+    <label>رنگ QR و پس‌زمینه</label>
+    <div class="color-row">
+      <div class="color-item">
+        <input type="color" id="fgColor" value="#070b12">
+        <span>رنگ QR</span>
+      </div>
+      <div class="color-item">
+        <input type="color" id="bgColor" value="#ffffff">
+        <span>پس‌زمینه</span>
+      </div>
+    </div>
+    <div class="presets" id="presets"></div>
+
+    <button class="generate" id="genBtn">ساخت QR کد</button>
+  </div>
+
+  <div class="card" id="qrResult">
+    <div style="text-align:center;">
+      <div id="qrCanvasWrap"></div>
+      <div class="actions">
+        <button id="downloadBtn">دانلود PNG</button>
+        <button id="copyBtn">کپی لینک</button>
+      </div>
+      <div class="hint">برای چاپ روی کارت ویزیت یا استند، فایل دانلودی مناسب است.</div>
+    </div>
+  </div>
+</div>
+
+<script src="header.js"></script>
+<script>
+const tabs = document.querySelectorAll('.tab');
+const fieldLabel = document.getElementById('fieldLabel');
+const fieldInput = document.getElementById('fieldInput');
+let currentType = 'url';
+
+const typeConfig = {
+  url: { label: 'آدرس سایت', placeholder: 'example.com', inputmode: 'url' },
+  tel: { label: 'شماره تماس', placeholder: '09123456789', inputmode: 'tel' },
+  telegram: { label: 'آیدی تلگرام', placeholder: 'bytelab', inputmode: 'text' },
+  text: { label: 'متن دلخواه', placeholder: 'هر متنی که می‌خوای...', inputmode: 'text' }
+};
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentType = tab.dataset.type;
+    const cfg = typeConfig[currentType];
+    fieldLabel.textContent = cfg.label;
+    fieldInput.placeholder = cfg.placeholder;
+    fieldInput.value = '';
+  });
+});
+
+const presetColors = ['#070b12', '#4df0c9', '#9c7bff', '#0f1620', '#000000'];
+const presetsWrap = document.getElementById('presets');
+presetColors.forEach(c => {
+  const d = document.createElement('div');
+  d.className = 'preset';
+  d.style.background = c;
+  d.addEventListener('click', () => { document.getElementById('fgColor').value = c; });
+  presetsWrap.appendChild(d);
+});
+
+function buildPayload() {
+  const v = fieldInput.value.trim();
+  if (!v) return null;
+  if (currentType === 'url') {
+    return /^https?:\/\//i.test(v) ? v : 'https://' + v;
+  }
+  if (currentType === 'tel') {
+    return 'tel:' + v.replace(/\s+/g, '');
+  }
+  if (currentType === 'telegram') {
+    const handle = v.replace(/^@/, '');
+    return 'https://t.me/' + handle;
+  }
+  return v;
+}
+
+let currentQR = null;
+
+document.getElementById('genBtn').addEventListener('click', () => {
+  const payload = buildPayload();
+  if (!payload) {
+    fieldInput.focus();
+    fieldInput.style.borderColor = '#ef4444';
+    setTimeout(() => fieldInput.style.borderColor = '', 1200);
+    return;
+  }
+
+  const wrap = document.getElementById('qrCanvasWrap');
+  wrap.innerHTML = '';
+
+  currentQR = new QRCode(wrap, {
+    text: payload,
+    width: 260,
+    height: 260,
+    colorDark: document.getElementById('fgColor').value,
+    colorLight: document.getElementById('bgColor').value,
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  document.getElementById('qrResult').style.display = 'block';
+  document.getElementById('qrResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window._qrPayload = payload;
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const wrap = document.getElementById('qrCanvasWrap');
+  const img = wrap.querySelector('img');
+  const canvas = wrap.querySelector('canvas');
+  const src = (img && img.src) || (canvas && canvas.toDataURL('image/png'));
+  if (!src) return;
+  const a = document.createElement('a');
+  a.href = src;
+  a.download = 'bytelab-qr.png';
+  a.click();
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (!window._qrPayload) return;
+  try {
+    await navigator.clipboard.writeText(window._qrPayload);
+    const btn = document.getElementById('copyBtn');
+    const old = btn.textContent;
+    btn.textContent = 'کپی شد ✓';
+    setTimeout(() => btn.textContent = old, 1500);
+  } catch (e) {}
+});
+</script>
+</body>
+</html>
