@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>پلی‌گراند کد زنده | بایت‌لب</title>
+<script src="assets/bytelab-auth.js"></script>
 <meta name="description" content="کد HTML، CSS و جاوااسکریپت بنویس و همون لحظه خروجیش رو ببین؛ ابزار رایگان پلی‌گراند کد بایت‌لب، مستقیم تو مرورگر و بدون نیاز به نصب چیزی.">
+<meta name="robots" content="noindex">
 <link rel="canonical" href="https://bytelabpro.xyz/playground.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="بایت‌لب">
@@ -55,6 +57,46 @@
   .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.02em;}
   a{color:inherit;text-decoration:none;}
   .wrap{max-width:1280px;margin:0 auto;padding:0 24px;}
+
+  /* Overlay برای محافظت از صفحه */
+  .auth-overlay{
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(7,11,18,.96);backdrop-filter:blur(8px);
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;opacity:1;
+    transition:opacity .3s ease;
+  }
+  .auth-overlay.hidden{
+    opacity:0;pointer-events:none;
+  }
+  .auth-modal{
+    background:var(--panel);border:1px solid var(--line);border-radius:24px;
+    padding:40px;max-width:420px;text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .auth-modal h2{
+    font-size:24px;font-weight:800;margin-bottom:14px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .auth-modal p{
+    color:var(--muted);font-size:15px;line-height:1.8;margin-bottom:28px;
+  }
+  .auth-modal .auth-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    color:#06120f;font-weight:800;font-size:15px;
+    border:none;border-radius:999px;
+    padding:14px 32px;cursor:pointer;
+    box-shadow:0 0 24px rgba(77,240,201,.3);
+    transition:transform .2s ease, box-shadow .2s ease;
+    text-decoration:none;
+  }
+  .auth-modal .auth-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 32px rgba(77,240,201,.5);
+  }
 
   .pg-hero{padding:150px 0 26px;}
   .pg-crumb{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);margin-bottom:18px;flex-wrap:wrap;}
@@ -138,6 +180,15 @@
 </style>
 </head>
 <body>
+
+<!-- Overlay for auth protection -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-modal">
+    <h2>🔐 دسترسی محدود</h2>
+    <p>پلی‌گراند کد فقط برای اعضای ثبت‌نام‌شده‌ی بایت‌لب فعاله. لطفاً ابتدا به حساب خود وارد شوید.</p>
+    <a href="account.html" class="auth-btn">ورود / ثبت‌نام ←</a>
+  </div>
+</div>
 
 <section class="pg-hero">
   <div class="wrap">
@@ -427,6 +478,28 @@ document.getElementById('pgTemplate').addEventListener('change', (e) => {
   if (e.target.value) pgLoadTemplate(e.target.value);
   e.target.value = '';
 });
+</script>
+
+<!-- Auth protection script -->
+<script>
+(function() {
+  const authOverlay = document.getElementById('authOverlay');
+  const pgHero = document.querySelector('.pg-hero');
+
+  const loggedIn = (typeof BytelabAuth !== 'undefined') && BytelabAuth.isLoggedIn();
+
+  if (!loggedIn) {
+    // مخفی‌کردن محتوای اصلی
+    if (pgHero) pgHero.style.display = 'none';
+    document.querySelectorAll('footer.pg-foot').forEach(el => { el.style.display = 'none'; });
+    // نمایش اورلی ورود
+    if (authOverlay) authOverlay.classList.remove('hidden');
+  } else {
+    if (authOverlay) authOverlay.classList.add('hidden');
+    if (pgHero) pgHero.style.display = 'block';
+    document.querySelectorAll('footer.pg-foot').forEach(el => { el.style.display = 'block'; });
+  }
+})();
 </script>
 
 <script src="header.js"></script>
