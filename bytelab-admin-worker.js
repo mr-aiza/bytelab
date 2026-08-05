@@ -344,8 +344,17 @@ async function sendDocumentToTelegram(env, jsonText, filename, caption) {
 //  اتصال به AI (bytelab-ai) برای پیش‌نویس خودکار بلاگ
 // ============================================================
 async function callAIWorker(env, system, userText) {
+  // مثل bytelab-telegram، از Service Binding استفاده می‌کنیم نه فچ مستقیم به آدرس
+  // عمومی workers.dev (که می‌تونه ۴۰۴/۱۰۴۲ بده). توی Cloudflare Dashboard →
+  // این Worker → Bindings → Add binding → Service binding، یه Binding با
+  // نام AI_WORKER به Worker «bytelab-ai» وصل کن (دقیقاً مثل bytelab-telegram).
+  if (!env.AI_WORKER) {
+    throw new Error(
+      "اتصال به Worker هوش‌مصنوعی تنظیم نشده. تو تنظیمات bytelab-admin → Bindings → Add → Service binding، یک Binding با نام AI_WORKER به Worker «bytelab-ai» وصل کن."
+    );
+  }
   const endpoint = env.AI_ENDPOINT || DEFAULT_AI_ENDPOINT;
-  const response = await fetch(endpoint, {
+  const response = await env.AI_WORKER.fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
