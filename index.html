@@ -245,6 +245,34 @@
     .lg-preview.is-mobile{height:420px;}
   }
 
+  /* playground promo */
+  .pg-promo{padding:100px 0;}
+  .pg-promo-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:24px;
+    padding:44px;display:grid;grid-template-columns:1fr .85fr;gap:40px;align-items:center;
+  }
+  .pg-promo-mock{
+    background:var(--ink);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  }
+  .pg-promo-mock-head{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--panel-2);}
+  .pg-promo-dot{width:9px;height:9px;border-radius:50%;}
+  .pg-promo-dot.html{background:#f97362;}
+  .pg-promo-dot.css{background:var(--cyan);}
+  .pg-promo-dot.js{background:#f2c14e;}
+  .pg-promo-mock-body{padding:18px 16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:2;color:var(--muted);direction:ltr;text-align:left;}
+  .pg-promo-mock-body .tag{color:#f97362;}
+  .pg-promo-mock-body .attr{color:var(--cyan);}
+  .pg-promo-mock-body .val{color:#f2c14e;}
+  .pg-promo-cursor{display:inline-block;width:7px;height:14px;background:var(--cyan);vertical-align:middle;margin-right:2px;animation:pgPromoBlink 1s step-end infinite;}
+  @keyframes pgPromoBlink{50%{opacity:0;}}
+  .pg-promo-text .sec-eyebrow{margin-bottom:12px;}
+  .pg-promo-text h2{font-size:clamp(22px,3vw,32px);font-weight:800;margin-bottom:14px;}
+  .pg-promo-text p{color:var(--muted);font-size:15px;margin-bottom:26px;}
+  @media (max-width:880px){
+    .pg-promo-card{grid-template-columns:1fr;padding:30px 24px;}
+    .pg-promo-text{order:-1;}
+  }
+
   /* blog preview */
   .blog-preview{padding:100px 0;}
   .bp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
@@ -474,6 +502,31 @@
     </div>
     <div style="text-align:center;margin-top:18px;">
       <a href="portfolio.html" class="pf-link" style="justify-content:center;">نمونه‌کارهای بیشتر ←</a>
+    </div>
+  </div>
+</section>
+
+<section class="pg-promo" id="pg-promo">
+  <div class="wrap">
+    <div class="pg-promo-card reveal">
+      <div class="pg-promo-mock" aria-hidden="true">
+        <div class="pg-promo-mock-head">
+          <span class="pg-promo-dot html"></span>
+          <span class="pg-promo-dot css"></span>
+          <span class="pg-promo-dot js"></span>
+        </div>
+        <div class="pg-promo-mock-body">
+          <div>&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="val">"box"</span>&gt;</div>
+          <div>&nbsp;&nbsp;&lt;<span class="tag">h1</span>&gt;سلام دنیا 👋&lt;/<span class="tag">h1</span>&gt;</div>
+          <div>&lt;/<span class="tag">div</span>&gt;<span class="pg-promo-cursor"></span></div>
+        </div>
+      </div>
+      <div class="pg-promo-text">
+        <span class="sec-eyebrow">ابزار رایگان</span>
+        <h2>کد بلدی؟ همین‌جا امتحانش کن</h2>
+        <p>پلی‌گراند کد بایت‌لب یه ویرایشگر HTML، CSS و جاوااسکریپت با پیش‌نمایش زنده‌ست؛ بدون نصب و بدون ثبت‌نام. کدتو بنویس، همون لحظه نتیجه رو ببین، با AI بهترش کن یا لینکشو با ما به اشتراک بذار تا حرفه‌ایش کنیم.</p>
+        <a href="playground.html" class="btn-primary">شروع کن ←</a>
+      </div>
     </div>
   </div>
 </section>
