@@ -149,6 +149,30 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     .mobile-menu a{color:#eaf0f4;font-size:15.5px;text-decoration:none;padding:11px 2px;border-bottom:1px solid rgba(30,42,56,.7);}
     .mobile-menu a.active{color:#4df0c9;}
     .mm-divider{height:1px;background:#1e2a38;}
+
+    /* دسته‌ی کشویی (آکاردئون) داخل منوی موبایل، مثلاً برای «حساب کاربری» */
+    .mm-group{border-bottom:1px solid rgba(30,42,56,.7);}
+    .mm-group-toggle{
+      width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
+      background:none;border:none;color:#eaf0f4;font-family:inherit;font-size:15.5px;
+      padding:11px 2px;cursor:pointer;text-align:right;
+    }
+    .mm-group-toggle.active, .mm-group.open .mm-group-toggle{color:#4df0c9;}
+    .mm-chevron{flex-shrink:0;color:#7c8b9c;transition:transform .25s ease;}
+    .mm-group.open .mm-chevron{transform:rotate(180deg);color:#4df0c9;}
+    .mm-submenu{
+      max-height:0;overflow:hidden;display:flex;flex-direction:column;
+      transition:max-height .3s ease;
+    }
+    .mm-group.open .mm-submenu{max-height:240px;}
+    .mm-submenu a{
+      display:flex;align-items:center;gap:8px;
+      padding:9px 4px 9px 16px;font-size:14px;color:#a9b6c4;
+      text-decoration:none;border-bottom:none;
+    }
+    .mm-submenu a:last-child{padding-bottom:13px;}
+    .mm-submenu a.active{color:#4df0c9;}
+    .mm-sub-icon{font-size:13px;line-height:1;}
     .mm-label{font-size:11.5px;color:#7c8b9c;font-weight:700;letter-spacing:.02em;}
     .mm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     .mm-action{
@@ -265,10 +289,16 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   document.head.appendChild(styleTag);
 
   // --- تشخیص صفحه فعلی برای هایلایت‌کردن لینک فعال تو منو ---
-  const current = (location.pathname.split("/").pop() || "index.html");
+  // صفحه‌ی submit/index.html چون اسم فایلش «index.html»ه، جدا تشخیص داده می‌شه
+  // تا با صفحه‌ی اصلی سایت قاطی نشه.
+  const current = location.pathname.indexOf("/submit/") !== -1
+    ? "submit/index.html"
+    : (location.pathname.split("/").pop() || "index.html");
   const isActive = (names) => names.includes(current);
 
   // --- لیست لینک‌های منو: منبع واحد برای دسکتاپ و موبایل ---
+  // آیتم‌هایی که «group: true» دارن به‌صورت یه دسته‌ی کشویی (آکاردئونی) با زیرمنو نمایش داده می‌شن
+  // تا با اضافه‌شدن صفحات بیشتر (پروفایل، علاقه‌مندی‌ها، ارسال نمونه‌کار)، منو شلوغ نشه.
   const NAV_LINKS = [
     { href: "index.html", text: "خانه", match: ["index.html", ""] },
     { href: "tarahi-site.html", text: "طراحی سایت", match: ["tarahi-site.html"] },
@@ -277,7 +307,17 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     { href: "playground.html", text: "پلی‌گراند کد", match: ["playground.html"] },
     { href: "blog.html", text: "بلاگ", match: ["blog.html", "hazine-tarahi-site.html", "app-ekhtesasi.html"] },
     { href: "telegram/contact.html", text: "تماس", match: [] },
-    { href: "account.html", text: "حساب کاربری", match: ["account.html", "profile.html", "favorites.html"] }
+    {
+      group: true,
+      text: "حساب کاربری",
+      match: ["account.html", "profile.html", "favorites.html", "submit/index.html"],
+      children: [
+        { href: "account.html", text: "داشبورد حساب", icon: "🗂️", match: ["account.html"] },
+        { href: "profile.html", text: "پروفایل من", icon: "🧑", match: ["profile.html"] },
+        { href: "favorites.html", text: "علاقه‌مندی‌های من", icon: "⭐", match: ["favorites.html"] },
+        { href: "submit/index.html", text: "ارسال نمونه‌کار", icon: "📤", match: ["submit/index.html"] }
+      ]
+    }
   ];
 
   // مسیر صفحه‌ی نمونه‌کارها (دکمه‌ی هدر اول به همین‌جا میره، دکمه‌ی ارسال داخل خودشه)
@@ -320,7 +360,24 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   </div>
 </div>` : "";
 
-  const linksHTML = NAV_LINKS.map(l => {
+  const linksHTML = NAV_LINKS.map((l, gi) => {
+    if (l.group) {
+      const groupActive = isActive(l.match);
+      const childrenHTML = l.children.map(c => {
+        const cActive = isActive(c.match);
+        return `<a href="${c.href}"${cActive ? ' class="active"' : ""}><span class="mm-sub-icon">${c.icon || ""}</span>${c.text}</a>`;
+      }).join("\n      ");
+      return `
+  <div class="mm-group${groupActive ? " open" : ""}">
+    <button type="button" class="mm-group-toggle${groupActive ? " active" : ""}" aria-expanded="${groupActive ? "true" : "false"}">
+      <span>${l.text}</span>
+      <svg class="mm-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div class="mm-submenu">
+      ${childrenHTML}
+    </div>
+  </div>`;
+    }
     const cls = isActive(l.match) ? ' class="active"' : "";
     return `<a href="${l.href}"${cls}>${l.text}</a>`;
   }).join("\n  ");
@@ -402,6 +459,16 @@ ${quickDockHTML}
       menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
     }
+
+    // --- باز/بسته‌شدن دسته‌های کشویی (آکاردئون) داخل منو، مثل «حساب کاربری» ---
+    document.querySelectorAll('.mm-group-toggle').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const group = toggle.closest('.mm-group');
+        if (!group) return;
+        const open = group.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    });
 
     // --- دسترسی سریع شناور (Meniscus Dock): مسیر SVG بریدگی رو پشت مهره‌ی فعال می‌سازه ---
     // بریدگی، یه کمان مماس بر دایره‌ی مهره‌ست: reach = sqrt(R² − (R−D)²)
