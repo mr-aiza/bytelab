@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مدیریت کاربران سایت | بایت‌لب</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070b12; --panel:#0f1620; --panel-2:#141d2b; --line:#1e2a38;
+    --cyan:#4df0c9; --violet:#9c7bff; --paper:#eaf0f4; --muted:#7c8b9c; --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;min-height:100vh;}
+  .wrap{max-width:900px;margin:0 auto;padding:40px 20px 80px;}
+  h1{font-size:22px;font-weight:800;margin-bottom:6px;}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:28px;}
+
+  .login-box{max-width:340px;margin:80px auto 0;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;}
+  .login-box input{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;color:var(--paper);font-family:inherit;font-size:14px;margin-bottom:12px;outline:none;
+  }
+  .login-box input:focus{border-color:var(--cyan);}
+  .login-box button, .refresh-btn{
+    width:100%;background:var(--cyan);color:#06120f;font-weight:700;padding:12px;border:none;
+    border-radius:999px;font-family:inherit;font-size:14px;cursor:pointer;
+  }
+  .login-msg{color:#ff8080;font-size:13px;margin-top:10px;display:none;}
+  .login-msg.show{display:block;}
+
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:10px;flex-wrap:wrap;}
+  .refresh-btn{width:auto;padding:10px 20px;}
+  .stat{font-size:13px;color:var(--muted);}
+
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  th,td{padding:12px 14px;text-align:right;font-size:13px;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:600;background:var(--panel-2);}
+  tr:last-child td{border-bottom:none;}
+  .badge{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;}
+  .badge.active{background:rgba(77,240,201,.12);color:var(--cyan);}
+  .badge.blocked{background:rgba(255,128,128,.12);color:#ff8080;}
+  .toggle-btn{
+    background:none;border:1px solid var(--line);color:var(--paper);padding:6px 14px;border-radius:999px;
+    font-family:inherit;font-size:12px;cursor:pointer;transition:border-color .2s ease;
+  }
+  .toggle-btn:hover{border-color:var(--violet);}
+  .phone{font-family:'JetBrains Mono',monospace;direction:ltr;text-align:right;}
+  .empty{text-align:center;color:var(--muted);padding:40px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="login-box" id="loginBox">
+    <h1 style="margin-bottom:16px;">ورود به پنل کاربران</h1>
+    <input type="password" id="adminPass" placeholder="رمز عبور پنل">
+    <button id="adminLoginBtn">ورود</button>
+    <div class="login-msg" id="loginMsg"></div>
+  </div>
+
+  <div id="panelBox" style="display:none;">
+    <h1>مدیریت کاربران سایت</h1>
+    <p class="sub">لیست کسانی که در account.html ثبت‌نام کردن؛ می‌تونی دسترسی هر کاربر رو فعال/غیرفعال کنی.</p>
+    <div class="toolbar">
+      <span class="stat" id="statText"></span>
+      <button class="refresh-btn" id="refreshBtn" style="width:auto;">بروزرسانی</button>
+    </div>
+    <table>
+      <thead>
+        <tr><th>نام</th><th>شماره تماس</th><th>ایمیل</th><th>علاقه‌مندی‌ها</th><th>وضعیت</th><th></th></tr>
+      </thead>
+      <tbody id="usersBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function(){
+  // آدرس Worker حساب‌کاربری رو بعد از دیپلوی، اینجا با آدرس واقعیت جایگزین کن
+  const API_URL = "https://bytelab-users.YOUR_SUBDOMAIN.workers.dev";
+  const TOKEN_KEY = "bytelab_users_admin_token";
+
+  function getToken(){ try { return sessionStorage.getItem(TOKEN_KEY); } catch(e){ return null; } }
+  function setToken(t){ try { sessionStorage.setItem(TOKEN_KEY, t); } catch(e){} }
+
+  function escapeHTML(str){
+    return String(str || "").replace(/[&<>"']/g, (c) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  async function apiFetch(path, options){
+    options = options || {};
+    const headers = Object.assign({}, options.headers || {});
+    const token = getToken();
+    if (token) headers["Authorization"] = "Bearer " + token;
+    if (options.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
+    const res = await fetch(API_URL + path, Object.assign({}, options, { headers }));
+    let data = null;
+    try { data = await res.json(); } catch(e){}
+    if (!res.ok) throw new Error((data && data.error) || "خطایی رخ داد.");
+    return data;
+  }
+
+  async function loadUsers(){
+    const body = document.getElementById("usersBody");
+    body.innerHTML = `<tr><td colspan="6" class="empty">در حال بارگذاری...</td></tr>`;
+    try {
+      const data = await apiFetch("/api/admin/users", { method: "GET" });
+      const users = data.users || [];
+      document.getElementById("statText").textContent = `${users.length} کاربر ثبت‌نام‌شده`;
+      if (!users.length) {
+        body.innerHTML = `<tr><td colspan="6" class="empty">هنوز کاربری ثبت‌نام نکرده.</td></tr>`;
+        return;
+      }
+      body.innerHTML = users.map(u => `
+        <tr>
+          <td>${escapeHTML(u.name || "—")}</td>
+          <td class="phone">${escapeHTML(u.phone)}</td>
+          <td>${escapeHTML(u.email || "—")}</td>
+          <td>${u.favoritesCount || 0}</td>
+          <td><span class="badge ${u.active ? "active" : "blocked"}">${u.active ? "فعال" : "مسدود"}</span></td>
+          <td><button class="toggle-btn" data-phone="${escapeHTML(u.phone)}">${u.active ? "مسدود کردن" : "فعال کردن"}</button></td>
+        </tr>`).join("");
+
+      body.querySelectorAll(".toggle-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          btn.disabled = true;
+          try {
+            await apiFetch("/api/admin/users/toggle-access", {
+              method: "POST",
+              body: JSON.stringify({ phone: btn.getAttribute("data-phone") }),
+            });
+            loadUsers();
+          } catch(err) {
+            btn.disabled = false;
+          }
+        });
+      });
+    } catch(err) {
+      body.innerHTML = `<tr><td colspan="6" class="empty">${escapeHTML(err.message)}</td></tr>`;
+    }
+  }
+
+  document.getElementById("adminLoginBtn").addEventListener("click", async () => {
+    const pass = document.getElementById("adminPass").value;
+    const msgEl = document.getElementById("loginMsg");
+    try {
+      const data = await apiFetch("/api/admin/login", { method: "POST", body: JSON.stringify({ password: pass }) });
+      setToken(data.token);
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("panelBox").style.display = "block";
+      loadUsers();
+    } catch(err) {
+      msgEl.textContent = err.message || "ورود ناموفق بود.";
+      msgEl.className = "login-msg show";
+    }
+  });
+
+  document.getElementById("refreshBtn").addEventListener("click", loadUsers);
+
+  if (getToken()) {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("panelBox").style.display = "block";
+    loadUsers();
+  }
+})();
+</script>
+</body>
+</html>

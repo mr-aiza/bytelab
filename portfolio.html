@@ -115,6 +115,14 @@
   .pf-card.pf-hidden{display:none;}
 
   .pf-preview{background:var(--panel-2);position:relative;}
+  .pf-fav-btn{
+    position:absolute;top:10px;left:10px;z-index:5;width:34px;height:34px;border-radius:50%;
+    background:rgba(7,11,18,.65);backdrop-filter:blur(4px);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease,border-color .15s ease;
+  }
+  .pf-fav-btn:hover{transform:scale(1.08);border-color:#ff6b8b;}
+  .pf-fav-btn svg{transition:fill .15s ease,stroke .15s ease;}
+  .pf-fav-btn.active svg{fill:#ff6b8b;stroke:#ff6b8b;}
   .live-preview{width:100%;height:200px;overflow:hidden;position:relative;background:#0a0f17;}
   .live-preview iframe{
     width:1280px;height:800px;
@@ -388,6 +396,7 @@
 </footer>
 
 
+<script src="assets/bytelab-auth.js"></script>
 <script>
   const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab.workers.dev";
 
@@ -505,7 +514,12 @@
     card.dataset.created = String(item.createdAt || Date.now());
     card.dataset.featured = featured ? "1" : "0";
     card.innerHTML = `
-      <div class="pf-preview">${previewHTML}${ratingStarsHTML(rating)}${featured ? `<span class="pf-featured-ribbon">📌 ویژه</span>` : ""}</div>
+      <div class="pf-preview">
+        <button class="pf-fav-btn" data-fav-id="${escapeHTML(String(item.id))}" aria-label="افزودن به علاقه‌مندی‌ها" onclick="event.preventDefault();event.stopPropagation();">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eaf0f4" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+        </button>
+        ${previewHTML}${ratingStarsHTML(rating)}${featured ? `<span class="pf-featured-ribbon">📌 ویژه</span>` : ""}
+      </div>
       <div class="pf-info">
         <div class="pf-tags-row">
           ${categoryList.map(c => `<span class="pf-category">${escapeHTML(c)}</span>`).join('')}
@@ -516,6 +530,27 @@
         ${item.authorName ? `<span class="pf-author">طراح: ${escapeHTML(item.authorName)}</span>` : ""}
       </div>`;
     return card;
+  }
+
+  // --- دکمه‌ی قلب: افزودن/حذف نمونه‌کار به علاقه‌مندی‌های کاربر لاگین‌شده ---
+  function wireFavButtons(scope){
+    (scope || document).querySelectorAll('.pf-fav-btn').forEach(btn => {
+      const id = btn.getAttribute('data-fav-id');
+      if (window.BytelabAuth && window.BytelabAuth.isFavoriteCached(id)) btn.classList.add('active');
+      btn.addEventListener('click', async () => {
+        if (!(window.BytelabAuth && window.BytelabAuth.isLoggedIn())){
+          location.href = "account.html";
+          return;
+        }
+        try {
+          const favorited = await window.BytelabAuth.toggleFavorite(id);
+          btn.classList.toggle('active', favorited);
+        } catch(err) { /* silent */ }
+      });
+    });
+  }
+  if (window.BytelabAuth && window.BytelabAuth.isLoggedIn()) {
+    window.BytelabAuth.getFavoriteIds().then(() => wireFavButtons(document));
   }
 
   // --- یک کارت می‌تونه چند دسته‌بندی داشته باشه (با کاما جدا می‌شن) ---
@@ -637,6 +672,9 @@
           document.querySelectorAll('.pf-card.reveal').forEach(el => obs.observe(el));
           scaleLivePreviews();
           checkLivePreviews();
+          if (window.BytelabAuth && window.BytelabAuth.isLoggedIn()) {
+            window.BytelabAuth.getFavoriteIds().then(() => wireFavButtons(grid));
+          }
         }
         populateCategoryFilter();
         applyPortfolioFilters(true);

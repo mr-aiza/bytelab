@@ -275,7 +275,8 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     { href: "tarahi-app.html", text: "طراحی اپلیکیشن", match: ["tarahi-app.html"] },
     { href: "khadamat-computer.html", text: "خدمات کامپیوتر", match: ["khadamat-computer.html"] },
     { href: "blog.html", text: "بلاگ", match: ["blog.html", "hazine-tarahi-site.html", "app-ekhtesasi.html"] },
-    { href: "telegram/contact.html", text: "تماس", match: [] }
+    { href: "telegram/contact.html", text: "تماس", match: [] },
+    { href: "account.html", text: "حساب کاربری", match: ["account.html", "profile.html", "favorites.html"] }
   ];
 
   // مسیر صفحه‌ی نمونه‌کارها (دکمه‌ی هدر اول به همین‌جا میره، دکمه‌ی ارسال داخل خودشه)
@@ -335,6 +336,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
         <a href="chat.html" class="nav-cta-chat"><span class="ico">💬</span><span class="lbl">چت با هوش مصنوعی</span></a>
         <a href="${PORTFOLIO_SUBMIT_HREF}" class="nav-cta-app"><span class="ico">🎨</span><span class="lbl">نمونه‌کارها</span></a>
         <a href="https://cafebazaar.ir/app/com.bytelab.app" target="_blank" rel="noopener" class="nav-cta-app"><span class="ico">⬇️</span><span class="lbl">دانلود از کافه‌بازار</span></a>
+        <a href="account.html" class="nav-cta-app"><span class="ico">👤</span><span class="lbl">حساب کاربری</span></a>
       </div>
       <button class="burger" id="burger" aria-label="باز کردن منو">
         <span></span><span></span><span></span>
@@ -360,6 +362,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     <a href="chat.html" class="mm-action accent">💬<span>چت با هوش مصنوعی</span></a>
     <a href="${PORTFOLIO_SUBMIT_HREF}" class="mm-action">🎨<span>نمونه‌کارها</span></a>
     <a href="https://cafebazaar.ir/app/com.bytelab.app" target="_blank" rel="noopener" class="mm-action">⬇️<span>دانلود از کافه‌بازار</span></a>
+    <a href="account.html" class="mm-action">👤<span>حساب کاربری</span></a>
   </div>
 </div>
 ${quickDockHTML}

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حساب کاربری | بایت‌لب</title>
+<meta name="description" content="ورود یا ثبت‌نام در بایت‌لب برای مدیریت پروفایل و ذخیره‌ی نمونه‌کارهای مورد علاقه‌ت.">
+<link rel="canonical" href="https://bytelabpro.xyz/account.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070b12; --panel:#0f1620; --panel-2:#141d2b; --line:#1e2a38;
+    --cyan:#4df0c9; --violet:#9c7bff; --paper:#eaf0f4; --muted:#7c8b9c; --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+  .page-head{padding:150px 0 40px;text-align:center;}
+  .page-eyebrow{font-weight:700;font-size:13px;color:var(--violet);letter-spacing:.02em;margin-bottom:14px;display:block;}
+  .page-title{font-size:clamp(28px,4.2vw,40px);font-weight:800;}
+  .page-sub{color:var(--muted);margin-top:14px;font-size:15px;max-width:480px;margin-inline:auto;}
+
+  .auth-wrap{max-width:420px;margin:0 auto;padding:20px 24px 100px;}
+  .auth-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .auth-tabs{display:flex;}
+  .auth-tab{flex:1;padding:16px;text-align:center;font-size:14px;font-weight:600;color:var(--muted);border-bottom:2px solid var(--line);cursor:pointer;transition:color .2s ease;}
+  .auth-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+  .auth-form{display:none;flex-direction:column;gap:16px;padding:24px;}
+  .auth-form.active{display:flex;}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{font-size:13px;color:var(--muted);}
+  .field input{
+    background:var(--panel-2);border:1px solid var(--line);border-radius:12px;
+    padding:13px 14px;color:var(--paper);font-family:inherit;font-size:14px;outline:none;
+    transition:border-color .2s ease;
+  }
+  .field input:focus{border-color:var(--cyan);}
+  .field-error{display:none;font-size:12px;color:#ff8080;}
+  .field.invalid input{border-color:#ff8080;}
+  .field.invalid .field-error{display:block;}
+  .auth-submit{
+    background:var(--cyan);color:#06120f;font-weight:700;padding:14px;border:none;border-radius:999px;
+    font-family:inherit;font-size:15px;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;
+    box-shadow:0 0 24px rgba(77,240,201,.3);
+  }
+  .auth-submit:hover{transform:translateY(-1px);}
+  .auth-submit:disabled{opacity:.6;cursor:default;transform:none;}
+  .auth-msg{font-size:13px;padding:0 24px;margin-top:-8px;display:none;}
+  .auth-msg.show{display:block;}
+  .auth-msg.error{color:#ff8080;}
+  .auth-msg.success{color:var(--cyan);}
+
+  .auth-account{padding:28px 24px;display:none;flex-direction:column;gap:14px;text-align:center;}
+  .auth-account.active{display:flex;}
+  .auth-account .avatar{
+    width:56px;height:56px;border-radius:50%;margin:0 auto;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    display:flex;align-items:center;justify-content:center;color:var(--ink);font-weight:800;font-size:20px;
+  }
+  .auth-account .name{font-size:18px;font-weight:700;}
+  .auth-account .phone{color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace;}
+  .auth-account .link-btn{
+    display:block;padding:13px;border-radius:999px;border:1px solid var(--line);font-size:14px;font-weight:600;
+    transition:border-color .2s ease,color .2s ease;
+  }
+  .auth-account .link-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .auth-account .link-btn.primary{background:var(--cyan);color:#06120f;border-color:transparent;}
+  .auth-account .logout-btn{
+    background:none;border:none;color:var(--muted);font-family:inherit;font-size:13px;cursor:pointer;padding:6px;
+  }
+  .auth-account .logout-btn:hover{color:#ff8080;}
+</style>
+</head>
+<body>
+
+<div id="siteHeaderPlaceholder"></div>
+
+<section class="page-head">
+  <div class="wrap">
+    <span class="page-eyebrow">حساب کاربری</span>
+    <h1 class="page-title">ورود یا ثبت‌نام</h1>
+    <p class="page-sub">با شماره تماس و رمز عبورت وارد شو تا پروفایلت رو کامل کنی و نمونه‌کارهای مورد علاقه‌ت رو ذخیره کنی.</p>
+  </div>
+</section>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+
+    <div class="auth-account" id="authAccountBox">
+      <div class="avatar" id="authAvatar">B</div>
+      <div class="name" id="authAccountName"></div>
+      <div class="phone" id="authAccountPhone"></div>
+      <a class="link-btn primary" href="profile.html">ویرایش پروفایل</a>
+      <a class="link-btn" href="favorites.html">❤️ علاقه‌مندی‌های من</a>
+      <button class="logout-btn" id="logoutBtn">خروج از حساب</button>
+    </div>
+
+    <div id="authTabsWrap">
+      <div class="auth-tabs">
+        <div class="auth-tab active" data-tab="login">ورود</div>
+        <div class="auth-tab" data-tab="register">ثبت‌نام</div>
+      </div>
+
+      <form class="auth-form active" id="loginForm">
+        <div class="auth-msg" id="loginMsg"></div>
+        <div class="field" id="loginPhoneField">
+          <label for="loginPhone">شماره تماس</label>
+          <input type="tel" id="loginPhone" placeholder="09xxxxxxxxx" inputmode="numeric">
+          <div class="field-error">شماره تماس معتبر وارد کن</div>
+        </div>
+        <div class="field" id="loginPasswordField">
+          <label for="loginPassword">رمز عبور</label>
+          <input type="password" id="loginPassword" placeholder="رمز عبورت">
+          <div class="field-error">رمز عبور رو وارد کن</div>
+        </div>
+        <button type="submit" class="auth-submit" id="loginSubmit">ورود</button>
+      </form>
+
+      <form class="auth-form" id="registerForm">
+        <div class="auth-msg" id="registerMsg"></div>
+        <div class="field" id="regNameField">
+          <label for="regName">نام و نام‌خانوادگی</label>
+          <input type="text" id="regName" placeholder="مثلاً علی رضایی">
+          <div class="field-error">نام رو وارد کن</div>
+        </div>
+        <div class="field" id="regPhoneField">
+          <label for="regPhone">شماره تماس</label>
+          <input type="tel" id="regPhone" placeholder="09xxxxxxxxx" inputmode="numeric">
+          <div class="field-error">شماره تماس معتبر وارد کن (مثل 09123456789)</div>
+        </div>
+        <div class="field" id="regEmailField">
+          <label for="regEmail">ایمیل</label>
+          <input type="email" id="regEmail" placeholder="example@mail.com">
+          <div class="field-error">ایمیل معتبر وارد کن</div>
+        </div>
+        <div class="field" id="regPasswordField">
+          <label for="regPassword">رمز عبور</label>
+          <input type="password" id="regPassword" placeholder="حداقل ۴ کاراکتر">
+          <div class="field-error">رمز عبور باید حداقل ۴ کاراکتر باشه</div>
+        </div>
+        <button type="submit" class="auth-submit" id="registerSubmit">ثبت‌نام</button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<script src="assets/bytelab-auth.js"></script>
+<script src="header.js"></script>
+<script>
+(function(){
+  const tabs = document.querySelectorAll(".auth-tab");
+  const forms = { login: document.getElementById("loginForm"), register: document.getElementById("registerForm") };
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      Object.values(forms).forEach(f => f.classList.remove("active"));
+      forms[tab.dataset.tab].classList.add("active");
+    });
+  });
+
+  function showAccountView(){
+    const user = window.BytelabAuth.getUser();
+    document.getElementById("authTabsWrap").style.display = "none";
+    document.getElementById("authAccountBox").classList.add("active");
+    const displayName = (user && user.name) ? user.name : "کاربر بایت‌لب";
+    document.getElementById("authAccountName").textContent = displayName;
+    document.getElementById("authAccountPhone").textContent = user ? user.phone : "";
+    document.getElementById("authAvatar").textContent = displayName.trim().charAt(0) || "B";
+    window.BytelabAuth.refreshUser();
+  }
+
+  function showFormsView(){
+    document.getElementById("authTabsWrap").style.display = "block";
+    document.getElementById("authAccountBox").classList.remove("active");
+  }
+
+  if(window.BytelabAuth && window.BytelabAuth.isLoggedIn()){
+    showAccountView();
+  }
+
+  function setMsg(el, text, type){
+    el.textContent = text;
+    el.className = "auth-msg show " + type;
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const phone = document.getElementById("loginPhone").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const msgEl = document.getElementById("loginMsg");
+    const btn = document.getElementById("loginSubmit");
+    btn.disabled = true; btn.textContent = "در حال ورود...";
+    try {
+      await window.BytelabAuth.login(phone, password);
+      setMsg(msgEl, "با موفقیت وارد شدی ✅", "success");
+      showAccountView();
+    } catch(err){
+      setMsg(msgEl, err.message || "ورود ناموفق بود.", "error");
+    } finally {
+      btn.disabled = false; btn.textContent = "ورود";
+    }
+  });
+
+  document.getElementById("registerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("regName").value.trim();
+    const phone = document.getElementById("regPhone").value.trim();
+    const email = document.getElementById("regEmail").value.trim();
+    const password = document.getElementById("regPassword").value;
+    const msgEl = document.getElementById("registerMsg");
+    const btn = document.getElementById("registerSubmit");
+    btn.disabled = true; btn.textContent = "در حال ثبت‌نام...";
+    try {
+      await window.BytelabAuth.register(phone, password, name, email);
+      setMsg(msgEl, "ثبت‌نام با موفقیت انجام شد ✅", "success");
+      showAccountView();
+    } catch(err){
+      setMsg(msgEl, err.message || "ثبت‌نام ناموفق بود.", "error");
+    } finally {
+      btn.disabled = false; btn.textContent = "ثبت‌نام";
+    }
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await window.BytelabAuth.logout();
+    showFormsView();
+  });
+})();
+</script>
+</body>
+</html>

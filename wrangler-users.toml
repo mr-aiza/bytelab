@@ -1,0 +1,15 @@
+name = "bytelab-users"
+main = "bytelab-users-worker.js"
+compatibility_date = "2025-01-01"
+
+[[kv_namespaces]]
+binding = "USERS_KV"
+id = "PUT_YOUR_NEW_KV_NAMESPACE_ID_HERE"
+
+# Secrets (set with `wrangler secret put NAME`, or via Cloudflare Dashboard → Settings → Variables & Secrets):
+#   ADMIN_PANEL_PASSWORD   رمز عبور ورود به users-admin.html
+#
+# Variables عادی (اختیاری، می‌تونی این‌جا یا از داشبورد اضافه کنی):
+# [vars]
+# USERS_SESSION_HOURS = "720"
+# ADMIN_ALLOWED_ORIGIN = "https://bytelabpro.xyz"

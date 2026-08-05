@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>علاقه‌مندی‌های من | بایت‌لب</title>
+<meta name="description" content="نمونه‌کارهایی که در بایت‌لب ذخیره کردی.">
+<link rel="canonical" href="https://bytelabpro.xyz/favorites.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070b12; --panel:#0f1620; --panel-2:#141d2b; --line:#1e2a38;
+    --cyan:#4df0c9; --violet:#9c7bff; --paper:#eaf0f4; --muted:#7c8b9c; --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;}
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+  .page-head{padding:150px 0 30px;text-align:center;}
+  .page-eyebrow{font-weight:700;font-size:13px;color:var(--violet);letter-spacing:.02em;margin-bottom:14px;display:block;}
+  .page-title{font-size:clamp(26px,4vw,38px);font-weight:800;}
+  .page-sub{color:var(--muted);margin-top:14px;font-size:15px;}
+
+  .fav-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px;
+    padding:20px 0 100px;
+  }
+  .fav-note{grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 20px;}
+  .fav-note a{color:var(--cyan);}
+
+  .pf-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;position:relative;display:block;transition:border-color .25s ease, transform .25s ease;}
+  .pf-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
+  .pf-preview{position:relative;aspect-ratio:16/10;background:var(--panel-2);overflow:hidden;}
+  .pf-preview-img{width:100%;height:100%;object-fit:cover;}
+  .pf-preview-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+  .pf-info{padding:16px 18px 18px;}
+  .pf-tags-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .pf-category{font-size:11px;background:rgba(156,123,255,.12);color:var(--violet);padding:3px 10px;border-radius:999px;}
+  .pf-title{font-size:15px;font-weight:700;margin-bottom:6px;}
+  .pf-desc{font-size:13px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .pf-link{display:inline-block;margin-top:10px;font-size:13px;color:var(--cyan);font-weight:600;}
+
+  .unfav-btn{
+    position:absolute;top:10px;left:10px;z-index:2;width:34px;height:34px;border-radius:50%;
+    background:rgba(7,11,18,.65);backdrop-filter:blur(4px);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease;
+  }
+  .unfav-btn:hover{transform:scale(1.08);border-color:#ff8080;}
+</style>
+</head>
+<body>
+
+<div id="siteHeaderPlaceholder"></div>
+
+<section class="page-head">
+  <div class="wrap">
+    <span class="page-eyebrow">حساب کاربری</span>
+    <h1 class="page-title">علاقه‌مندی‌های من</h1>
+    <p class="page-sub">نمونه‌کارهایی که با علامت قلب ذخیره کردی، اینجا جمع می‌شن.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="fav-grid" id="favGrid">
+    <div class="fav-note">در حال بارگذاری...</div>
+  </div>
+</div>
+
+<script src="assets/bytelab-auth.js"></script>
+<script src="header.js"></script>
+<script>
+(function(){
+  const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab.workers.dev";
+  const grid = document.getElementById("favGrid");
+
+  function escapeHTML(str){
+    return String(str || "").replace(/[&<>"']/g, (c) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  function cardHTML(item){
+    const link = item.url || item.image || "#";
+    const preview = item.image
+      ? `<img class="pf-preview-img" src="${escapeHTML(item.image)}" alt="${escapeHTML(item.title)}">`
+      : `<div class="pf-preview-fallback">🎨</div>`;
+    const categoryList = Array.isArray(item.category)
+      ? item.category.map(c => String(c).trim()).filter(Boolean)
+      : String(item.category || "").split(',').map(c => c.trim()).filter(Boolean);
+    return `
+      <div class="pf-card" data-id="${escapeHTML(item.id)}">
+        <button class="unfav-btn" data-unfav="${escapeHTML(item.id)}" aria-label="حذف از علاقه‌مندی‌ها">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff8080" stroke="#ff8080" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+        </button>
+        <a class="pf-preview" href="${escapeHTML(link)}" target="_blank" rel="noopener">${preview}</a>
+        <div class="pf-info">
+          <div class="pf-tags-row">${categoryList.map(c => `<span class="pf-category">${escapeHTML(c)}</span>`).join('')}</div>
+          <div class="pf-title">${escapeHTML(item.title)}</div>
+          <div class="pf-desc">${escapeHTML(item.description)}</div>
+          <a class="pf-link" href="${escapeHTML(link)}" target="_blank" rel="noopener">مشاهده نمونه‌کار ←</a>
+        </div>
+      </div>`;
+  }
+
+  let favItems = [];
+
+  function render(){
+    if(favItems.length === 0){
+      grid.innerHTML = `<div class="fav-note">هنوز چیزی به علاقه‌مندی‌هات اضافه نکردی. از <a href="portfolio.html">نمونه‌کارها</a> با زدن آیکون قلب، مورد دلخواهت رو ذخیره کن.</div>`;
+      return;
+    }
+    grid.innerHTML = favItems.map(cardHTML).join("");
+    grid.querySelectorAll("[data-unfav]").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const id = btn.getAttribute("data-unfav");
+        try {
+          await window.BytelabAuth.toggleFavorite(id);
+          favItems = favItems.filter(it => String(it.id) !== id);
+          render();
+        } catch(err){ /* silent */ }
+      });
+    });
+  }
+
+  async function init(){
+    if(!(window.BytelabAuth && window.BytelabAuth.isLoggedIn())){
+      grid.innerHTML = `<div class="fav-note">برای دیدن علاقه‌مندی‌هات اول باید <a href="account.html">وارد حساب</a> بشی.</div>`;
+      return;
+    }
+    try {
+      const [itemIds, portfolioRes] = await Promise.all([
+        window.BytelabAuth.getFavoriteIds(),
+        fetch(TELEGRAM_WORKER_URL + "/api/portfolio").then(r => r.json()),
+      ]);
+      const allItems = (portfolioRes && Array.isArray(portfolioRes.items)) ? portfolioRes.items : [];
+      favItems = allItems.filter(it => itemIds.includes(String(it.id)));
+      render();
+    } catch(err){
+      grid.innerHTML = `<div class="fav-note">مشکلی پیش اومد. دوباره تلاش کن.</div>`;
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
