@@ -173,6 +173,23 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     .mm-submenu a:last-child{padding-bottom:13px;}
     .mm-submenu a.active{color:#4df0c9;}
     .mm-sub-icon{font-size:13px;line-height:1;}
+
+    /* --- مسیر صفحه (Breadcrumb): بلاک معمولیه (نه fixed)، دقیقاً زیر هدر ثابت می‌شینه --- */
+    .mn-breadcrumb{
+      margin-top:72px;
+      display:flex;align-items:center;gap:7px;flex-wrap:nowrap;overflow-x:auto;
+      background:rgba(15,22,32,.55);border-bottom:1px solid #1e2a38;backdrop-filter:blur(6px);
+      padding:10px 24px;font-size:12.5px;color:#7c8b9c;white-space:nowrap;
+      scrollbar-width:none;
+    }
+    .mn-breadcrumb::-webkit-scrollbar{display:none;}
+    .mn-breadcrumb a{color:#7c8b9c;text-decoration:none;transition:color .15s ease;}
+    .mn-breadcrumb a:hover{color:#4df0c9;}
+    .mn-breadcrumb .mn-crumb-sep{color:#3a4a5c;flex-shrink:0;}
+    .mn-breadcrumb .mn-crumb-current{color:#eaf0f4;font-weight:600;}
+    @media (max-width:640px){
+      .mn-breadcrumb{padding:9px 14px;font-size:11.5px;gap:6px;}
+    }
     .mm-label{font-size:11.5px;color:#7c8b9c;font-weight:700;letter-spacing:.02em;}
     .mm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     .mm-action{
@@ -301,24 +318,121 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   // تا با اضافه‌شدن صفحات بیشتر (پروفایل، علاقه‌مندی‌ها، ارسال نمونه‌کار)، منو شلوغ نشه.
   const NAV_LINKS = [
     { href: "index.html", text: "خانه", match: ["index.html", ""] },
-    { href: "tarahi-site.html", text: "طراحی سایت", match: ["tarahi-site.html"] },
-    { href: "tarahi-app.html", text: "طراحی اپلیکیشن", match: ["tarahi-app.html"] },
-    { href: "khadamat-computer.html", text: "خدمات کامپیوتر", match: ["khadamat-computer.html"] },
-    { href: "playground.html", text: "پلی‌گراند کد", match: ["playground.html"] },
-    { href: "blog.html", text: "بلاگ", match: ["blog.html", "hazine-tarahi-site.html", "app-ekhtesasi.html"] },
+    {
+      group: true,
+      text: "خدمات",
+      href: "index.html#services",
+      match: ["tarahi-site.html", "tarahi-app.html", "khadamat-computer.html"],
+      children: [
+        { href: "tarahi-site.html", text: "طراحی سایت", icon: "🌐", match: ["tarahi-site.html"] },
+        { href: "tarahi-app.html", text: "طراحی اپلیکیشن", icon: "📱", match: ["tarahi-app.html"] },
+        { href: "khadamat-computer.html", text: "خدمات کامپیوتر", icon: "🖥️", match: ["khadamat-computer.html"] }
+      ]
+    },
+    {
+      group: true,
+      text: "ابزارها",
+      match: ["playground.html", "editor.html"],
+      children: [
+        { href: "playground.html", text: "پلی‌گراند کد زنده", icon: "⚡", match: ["playground.html"] },
+        { href: "editor.html", text: "ویرایش آنلاین قالب", icon: "🛠️", match: ["editor.html"] }
+      ]
+    },
+    {
+      group: true,
+      text: "بلاگ",
+      href: "blog.html",
+      match: ["blog.html", "hazine-tarahi-site.html", "app-ekhtesasi.html"],
+      children: [
+        { href: "blog.html", text: "همه مقاله‌ها", icon: "📰", match: ["blog.html"] },
+        { href: "hazine-tarahi-site.html", text: "هزینه طراحی سایت چطور محاسبه می‌شود؟", icon: "💰", match: ["hazine-tarahi-site.html"] },
+        { href: "app-ekhtesasi.html", text: "چه زمانی به اپلیکیشن اختصاصی نیاز داری؟", icon: "❓", match: ["app-ekhtesasi.html"] }
+      ]
+    },
+    {
+      group: true,
+      text: "نمونه‌کارها",
+      href: "portfolio.html",
+      match: ["portfolio.html", "submit/index.html"],
+      children: [
+        { href: "portfolio.html", text: "مشاهده نمونه‌کارها", icon: "🎨", match: ["portfolio.html"] },
+        { href: "submit/index.html", text: "ارسال نمونه‌کار", icon: "📤", match: ["submit/index.html"] }
+      ]
+    },
     { href: "telegram/contact.html", text: "تماس", match: [] },
     {
       group: true,
       text: "حساب کاربری",
-      match: ["account.html", "profile.html", "favorites.html", "submit/index.html"],
+      href: "account.html",
+      match: ["account.html", "profile.html", "favorites.html"],
       children: [
         { href: "account.html", text: "داشبورد حساب", icon: "🗂️", match: ["account.html"] },
         { href: "profile.html", text: "پروفایل من", icon: "🧑", match: ["profile.html"] },
-        { href: "favorites.html", text: "علاقه‌مندی‌های من", icon: "⭐", match: ["favorites.html"] },
-        { href: "submit/index.html", text: "ارسال نمونه‌کار", icon: "📤", match: ["submit/index.html"] }
+        { href: "favorites.html", text: "علاقه‌مندی‌های من", icon: "⭐", match: ["favorites.html"] }
       ]
     }
   ];
+
+  // --- ساخت مسیر (Breadcrumb) صفحه‌ی فعلی: از روی همون NAV_LINKS بالا، خودکار محاسبه می‌شه ---
+  // تا صفحه‌ی جدیدی که به NAV_LINKS اضافه می‌شه، خودش مسیرشم داشته باشه، بدون کد اضافه.
+  const stripTitleSuffix = (t) => (t || "").replace(/\s*\|\s*بایت‌?لب\s*$/, "").trim();
+
+  function buildBreadcrumb() {
+    // پنل‌های مدیریت مسیر لازم ندارن
+    if (current === "admin.html" || current === "users-admin.html") return null;
+
+    // خود صفحه‌ی اصلی: فقط «خانه» بدون لینک
+    if (current === "index.html" || current === "") {
+      return [{ text: "خانه" }];
+    }
+
+    const crumbs = [{ text: "خانه", href: "index.html" }];
+    const isPortfolioItemPage = location.pathname.indexOf("/portfolio/") !== -1 && current !== "portfolio.html";
+
+    if (isPortfolioItemPage) {
+      crumbs.push({ text: "نمونه‌کارها", href: "portfolio.html" });
+      crumbs.push({ text: stripTitleSuffix(document.title) || "نمونه‌کار" });
+      return crumbs;
+    }
+    if (current === "blog-post.html") {
+      crumbs.push({ text: "بلاگ", href: "blog.html" });
+      crumbs.push({ text: stripTitleSuffix(document.title) || "مقاله" });
+      return crumbs;
+    }
+
+    // دنبال صفحه‌ی فعلی داخل NAV_LINKS بگرد؛ چه مستقل باشه چه زیرشاخه‌ی یه گروه
+    for (const item of NAV_LINKS) {
+      if (item.group) {
+        const child = item.children.find((c) => c.match.includes(current));
+        if (child) {
+          crumbs.push(item.href ? { text: item.text, href: item.href } : { text: item.text });
+          crumbs.push({ text: child.text });
+          return crumbs;
+        }
+      } else if (item.href !== "index.html" && item.match.includes(current)) {
+        crumbs.push({ text: item.text });
+        return crumbs;
+      }
+    }
+
+    // صفحه‌ای مثل چت که توی منو نیست: فقط عنوان خودش رو نشون بده
+    const title = stripTitleSuffix(document.title);
+    if (title) crumbs.push({ text: title });
+    return crumbs.length > 1 ? crumbs : null;
+  }
+
+  function renderBreadcrumbHTML() {
+    const crumbs = buildBreadcrumb();
+    if (!crumbs || crumbs.length === 0) return "";
+    const parts = crumbs.map((c, i) => {
+      const isLast = i === crumbs.length - 1;
+      if (c.href && !isLast) return `<a href="${c.href}">${c.text}</a>`;
+      return `<span class="${isLast ? "mn-crumb-current" : ""}">${c.text}</span>`;
+    });
+    return `<nav class="mn-breadcrumb" aria-label="مسیر صفحه">${parts.join('<span class="mn-crumb-sep">/</span>')}</nav>`;
+  }
+
+  const breadcrumbHTML = renderBreadcrumbHTML();
 
   // مسیر صفحه‌ی نمونه‌کارها (دکمه‌ی هدر اول به همین‌جا میره، دکمه‌ی ارسال داخل خودشه)
   const PORTFOLIO_SUBMIT_HREF = "portfolio.html";
@@ -402,6 +516,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     </div>
   </div>
 </header>
+${breadcrumbHTML}
 <div class="menu-overlay" id="menuOverlay"></div>
 <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="منوی سایت">
   <div class="mm-head">
