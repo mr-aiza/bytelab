@@ -332,10 +332,13 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     {
       group: true,
       text: "ابزارها",
-      match: ["playground.html", "editor.html"],
+      match: ["playground.html", "editor.html", "audit.html", "qr.html", "invoice.html"],
       children: [
         { href: "playground.html", text: "پلی‌گراند کد زنده", icon: "⚡", match: ["playground.html"] },
-        { href: "editor.html", text: "ویرایش آنلاین قالب", icon: "🛠️", match: ["editor.html"] }
+        { href: "editor.html", text: "ویرایش آنلاین قالب", icon: "🛠️", match: ["editor.html"] },
+        { href: "audit.html", text: "آنالیزور سایت", icon: "🔍", match: ["audit.html"] },
+        { href: "qr.html", text: "QR کد ساز", icon: "📱", match: ["qr.html"] },
+        { href: "invoice.html", text: "فاکتور ساز", icon: "🧾", match: ["invoice.html"] }
       ]
     },
     {
@@ -770,7 +773,10 @@ ${quickDockHTML}
       "tarahi-site.html": "طراحی سایت",
       "tarahi-app.html": "طراحی اپلیکیشن",
       "khadamat-computer.html": "خدمات کامپیوتر",
-      "hazine-tarahi-site.html": "هزینه طراحی سایت"
+      "hazine-tarahi-site.html": "هزینه طراحی سایت",
+      "audit.html": "آنالیزور سایت",
+      "qr.html": "QR کد ساز",
+      "invoice.html": "فاکتور ساز"
     };
     const pageName = TRACKED_PAGES[current];
     if (pageName && !sessionStorage.getItem("visited_" + current)) {
