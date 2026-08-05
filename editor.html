@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ویرایش آنلاین قالب | بایت‌لب</title>
+<script src="assets/bytelab-auth.js"></script>
 <meta name="description" content="یکی از قالب‌های نمونه‌کار بایت‌لب رو انتخاب کن و متن و رنگ‌هاش رو همین‌جا آنلاین ویرایش کن و پیش‌نمایش بگیر؛ بدون ثبت نهایی.">
 <meta name="robots" content="noindex">
 <link rel="canonical" href="https://bytelabpro.xyz/editor.html">
@@ -34,6 +35,46 @@
   }
   .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.02em;}
   a{color:inherit;text-decoration:none;}
+  
+  /* Overlay برای محافظت از صفحه */
+  .auth-overlay{
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(7,11,18,.96);backdrop-filter:blur(8px);
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;opacity:1;
+    transition:opacity .3s ease;
+  }
+  .auth-overlay.hidden{
+    opacity:0;pointer-events:none;
+  }
+  .auth-modal{
+    background:var(--panel);border:1px solid var(--line);border-radius:24px;
+    padding:40px;max-width:420px;text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .auth-modal h2{
+    font-size:24px;font-weight:800;margin-bottom:14px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .auth-modal p{
+    color:var(--muted);font-size:15px;line-height:1.8;margin-bottom:28px;
+  }
+  .auth-modal .auth-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    color:#06120f;font-weight:800;font-size:15px;
+    border:none;border-radius:999px;
+    padding:14px 32px;cursor:pointer;
+    box-shadow:0 0 24px rgba(77,240,201,.3);
+    transition:transform .2s ease, box-shadow .2s ease;
+    text-decoration:none;
+  }
+  .auth-modal .auth-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 32px rgba(77,240,201,.5);
+  }
   .wrap{max-width:1280px;margin:0 auto;padding:0 24px;}
 
   .ed-hero{padding:150px 0 28px;}
@@ -137,6 +178,15 @@
 </head>
 <body>
 
+<!-- Overlay for auth protection -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-modal">
+    <h2>🔐 دسترسی محدود</h2>
+    <p>این صفحه فقط برای اعضای ثبت‌نام‌شده‌ی بایت‌لب فعاله. لطفاً ابتدا به حساب خود وارد شوید.</p>
+    <a href="account.html" class="auth-btn">ورود / ثبت‌نام ←</a>
+  </div>
+</div>
+
 <section class="ed-hero">
   <div class="wrap">
     <div class="ed-crumb">
@@ -220,6 +270,35 @@
 </section>
 
 <footer class="ed-foot">© ۱۴۰۵ بایت‌لب — این صفحه فقط برای پیش‌نمایش آزمایشیه.</footer>
+
+<!-- Auth protection script -->
+<script>
+(function() {
+  const authOverlay = document.getElementById('authOverlay');
+  const edHero = document.querySelector('.ed-hero');
+  const edLayout = document.querySelector('.wrap');
+  
+  // Check if user is logged in
+  if (!BytelabAuth.isLoggedIn()) {
+    // Hide main content
+    if(edHero) edHero.style.display = 'none';
+    // Hide all wrap sections except the one in overlay
+    document.querySelectorAll('section .wrap, .ed-layout').forEach(el => {
+      if(el) el.parentElement.style.display = 'none';
+    });
+    // Show auth overlay
+    if(authOverlay) authOverlay.classList.remove('hidden');
+  } else {
+    // User is logged in, hide overlay
+    if(authOverlay) authOverlay.classList.add('hidden');
+    if(edHero) edHero.style.display = 'block';
+    // Show all sections
+    document.querySelectorAll('section').forEach(sec => {
+      if(sec !== authOverlay) sec.style.display = 'block';
+    });
+  }
+})();
+</script>
 
 <script src="templates-data.js"></script>
 <script src="editor.js"></script>
