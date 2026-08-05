@@ -5,7 +5,7 @@
 // ============================================================
 (function () {
   // آدرس Worker حساب‌کاربری رو بعد از دیپلوی، اینجا با آدرس واقعیت جایگزین کن
-  const API_URL = "https://bytelab-users.YOUR_SUBDOMAIN.workers.dev";
+  const API_URL = "https://bytelab-users.bytelab.workers.dev/";
   const TOKEN_KEY = "bytelab_auth_token";
   const USER_KEY = "bytelab_auth_user";
 
