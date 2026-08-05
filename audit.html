@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>آنالیزور سایت | بایت‌لب</title>
+<meta name="description" content="سایتت رو رایگان تحلیل کن؛ سرعت، سئوی پایه، ریسپانسیو بودن و SSL رو در چند ثانیه بررسی کن.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070b12;
+    --panel:#0f1620;
+    --panel-2:#141d2b;
+    --line:#1e2a38;
+    --cyan:#4df0c9;
+    --violet:#9c7bff;
+    --paper:#eaf0f4;
+    --muted:#7c8b9c;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{
+    background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;
+    line-height:1.7;overflow-x:hidden;width:100%;min-height:100vh;
+    padding:88px 24px 60px;
+  }
+  .wrap{max-width:680px;margin:0 auto;}
+  header.page-header{margin-bottom:48px;}
+  .sec-eyebrow{
+    font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:13px;
+    color:var(--violet);letter-spacing:.02em;margin-bottom:14px;display:block;
+  }
+  h1.sec-title{font-size:clamp(26px,3.6vw,40px);font-weight:800;}
+  .sec-sub{color:var(--muted);margin-top:14px;font-size:16px;}
+
+  .card{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);padding:32px 26px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .input-row{display:flex;gap:8px;margin-bottom:14px;}
+  input[type=text]{
+    flex:1;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:12px;padding:14px 16px;color:var(--paper);
+    font-family:inherit;font-size:15px;direction:ltr;text-align:left;
+  }
+  input[type=text]:focus{outline:2px solid var(--cyan);border-color:var(--cyan);}
+  button{
+    background:var(--cyan);border:none;border-radius:12px;padding:0 20px;
+    color:var(--ink);font-weight:700;font-family:inherit;font-size:15px;
+    cursor:pointer;white-space:nowrap;transition:transform .2s ease;
+  }
+  button:hover{transform:translateY(-2px);}
+  button:disabled{opacity:.6;cursor:not-allowed;}
+  .hint{color:var(--muted);font-size:12px;margin-top:0;}
+
+  #result{margin-top:22px;display:none;}
+  .score-wrap{display:flex;flex-direction:column;align-items:center;padding:20px 0 6px;}
+  .score-circle{
+    width:140px;height:140px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex-direction:column;
+    background:conic-gradient(var(--ring-color,var(--cyan)) calc(var(--pct,0) * 1%), #1b263c 0);
+    position:relative;
+  }
+  .score-circle::before{
+    content:"";position:absolute;inset:8px;
+    background:var(--panel);border-radius:50%;
+  }
+  .score-circle .num{position:relative;font-size:38px;font-weight:800;}
+  .score-circle .lbl{position:relative;font-size:12px;color:var(--muted);}
+  .score-verdict{margin-top:12px;font-size:14px;color:var(--muted);text-align:center;}
+
+  .checks{margin-top:20px;display:flex;flex-direction:column;gap:10px;}
+  .check{
+    display:flex;align-items:flex-start;gap:10px;
+    background:var(--panel-2);border:1px solid var(--line);
+    border-radius:12px;padding:12px 14px;
+  }
+  .check .dot{
+    width:22px;height:22px;border-radius:50%;
+    flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;margin-top:1px;
+  }
+  .dot.ok{background:rgba(34,197,94,.15);color:#22c55e;}
+  .dot.warn{background:rgba(234,179,8,.15);color:#eab308;}
+  .dot.bad{background:rgba(239,68,68,.15);color:#ef4444;}
+  .check .body b{display:block;font-size:14px;margin-bottom:2px;}
+  .check .body span{font-size:12.5px;color:var(--muted);line-height:1.7;}
+
+  .cta{
+    margin-top:24px;
+    background:linear-gradient(135deg,#1a2540,#141d2e);
+    border:1px solid var(--line);border-radius:16px;padding:18px;text-align:center;
+  }
+  .cta p{margin:0 0 12px;font-size:14.5px;line-height:1.9;color:var(--paper);}
+  .cta a{
+    display:inline-block;
+    background:var(--cyan);color:var(--ink);font-weight:700;text-decoration:none;
+    padding:12px 22px;border-radius:12px;font-size:14.5px;transition:transform .2s ease;
+  }
+  .cta a:hover{transform:translateY(-2px);}
+
+  .loading{display:none;text-align:center;padding:30px 0;color:var(--muted);}
+  .spinner{
+    width:36px;height:36px;border-radius:50%;
+    border:3px solid var(--line);border-top-color:var(--cyan);
+    margin:0 auto 12px;animation:spin 1s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .error{
+    display:none;
+    background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);
+    color:#fca5a5;padding:14px 16px;border-radius:12px;
+    margin-top:16px;font-size:14px;
+  }
+  @media (max-width:768px){
+    body{padding:88px 16px 60px;}
+    .card{padding:20px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page-header">
+    <span class="sec-eyebrow">🔍 ابزار رایگان</span>
+    <h1 class="sec-title">آنالیزور سایت</h1>
+    <p class="sec-sub">آدرس سایتت رو بده، در چند ثانیه سرعت، سئوی پایه، ریسپانسیو بودن و SSL رو رایگان چک کن.</p>
+  </header>
+
+  <div class="card">
+    <div class="input-row">
+      <input type="text" id="urlInput" placeholder="example.com" inputmode="url">
+      <button id="analyzeBtn">تحلیل کن</button>
+    </div>
+    <div class="hint">فقط آدرس سایت رو بنویس، نیازی به https:// نیست.</div>
+    <div class="error" id="errorBox"></div>
+    <div class="loading" id="loadingBox">
+      <div class="spinner"></div>
+      در حال بررسی سایت...
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="card">
+      <div class="score-wrap">
+        <div class="score-circle" id="scoreCircle">
+          <div class="num" id="scoreNum">0</div>
+          <div class="lbl">از ۱۰۰</div>
+        </div>
+        <div class="score-verdict" id="scoreVerdict"></div>
+      </div>
+      <div class="checks" id="checksList"></div>
+    </div>
+
+    <div class="cta">
+      <p>🚀 نمره پایینه؟ نگران نباش — تیم بایت‌لب همین ضعف‌ها رو برطرف می‌کنه و سایتت رو حرفه‌ای می‌سازه.</p>
+      <a href="https://t.me/bytelab" target="_blank" rel="noopener">مشاوره رایگان در تلگرام</a>
+    </div>
+  </div>
+</div>
+
+<script src="header.js"></script>
+<script>
+const API_ENDPOINT = '/api/audit';
+const urlInput = document.getElementById('urlInput');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const errorBox = document.getElementById('errorBox');
+const loadingBox = document.getElementById('loadingBox');
+const resultBox = document.getElementById('result');
+
+function normalizeUrl(v){
+  v = v.trim();
+  if(!v) return null;
+  if(!/^https?:\/\//i.test(v)) v = 'https://' + v;
+  try{
+    const u = new URL(v);
+    return u.href;
+  }catch(e){ return null; }
+}
+
+function setLoading(on){
+  analyzeBtn.disabled = on;
+  loadingBox.style.display = on ? 'block' : 'none';
+  if(on){ errorBox.style.display='none'; resultBox.style.display='none'; }
+}
+
+function scoreColor(pct){
+  if(pct >= 80) return '#22c55e';
+  if(pct >= 50) return '#eab308';
+  return '#ef4444';
+}
+
+function verdictText(pct){
+  if(pct >= 80) return 'عالیه! سایتت وضعیت خوبی داره، فقط چند نکته جزئی مونده.';
+  if(pct >= 50) return 'وضعیت متوسطه — چند مشکل مهم هست که روی جذب مشتری و رتبه گوگل اثر می‌ذاره.';
+  return 'سایتت چند ضعف جدی داره که احتمالاً داره مشتری و رتبه گوگل رو از دستت در می‌بره.';
+}
+
+function renderCheck(status, title, desc){
+  const iconMap = {ok:'✓', warn:'!', bad:'✕'};
+  return `<div class="check">
+    <div class="dot ${status}">${iconMap[status]}</div>
+    <div class="body"><b>${title}</b><span>${desc}</span></div>
+  </div>`;
+}
+
+function render(data){
+  document.getElementById('scoreNum').textContent = data.score;
+  document.getElementById('scoreCircle').style.setProperty('--pct', data.score);
+  document.getElementById('scoreCircle').style.setProperty('--ring-color', scoreColor(data.score));
+  document.getElementById('scoreVerdict').textContent = verdictText(data.score);
+
+  const list = document.getElementById('checksList');
+  list.innerHTML = data.checks.map(c => renderCheck(c.status, c.title, c.desc)).join('');
+  resultBox.style.display = 'block';
+}
+
+async function analyze(){
+  const normalized = normalizeUrl(urlInput.value);
+  if(!normalized){
+    errorBox.textContent = 'لطفاً یک آدرس معتبر وارد کن (مثل example.com)';
+    errorBox.style.display = 'block';
+    return;
+  }
+
+  setLoading(true);
+  try{
+    const res = await fetch(API_ENDPOINT + '?url=' + encodeURIComponent(normalized));
+    if(!res.ok) throw new Error('server');
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    render(data);
+  }catch(e){
+    errorBox.textContent = 'نتونستیم سایت رو بررسی کنیم. مطمئن شو آدرس درسته و سایت در دسترسه.';
+    errorBox.style.display = 'block';
+  }finally{
+    setLoading(false);
+  }
+}
+
+analyzeBtn.addEventListener('click', analyze);
+urlInput.addEventListener('keydown', e => { if(e.key === 'Enter') analyze(); });
+</script>
+</body>
+</html>
