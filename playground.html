@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پلی‌گراند کد زنده | بایت‌لب</title>
+<meta name="description" content="کد HTML، CSS و جاوااسکریپت بنویس و همون لحظه خروجیش رو ببین؛ ابزار رایگان پلی‌گراند کد بایت‌لب، مستقیم تو مرورگر و بدون نیاز به نصب چیزی.">
+<link rel="canonical" href="https://bytelabpro.xyz/playground.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="بایت‌لب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="پلی‌گراند کد زنده | بایت‌لب">
+<meta property="og:description" content="کد HTML، CSS و جاوااسکریپت بنویس و همون لحظه خروجیش رو ببین؛ رایگان و مستقیم تو مرورگر.">
+<meta property="og:url" content="https://bytelabpro.xyz/playground.html">
+<meta property="og:image" content="https://bytelabpro.xyz/favicon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="پلی‌گراند کد زنده | بایت‌لب">
+<meta name="twitter:description" content="کد HTML، CSS و جاوااسکریپت بنویس و همون لحظه خروجیش رو ببین؛ رایگان و مستقیم تو مرورگر.">
+<meta name="twitter:image" content="https://bytelabpro.xyz/favicon-512.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+
+<style>
+  :root{
+    --ink:#070b12;
+    --panel:#0f1620;
+    --panel-2:#141d2b;
+    --line:#1e2a38;
+    --cyan:#4df0c9;
+    --violet:#9c7bff;
+    --paper:#eaf0f4;
+    --muted:#7c8b9c;
+    --danger:#ff8a8a;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;
+    line-height:1.7;
+    min-height:100vh;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.02em;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 24px;}
+
+  .pg-hero{padding:150px 0 26px;}
+  .pg-crumb{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);margin-bottom:18px;flex-wrap:wrap;}
+  .pg-crumb a{color:var(--cyan);}
+  .pg-eyebrow{font-weight:700;font-size:13px;color:var(--violet);display:block;margin-bottom:12px;}
+  .pg-title{font-size:clamp(24px,3.6vw,38px);font-weight:800;max-width:760px;}
+  .pg-title .accent{
+    background:linear-gradient(90deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .pg-sub{color:var(--muted);margin-top:14px;font-size:15.5px;max-width:640px;}
+
+  .pg-toolbar{
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    margin:26px 0 24px;padding:12px;
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  }
+  select.pg-select, .pg-btn{
+    font-family:inherit;font-size:13.5px;font-weight:600;
+    border-radius:999px;border:1px solid var(--line);
+    padding:10px 18px;background:var(--panel-2);color:var(--paper);
+    cursor:pointer;transition:border-color .2s ease,color .2s ease,background .2s ease,transform .1s ease;
+  }
+  .pg-btn:hover, select.pg-select:hover{border-color:var(--cyan);color:var(--cyan);}
+  .pg-btn:active{transform:scale(.97);}
+  .pg-btn.primary{background:var(--cyan);color:#06120f;border-color:var(--cyan);}
+  .pg-btn.primary:hover{color:#06120f;opacity:.9;}
+  .pg-btn.violet{background:transparent;border-color:var(--violet);color:var(--violet);}
+  .pg-btn.violet:hover{background:rgba(156,123,255,.12);}
+  .pg-spacer{flex:1;}
+
+  .pg-workspace{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding-bottom:30px;}
+  @media (max-width:900px){ .pg-workspace{grid-template-columns:1fr;} }
+
+  .pg-panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;}
+  .pg-panel-head{display:flex;align-items:center;gap:6px;padding:10px;border-bottom:1px solid var(--line);background:var(--panel-2);}
+  .pg-tab{padding:7px 14px;font-size:12.5px;font-weight:600;border-radius:999px;color:var(--muted);cursor:pointer;border:1px solid transparent;user-select:none;display:flex;align-items:center;gap:7px;}
+  .pg-tab.active{color:var(--paper);background:var(--ink);border-color:var(--line);}
+  .pg-tag{display:inline-block;width:7px;height:7px;border-radius:50%;}
+  .pg-tag.html{background:#f97362;}
+  .pg-tag.css{background:var(--cyan);}
+  .pg-tag.js{background:#f2c14e;}
+
+  .pg-editor-wrap{position:relative;flex:1;min-height:340px;}
+  .CodeMirror{height:100% !important;min-height:340px;font-family:'JetBrains Mono',monospace;font-size:13px;direction:ltr;text-align:left;}
+  .pg-code-pane{display:none;height:100%;}
+  .pg-code-pane.active{display:block;}
+
+  .pg-preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel-2);font-size:12.5px;color:var(--muted);flex-wrap:wrap;}
+  .pg-live{display:inline-flex;align-items:center;gap:7px;color:var(--cyan);font-weight:700;}
+  .pg-live::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:pgPulse 1.8s ease-in-out infinite;}
+  @keyframes pgPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.7);}}
+  iframe.pg-frame{width:100%;height:100%;min-height:400px;border:0;background:#fff;flex:1;}
+
+  .pg-lead{display:none;padding:16px;border-top:1px solid var(--line);background:var(--panel-2);}
+  .pg-lead.open{display:block;}
+  .pg-lead p{font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.8;}
+  .pg-lead input, .pg-lead textarea, .pg-lead select{
+    width:100%;font-family:inherit;font-size:13.5px;
+    background:var(--ink);color:var(--paper);
+    border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;margin-bottom:10px;
+  }
+  .pg-lead input:focus, .pg-lead textarea:focus, .pg-lead select:focus{outline:none;border-color:var(--cyan);}
+  .pg-lead textarea{min-height:70px;resize:vertical;}
+  .pg-lead-status{font-size:12px;color:var(--muted);min-height:16px;margin-top:4px;}
+  .pg-lead-status.ok{color:var(--cyan);}
+  .pg-lead-status.err{color:var(--danger);}
+
+  .pg-toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--panel-2);border:1px solid var(--cyan);color:var(--paper);
+    padding:11px 18px;border-radius:999px;font-size:13px;
+    opacity:0;pointer-events:none;transition:all .25s ease;z-index:80;
+  }
+  .pg-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  footer.pg-foot{border-top:1px solid var(--line);padding:26px 0 90px;color:var(--muted);font-size:12.5px;text-align:center;}
+
+  @media (prefers-reduced-motion: reduce){ .pg-live::before{animation:none;} }
+</style>
+</head>
+<body>
+
+<section class="pg-hero">
+  <div class="wrap">
+    <div class="pg-crumb">
+      <a href="index.html">بایت‌لب</a>
+      <span>←</span>
+      <span>پلی‌گراند کد</span>
+    </div>
+    <span class="pg-eyebrow">ابزار رایگان — نسخه آزمایشی</span>
+    <h1 class="pg-title">کدتو بنویس، <span class="accent">همین الان</span> نتیجه رو ببین</h1>
+    <p class="pg-sub">ویرایشگر HTML، CSS و جاوااسکریپت با پیش‌نمایش زنده — مستقیم تو مرورگر، بدون نیاز به نصب یا ثبت‌نام. برای امتحان‌کردن ایده یا نشون‌دادن دقیق چیزی که مدنظرته به تیم بایت‌لب، عالیه.</p>
+
+    <div class="pg-toolbar">
+      <select class="pg-select" id="pgTemplate">
+        <option value="">📄 قالب آماده…</option>
+        <option value="blank">خالی</option>
+        <option value="landing">لندینگ ساده</option>
+        <option value="contact">فرم تماس</option>
+        <option value="cards">گالری کارت‌ها</option>
+      </select>
+      <button class="pg-btn primary" id="pgRun">▶ اجرا</button>
+      <button class="pg-btn" id="pgShare">🔗 اشتراک‌گذاری</button>
+      <button class="pg-btn violet" id="pgAI">✨ بهبود با AI</button>
+      <div class="pg-spacer"></div>
+      <button class="pg-btn" id="pgHire">این رو حرفه‌ای می‌خوام ←</button>
+    </div>
+
+    <div class="pg-workspace">
+      <div class="pg-panel">
+        <div class="pg-panel-head">
+          <div class="pg-tab active" data-pane="html">HTML<span class="pg-tag html"></span></div>
+          <div class="pg-tab" data-pane="css">CSS<span class="pg-tag css"></span></div>
+          <div class="pg-tab" data-pane="js">JS<span class="pg-tag js"></span></div>
+        </div>
+        <div class="pg-editor-wrap">
+          <div class="pg-code-pane active" id="pgPaneHtml"><textarea id="pgHtmlEditor"></textarea></div>
+          <div class="pg-code-pane" id="pgPaneCss"><textarea id="pgCssEditor"></textarea></div>
+          <div class="pg-code-pane" id="pgPaneJs"><textarea id="pgJsEditor"></textarea></div>
+        </div>
+
+        <div class="pg-lead" id="pgLeadForm">
+          <p>کدت آماده‌ست؟ بگو چی مدنظرته — تیم بایت‌لب باهات تماس می‌گیره و حرفه‌ایش می‌کنه.</p>
+          <input type="text" id="pgLeadName" placeholder="اسمت">
+          <input type="tel" id="pgLeadPhone" placeholder="شماره تماس (مثلاً 09123456789)" dir="ltr">
+          <textarea id="pgLeadMsg" placeholder="چی می‌خوای؟ (لندینگ، فروشگاه، اپلیکیشن و ...)"></textarea>
+          <button class="pg-btn primary" id="pgLeadSend" style="width:100%;">ارسال درخواست به بایت‌لب</button>
+          <div class="pg-lead-status" id="pgLeadStatus"></div>
+        </div>
+      </div>
+
+      <div class="pg-panel">
+        <div class="pg-preview-head">
+          <span class="pg-live">پیش‌نمایش زنده</span>
+          <span id="pgPreviewStatus" class="mono"></span>
+        </div>
+        <iframe class="pg-frame" id="pgPreview" sandbox="allow-scripts allow-modals" title="پیش‌نمایش زنده کد"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="pg-foot">© ۱۴۰۵ بایت‌لب — این ابزار رایگانه؛ هیچ کدی روی سرور ما ذخیره نمی‌شه مگر با دکمه‌ی اشتراک‌گذاری.</footer>
+
+<div class="pg-toast" id="pgToast"></div>
+
+<script>
+// ============ قالب‌های آماده ============
+const PG_TEMPLATES = {
+  blank: {
+    html: `<div class="box">\n  <h1>سلام دنیا 👋</h1>\n  <p>از اینجا شروع کن...</p>\n</div>`,
+    css: `body{\n  font-family: sans-serif;\n  display:flex; align-items:center; justify-content:center;\n  height:100vh; margin:0; background:#0f172a; color:#fff;\n}\n.box{ text-align:center; }`,
+    js: `console.log("پلی‌گراند بایت‌لب آماده‌ست");`
+  },
+  landing: {
+    html: `<section class="hero">\n  <h1>محصول شما، بهتر دیده می‌شود</h1>\n  <p>یک صفحه فرود ساده و سریع برای معرفی کسب‌وکار شما</p>\n  <button id="ctaBtn">شروع کنید</button>\n</section>`,
+    css: `body{ margin:0; font-family: sans-serif; background:#0a0f1e; color:#fff; }\n.hero{ min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px; }\n.hero h1{ font-size:2.2rem; margin-bottom:10px; }\n.hero p{ color:#93a1c4; margin-bottom:24px; }\n#ctaBtn{ background:linear-gradient(90deg,#4df0c9,#9c7bff); border:none; padding:14px 28px; border-radius:10px; color:#06120f; font-weight:bold; cursor:pointer; font-size:1rem; }`,
+    js: `document.getElementById('ctaBtn').addEventListener('click', () => {\n  alert('دکمه کلیک شد! اینجا می‌تونی فرم ثبت‌نام یا هدایت به صفحه بعد رو بذاری.');\n});`
+  },
+  contact: {
+    html: `<form id="contactForm">\n  <h2>تماس با ما</h2>\n  <input type="text" placeholder="نام" required>\n  <input type="email" placeholder="ایمیل" required>\n  <textarea placeholder="پیام شما" required></textarea>\n  <button type="submit">ارسال</button>\n  <p id="result"></p>\n</form>`,
+    css: `body{ margin:0; font-family:sans-serif; background:#f4f6fb; display:flex; align-items:center; justify-content:center; min-height:100vh; }\nform{ background:#fff; padding:24px; border-radius:14px; width:300px; box-shadow:0 10px 30px rgba(0,0,0,.1); }\ninput, textarea{ width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; font-family:inherit; }\nbutton{ width:100%; padding:10px; background:#9c7bff; color:#fff; border:none; border-radius:8px; cursor:pointer; }`,
+    js: `document.getElementById('contactForm').addEventListener('submit', (e) => {\n  e.preventDefault();\n  document.getElementById('result').textContent = 'پیام شما ثبت شد ✅';\n});`
+  },
+  cards: {
+    html: `<div class="grid">\n  <div class="card"><h3>طراحی وب</h3><p>وب‌سایت‌های سریع و واکنش‌گرا</p></div>\n  <div class="card"><h3>اپلیکیشن</h3><p>اپلیکیشن اندروید و وب</p></div>\n  <div class="card"><h3>خدمات کامپیوتر</h3><p>پشتیبانی و رفع مشکل</p></div>\n</div>`,
+    css: `body{ margin:0; font-family:sans-serif; background:#0a0f1e; padding:30px; }\n.grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; }\n.card{ background:#141b2e; border:1px solid #232a3a; border-radius:12px; padding:20px; color:#fff; transition:transform .2s; }\n.card:hover{ transform: translateY(-6px); border-color:#4df0c9; }\n.card h3{ margin:0 0 8px; color:#4df0c9; }\n.card p{ color:#93a1c4; font-size:14px; margin:0; }`,
+    js: ``
+  }
+};
+
+// ============ CodeMirror ============
+const pgCmOpts = { theme:'dracula', lineNumbers:true, lineWrapping:true, tabSize:2 };
+const pgHtmlCM = CodeMirror.fromTextArea(document.getElementById('pgHtmlEditor'), {...pgCmOpts, mode:'htmlmixed'});
+const pgCssCM  = CodeMirror.fromTextArea(document.getElementById('pgCssEditor'),  {...pgCmOpts, mode:'css'});
+const pgJsCM   = CodeMirror.fromTextArea(document.getElementById('pgJsEditor'),   {...pgCmOpts, mode:'javascript'});
+
+function pgLoadTemplate(name){
+  const t = PG_TEMPLATES[name] || PG_TEMPLATES.blank;
+  pgHtmlCM.setValue(t.html);
+  pgCssCM.setValue(t.css);
+  pgJsCM.setValue(t.js);
+  setTimeout(pgRunCode, 50);
+}
+
+// ============ تب‌ها ============
+document.querySelectorAll('.pg-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.pg-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.pg-code-pane').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('pgPane' + tab.dataset.pane[0].toUpperCase() + tab.dataset.pane.slice(1)).classList.add('active');
+    [pgHtmlCM, pgCssCM, pgJsCM].forEach(cm => cm.refresh());
+  });
+});
+
+// ============ اجرا / پیش‌نمایش زنده ============
+const pgPreview = document.getElementById('pgPreview');
+const pgPreviewStatus = document.getElementById('pgPreviewStatus');
+
+function pgRunCode(){
+  const doc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${pgCssCM.getValue()}</style></head><body>${pgHtmlCM.getValue()}<script>
+    window.onerror = function(msg){ parent.postMessage({type:'pg-error', msg}, '*'); };
+  <\/script><script>${pgJsCM.getValue()}<\/script></body></html>`;
+  pgPreview.srcdoc = doc;
+  pgPreviewStatus.textContent = '';
+}
+window.addEventListener('message', (e) => {
+  if(e.data && e.data.type === 'pg-error'){
+    pgPreviewStatus.textContent = '⚠ خطا: ' + e.data.msg;
+    pgPreviewStatus.style.color = 'var(--danger)';
+  }
+});
+let pgDebounce;
+[pgHtmlCM, pgCssCM, pgJsCM].forEach(cm => {
+  cm.on('change', () => { clearTimeout(pgDebounce); pgDebounce = setTimeout(pgRunCode, 700); });
+});
+document.getElementById('pgRun').addEventListener('click', pgRunCode);
+
+// ============ Toast ============
+function pgToast(msg){
+  const t = document.getElementById('pgToast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ============ اشتراک‌گذاری از طریق لینک ============
+function pgEncodeState(){
+  const state = { h: pgHtmlCM.getValue(), c: pgCssCM.getValue(), j: pgJsCM.getValue() };
+  return btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+}
+function pgDecodeState(str){ return JSON.parse(decodeURIComponent(escape(atob(str)))); }
+document.getElementById('pgShare').addEventListener('click', () => {
+  const hash = pgEncodeState();
+  const url = location.origin + location.pathname + '#code=' + hash;
+  history.replaceState(null, '', '#code=' + hash);
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(() => pgToast('لینک کپی شد ✅'));
+  } else {
+    prompt('لینک اشتراک‌گذاری:', url);
+  }
+});
+
+/* ---------------------------------------------------------------------
+   اتصال به AI (زیرساخت bytelab-ai) — دقیقاً همون آدرس و پروتکلی که
+   editor.js و chat.html استفاده می‌کنن، پس نیازی به وورکر جدا نیست.
+   -------------------------------------------------------------------- */
+const PG_AI_ENDPOINT = 'https://bytelab-ai.bytelab.workers.dev/';
+
+async function pgCallAI(system, prompt){
+  const res = await fetch(PG_AI_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ system, messages: [{ role: 'user', content: prompt }] })
+  });
+  const raw = await res.text();
+  let data;
+  try { data = JSON.parse(raw); } catch(e){ throw new Error('AI_BAD_RESPONSE'); }
+  if (!res.ok || data.error) throw new Error(data.error || 'AI_REQUEST_FAILED');
+  if (data.content && Array.isArray(data.content) && data.content[0] && data.content[0].text) {
+    return data.content[0].text.toString().trim();
+  }
+  return (data.reply || data.response || data.text || data.message || '').toString().trim();
+}
+
+document.getElementById('pgAI').addEventListener('click', async () => {
+  const btn = document.getElementById('pgAI');
+  btn.disabled = true;
+  pgToast('در حال بهبود کد با AI…');
+  const system = 'تو یه برنامه‌نویس فرانت‌اند حرفه‌ای هستی که کد HTML/CSS/JS کاربر رو تمیزتر، بهینه‌تر و بدون تغییر در ظاهر و رفتار اصلیش بهبود می‌دی. ' +
+    'فقط و فقط یک JSON خام و معتبر با این ساختار دقیق برگردون، بدون هیچ توضیح اضافه، بدون بک‌تیک یا Markdown دورش: ' +
+    '{"html":"...","css":"...","js":"..."}';
+  const prompt = 'این کد رو بهبود بده:\n\n--- HTML ---\n' + pgHtmlCM.getValue() +
+    '\n\n--- CSS ---\n' + pgCssCM.getValue() +
+    '\n\n--- JS ---\n' + pgJsCM.getValue();
+  try {
+    let text = await pgCallAI(system, prompt);
+    text = text.replace(/^```json/i, '').replace(/^```/,'').replace(/```$/,'').trim();
+    const data = JSON.parse(text);
+    if (typeof data.html === 'string') pgHtmlCM.setValue(data.html);
+    if (typeof data.css === 'string')  pgCssCM.setValue(data.css);
+    if (typeof data.js === 'string')   pgJsCM.setValue(data.js);
+    pgRunCode();
+    pgToast('کد بهبود یافت ✨');
+  } catch (err) {
+    pgToast('خطا در اتصال به AI — بعداً دوباره امتحان کن');
+  }
+  btn.disabled = false;
+});
+
+/* ---------------------------------------------------------------------
+   درخواست پروژه حرفه‌ای → مستقیم به همون Worker تلگرام سایت
+   (دقیقاً همون endpoint و ساختار داده‌ای که telegram/contact.html می‌فرسته)
+   -------------------------------------------------------------------- */
+const PG_TELEGRAM_WORKER_URL = 'https://bytelab-telegram.bytelab.workers.dev/';
+
+const pgLeadForm = document.getElementById('pgLeadForm');
+document.getElementById('pgHire').addEventListener('click', () => {
+  pgLeadForm.classList.toggle('open');
+});
+
+document.getElementById('pgLeadSend').addEventListener('click', async () => {
+  const name = document.getElementById('pgLeadName').value.trim();
+  const phone = document.getElementById('pgLeadPhone').value.trim();
+  const msg = document.getElementById('pgLeadMsg').value.trim();
+  const statusEl = document.getElementById('pgLeadStatus');
+  const btn = document.getElementById('pgLeadSend');
+
+  if (!name || !phone || !msg) {
+    statusEl.textContent = 'لطفاً اسم، شماره تماس و توضیحات رو پر کن.';
+    statusEl.className = 'pg-lead-status err';
+    return;
+  }
+
+  btn.disabled = true;
+  statusEl.textContent = 'در حال ارسال…';
+  statusEl.className = 'pg-lead-status';
+
+  try {
+    const res = await fetch(PG_TELEGRAM_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'contact',
+        name: name,
+        phone: phone,
+        service: 'سایر',
+        message: '[از پلی‌گراند کد] ' + msg
+      })
+    });
+    if (res.ok) {
+      statusEl.textContent = '✓ درخواست ارسال شد، به‌زودی باهات تماس می‌گیریم.';
+      statusEl.className = 'pg-lead-status ok';
+      document.getElementById('pgLeadName').value = '';
+      document.getElementById('pgLeadPhone').value = '';
+      document.getElementById('pgLeadMsg').value = '';
+    } else {
+      statusEl.textContent = 'مشکلی پیش اومد، دوباره امتحان کن.';
+      statusEl.className = 'pg-lead-status err';
+    }
+  } catch (err) {
+    statusEl.textContent = 'خطا در ارتباط با سرور.';
+    statusEl.className = 'pg-lead-status err';
+  }
+  btn.disabled = false;
+});
+
+// ============ مقداردهی اولیه ============
+(function pgInit(){
+  const hash = location.hash;
+  if (hash.startsWith('#code=')) {
+    try {
+      const state = pgDecodeState(hash.replace('#code=', ''));
+      pgHtmlCM.setValue(state.h || '');
+      pgCssCM.setValue(state.c || '');
+      pgJsCM.setValue(state.j || '');
+    } catch (e) {
+      pgLoadTemplate('landing');
+    }
+  } else {
+    pgLoadTemplate('landing');
+  }
+  setTimeout(pgRunCode, 100);
+})();
+
+document.getElementById('pgTemplate').addEventListener('change', (e) => {
+  if (e.target.value) pgLoadTemplate(e.target.value);
+  e.target.value = '';
+});
+</script>
+
+<script src="header.js"></script>
+</body>
+</html>
