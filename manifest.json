@@ -27,6 +27,16 @@
       "name": "نمونه‌کارها",
       "url": "portfolio.html",
       "description": "مشاهده نمونه‌کارهای بایت‌لب"
+    },
+    {
+      "name": "حساب کاربری",
+      "url": "account.html",
+      "description": "ورود به داشبورد حساب کاربری"
+    },
+    {
+      "name": "علاقه‌مندی‌های من",
+      "url": "favorites.html",
+      "description": "مشاهده لیست علاقه‌مندی‌ها"
     }
   ]
 }
