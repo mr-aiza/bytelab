@@ -278,9 +278,11 @@
   const authOverlay = document.getElementById('authOverlay');
   const edHero = document.querySelector('.ed-hero');
   const edLayout = document.querySelector('.wrap');
-  
+
+  const loggedIn = (typeof BytelabAuth !== 'undefined') && BytelabAuth.isLoggedIn();
+
   // Check if user is logged in
-  if (!BytelabAuth.isLoggedIn()) {
+  if (!loggedIn) {
     // Hide main content
     if(edHero) edHero.style.display = 'none';
     // Hide all wrap sections except the one in overlay
