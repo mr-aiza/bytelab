@@ -343,7 +343,7 @@ async function sendDocumentToTelegram(env, jsonText, filename, caption) {
 // ============================================================
 //  اتصال به AI (bytelab-ai) برای پیش‌نویس خودکار بلاگ
 // ============================================================
-async function callAIWorker(env, system, userText) {
+async function callAIWorker(env, system, userText, maxTokens) {
   // مثل bytelab-telegram، از Service Binding استفاده می‌کنیم نه فچ مستقیم به آدرس
   // عمومی workers.dev (که می‌تونه ۴۰۴/۱۰۴۲ بده). توی Cloudflare Dashboard →
   // این Worker → Bindings → Add binding → Service binding، یه Binding با
@@ -360,7 +360,7 @@ async function callAIWorker(env, system, userText) {
       "Content-Type": "application/json",
       "X-Bytelab-Internal": "bytelab-internal-2026",
     },
-    body: JSON.stringify({ system, messages: [{ role: "user", content: userText }] }),
+    body: JSON.stringify({ system, messages: [{ role: "user", content: userText }], max_tokens: maxTokens || 900 }),
   });
   const rawBody = await response.text();
   let data;
@@ -651,7 +651,7 @@ async function handleBlogAI(request, env) {
 
   let draft;
   try {
-    const aiText = await callAIWorker(env, BLOG_WRITER_SYSTEM_HINT, userMsg);
+    const aiText = await callAIWorker(env, BLOG_WRITER_SYSTEM_HINT, userMsg, 2500);
     let cleaned = aiText.replace(/```json/gi, "").replace(/```/g, "").trim();
     try {
       draft = JSON.parse(cleaned);
