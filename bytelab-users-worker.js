@@ -506,7 +506,7 @@ async function handleAudit(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-
+     url.pathname = url.pathname.replace(/\/+/g, "/");
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders(env) });
     }
