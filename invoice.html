@@ -5,166 +5,73 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
 <title>فاکتور ساز | بایت‌لب</title>
-<meta name="description" content="پیش‌فاکتور یا فاکتور حرفه‌ای با هویت بصری بایت‌لب بساز و به‌صورت PDF دانلود کن.">
+<meta name="description" content="فاکتور یا پیش‌فاکتور بساز و PDF دانلود کن.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="بایت‌لب">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-  :root{
-    --ink:#070b12;
-    --panel:#0f1620;
-    --panel-2:#141d2b;
-    --line:#1e2a38;
-    --cyan:#4df0c9;
-    --violet:#9c7bff;
-    --paper:#eaf0f4;
-    --muted:#7c8b9c;
-    --radius:18px;
-  }
+  :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--radius:18px;}
   *{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;overflow-x:hidden;}
-  body{
-    background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;
-    line-height:1.7;overflow-x:hidden;width:100%;min-height:100vh;
-    padding:88px 24px 80px;
-  }
-  .wrap{max-width:720px;margin:0 auto;}
-  header.page-header{margin-bottom:48px;}
-  .sec-eyebrow{
-    font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:13px;
-    color:var(--violet);letter-spacing:.02em;margin-bottom:14px;display:block;
-  }
-  h1.sec-title{font-size:clamp(26px,3.6vw,40px);font-weight:800;}
-  .sec-sub{color:var(--muted);margin-top:14px;font-size:16px;}
-
-  .card{
-    background:var(--panel);border:1px solid var(--line);
-    border-radius:var(--radius);padding:32px 26px;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);
-    margin-bottom:16px;
-  }
-  .card h2{font-size:15px;margin:0 0 14px;color:var(--cyan);}
-
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;width:100%;margin:0;padding:0;}
+  main{margin-top:88px;padding:40px 16px 60px;max-width:680px;margin-left:auto;margin-right:auto;}
+  h1{font-size:28px;font-weight:800;margin:0 0 12px;}
+  h2{font-size:14px;margin:16px 0 12px;color:var(--cyan);}
+  .page-header{margin-bottom:32px;}
+  .sec-eyebrow{font-weight:700;font-size:12px;color:var(--violet);letter-spacing:.02em;margin-bottom:8px;text-transform:uppercase;}
+  .sec-sub{color:var(--muted);font-size:14px;line-height:1.6;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+  .doc-type{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .doc-type .opt{flex:1;min-width:120px;text-align:center;padding:10px;border-radius:8px;background:var(--panel-2);border:1px solid var(--line);cursor:pointer;font-size:13px;color:var(--muted);transition:all .2s;}
+  .doc-type .opt.active{background:var(--cyan);color:var(--ink);font-weight:800;border-color:transparent;}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;}
-  input[type=text], input[type=number], input[type=date], select{
-    width:100%;background:var(--panel-2);border:1px solid var(--line);
-    border-radius:10px;padding:10px 12px;color:var(--paper);
-    font-family:inherit;font-size:14px;
-  }
-  input:focus, select:focus{outline:2px solid var(--cyan);border-color:var(--cyan);}
-  .field{margin-bottom:12px;}
-
-  .doc-type{display:flex;gap:8px;margin-bottom:16px;}
-  .doc-type .opt{
-    flex:1;text-align:center;padding:10px;border-radius:10px;
-    background:var(--panel-2);border:1px solid var(--line);cursor:pointer;
-    font-size:13.5px;color:var(--muted);transition:all .2s ease;
-  }
-  .doc-type .opt.active{
-    background:var(--cyan);color:var(--ink);font-weight:800;border-color:transparent;
-  }
-  .doc-type .opt:hover:not(.active){border-color:var(--cyan);}
-
-  .item-row{
-    display:grid;grid-template-columns:1fr 60px 90px auto;gap:8px;
-    align-items:end;margin-bottom:10px;
-  }
-  .item-row input{font-size:13.5px;}
-  .del-item{
-    background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.4);
-    border-radius:10px;height:40px;width:40px;cursor:pointer;font-size:16px;
-    transition:all .2s ease;
-  }
-  .del-item:hover{background:rgba(239,68,68,.25);}
-  .add-item{
-    width:100%;background:var(--panel-2);border:1px dashed var(--line);
-    border-radius:10px;padding:10px;color:var(--cyan);font-family:inherit;
-    font-size:13.5px;cursor:pointer;margin-top:4px;transition:all .2s ease;
-  }
-  .add-item:hover{border-color:var(--cyan);background:rgba(77,240,201,.05);}
-
-  .discount-row{display:flex;gap:12px;align-items:center;margin-top:8px;}
+  @media (max-width:640px){.grid2{grid-template-columns:1fr;}}
+  label{display:block;font-size:11px;color:var(--muted);margin:10px 0 6px;font-weight:600;}
+  input[type=text],input[type=number],input[type=date],select{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--paper);font-family:inherit;font-size:13px;}
+  input:focus,select:focus{outline:2px solid var(--cyan);border-color:var(--cyan);}
+  .field{margin-bottom:10px;}
+  .item-row{display:grid;grid-template-columns:1fr 50px 70px 40px;gap:8px;align-items:end;margin-bottom:8px;}
+  .item-row input{font-size:12px;padding:8px;}
+  .del-item{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.4);border-radius:6px;height:36px;width:36px;cursor:pointer;font-size:14px;transition:all .2s;}
+  .add-item{width:100%;background:var(--panel-2);border:1px dashed var(--line);border-radius:8px;padding:8px;color:var(--cyan);font-family:inherit;font-size:12px;cursor:pointer;margin-top:8px;transition:all .2s;}
+  .discount-row{display:flex;gap:12px;align-items:center;margin-top:12px;}
   .discount-row .field{flex:1;margin-bottom:0;}
-
-  .summary{
-    background:var(--panel-2);border-radius:12px;padding:14px 16px;margin-top:14px;
-    font-size:14px;
-  }
-  .summary .line{display:flex;justify-content:space-between;padding:4px 0;color:var(--muted);}
-  .summary .line.total{
-    color:var(--paper);font-weight:800;font-size:16px;
-    border-top:1px solid var(--line);margin-top:6px;padding-top:10px;
-  }
-
-  .generate-btn{
-    width:100%;background:var(--cyan);
-    border:none;border-radius:14px;padding:16px;color:var(--ink);font-weight:800;
-    font-family:inherit;font-size:16px;cursor:pointer;transition:transform .2s ease;
-  }
-  .generate-btn:hover{transform:translateY(-2px);}
-
-  /* ---- پیش‌نمایش فاکتور ---- */
+  .summary{background:var(--panel-2);border-radius:8px;padding:12px 14px;margin-top:12px;font-size:13px;}
+  .summary .line{display:flex;justify-content:space-between;padding:3px 0;color:var(--muted);}
+  .summary .line.total{color:var(--paper);font-weight:800;font-size:14px;border-top:1px solid var(--line);margin-top:6px;padding-top:8px;}
+  .generate-btn{width:100%;background:var(--cyan);border:none;border-radius:8px;padding:12px;color:var(--ink);font-weight:800;font-family:inherit;font-size:14px;cursor:pointer;transition:transform .2s;margin-top:12px;}
+  .generate-btn:hover{transform:translateY(-1px);}
   #invoicePreviewWrap{display:none;margin-top:20px;}
-  #invoicePreview{
-    background:#ffffff;color:#111827;border-radius:14px;
-    padding:32px 28px;direction:rtl;font-family:'Vazirmatn',sans-serif;
-  }
-  .inv-header{
-    display:flex;justify-content:space-between;align-items:flex-start;
-    border-bottom:3px solid #070b12;padding-bottom:16px;margin-bottom:20px;
-  }
-  .inv-header .brand{font-size:22px;font-weight:800;color:#070b12;}
-  .inv-header .brand small{display:block;font-size:11px;font-weight:400;color:#6b7280;margin-top:2px;}
-  .inv-header .doc-badge{
-    background:#070b12;color:#4df0c9;font-weight:800;
-    padding:8px 18px;border-radius:8px;font-size:13px;
-  }
-  .inv-meta{display:flex;justify-content:space-between;margin-bottom:20px;font-size:13px;}
-  .inv-meta .block b{display:block;font-size:11px;color:#6b7280;font-weight:400;margin-bottom:3px;}
-  table.inv-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;}
-  table.inv-table th{
-    background:#070b12;color:#fff;padding:9px 10px;text-align:right;font-weight:700;
-  }
-  table.inv-table td{padding:9px 10px;border-bottom:1px solid #e5e7eb;}
-  table.inv-table tr:nth-child(even) td{background:#f9fafb;}
-  .inv-summary{width:260px;margin-inline-start:auto;font-size:13.5px;}
-  .inv-summary .line{display:flex;justify-content:space-between;padding:5px 0;color:#4b5563;}
-  .inv-summary .line.total{
-    font-weight:800;font-size:16px;color:#070b12;
-    border-top:2px solid #070b12;margin-top:6px;padding-top:10px;
-  }
-  .inv-footer{
-    margin-top:26px;padding-top:14px;border-top:1px solid #e5e7eb;
-    font-size:11.5px;color:#6b7280;text-align:center;
-  }
-
-  .actions{display:flex;gap:10px;margin-top:16px;}
-  .actions button{
-    flex:1;border-radius:12px;padding:13px;font-family:inherit;
-    font-size:14px;cursor:pointer;transition:all .2s ease;
-  }
-  .actions .pdf-btn{
-    background:var(--cyan);color:var(--ink);font-weight:800;border:none;
-  }
-  .actions .pdf-btn:hover{transform:translateY(-2px);}
+  #invoicePreview{background:#fff;color:#111827;border-radius:10px;padding:24px;direction:rtl;font-family:'Vazirmatn',sans-serif;font-size:12px;}
+  .inv-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #070b12;padding-bottom:12px;margin-bottom:16px;}
+  .inv-header .brand{font-size:18px;font-weight:800;color:#070b12;}
+  .inv-header .brand small{display:block;font-size:10px;color:#6b7280;margin-top:2px;}
+  .inv-header .doc-badge{background:#070b12;color:#4df0c9;font-weight:800;padding:6px 12px;border-radius:6px;font-size:11px;}
+  .inv-meta{display:flex;justify-content:space-between;margin-bottom:14px;font-size:11px;flex-wrap:wrap;gap:8px;}
+  .inv-meta .block b{font-size:10px;color:#6b7280;font-weight:600;margin-bottom:2px;display:block;}
+  table.inv-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px;}
+  table.inv-table th{background:#070b12;color:#fff;padding:8px;text-align:right;font-weight:600;}
+  table.inv-table td{padding:8px;border-bottom:1px solid #e5e7eb;}
+  .inv-summary{width:200px;margin-inline-start:auto;font-size:11px;}
+  .inv-summary .line{display:flex;justify-content:space-between;padding:3px 0;color:#4b5563;}
+  .inv-summary .line.total{font-weight:800;color:#070b12;border-top:1px solid #070b12;margin-top:6px;padding-top:6px;}
+  .inv-footer{margin-top:16px;padding-top:10px;border-top:1px solid #e5e7eb;font-size:10px;color:#6b7280;text-align:center;}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+  .actions button{border-radius:8px;padding:10px;font-family:inherit;font-size:13px;cursor:pointer;transition:all .2s;}
+  .actions .pdf-btn{background:var(--cyan);color:var(--ink);font-weight:800;border:none;}
   .actions .edit-btn{background:var(--panel-2);color:var(--paper);border:1px solid var(--line);}
-  .actions .edit-btn:hover{border-color:var(--cyan);color:var(--cyan);}
-  @media (max-width:768px){
-    body{padding:88px 16px 80px;}
-    .card{padding:20px;}
-    .item-row{grid-template-columns:1fr 50px 70px auto;}
-    .grid2{grid-template-columns:1fr;}
-  }
+  @media (max-width:640px){main{padding:30px 12px 50px;margin-top:72px;}h1{font-size:24px;}.card{padding:16px;}.item-row{grid-template-columns:1fr 40px 50px 36px;}.item-row input{font-size:11px;padding:6px;}}
 </style>
 </head>
 <body>
-<div class="wrap">
+<main>
   <header class="page-header">
-    <span class="sec-eyebrow">🧾 ابزار رایگان</span>
-    <h1 class="sec-title">فاکتور / پیش‌فاکتور ساز</h1>
-    <p class="sec-sub">اطلاعات مشتری و آیتم‌ها رو وارد کن، فاکتور حرفه‌ای بساز و PDF بگیر.</p>
+    <span class="sec-eyebrow">🧾 ابزار</span>
+    <h1>فاکتور ساز</h1>
+    <p class="sec-sub">فاکتور یا پیش‌فاکتور بساز و PDF دانلود کن.</p>
   </header>
 
   <div class="card">
@@ -172,14 +79,13 @@
       <div class="opt active" data-val="پیش‌فاکتور">پیش‌فاکتور</div>
       <div class="opt" data-val="فاکتور">فاکتور نهایی</div>
     </div>
-
-    <h2>اطلاعات مشتری</h2>
+    <h2>مشتری</h2>
     <div class="grid2">
-      <div class="field"><label>نام مشتری / کسب‌وکار</label><input type="text" id="customerName" placeholder="مثلاً: فروشگاه زرین"></div>
-      <div class="field"><label>شماره تماس (اختیاری)</label><input type="text" id="customerPhone" placeholder="09xxxxxxxxx"></div>
+      <div class="field"><label>نام</label><input type="text" id="customerName" placeholder="نام مشتری"></div>
+      <div class="field"><label>تماس</label><input type="text" id="customerPhone" placeholder="۰۹..."></div>
     </div>
     <div class="grid2">
-      <div class="field"><label>شماره سند</label><input type="text" id="docNumber" placeholder="1004"></div>
+      <div class="field"><label>شماره</label><input type="text" id="docNumber" placeholder="۱۰۰۴"></div>
       <div class="field"><label>تاریخ</label><input type="date" id="docDate"></div>
     </div>
   </div>
@@ -187,172 +93,66 @@
   <div class="card">
     <h2>آیتم‌ها</h2>
     <div id="itemsList"></div>
-    <button class="add-item" id="addItemBtn">+ افزودن آیتم</button>
-
+    <button class="add-item" id="addItemBtn">+ افزودن</button>
     <div class="discount-row">
       <div class="field">
         <label>تخفیف (تومان)</label>
         <input type="number" id="discountInput" value="0" min="0">
       </div>
     </div>
-
     <div class="summary">
-      <div class="line"><span>جمع جزء</span><span id="sumSubtotal">۰ تومان</span></div>
-      <div class="line"><span>تخفیف</span><span id="sumDiscount">۰ تومان</span></div>
-      <div class="line total"><span>مبلغ نهایی</span><span id="sumTotal">۰ تومان</span></div>
+      <div class="line"><span>جمع</span><span id="sumSubtotal">۰</span></div>
+      <div class="line"><span>تخفیف</span><span id="sumDiscount">۰</span></div>
+      <div class="line total"><span>نهایی</span><span id="sumTotal">۰</span></div>
     </div>
   </div>
 
-  <button class="generate-btn" id="genBtn">ساخت پیش‌نمایش فاکتور</button>
+  <button class="generate-btn" id="genBtn">پیش‌نمایش</button>
 
   <div id="invoicePreviewWrap">
     <div id="invoicePreview">
       <div class="inv-header">
-        <div class="brand">بایت‌لب<small>خدمات وب، اپلیکیشن و کامپیوتر · bytelabpro.xyz</small></div>
+        <div class="brand">بایت‌لب<small>خدمات وب و اپ</small></div>
         <div class="doc-badge" id="pvDocType">پیش‌فاکتور</div>
       </div>
       <div class="inv-meta">
         <div class="block"><b>مشتری</b><span id="pvCustomer">—</span></div>
-        <div class="block"><b>شماره سند</b><span id="pvDocNumber">—</span></div>
+        <div class="block"><b>شماره</b><span id="pvDocNumber">—</span></div>
         <div class="block"><b>تاریخ</b><span id="pvDate">—</span></div>
       </div>
       <table class="inv-table">
-        <thead><tr><th>شرح</th><th>تعداد</th><th>قیمت واحد</th><th>جمع</th></tr></thead>
+        <thead><tr><th>شرح</th><th>تعداد</th><th>قیمت</th><th>جمع</th></tr></thead>
         <tbody id="pvItemsBody"></tbody>
       </table>
       <div class="inv-summary">
-        <div class="line"><span>جمع جزء</span><span id="pvSubtotal">۰</span></div>
+        <div class="line"><span>جمع</span><span id="pvSubtotal">۰</span></div>
         <div class="line"><span>تخفیف</span><span id="pvDiscount">۰</span></div>
-        <div class="line total"><span>مبلغ نهایی</span><span id="pvTotal">۰</span></div>
+        <div class="line total"><span>نهایی</span><span id="pvTotal">۰</span></div>
       </div>
-      <div class="inv-footer">این سند توسط بایت‌لب صادر شده است — تماس: تلگرام @bytelab | bytelabpro.xyz</div>
+      <div class="inv-footer">بایت‌لب | bytelabpro.xyz | @bytelab</div>
     </div>
-
     <div class="actions">
       <button class="pdf-btn" id="pdfBtn">دانلود PDF</button>
       <button class="edit-btn" id="editBtn">ویرایش</button>
     </div>
   </div>
-</div>
+</main>
 
 <script src="header.js"></script>
 <script>
-let itemCount = 0;
-
-function fmt(n){
-  return Math.round(n).toLocaleString('fa-IR') + ' تومان';
-}
-function fmtPlain(n){
-  return Math.round(n).toLocaleString('fa-IR');
-}
-
-function addItem(name = '', qty = 1, price = ''){
-  itemCount++;
-  const id = 'item_' + itemCount;
-  const row = document.createElement('div');
-  row.className = 'item-row';
-  row.dataset.id = id;
-  row.innerHTML = `
-    <div><label>شرح آیتم</label><input type="text" class="it-name" value="${name}" placeholder="مثلاً: طراحی سایت"></div>
-    <div><label>تعداد</label><input type="number" class="it-qty" value="${qty}" min="1"></div>
-    <div><label>قیمت واحد</label><input type="number" class="it-price" value="${price}" min="0" placeholder="تومان"></div>
-    <button class="del-item" title="حذف">✕</button>
-  `;
-  row.querySelector('.del-item').addEventListener('click', () => { row.remove(); recalc(); });
-  row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', recalc));
-  document.getElementById('itemsList').appendChild(row);
-}
-
-function recalc(){
-  let subtotal = 0;
-  document.querySelectorAll('.item-row').forEach(row => {
-    const qty = parseFloat(row.querySelector('.it-qty').value) || 0;
-    const price = parseFloat(row.querySelector('.it-price').value) || 0;
-    subtotal += qty * price;
-  });
-  const discount = parseFloat(document.getElementById('discountInput').value) || 0;
-  const total = Math.max(0, subtotal - discount);
-
-  document.getElementById('sumSubtotal').textContent = fmt(subtotal);
-  document.getElementById('sumDiscount').textContent = fmt(discount);
-  document.getElementById('sumTotal').textContent = fmt(total);
-}
-
-document.getElementById('addItemBtn').addEventListener('click', () => addItem());
-document.getElementById('discountInput').addEventListener('input', recalc);
-
-document.querySelectorAll('#docType .opt').forEach(opt => {
-  opt.addEventListener('click', () => {
-    document.querySelectorAll('#docType .opt').forEach(o => o.classList.remove('active'));
-    opt.classList.add('active');
-  });
-});
-
-// یک آیتم پیش‌فرض
-addItem('طراحی و پیاده‌سازی وب‌سایت', 1, '');
-document.getElementById('docDate').valueAsDate = new Date();
-
-document.getElementById('genBtn').addEventListener('click', () => {
-  const docType = document.querySelector('#docType .opt.active').dataset.val;
-  const customer = document.getElementById('customerName').value.trim() || '—';
-  const phone = document.getElementById('customerPhone').value.trim();
-  const docNumber = document.getElementById('docNumber').value.trim() || '—';
-  const dateVal = document.getElementById('docDate').value;
-  const dateFa = dateVal ? new Date(dateVal).toLocaleDateString('fa-IR') : '—';
-
-  let subtotal = 0;
-  const rows = [];
-  document.querySelectorAll('.item-row').forEach(row => {
-    const name = row.querySelector('.it-name').value.trim();
-    const qty = parseFloat(row.querySelector('.it-qty').value) || 0;
-    const price = parseFloat(row.querySelector('.it-price').value) || 0;
-    if(!name) return;
-    const lineTotal = qty * price;
-    subtotal += lineTotal;
-    rows.push({ name, qty, price, lineTotal });
-  });
-  const discount = parseFloat(document.getElementById('discountInput').value) || 0;
-  const total = Math.max(0, subtotal - discount);
-
-  document.getElementById('pvDocType').textContent = docType;
-  document.getElementById('pvCustomer').textContent = phone ? `${customer} (${phone})` : customer;
-  document.getElementById('pvDocNumber').textContent = docNumber;
-  document.getElementById('pvDate').textContent = dateFa;
-
-  document.getElementById('pvItemsBody').innerHTML = rows.map(r => `
-    <tr>
-      <td>${r.name}</td>
-      <td>${fmtPlain(r.qty)}</td>
-      <td>${fmtPlain(r.price)} تومان</td>
-      <td>${fmtPlain(r.lineTotal)} تومان</td>
-    </tr>
-  `).join('');
-
-  document.getElementById('pvSubtotal').textContent = fmtPlain(subtotal) + ' تومان';
-  document.getElementById('pvDiscount').textContent = fmtPlain(discount) + ' تومان';
-  document.getElementById('pvTotal').textContent = fmtPlain(total) + ' تومان';
-
-  document.getElementById('invoicePreviewWrap').style.display = 'block';
-  document.getElementById('invoicePreviewWrap').scrollIntoView({ behavior: 'smooth' });
-});
-
-document.getElementById('editBtn').addEventListener('click', () => {
-  document.getElementById('invoicePreviewWrap').style.display = 'none';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-document.getElementById('pdfBtn').addEventListener('click', () => {
-  const el = document.getElementById('invoicePreview');
-  const docNumber = document.getElementById('docNumber').value.trim() || 'bytelab';
-  html2pdf().set({
-    margin: 10,
-    filename: `bytelab-invoice-${docNumber}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  }).from(el).save();
-});
-
+let itemCount=0;
+function fmt(n){return Math.round(n).toLocaleString('fa-IR')+' تومان';}
+function fmtPlain(n){return Math.round(n).toLocaleString('fa-IR');}
+function addItem(name='',qty=1,price=''){itemCount++;const id='item_'+itemCount;const row=document.createElement('div');row.className='item-row';row.dataset.id=id;row.innerHTML=`<div><label>شرح</label><input type="text" class="it-name" value="${name}" placeholder="شرح"></div><div><label>تعداد</label><input type="number" class="it-qty" value="${qty}" min="1"></div><div><label>قیمت</label><input type="number" class="it-price" value="${price}" min="0"></div><button class="del-item">✕</button>`;row.querySelector('.del-item').addEventListener('click',()=>{row.remove();recalc();});row.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',recalc));document.getElementById('itemsList').appendChild(row);}
+function recalc(){let subtotal=0;document.querySelectorAll('.item-row').forEach(row=>{const qty=parseFloat(row.querySelector('.it-qty').value)||0;const price=parseFloat(row.querySelector('.it-price').value)||0;subtotal+=qty*price;});const discount=parseFloat(document.getElementById('discountInput').value)||0;const total=Math.max(0,subtotal-discount);document.getElementById('sumSubtotal').textContent=fmt(subtotal);document.getElementById('sumDiscount').textContent=fmt(discount);document.getElementById('sumTotal').textContent=fmt(total);}
+document.getElementById('addItemBtn').addEventListener('click',()=>addItem());
+document.getElementById('discountInput').addEventListener('input',recalc);
+document.querySelectorAll('#docType .opt').forEach(opt=>{opt.addEventListener('click',()=>{document.querySelectorAll('#docType .opt').forEach(o=>o.classList.remove('active'));opt.classList.add('active');});});
+addItem('طراحی و پیاده‌سازی',1,'');
+document.getElementById('docDate').valueAsDate=new Date();
+document.getElementById('genBtn').addEventListener('click',()=>{const docType=document.querySelector('#docType .opt.active').dataset.val;const customer=document.getElementById('customerName').value.trim()||'—';const phone=document.getElementById('customerPhone').value.trim();const docNumber=document.getElementById('docNumber').value.trim()||'—';const dateVal=document.getElementById('docDate').value;const dateFa=dateVal?new Date(dateVal).toLocaleDateString('fa-IR'):'—';let subtotal=0;const rows=[];document.querySelectorAll('.item-row').forEach(row=>{const name=row.querySelector('.it-name').value.trim();const qty=parseFloat(row.querySelector('.it-qty').value)||0;const price=parseFloat(row.querySelector('.it-price').value)||0;if(!name)return;const lineTotal=qty*price;subtotal+=lineTotal;rows.push({name,qty,price,lineTotal});});const discount=parseFloat(document.getElementById('discountInput').value)||0;const total=Math.max(0,subtotal-discount);document.getElementById('pvDocType').textContent=docType;document.getElementById('pvCustomer').textContent=phone?`${customer} (${phone})`:customer;document.getElementById('pvDocNumber').textContent=docNumber;document.getElementById('pvDate').textContent=dateFa;document.getElementById('pvItemsBody').innerHTML=rows.map(r=>`<tr><td>${r.name}</td><td>${fmtPlain(r.qty)}</td><td>${fmtPlain(r.price)}</td><td>${fmtPlain(r.lineTotal)}</td></tr>`).join('');document.getElementById('pvSubtotal').textContent=fmtPlain(subtotal)+' تومان';document.getElementById('pvDiscount').textContent=fmtPlain(discount)+' تومان';document.getElementById('pvTotal').textContent=fmtPlain(total)+' تومان';document.getElementById('invoicePreviewWrap').style.display='block';document.getElementById('invoicePreviewWrap').scrollIntoView({behavior:'smooth'});});
+document.getElementById('editBtn').addEventListener('click',()=>{document.getElementById('invoicePreviewWrap').style.display='none';window.scrollTo({top:0,behavior:'smooth'});});
+document.getElementById('pdfBtn').addEventListener('click',()=>{const el=document.getElementById('invoicePreview');const docNumber=document.getElementById('docNumber').value.trim()||'bytelab';html2pdf().set({margin:8,filename:`invoice-${docNumber}.pdf`,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(el).save();});
 recalc();
 </script>
 </body>
