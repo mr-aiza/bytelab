@@ -6,6 +6,9 @@
 <meta name="color-scheme" content="dark">
 <title>آنالیزور سایت | بایت‌لب</title>
 <meta name="description" content="سایتت رو رایگان تحلیل کن؛ سرعت، سئوی پایه، ریسپانسیو بودن و SSL رو در چند ثانیه بررسی کن.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="بایت‌لب">
+<meta property="og:title" content="آنالیزور سایت | بایت‌لب">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -25,43 +28,51 @@
   html{scroll-behavior:smooth;overflow-x:hidden;}
   body{
     background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;
-    line-height:1.7;overflow-x:hidden;width:100%;min-height:100vh;
-    padding:88px 24px 60px;
+    line-height:1.7;overflow-x:hidden;width:100%;
+    padding:0;margin:0;
   }
-  .wrap{max-width:680px;margin:0 auto;}
-  header.page-header{margin-bottom:48px;}
+  main{
+    margin-top:88px;
+    padding:40px 16px 60px;
+    max-width:680px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .page-header{margin-bottom:32px;}
   .sec-eyebrow{
-    font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:13px;
-    color:var(--violet);letter-spacing:.02em;margin-bottom:14px;display:block;
+    font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:12px;
+    color:var(--violet);letter-spacing:.02em;margin-bottom:8px;display:block;text-transform:uppercase;
   }
-  h1.sec-title{font-size:clamp(26px,3.6vw,40px);font-weight:800;}
-  .sec-sub{color:var(--muted);margin-top:14px;font-size:16px;}
+  h1{font-size:28px;font-weight:800;margin:0 0 12px;color:var(--paper);}
+  .sec-sub{color:var(--muted);font-size:14px;line-height:1.6;}
 
   .card{
     background:var(--panel);border:1px solid var(--line);
-    border-radius:var(--radius);padding:32px 26px;
+    border-radius:var(--radius);padding:24px;
+    margin-bottom:16px;
     box-shadow:0 10px 30px rgba(0,0,0,.35);
   }
-  .input-row{display:flex;gap:8px;margin-bottom:14px;}
+  .input-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
   input[type=text]{
-    flex:1;background:var(--panel-2);border:1px solid var(--line);
-    border-radius:12px;padding:14px 16px;color:var(--paper);
-    font-family:inherit;font-size:15px;direction:ltr;text-align:left;
+    flex:1;min-width:150px;
+    background:var(--panel-2);border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;color:var(--paper);
+    font-family:inherit;font-size:14px;direction:ltr;text-align:left;
   }
   input[type=text]:focus{outline:2px solid var(--cyan);border-color:var(--cyan);}
   button{
-    background:var(--cyan);border:none;border-radius:12px;padding:0 20px;
-    color:var(--ink);font-weight:700;font-family:inherit;font-size:15px;
+    background:var(--cyan);border:none;border-radius:10px;padding:12px 20px;
+    color:var(--ink);font-weight:700;font-family:inherit;font-size:14px;
     cursor:pointer;white-space:nowrap;transition:transform .2s ease;
   }
-  button:hover{transform:translateY(-2px);}
+  button:hover{transform:translateY(-1px);}
   button:disabled{opacity:.6;cursor:not-allowed;}
-  .hint{color:var(--muted);font-size:12px;margin-top:0;}
+  .hint{color:var(--muted);font-size:12px;margin-top:8px;}
 
-  #result{margin-top:22px;display:none;}
-  .score-wrap{display:flex;flex-direction:column;align-items:center;padding:20px 0 6px;}
+  #result{margin-top:16px;display:none;}
+  .score-wrap{display:flex;flex-direction:column;align-items:center;padding:20px 0;}
   .score-circle{
-    width:140px;height:140px;border-radius:50%;
+    width:120px;height:120px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
     flex-direction:column;
     background:conic-gradient(var(--ring-color,var(--cyan)) calc(var(--pct,0) * 1%), #1b263c 0);
@@ -71,77 +82,83 @@
     content:"";position:absolute;inset:8px;
     background:var(--panel);border-radius:50%;
   }
-  .score-circle .num{position:relative;font-size:38px;font-weight:800;}
-  .score-circle .lbl{position:relative;font-size:12px;color:var(--muted);}
-  .score-verdict{margin-top:12px;font-size:14px;color:var(--muted);text-align:center;}
+  .score-circle .num{position:relative;font-size:32px;font-weight:800;}
+  .score-circle .lbl{position:relative;font-size:11px;color:var(--muted);}
+  .score-verdict{margin-top:12px;font-size:13px;color:var(--muted);text-align:center;max-width:300px;}
 
-  .checks{margin-top:20px;display:flex;flex-direction:column;gap:10px;}
+  .checks{margin-top:16px;display:flex;flex-direction:column;gap:8px;}
   .check{
     display:flex;align-items:flex-start;gap:10px;
     background:var(--panel-2);border:1px solid var(--line);
-    border-radius:12px;padding:12px 14px;
+    border-radius:10px;padding:10px 12px;
   }
   .check .dot{
-    width:22px;height:22px;border-radius:50%;
+    width:20px;height:20px;border-radius:50%;
     flex:none;display:flex;align-items:center;justify-content:center;
-    font-size:13px;font-weight:800;margin-top:1px;
+    font-size:12px;font-weight:800;margin-top:2px;
   }
   .dot.ok{background:rgba(34,197,94,.15);color:#22c55e;}
   .dot.warn{background:rgba(234,179,8,.15);color:#eab308;}
   .dot.bad{background:rgba(239,68,68,.15);color:#ef4444;}
-  .check .body b{display:block;font-size:14px;margin-bottom:2px;}
-  .check .body span{font-size:12.5px;color:var(--muted);line-height:1.7;}
+  .check .body{flex:1;}
+  .check .body b{display:block;font-size:13px;margin-bottom:2px;font-weight:600;}
+  .check .body span{font-size:12px;color:var(--muted);line-height:1.5;}
 
   .cta{
-    margin-top:24px;
+    margin-top:20px;
     background:linear-gradient(135deg,#1a2540,#141d2e);
-    border:1px solid var(--line);border-radius:16px;padding:18px;text-align:center;
+    border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center;
   }
-  .cta p{margin:0 0 12px;font-size:14.5px;line-height:1.9;color:var(--paper);}
+  .cta p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--paper);}
   .cta a{
     display:inline-block;
     background:var(--cyan);color:var(--ink);font-weight:700;text-decoration:none;
-    padding:12px 22px;border-radius:12px;font-size:14.5px;transition:transform .2s ease;
+    padding:10px 18px;border-radius:10px;font-size:13px;transition:transform .2s ease;
   }
-  .cta a:hover{transform:translateY(-2px);}
+  .cta a:hover{transform:translateY(-1px);}
 
-  .loading{display:none;text-align:center;padding:30px 0;color:var(--muted);}
+  .loading{display:none;text-align:center;padding:24px 0;color:var(--muted);}
   .spinner{
-    width:36px;height:36px;border-radius:50%;
+    width:32px;height:32px;border-radius:50%;
     border:3px solid var(--line);border-top-color:var(--cyan);
-    margin:0 auto 12px;animation:spin 1s linear infinite;
+    margin:0 auto 10px;animation:spin 1s linear infinite;
   }
   @keyframes spin{to{transform:rotate(360deg);}}
   .error{
     display:none;
     background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);
-    color:#fca5a5;padding:14px 16px;border-radius:12px;
-    margin-top:16px;font-size:14px;
+    color:#fca5a5;padding:12px 14px;border-radius:10px;
+    margin-top:12px;font-size:13px;
   }
-  @media (max-width:768px){
-    body{padding:88px 16px 60px;}
-    .card{padding:20px;}
+  @media (max-width:640px){
+    main{padding:30px 12px 50px;margin-top:72px;}
+    h1{font-size:24px;}
+    .card{padding:16px;}
+    .score-circle{width:100px;height:100px;}
+    .score-circle .num{font-size:28px;}
+    input[type=text]{font-size:13px;padding:10px 12px;}
+    button{padding:10px 16px;font-size:13px;}
   }
 </style>
 </head>
 <body>
-<div class="wrap">
+<main>
   <header class="page-header">
-    <span class="sec-eyebrow">🔍 ابزار رایگان</span>
-    <h1 class="sec-title">آنالیزور سایت</h1>
-    <p class="sec-sub">آدرس سایتت رو بده، در چند ثانیه سرعت، سئوی پایه، ریسپانسیو بودن و SSL رو رایگان چک کن.</p>
+    <span class="sec-eyebrow">🔍 ابزار</span>
+    <h1>آنالیزور سایت</h1>
+    <p class="sec-sub">آدرس سایتت رو بده، سرعت، سئو، ریسپانسیو و SSL رو چک کن.</p>
   </header>
 
   <div class="card">
     <div class="input-row">
       <input type="text" id="urlInput" placeholder="example.com" inputmode="url">
-      <button id="analyzeBtn">تحلیل کن</button>
+      <button id="analyzeBtn">تحلیل</button>
     </div>
-    <div class="hint">فقط آدرس سایت رو بنویس، نیازی به https:// نیست.</div>
+    <div class="hint">فقط آدرس بنویس (https:// اختیاری)</div>
     <div class="error" id="errorBox"></div>
     <div class="loading" id="loadingBox">
       <div class="spinner"></div>
-      در حال بررسی سایت...
+      بررسی می‌شه...
     </div>
   </div>
 
@@ -158,11 +175,11 @@
     </div>
 
     <div class="cta">
-      <p>🚀 نمره پایینه؟ نگران نباش — تیم بایت‌لب همین ضعف‌ها رو برطرف می‌کنه و سایتت رو حرفه‌ای می‌سازه.</p>
-      <a href="https://t.me/bytelab" target="_blank" rel="noopener">مشاوره رایگان در تلگرام</a>
+      <p>تیم بایت‌لب می‌تونه سایتت رو بهبود بده!</p>
+      <a href="https://t.me/bytelab" target="_blank">مشاوره رایگان</a>
     </div>
   </div>
-</div>
+</main>
 
 <script src="header.js"></script>
 <script>
