@@ -362,7 +362,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
         { href: "submit/index.html", text: "ارسال نمونه‌کار", icon: "📤", match: ["submit/index.html"] }
       ]
     },
-    { href: "telegram/contact.html", text: "تماس", match: [] },
+  
     {
       group: true,
       text: "حساب کاربری",
@@ -373,7 +373,9 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
         { href: "profile.html", text: "پروفایل من", icon: "🧑", match: ["profile.html"] },
         { href: "favorites.html", text: "علاقه‌مندی‌های من", icon: "⭐", match: ["favorites.html"] }
       ]
-    }
+    },
+
+    { href: "telegram/contact.html", text: "تماس", match: [] },
   ];
 
   // --- ساخت مسیر (Breadcrumb) صفحه‌ی فعلی: از روی همون NAV_LINKS بالا، خودکار محاسبه می‌شه ---
