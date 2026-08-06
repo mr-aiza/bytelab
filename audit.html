@@ -248,12 +248,16 @@ async function analyze(){
   setLoading(true);
   try{
     const res = await fetch(API_ENDPOINT + '?url=' + encodeURIComponent(normalized));
-    if(!res.ok) throw new Error('server');
-    const data = await res.json();
-    if(data.error) throw new Error(data.error);
+    let data;
+    try{
+      data = await res.json();
+    }catch(parseErr){
+      throw new Error('پاسخ سرور معتبر نبود (status ' + res.status + ')');
+    }
+    if(!res.ok || data.error) throw new Error(data.error || ('خطای سرور (status ' + res.status + ')'));
     render(data);
   }catch(e){
-    errorBox.textContent = 'نتونستیم سایت رو بررسی کنیم. مطمئن شو آدرس درسته و سایت در دسترسه.';
+    errorBox.textContent = (e && e.message) ? e.message : 'نتونستیم سایت رو بررسی کنیم. مطمئن شو آدرس درسته و سایت در دسترسه.';
     errorBox.style.display = 'block';
   }finally{
     setLoading(false);
