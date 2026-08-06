@@ -370,8 +370,19 @@ async function callAIWorker(env, system, userText) {
     throw new Error(`پاسخ AI Worker یک JSON معتبر نبود (status ${response.status}).`);
   }
   if (!response.ok || data.error) throw new Error(data.error || "درخواست به AI Worker ناموفق بود.");
-  const text = data.content && data.content[0] && data.content[0].text ? data.content[0].text : "";
-  return String(text || "").trim();
+  const raw = data.content && data.content[0] ? data.content[0].text : "";
+  // اگه AI Worker به‌جای رشته یه آبجکت برگردونه (بعضی مدل‌ها این‌کارو می‌کنن)،
+  // String(obj) میشه "[object Object]" که JSON.parse رو خراب می‌کنه.
+  // به‌جاش با JSON.stringify درستش می‌کنیم تا چه رشته چه آبجکت باشه کار کنه.
+  let text;
+  if (typeof raw === "string") {
+    text = raw;
+  } else if (raw && typeof raw === "object") {
+    text = JSON.stringify(raw);
+  } else {
+    text = "";
+  }
+  return text.trim();
 }
 
 // ============================================================
@@ -641,8 +652,15 @@ async function handleBlogAI(request, env) {
   let draft;
   try {
     const aiText = await callAIWorker(env, BLOG_WRITER_SYSTEM_HINT, userMsg);
-    const cleaned = aiText.replace(/^```json|```$/g, "").trim();
-    draft = JSON.parse(cleaned);
+    let cleaned = aiText.replace(/```json/gi, "").replace(/```/g, "").trim();
+    try {
+      draft = JSON.parse(cleaned);
+    } catch (parseErr) {
+      // اگه مدل دور JSON یه توضیح اضافه گذاشته باشه، فقط بخش { ... } رو استخراج کن
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      if (!match) throw parseErr;
+      draft = JSON.parse(match[0]);
+    }
   } catch (err) {
     return jsonResponse({ error: "AI نتونست پیش‌نویس معتبر بسازه: " + (err.message || err) }, 502, request, env);
   }

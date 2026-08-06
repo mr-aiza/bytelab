@@ -385,6 +385,122 @@ async function handleAdminToggleAccess(request, env) {
 }
 
 // ============================================================
+//  آنالیزور سایت (audit.html) — بررسی SSL/سرعت/سئو/ریسپانسیو
+// ============================================================
+async function handleAudit(request, env) {
+  const { searchParams } = new URL(request.url);
+  const target = searchParams.get("url");
+  const headers = corsHeaders(env);
+
+  if (!target) {
+    return jsonResponse({ error: "آدرس سایت ارسال نشده" }, 400, env);
+  }
+
+  let targetUrl;
+  try {
+    targetUrl = new URL(target);
+    if (!["http:", "https:"].includes(targetUrl.protocol)) throw new Error("bad protocol");
+  } catch (e) {
+    return jsonResponse({ error: "آدرس نامعتبر است" }, 400, env);
+  }
+
+  const checks = [];
+  let score = 0;
+
+  let html = "";
+  let responseTimeMs = null;
+  let httpsUsed = targetUrl.protocol === "https:";
+
+  const start = Date.now();
+  try {
+    const resp = await fetch(targetUrl.href, {
+      redirect: "follow",
+      cf: { cacheTtl: 0 },
+      headers: { "User-Agent": "ByteLabAuditBot/1.0 (+https://bytelabpro.xyz)" },
+    });
+    responseTimeMs = Date.now() - start;
+    httpsUsed = resp.url ? resp.url.startsWith("https://") : httpsUsed;
+    html = await resp.text();
+  } catch (e) {
+    return jsonResponse({ error: "سایت در دسترس نیست یا فچ آن ناموفق بود" }, 502, env);
+  }
+
+  if (httpsUsed) {
+    checks.push({ status: "ok", title: "گواهی SSL", desc: "سایت با اتصال امن HTTPS بارگذاری می‌شود." });
+    score += 20;
+  } else {
+    checks.push({ status: "bad", title: "گواهی SSL", desc: "سایت روی HTTP ناامن اجرا می‌شود؛ گوگل و مرورگرها این را به کاربر هشدار می‌دهند." });
+  }
+
+  if (responseTimeMs !== null) {
+    if (responseTimeMs < 800) {
+      checks.push({ status: "ok", title: "سرعت بارگذاری", desc: `زمان پاسخ سرور: ${responseTimeMs} میلی‌ثانیه — سریع و مناسب.` });
+      score += 25;
+    } else if (responseTimeMs < 2000) {
+      checks.push({ status: "warn", title: "سرعت بارگذاری", desc: `زمان پاسخ سرور: ${responseTimeMs} میلی‌ثانیه — قابل بهبود است.` });
+      score += 12;
+    } else {
+      checks.push({ status: "bad", title: "سرعت بارگذاری", desc: `زمان پاسخ سرور: ${responseTimeMs} میلی‌ثانیه — کند است و باعث از دست رفتن بازدیدکننده می‌شود.` });
+    }
+  }
+
+  const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+  const titleText = titleMatch ? titleMatch[1].trim() : "";
+  if (titleText && titleText.length >= 10 && titleText.length <= 65) {
+    checks.push({ status: "ok", title: "عنوان صفحه (Title)", desc: `عنوان مناسبی دارد: «${titleText.slice(0, 50)}${titleText.length > 50 ? "…" : ""}»` });
+    score += 12;
+  } else if (titleText) {
+    checks.push({ status: "warn", title: "عنوان صفحه (Title)", desc: "عنوان صفحه وجود دارد اما طول آن برای سئو ایده‌آل نیست (بهتر است ۱۰ تا ۶۵ کاراکتر باشد)." });
+    score += 6;
+  } else {
+    checks.push({ status: "bad", title: "عنوان صفحه (Title)", desc: "صفحه اصلی تگ Title ندارد؛ این یکی از مهم‌ترین فاکتورهای سئو است." });
+  }
+
+  const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["']/i);
+  const descText = descMatch ? descMatch[1].trim() : "";
+  if (descText && descText.length >= 50) {
+    checks.push({ status: "ok", title: "توضیحات متا (Meta Description)", desc: "صفحه توضیحات متا مناسبی برای نتایج گوگل دارد." });
+    score += 12;
+  } else if (descText) {
+    checks.push({ status: "warn", title: "توضیحات متا (Meta Description)", desc: "توضیحات متا کوتاه یا ناقص است." });
+    score += 6;
+  } else {
+    checks.push({ status: "bad", title: "توضیحات متا (Meta Description)", desc: "صفحه توضیحات متا ندارد؛ این متن معمولاً زیر لینک سایت در نتایج گوگل نمایش داده می‌شود." });
+  }
+
+  const hasViewport = /<meta[^>]*name=["']viewport["']/i.test(html);
+  if (hasViewport) {
+    checks.push({ status: "ok", title: "سازگاری با موبایل", desc: "سایت تگ viewport دارد و برای نمایش در موبایل آماده‌سازی شده." });
+    score += 20;
+  } else {
+    checks.push({ status: "bad", title: "سازگاری با موبایل", desc: "تگ viewport یافت نشد؛ احتمالاً سایت در گوشی موبایل به‌درستی نمایش داده نمی‌شود." });
+  }
+
+  const h1Count = (html.match(/<h1[\s>]/gi) || []).length;
+  if (h1Count === 1) {
+    checks.push({ status: "ok", title: "ساختار عنوان‌بندی (H1)", desc: "صفحه دقیقاً یک تگ H1 دارد؛ ساختار مناسب برای سئو." });
+    score += 6;
+  } else if (h1Count > 1) {
+    checks.push({ status: "warn", title: "ساختار عنوان‌بندی (H1)", desc: `صفحه ${h1Count} تگ H1 دارد؛ بهتر است فقط یکی باشد.` });
+    score += 3;
+  } else {
+    checks.push({ status: "bad", title: "ساختار عنوان‌بندی (H1)", desc: "صفحه تگ H1 ندارد." });
+  }
+
+  const hasFavicon = /<link[^>]*rel=["'][^"']*icon[^"']*["']/i.test(html);
+  if (hasFavicon) {
+    checks.push({ status: "ok", title: "آیکون سایت (Favicon)", desc: "فاوآیکون تعریف شده است." });
+    score += 5;
+  } else {
+    checks.push({ status: "warn", title: "آیکون سایت (Favicon)", desc: "فاوآیکون یافت نشد؛ جزئیات کوچک اما روی حرفه‌ای بودن سایت اثر دارد." });
+  }
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+
+  return jsonResponse({ score, checks, checkedUrl: targetUrl.href }, 200, env);
+}
+
+// ============================================================
 //  روتر اصلی
 // ============================================================
 export default {
@@ -409,6 +525,8 @@ export default {
       if (url.pathname === "/api/admin/login" && request.method === "POST") return await handleAdminLogin(request, env);
       if (url.pathname === "/api/admin/users" && request.method === "GET") return await handleAdminListUsers(request, env);
       if (url.pathname === "/api/admin/users/toggle-access" && request.method === "POST") return await handleAdminToggleAccess(request, env);
+
+      if (url.pathname === "/api/audit" && request.method === "GET") return await handleAudit(request, env);
 
       return jsonResponse({ error: "not found" }, 404, env);
     } catch (err) {
