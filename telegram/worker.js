@@ -821,12 +821,12 @@ async function getDashboardData(env) {
   const isToday = (ts) =>
     new Date(ts).toLocaleDateString("fa-IR-u-ca-gregory", { timeZone: "Asia/Tehran" }) === today;
 
-  const newLeadsToday = leads.filter((l) => ["contact", "profile"].includes(l.type) && isToday(l.createdAt)).length;
+  const newLeadsToday = leads.filter((l) => ["contact", "profile", "site_health_request", "project_estimate"].includes(l.type) && isToday(l.createdAt)).length;
   const portfolioToday = portfolioItems.filter((p) => isToday(p.createdAt)).length;
   const blogToday = blogPosts.filter((b) => isToday(b.createdAt)).length;
 
   const pendingLeads = leads.filter(
-    (l) => ["contact", "profile", "abandoned_form"].includes(l.type) && (!l.status || l.status === "new" || l.status === "later")
+    (l) => ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate"].includes(l.type) && (!l.status || l.status === "new" || l.status === "later")
   ).length;
   const pendingPortfolio = portfolioItems.filter((p) => p.status === "pending").length;
 
@@ -926,7 +926,7 @@ async function sendFullStats(env, chatId) {
 
   const inRange = (arr, ms) => arr.filter((x) => now - x.createdAt <= ms).length;
 
-  const leadTypes = ["contact", "profile", "abandoned_form"];
+  const leadTypes = ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate"];
   const relevantLeads = leads.filter((l) => leadTypes.includes(l.type));
 
   const contacted = leads.filter((l) => l.status === "contacted").length;
@@ -971,7 +971,7 @@ async function countBlogPosts(env) {
 // ---- 📤 خروجی لیدها به‌صورت فایل متنی ----
 async function exportLeadsFile(env, chatId) {
   const leads = await getAllLeads(env);
-  const relevant = leads.filter((l) => ["contact", "profile", "abandoned_form"].includes(l.type));
+  const relevant = leads.filter((l) => ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate"].includes(l.type));
 
   if (relevant.length === 0) {
     await tgSendTo(env, chatId, "هیچ لیدی برای خروجی گرفتن وجود نداره.");
@@ -986,6 +986,7 @@ async function exportLeadsFile(env, chatId) {
     if (l.phone) content += `   تلفن: ${l.phone}\n`;
     if (l.email) content += `   ایمیل: ${l.email}\n`;
     if (l.service) content += `   خدمت: ${l.service}\n`;
+    if (l.projectType) content += `   نوع پروژه: ${l.projectType}\n`;
     content += `   تاریخ: ${date}\n\n`;
   });
 
@@ -1342,7 +1343,7 @@ async function askFaqService(env, chatId) {
 
 async function sendLeadsList(env, chatId) {
   const leads = (await getAllLeads(env))
-    .filter((l) => ["contact", "profile", "abandoned_form"].includes(l.type))
+    .filter((l) => ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate"].includes(l.type))
     .slice(0, 10);
   if (leads.length === 0) {
     await tgSendTo(env, chatId, "هنوز هیچ لیدی ثبت نشده.");
@@ -1355,6 +1356,8 @@ async function sendLeadsList(env, chatId) {
     if (l.type === "contact") msg += `   👤 ${l.name} | 📞 ${l.phone} | 🛠 ${l.service || "-"}\n`;
     if (l.type === "profile") msg += `   📧 ${l.email}\n`;
     if (l.type === "abandoned_form") msg += `   🕓 ${l.name || "-"} | 📞 ${l.phone || "-"} (رهاشده)\n`;
+    if (l.type === "site_health_request") msg += `   🩺 ${l.name || "-"} | 📞 ${l.phone || "-"} (بررسی سلامت سایت)\n`;
+    if (l.type === "project_estimate") msg += `   📐 ${l.name || "-"} | 📞 ${l.phone || "-"} | ${l.projectType || "-"}\n`;
     if (l.note) msg += `   📝 ${l.note}\n`;
     msg += `   🕐 ${date}\n\n`;
   });
@@ -1363,7 +1366,7 @@ async function sendLeadsList(env, chatId) {
 
 // ---- 🔍 جستجوی لید بر اساس اسم/تلفن/ایمیل ----
 async function searchLeads(env, chatId, query) {
-  const leads = (await getAllLeads(env)).filter((l) => ["contact", "profile", "abandoned_form"].includes(l.type));
+  const leads = (await getAllLeads(env)).filter((l) => ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate"].includes(l.type));
   const q = query.toLowerCase().trim();
   const results = leads
     .filter(
@@ -2617,6 +2620,8 @@ export default {
         contact: { max: 5, windowSeconds: 3600 },
         profile: { max: 5, windowSeconds: 3600 },
         abandoned_form: { max: 10, windowSeconds: 3600 },
+        site_health_request: { max: 5, windowSeconds: 3600 },
+        project_estimate: { max: 5, windowSeconds: 3600 },
       };
       const rl = RATE_LIMITS[data.type];
       if (rl) {
@@ -2694,6 +2699,31 @@ export default {
           `📞 شماره: ${data.phone || "-"}\n` +
           `🛠 خدمات: ${data.service || "-"}\n` +
           `⚠️ کاربر بدون ارسال، صفحه رو ترک کرد. شاید ارزش پیگیری داشته باشه.`;
+      } else if (data.type === "site_health_request") {
+        isLead = true; withButtons = true;
+        const issues = Array.isArray(data.features) && data.features.length ? data.features.join("، ") : "—";
+        text =
+          `🩺 درخواست بررسی سلامت سایت\n\n` +
+          `👤 نام: ${data.name || "-"}\n` +
+          `📞 شماره: ${data.phone || "-"}\n` +
+          `⚠️ مشکلات: ${issues}\n` +
+          (data.description ? `📝 توضیحات: ${data.description}\n` : "");
+      } else if (data.type === "project_estimate") {
+        isLead = true; withButtons = true;
+        const priceText = data.internalEstimatePrice
+          ? Number(data.internalEstimatePrice).toLocaleString("en-US") + " تومان"
+          : "نامشخص";
+        text =
+          `📐 درخواست برآورد پروژه\n\n` +
+          `👤 نام: ${data.name || "-"}\n` +
+          `📞 تماس: ${data.phone || "-"}\n` +
+          `📦 نوع پروژه: ${data.projectType || "-"}\n` +
+          `📄 تعداد صفحات: ${data.pages ?? "-"}\n` +
+          `🎨 سطح طراحی: ${data.designLevel || "-"}\n` +
+          `➕ امکانات: ${Array.isArray(data.features) && data.features.length ? data.features.join("، ") : "—"}\n` +
+          `💰 برآورد داخلی: ${priceText}\n` +
+          `⏱ زمان تحویل: ${data.internalEstimateDays ?? "-"} روز\n` +
+          (data.description ? `📝 توضیحات: ${data.description}\n` : "");
       } else {
         text = `📦 داده دریافتی:\n${JSON.stringify(data, null, 2)}`;
       }
@@ -2759,11 +2789,15 @@ async function sendDailyReport(env) {
   const todays = leads.filter((l) => new Date(l.createdAt).toLocaleDateString("fa-IR-u-ca-gregory", { timeZone: "Asia/Tehran" }) === today);
   const contacts = todays.filter((l) => l.type === "contact").length;
   const profiles = todays.filter((l) => l.type === "profile").length;
+  const healthChecks = todays.filter((l) => l.type === "site_health_request").length;
+  const estimates = todays.filter((l) => l.type === "project_estimate").length;
 
   await tgSend(env,
     `🌙 گزارش پایان روز بایت‌لب\n\n` +
     `📩 فرم تماس امروز: ${contacts}\n` +
     `👤 ثبت‌نام امروز: ${profiles}\n` +
+    `🩺 بررسی سلامت سایت: ${healthChecks}\n` +
+    `📐 برآورد پروژه: ${estimates}\n` +
     `📦 مجموع لید امروز: ${todays.length}`
   );
 }
@@ -2774,11 +2808,11 @@ async function checkFollowUps(env) {
   const now = Date.now();
 
   for (const lead of leads) {
-    if (!["contact", "profile", "abandoned_form"].includes(lead.type)) continue;
+    if (!["contact", "profile", "abandoned_form", "site_health_request", "project_estimate"].includes(lead.type)) continue;
 
     if (lead.status === "later") {
       if (!lead.reminded && lead.snoozeUntil && now > lead.snoozeUntil) {
-        const label = lead.type === "contact" ? `${lead.name} (${lead.phone})` : `${lead.email}`;
+        const label = lead.name ? `${lead.name} (${lead.phone || "-"})` : `${lead.email || "-"}`;
         await tgSend(env, `⏰ یادآوری «تماس بعداً»\n\nموقع پیگیری این لیده:\n${label}`);
         lead.reminded = true;
         await saveLead(env, lead);
@@ -2788,7 +2822,7 @@ async function checkFollowUps(env) {
 
     const isPending = !lead.status || lead.status === "new";
     if (isPending && !lead.reminded && now - lead.createdAt > dayMs) {
-      const label = lead.type === "contact" ? `${lead.name} (${lead.phone})` : `${lead.email}`;
+      const label = lead.name ? `${lead.name} (${lead.phone || "-"})` : `${lead.email || "-"}`;
       await tgSend(env, `⏰ یادآوری پیگیری\n\nاین لید بیش از ۲۴ ساعته بدون پیگیریه:\n${label}`);
       lead.reminded = true;
       await saveLead(env, lead);
