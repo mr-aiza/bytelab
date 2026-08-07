@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="../assets/bytelab-auth.js"></script>
 <style>
   :root{
     --ink:#070b12;
@@ -359,6 +360,21 @@
     if (document.visibilityState === "hidden") reportAbandonedForm();
   });
   window.addEventListener("pagehide", reportAbandonedForm);
+
+  // --- اوتوفیل نام و شماره از پروفایل کاربر لاگین‌کرده ---
+  document.addEventListener("DOMContentLoaded", function () {
+    try {
+      if (window.BytelabAuth && BytelabAuth.isLoggedIn()) {
+        const user = BytelabAuth.getUser();
+        if (user) {
+          const nameEl = document.getElementById("name");
+          const phoneEl = document.getElementById("phone");
+          if (nameEl && user.name && !nameEl.value) nameEl.value = user.name;
+          if (phoneEl && user.phone && !phoneEl.value) phoneEl.value = user.phone;
+        }
+      }
+    } catch (e) { /* اگه اوتوفیل شکست خورد، فرم دستی هم قابل پرکردنه */ }
+  });
 </script>
 
 </body>
