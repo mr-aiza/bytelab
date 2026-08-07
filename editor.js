@@ -357,6 +357,191 @@
           }
         }
       ]
+    },
+
+    lawyer: {
+      label: 'میزان',
+      sub: 'دفتر وکالت',
+      file: 'portfolio/6-lawyer.html',
+      colors: [
+        { varName: '--brass', label: 'برنزی', default: '#A9822F' },
+        { varName: '--wine', label: 'زرشکی', default: '#6E2A33' },
+        { varName: '--ink', label: 'پس‌زمینه تیره', default: '#14181F' }
+      ],
+      fields: [
+        {
+          key: 'brand', label: 'نام برند', type: 'text', maxLength: 30,
+          default: 'میزان',
+          apply(doc, val) {
+            const el = doc.querySelector('header .logo');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'h1', label: 'عنوان اصلی (هیرو)', type: 'text', maxLength: 80,
+          default: 'حق شما، با استدلال و تجربه دفاع می‌شود',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero h1');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'sub', label: 'توضیح زیر عنوان', type: 'textarea', maxLength: 200,
+          default: 'تیمی از وکلای پایه‌یک دادگستری در پرونده‌های حقوقی، کیفری، خانواده و تجاری، همراه شما تا صدور رأی نهایی.',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero .hero-sub');
+            if (el) el.textContent = val;
+          }
+        }
+      ]
+    },
+
+    insurance: {
+      label: 'ایمن',
+      sub: 'دفتر بیمه',
+      file: 'portfolio/7-insurance.html',
+      colors: [
+        { varName: '--cyan', label: 'آبی روشن', default: '#3DA9DC' },
+        { varName: '--coral', label: 'نارنجی مرجانی', default: '#FF6B4A' },
+        { varName: '--navy', label: 'سرمه‌ای تیره', default: '#101B3D' }
+      ],
+      fields: [
+        {
+          key: 'brand', label: 'نام برند', type: 'text', maxLength: 30,
+          default: 'ایمن',
+          apply(doc, val) {
+            const el = doc.querySelector('header .logo');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'h1', label: 'عنوان اصلی (هیرو)', type: 'text', maxLength: 80,
+          default: 'امروز را ایمن کنید، برای فردایی آرام',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero h1');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'sub', label: 'توضیح زیر عنوان', type: 'textarea', maxLength: 200,
+          default: 'صدور و پرداخت خسارت انواع بیمه‌نامه، با مشاوره تخصصی و شفاف‌ترین شرایط پوشش بازار.',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero .hero-sub');
+            if (el) el.textContent = val;
+          }
+        }
+      ]
+    },
+
+    flowers: {
+      label: 'شکوفه',
+      sub: 'گل‌فروشی',
+      file: 'portfolio/8-flowers.html',
+      colors: [
+        { varName: '--rose', label: 'رز', default: '#D98A8A' },
+        { varName: '--sage', label: 'سبز مریمی', default: '#5B7B5A' },
+        { varName: '--cream', label: 'پس‌زمینه', default: '#FBF7F0' }
+      ],
+      fields: [
+        {
+          key: 'brand', label: 'نام برند', type: 'text', maxLength: 30,
+          default: 'شکوفه',
+          apply(doc, val) {
+            const el = doc.querySelector('header .logo');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'h1', label: 'عنوان اصلی (هیرو)', type: 'text', maxLength: 60,
+          default: 'هر احساسی، یک دسته گل دارد',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero h1');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'sub', label: 'توضیح زیر عنوان', type: 'textarea', maxLength: 200,
+          default: 'گل‌های تازه هر روز از مزرعه تا مغازه، با بسته‌بندی دست‌ساز و ارسال همان‌روز به سراسر کرج.',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero .hero-sub');
+            if (el) el.textContent = val;
+          }
+        }
+      ]
+    },
+
+    mobile: {
+      label: 'هم‌راه',
+      sub: 'فروشگاه موبایل',
+      file: 'portfolio/9-mobile.html',
+      colors: [
+        { varName: '--blue', label: 'آبی', default: '#2D5BFF' },
+        { varName: '--orange', label: 'نارنجی', default: '#FF6B35' },
+        { varName: '--bg', label: 'پس‌زمینه', default: '#F7F8FA' }
+      ],
+      fields: [
+        {
+          key: 'brand', label: 'نام برند', type: 'text', maxLength: 30,
+          default: 'هم‌راه',
+          apply(doc, val) {
+            const el = doc.querySelector('header .logo');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'h1', label: 'عنوان اصلی (هیرو)', type: 'text', maxLength: 60,
+          default: 'همراهت رو هوشمندانه انتخاب کن',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero h1');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'sub', label: 'توضیح زیر عنوان', type: 'textarea', maxLength: 200,
+          default: 'موبایل، تبلت و اکسسوری اورجینال با گارانتی رسمی، اقساط بدون بهره کارتی و معاوضه گوشی قدیمی.',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero .hero-sub');
+            if (el) el.textContent = val;
+          }
+        }
+      ]
+    },
+
+    petshop: {
+      label: 'پنجه',
+      sub: 'پت‌شاپ',
+      file: 'portfolio/10-petshop.html',
+      colors: [
+        { varName: '--peach', label: 'هلویی', default: '#FF9E5E' },
+        { varName: '--teal', label: 'سبزآبی', default: '#2F8F7B' },
+        { varName: '--cream', label: 'پس‌زمینه', default: '#FFF8EF' }
+      ],
+      fields: [
+        {
+          key: 'brand', label: 'نام برند', type: 'text', maxLength: 30,
+          default: 'پنجه',
+          apply(doc, val) {
+            const el = doc.querySelector('header .logo');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'h1', label: 'عنوان اصلی (هیرو)', type: 'text', maxLength: 70,
+          default: 'هر چی حیوون خونگیت لازم داره، اینجاست',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero h1');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'sub', label: 'توضیح زیر عنوان', type: 'textarea', maxLength: 200,
+          default: 'غذا، اسباب‌بازی، اکسسوری و خدمات دامپزشکی برای سگ، گربه، پرنده و آبزیان، با مشاوره رایگان تغذیه.',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero .hero-sub');
+            if (el) el.textContent = val;
+          }
+        }
+      ]
     }
   };
 
