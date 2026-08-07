@@ -1,5 +1,17 @@
 User-agent: *
 Allow: /
-Disallow: /chat.html
 
+# صفحات کاربری، حساب و مدیریتی — نیازی به ایندکس‌شدن در گوگل ندارن
+# و ایندکس‌شدن‌شون فقط بودجه‌ی خزش (crawl budget) سایت رو هدر می‌ده
+Disallow: /admin.html
+Disallow: /users-admin.html
+Disallow: /account.html
+Disallow: /favorites.html
+Disallow: /profile.html
+
+# پنل‌های داخلی تلگرام
+Disallow: /telegram/
+
+# آدرس سایت‌مپ (این خط باعث می‌شه گوگل حتی بدون ثبت دستی در Search Console
+# هم مسیر سایت‌مپ رو پیدا کنه و به‌صورت خودکار واکشیش کنه)
 Sitemap: https://bytelabpro.xyz/sitemap.xml
