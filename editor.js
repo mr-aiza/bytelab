@@ -17,7 +17,7 @@
   /* ---------------------------------------------------------------------
      ۱) تنظیمات هر قالب: فایل مبدأ، رنگ‌های قابل‌تغییر و فیلدهای متنی.
      هر فیلد متنی یک apply(doc, value) داره که دقیقاً می‌دونه کجای DOM
-     قالب رو باید عوض کنه (چون ساختار هر ۴ قالب با هم فرق داره).
+     قالب رو باید عوض کنه (چون ساختار هر قالب با هم فرق داره).
      -------------------------------------------------------------------- */
   const TEMPLATES = {
     tashrifat: {
@@ -168,6 +168,191 @@
           default: 'یک نمونه‌کار از منوی دیجیتال کافه و رستوران.',
           apply(doc, val) {
             const el = doc.querySelector('.hero p');
+            if (el) el.textContent = val;
+          }
+        }
+      ]
+    },
+
+    gym: {
+      label: 'پاورهاوس',
+      sub: 'باشگاه بدنسازی',
+      file: 'portfolio/1-gym.html',
+      colors: [
+        { varName: '--lime', label: 'سبز لیمویی', default: '#CBFF2E' },
+        { varName: '--steel', label: 'خاکستری فولادی', default: '#8A8D93' },
+        { varName: '--bg', label: 'پس‌زمینه', default: '#0B0B0C' }
+      ],
+      fields: [
+        {
+          key: 'brand', label: 'نام برند', type: 'text', maxLength: 30,
+          default: 'پاورهاوس',
+          apply(doc, val) {
+            const el = doc.querySelector('header .logo');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'h1', label: 'عنوان اصلی (هیرو)', type: 'text', maxLength: 60,
+          default: 'قدرتت رو از نو بساز',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero-title');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'sub', label: 'توضیح زیر عنوان', type: 'textarea', maxLength: 200,
+          default: 'تجهیزات استاندارد المپیکی، مربیان بدنساز مجرب و برنامه‌های تمرینی اختصاصی برای رسیدن به بدنی که همیشه می‌خواستی.',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero-sub');
+            if (el) el.textContent = val;
+          }
+        }
+      ]
+    },
+
+    cosmetics: {
+      label: 'گلبرگ',
+      sub: 'آرایشی و بهداشتی',
+      file: 'portfolio/2-cosmetics.html',
+      colors: [
+        { varName: '--rose', label: 'رز', default: '#BE7C8A' },
+        { varName: '--gold', label: 'طلایی', default: '#B9925A' },
+        { varName: '--cream', label: 'پس‌زمینه', default: '#FFFBF8' }
+      ],
+      fields: [
+        {
+          key: 'brand', label: 'نام برند', type: 'text', maxLength: 30,
+          default: 'گلبرگ',
+          apply(doc, val) {
+            const el = doc.querySelector('header .logo');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'h1', label: 'عنوان اصلی (هیرو)', type: 'text', maxLength: 60,
+          default: 'پوستی درخشان، زیبایی طبیعی',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero h1');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'sub', label: 'توضیح زیر عنوان', type: 'textarea', maxLength: 200,
+          default: 'محصولات اورجینال آرایشی و بهداشتی از برندهای معتبر، همراه با مشاوره رایگان پوست و انتخاب اختصاصی برای شما.',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero p');
+            if (el) el.textContent = val;
+          }
+        }
+      ]
+    },
+
+    appliances: {
+      label: 'خانه‌مدرن',
+      sub: 'لوازم خانگی',
+      file: 'portfolio/3-appliances.html',
+      colors: [
+        { varName: '--navy', label: 'سرمه‌ای', default: '#122446' },
+        { varName: '--teal', label: 'سبزآبی', default: '#1E9E92' },
+        { varName: '--bg', label: 'پس‌زمینه', default: '#F6F8FB' }
+      ],
+      fields: [
+        {
+          key: 'brand', label: 'نام برند', type: 'text', maxLength: 30,
+          default: 'خانه‌مدرن',
+          apply(doc, val) {
+            const el = doc.querySelector('header .logo');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'h1', label: 'عنوان اصلی (هیرو)', type: 'text', maxLength: 60,
+          default: 'لوازم خانگی اورجینال با گارانتی معتبر',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero h1');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'sub', label: 'توضیح زیر عنوان', type: 'textarea', maxLength: 200,
+          default: 'از یخچال و ماشین لباسشویی تا کوچک‌ترین لوازم آشپزخانه، همه با ضمانت اصالت کالا و امکان تقسیط.',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero p');
+            if (el) el.textContent = val;
+          }
+        }
+      ]
+    },
+
+    realestate: {
+      label: 'املاک آسمان',
+      sub: 'مشاور املاک',
+      file: 'portfolio/4-realestate.html',
+      colors: [
+        { varName: '--gold', label: 'طلایی', default: '#B8935F' },
+        { varName: '--navy', label: 'سرمه‌ای', default: '#0F1C2E' },
+        { varName: '--cream', label: 'پس‌زمینه', default: '#F3EEE6' }
+      ],
+      fields: [
+        {
+          key: 'brand', label: 'نام برند', type: 'text', maxLength: 30,
+          default: 'آسمان',
+          apply(doc, val) {
+            const el = doc.querySelector('header .logo');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'h1', label: 'عنوان اصلی (هیرو)', type: 'text', maxLength: 60,
+          default: 'خانه‌ی رویایی خود را همین امروز پیدا کنید',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero-title');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'sub', label: 'توضیح زیر عنوان', type: 'textarea', maxLength: 200,
+          default: 'بیش از ۱۵ سال تجربه در خرید، فروش و رهن و اجاره ملک با مشاوره تخصصی و شفاف‌سازی کامل قیمت بازار.',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero-sub');
+            if (el) el.textContent = val;
+          }
+        }
+      ]
+    },
+
+    tattoo: {
+      label: 'مرکب',
+      sub: 'استودیو تتو',
+      file: 'portfolio/5-tattoo.html',
+      colors: [
+        { varName: '--red', label: 'قرمز', default: '#9E1B1B' },
+        { varName: '--white', label: 'سفید', default: '#EDEDED' },
+        { varName: '--black', label: 'پس‌زمینه', default: '#070707' }
+      ],
+      fields: [
+        {
+          key: 'brand', label: 'نام برند', type: 'text', maxLength: 30,
+          default: 'مرکب',
+          apply(doc, val) {
+            const el = doc.querySelector('header .logo');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'h1', label: 'عنوان اصلی (هیرو)', type: 'text', maxLength: 60,
+          default: 'داستانت را روی پوست حک کن',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero-title');
+            if (el) el.textContent = val;
+          }
+        },
+        {
+          key: 'sub', label: 'توضیح زیر عنوان', type: 'textarea', maxLength: 200,
+          default: 'استودیو تتو مرکب با استاندارد بهداشتی کامل و هنرمندانی متخصص در سبک‌های مختلف، آماده ثبت طرح دلخواه شماست.',
+          apply(doc, val) {
+            const el = doc.querySelector('.hero-sub');
             if (el) el.textContent = val;
           }
         }
