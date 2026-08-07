@@ -164,7 +164,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       max-height:0;overflow:hidden;display:flex;flex-direction:column;
       transition:max-height .3s ease;
     }
-    .mm-group.open .mm-submenu{max-height:240px;}
+    .mm-group.open .mm-submenu{max-height:450px;overflow-y:auto;}
     .mm-submenu a{
       display:flex;align-items:center;gap:8px;
       padding:9px 4px 9px 16px;font-size:14px;color:#a9b6c4;
