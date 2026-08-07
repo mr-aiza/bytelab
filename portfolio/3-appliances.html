@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>خانه‌مدرن | فروشگاه لوازم خانگی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#122446;
+    --navy-deep:#0B1830;
+    --teal:#1E9E92;
+    --teal-light:#E4F6F4;
+    --bg:#F6F8FB;
+    --line:#E1E6EE;
+    --ink:#1D2939;
+    --gray:#667085;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--ink);font-family:'Vazirmatn',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{text-decoration:none;color:inherit;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+  .topbar{background:var(--navy-deep);color:#B9C5DA;font-size:12.5px;padding:8px 0;}
+  .topbar .wrap{display:flex;justify-content:space-between;}
+
+  header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--line);}
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;height:78px;}
+  .logo{font-weight:800;font-size:21px;color:var(--navy);}
+  .logo span{color:var(--teal);}
+  .navlinks{display:flex;gap:30px;font-size:14.5px;font-weight:500;color:var(--ink);}
+  .navlinks a:hover{color:var(--teal);}
+  .nav-actions{display:flex;gap:10px;align-items:center;}
+  .search-box{border:1px solid var(--line);border-radius:8px;padding:9px 16px;font-size:13.5px;width:200px;background:var(--bg);}
+  .cart-btn{background:var(--teal);color:#fff;padding:11px 22px;border-radius:8px;font-size:13.5px;font-weight:600;}
+  .burger{display:none;font-size:24px;background:none;border:none;}
+
+  .hero{background:var(--navy);color:#fff;padding:64px 0;position:relative;overflow:hidden;}
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;}
+  .hero-eyebrow{color:var(--teal);font-size:13px;font-weight:700;letter-spacing:2px;margin-bottom:16px;}
+  .hero h1{font-size:clamp(32px,5vw,52px);font-weight:800;line-height:1.3;}
+  .hero p{color:#B9C5DA;font-size:15.5px;line-height:1.9;margin:20px 0 30px;max-width:440px;}
+  .btn-teal{background:var(--teal);color:#fff;padding:14px 30px;border-radius:8px;font-weight:600;font-size:14.5px;display:inline-block;}
+  .btn-ghost{border:1.5px solid #3A5074;color:#fff;padding:13px 28px;border-radius:8px;font-weight:600;font-size:14.5px;display:inline-block;margin-right:10px;}
+  .hero-panel{background:#fff;border-radius:16px;padding:26px;color:var(--ink);}
+  .hero-panel-title{font-weight:700;font-size:15px;margin-bottom:16px;color:var(--navy);}
+  .deal-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);}
+  .deal-row:last-child{border:none;}
+  .deal-name{font-size:13.5px;font-weight:500;}
+  .deal-price{font-weight:700;color:var(--teal);font-size:14px;}
+  .deal-old{color:var(--gray);text-decoration:line-through;font-size:12px;margin-left:6px;}
+
+  .trust-strip{background:#fff;border-bottom:1px solid var(--line);padding:22px 0;}
+  .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center;}
+  .trust-item{font-size:13px;color:var(--gray);font-weight:500;}
+  .trust-item b{display:block;color:var(--navy);font-size:15px;margin-bottom:4px;}
+
+  .section{padding:80px 0;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:44px;flex-wrap:wrap;gap:16px;}
+  .section-title{font-size:clamp(26px,3.5vw,36px);font-weight:800;color:var(--navy);}
+  .section-link{color:var(--teal);font-weight:600;font-size:14px;}
+
+  .cat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;}
+  .cat-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px 12px;text-align:center;transition:.2s;}
+  .cat-card:hover{border-color:var(--teal);transform:translateY(-3px);}
+  .cat-icon{font-size:30px;margin-bottom:10px;}
+  .cat-name{font-size:12.5px;font-weight:600;}
+
+  .products{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  .prod-card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .prod-img{height:170px;background:var(--teal-light);display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;}
+  .prod-badge{position:absolute;top:10px;right:10px;background:#E24B4B;color:#fff;font-size:11px;padding:4px 9px;border-radius:6px;font-weight:700;}
+  .prod-badge.gr{background:var(--navy);}
+  .prod-body{padding:16px;}
+  .prod-brand{font-size:11px;color:var(--gray);letter-spacing:1px;margin-bottom:6px;font-weight:600;}
+  .prod-name{font-weight:600;font-size:14.5px;margin-bottom:10px;line-height:1.5;min-height:44px;}
+  .prod-specs{font-size:11.5px;color:var(--gray);margin-bottom:12px;}
+  .prod-price-row{display:flex;justify-content:space-between;align-items:center;}
+  .prod-price{font-weight:800;font-size:16px;color:var(--navy);}
+  .prod-old{color:var(--gray);text-decoration:line-through;font-size:12px;display:block;font-weight:400;}
+  .prod-add{background:var(--navy);color:#fff;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+
+  .compare{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th,td{padding:16px 20px;text-align:right;border-bottom:1px solid var(--line);}
+  th{background:var(--navy);color:#fff;font-weight:600;font-size:13px;}
+  td.mono{color:var(--navy);font-weight:600;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--bg);}
+
+  .cta-band{background:var(--teal);color:#fff;padding:60px 0;text-align:center;border-radius:0;}
+  .cta-band h2{font-size:clamp(24px,3.5vw,36px);font-weight:800;margin-bottom:18px;}
+  .cta-band p{opacity:.9;margin-bottom:26px;font-size:15px;}
+  .cta-band .btn-teal{background:var(--navy);}
+
+  footer{background:var(--navy-deep);color:#B9C5DA;padding:56px 0 26px;}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:36px;}
+  .foot-desc{font-size:13.5px;line-height:1.9;margin-top:14px;max-width:280px;color:#8A9AB8;}
+  .foot-col h4{color:#fff;font-size:13.5px;font-weight:700;margin-bottom:16px;}
+  .foot-col a{display:block;font-size:13.5px;margin-bottom:10px;color:#B9C5DA;}
+  .foot-bottom{border-top:1px solid #263759;padding-top:22px;text-align:center;font-size:12.5px;}
+
+  @media(max-width:960px){
+    .hero-grid{grid-template-columns:1fr;}
+    .navlinks{display:none;}
+    .search-box{display:none;}
+    .burger{display:block;}
+    .cat-grid{grid-template-columns:repeat(3,1fr);}
+    .products{grid-template-columns:repeat(2,1fr);}
+    .trust-grid{grid-template-columns:repeat(2,1fr);}
+    .foot-grid{grid-template-columns:1fr 1fr;}
+    table{font-size:12px;}
+    th,td{padding:10px 8px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap"><span>ارسال به سراسر کشور | ضمانت اصالت کالا</span><span class="mono">۰۲۶-۳۲۴۴۵۵۶۶</span></div></div>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">خانه<span>مدرن</span></div>
+    <div class="navlinks">
+      <a href="#categories">دسته‌بندی‌ها</a>
+      <a href="#products">محصولات</a>
+      <a href="#compare">مقایسه قیمت</a>
+      <a href="#contact">تماس</a>
+    </div>
+    <div class="nav-actions">
+      <input class="search-box" placeholder="جستجوی محصول...">
+      <a href="#products" class="cart-btn">سبد خرید</a>
+    </div>
+    <button class="burger">☰</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-eyebrow">فروشگاه لوازم خانگی</div>
+      <h1>لوازم خانگی اورجینال<br>با گارانتی معتبر</h1>
+      <p>از یخچال و ماشین لباسشویی تا کوچک‌ترین لوازم آشپزخانه، همه با ضمانت اصالت کالا و امکان تقسیط.</p>
+      <a href="#products" class="btn-teal">مشاهده محصولات</a>
+      <a href="#compare" class="btn-ghost">مقایسه قیمت‌ها</a>
+    </div>
+    <div class="hero-panel">
+      <div class="hero-panel-title">🔥 پیشنهاد امروز</div>
+      <div class="deal-row"><span class="deal-name">یخچال ساید بای ساید ۲۴ فوت</span><span class="deal-price mono">۴۸٬۹۰۰<span class="deal-old">۵۴٬۵۰۰</span></span></div>
+      <div class="deal-row"><span class="deal-name">ماشین لباسشویی ۸ کیلویی</span><span class="deal-price mono">۱۹٬۲۰۰<span class="deal-old">۲۲٬۰۰۰</span></span></div>
+      <div class="deal-row"><span class="deal-name">اجاق گاز ۵ شعله استیل</span><span class="deal-price mono">۹٬۸۰۰<span class="deal-old">۱۱٬۵۰۰</span></span></div>
+    </div>
+  </div>
+</section>
+
+<div class="trust-strip">
+  <div class="wrap trust-grid">
+    <div class="trust-item"><b>+۱۲۰۰۰</b>مشتری راضی</div>
+    <div class="trust-item"><b>۲۴ ماهه</b>گارانتی اصالت</div>
+    <div class="trust-item"><b>رایگان</b>ارسال بالای ۵ میلیون</div>
+    <div class="trust-item"><b>تا ۱۲ ماهه</b>امکان تقسیط</div>
+  </div>
+</div>
+
+<section class="section" id="categories">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-title">دسته‌بندی محصولات</div>
+    </div>
+    <div class="cat-grid">
+      <div class="cat-card"><div class="cat-icon">🧊</div><div class="cat-name">یخچال فریزر</div></div>
+      <div class="cat-card"><div class="cat-icon">🌀</div><div class="cat-name">لباسشویی</div></div>
+      <div class="cat-card"><div class="cat-icon">🔥</div><div class="cat-name">اجاق گاز</div></div>
+      <div class="cat-card"><div class="cat-icon">❄️</div><div class="cat-name">کولر گازی</div></div>
+      <div class="cat-card"><div class="cat-icon">🍽️</div><div class="cat-name">ماشین ظرفشویی</div></div>
+      <div class="cat-card"><div class="cat-icon">☕</div><div class="cat-name">لوازم آشپزخانه</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="products" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-title">پرفروش‌ترین محصولات</div>
+      <a href="#" class="section-link">مشاهده همه ←</a>
+    </div>
+    <div class="products">
+      <div class="prod-card">
+        <div class="prod-img">🧊<span class="prod-badge">۱۰٪ تخفیف</span></div>
+        <div class="prod-body">
+          <div class="prod-brand">ال جی</div>
+          <div class="prod-name">یخچال ساید بای ساید ۲۴ فوت نقره‌ای</div>
+          <div class="prod-specs">آب‌سردکن | یخ‌ساز اتوماتیک</div>
+          <div class="prod-price-row"><div class="prod-price mono">۴۸٬۹۰۰<span class="prod-old">۵۴٬۵۰۰ هزار</span></div><span class="prod-add">+</span></div>
+        </div>
+      </div>
+      <div class="prod-card">
+        <div class="prod-img">🌀<span class="prod-badge gr">جدید</span></div>
+        <div class="prod-body">
+          <div class="prod-brand">سامسونگ</div>
+          <div class="prod-name">ماشین لباسشویی ۸ کیلویی درب از جلو</div>
+          <div class="prod-specs">۱۴۰۰ دور | نمایشگر دیجیتال</div>
+          <div class="prod-price-row"><div class="prod-price mono">۱۹٬۲۰۰ هزار</div><span class="prod-add">+</span></div>
+        </div>
+      </div>
+      <div class="prod-card">
+        <div class="prod-img">🔥</div>
+        <div class="prod-body">
+          <div class="prod-brand">بوش</div>
+          <div class="prod-name">اجاق گاز ۵ شعله صفحه استیل</div>
+          <div class="prod-specs">شعله ایمن | جرقه‌زن اتوماتیک</div>
+          <div class="prod-price-row"><div class="prod-price mono">۹٬۸۰۰ هزار</div><span class="prod-add">+</span></div>
+        </div>
+      </div>
+      <div class="prod-card">
+        <div class="prod-img">❄️<span class="prod-badge">۱۵٪ تخفیف</span></div>
+        <div class="prod-body">
+          <div class="prod-brand">جنرال</div>
+          <div class="prod-name">کولر گازی اسپلیت ۱۸۰۰۰ اینورتر</div>
+          <div class="prod-specs">گاز R410 | مصرف بهینه انرژی</div>
+          <div class="prod-price-row"><div class="prod-price mono">۲۶٬۵۰۰<span class="prod-old">۳۱٬۰۰۰ هزار</span></div><span class="prod-add">+</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="compare">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-title">مقایسه سریع قیمت</div>
+    </div>
+    <div class="compare">
+      <table>
+        <thead><tr><th>محصول</th><th>برند</th><th>ظرفیت</th><th>گارانتی</th><th>قیمت (هزار تومان)</th></tr></thead>
+        <tbody>
+          <tr><td>یخچال ساید بای ساید</td><td>ال جی</td><td>۲۴ فوت</td><td>۲۴ ماهه</td><td class="mono">۴۸٬۹۰۰</td></tr>
+          <tr><td>یخچال دوقلو</td><td>سامسونگ</td><td>۲۲ فوت</td><td>۱۸ ماهه</td><td class="mono">۴۱٬۲۰۰</td></tr>
+          <tr><td>لباسشویی درب از جلو</td><td>سامسونگ</td><td>۸ کیلوگرم</td><td>۲۴ ماهه</td><td class="mono">۱۹٬۲۰۰</td></tr>
+          <tr><td>لباسشویی درب از جلو</td><td>ال جی</td><td>۷ کیلوگرم</td><td>۲۴ ماهه</td><td class="mono">۱۷٬۵۰۰</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap">
+    <h2>نیاز به مشاوره خرید داری؟</h2>
+    <p>کارشناسان ما رایگان راهنمایی‌تان می‌کنند تا بهترین انتخاب را داشته باشید.</p>
+    <a href="#contact" class="btn-teal">تماس با کارشناس</a>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo" style="color:#fff;">خانه<span>مدرن</span></div>
+        <p class="foot-desc">فروشگاه لوازم خانگی خانه‌مدرن، کرج، میدان استاندارد. عرضه لوازم خانگی اورجینال با گارانتی معتبر.</p>
+      </div>
+      <div class="foot-col">
+        <h4>فروشگاه</h4>
+        <a href="#categories">دسته‌بندی‌ها</a>
+        <a href="#products">محصولات</a>
+        <a href="#compare">مقایسه قیمت</a>
+      </div>
+      <div class="foot-col">
+        <h4>خدمات</h4>
+        <a href="#">نصب و راه‌اندازی</a>
+        <a href="#">خدمات پس از فروش</a>
+        <a href="#">شرایط تقسیط</a>
+      </div>
+      <div class="foot-col">
+        <h4>تماس</h4>
+        <a href="tel:02632445566" class="mono">۰۲۶-۳۲۴۴۵۵۶۶</a>
+        <a href="#">اینستاگرام</a>
+      </div>
+    </div>
+    <div class="foot-bottom">© تمامی حقوق محفوظ است — فروشگاه خانه‌مدرن | طراحی: ByteLab</div>
+  </div>
+</footer>
+
+</body>
+</html>

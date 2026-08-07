@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پاورهاوس | باشگاه بدنسازی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0b0c;
+    --bg-card:#161618;
+    --lime:#cbff2e;
+    --steel:#8a8d93;
+    --white:#f3f3f0;
+    --line:#2a2a2c;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--white);
+    font-family:'Vazirmatn',sans-serif;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+  /* NAV */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(11,11,12,.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;height:76px;}
+  .logo{font-weight:900;font-size:22px;letter-spacing:-.5px;}
+  .logo span{color:var(--lime);}
+  .navlinks{display:flex;gap:32px;font-weight:500;font-size:15px;color:var(--steel);}
+  .navlinks a:hover{color:var(--white);}
+  .cta-btn{
+    background:var(--lime);color:#0b0b0c;font-weight:800;
+    padding:12px 24px;border-radius:2px;font-size:14px;
+    box-shadow:4px 4px 0 var(--white);
+    transition:.15s;
+  }
+  .cta-btn:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--white);}
+  .burger{display:none;font-size:26px;background:none;border:none;color:var(--white);cursor:pointer;}
+
+  /* HERO */
+  .hero{
+    padding:110px 0 90px;
+    position:relative;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:end;}
+  .eyebrow{color:var(--lime);font-weight:700;font-size:13px;letter-spacing:3px;margin-bottom:18px;}
+  h1.hero-title{
+    font-size:clamp(48px,7vw,92px);
+    font-weight:900;
+    line-height:0.95;
+    letter-spacing:-2px;
+    text-transform:uppercase;
+  }
+  h1.hero-title em{font-style:normal;color:var(--lime);}
+  .hero-sub{color:var(--steel);font-size:17px;margin-top:22px;max-width:440px;line-height:1.9;}
+  .hero-actions{display:flex;gap:14px;margin-top:34px;}
+  .btn-outline{
+    border:1.5px solid var(--white);padding:14px 26px;font-weight:700;font-size:14px;border-radius:2px;
+  }
+  .btn-outline:hover{background:var(--white);color:var(--bg);}
+  .btn-fill{
+    background:var(--lime);color:#0b0b0c;padding:14px 26px;font-weight:800;font-size:14px;border-radius:2px;
+  }
+  .stat-panel{
+    background:var(--bg-card);border:1px solid var(--line);padding:28px;
+  }
+  .stat-row{display:flex;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line);}
+  .stat-row:last-child{border-bottom:none;}
+  .stat-num{font-size:34px;font-weight:900;color:var(--lime);}
+  .stat-label{color:var(--steel);font-size:13px;align-self:flex-end;}
+
+  /* MARQUEE */
+  .marquee{
+    border-bottom:1px solid var(--line);
+    background:var(--bg-card);
+    padding:18px 0;
+    overflow:hidden;
+    white-space:nowrap;
+  }
+  .marquee-inner{display:inline-block;animation:scroll 22s linear infinite;font-weight:800;font-size:15px;letter-spacing:1px;}
+  .marquee-inner span{margin:0 26px;color:var(--steel);}
+  .marquee-inner span.hl{color:var(--lime);}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* PROGRAMS */
+  .section{padding:90px 0;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px;gap:20px;flex-wrap:wrap;}
+  .section-title{font-size:clamp(32px,4vw,48px);font-weight:900;text-transform:uppercase;letter-spacing:-1px;}
+  .section-desc{color:var(--steel);max-width:360px;font-size:15px;line-height:1.8;}
+
+  .programs{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);}
+  .prog-card{
+    background:var(--bg);padding:36px 28px;transition:.25s;position:relative;
+  }
+  .prog-card:hover{background:var(--bg-card);}
+  .prog-num{color:var(--lime);font-weight:900;font-size:13px;letter-spacing:2px;margin-bottom:60px;}
+  .prog-name{font-size:24px;font-weight:800;margin-bottom:12px;}
+  .prog-desc{color:var(--steel);font-size:14px;line-height:1.8;}
+
+  /* COACHES */
+  .coaches{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  .coach{background:var(--bg-card);border:1px solid var(--line);overflow:hidden;}
+  .coach-img{height:220px;background:linear-gradient(160deg,#2a2a2c,#0b0b0c);display:flex;align-items:center;justify-content:center;font-size:50px;font-weight:900;color:var(--line);}
+  .coach-info{padding:18px;}
+  .coach-name{font-weight:800;font-size:16px;}
+  .coach-role{color:var(--lime);font-size:12px;font-weight:600;margin-top:4px;}
+
+  /* PRICING */
+  .pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .price-card{border:1px solid var(--line);padding:36px 30px;background:var(--bg-card);}
+  .price-card.popular{border-color:var(--lime);position:relative;}
+  .tag{position:absolute;top:-13px;left:30px;background:var(--lime);color:#0b0b0c;font-size:11px;font-weight:800;padding:5px 12px;letter-spacing:1px;}
+  .price-plan{font-weight:800;font-size:18px;color:var(--steel);}
+  .price-num{font-size:48px;font-weight:900;margin:14px 0;}
+  .price-num span{font-size:16px;color:var(--steel);font-weight:500;}
+  .price-list{list-style:none;margin:24px 0;font-size:14px;color:var(--steel);line-height:2.4;}
+  .price-list li::before{content:"— ";color:var(--lime);font-weight:800;}
+  .price-btn{display:block;text-align:center;padding:14px;font-weight:800;border:1.5px solid var(--white);}
+  .price-card.popular .price-btn{background:var(--lime);border-color:var(--lime);color:#0b0b0c;}
+
+  /* CTA */
+  .cta-band{
+    background:var(--lime);color:#0b0b0c;padding:70px 0;text-align:center;
+  }
+  .cta-band h2{font-size:clamp(28px,4vw,44px);font-weight:900;text-transform:uppercase;margin-bottom:22px;}
+  .cta-band .btn-fill{background:#0b0b0c;color:var(--lime);}
+
+  footer{padding:60px 0 30px;border-top:1px solid var(--line);}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px;}
+  .foot-desc{color:var(--steel);font-size:14px;line-height:1.9;margin-top:14px;max-width:320px;}
+  .foot-col h4{font-size:13px;color:var(--steel);letter-spacing:2px;margin-bottom:16px;}
+  .foot-col a{display:block;color:var(--white);font-size:14px;margin-bottom:10px;}
+  .foot-bottom{color:var(--steel);font-size:13px;border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;}
+
+  @media(max-width:900px){
+    .hero-grid{grid-template-columns:1fr;}
+    .navlinks{display:none;}
+    .burger{display:block;}
+    .programs{grid-template-columns:1fr;}
+    .coaches{grid-template-columns:repeat(2,1fr);}
+    .pricing{grid-template-columns:1fr;}
+    .foot-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">پاور<span>هاوس</span></div>
+    <div class="navlinks">
+      <a href="#programs">برنامه‌ها</a>
+      <a href="#coaches">مربی‌ها</a>
+      <a href="#pricing">اشتراک‌ها</a>
+      <a href="#contact">تماس</a>
+    </div>
+    <a href="#pricing" class="cta-btn">عضویت رایگان</a>
+    <button class="burger">☰</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">باشگاه بدنسازی حرفه‌ای — کرج</div>
+      <h1 class="hero-title">قدرتت رو<br><em>از نو</em> بساز</h1>
+      <p class="hero-sub">تجهیزات استاندارد المپیکی، مربیان بدنساز مجرب و برنامه‌های تمرینی اختصاصی برای رسیدن به بدنی که همیشه می‌خواستی.</p>
+      <div class="hero-actions">
+        <a href="#pricing" class="btn-fill">شروع تمرین</a>
+        <a href="#programs" class="btn-outline">برنامه‌ها را ببین</a>
+      </div>
+    </div>
+    <div class="stat-panel">
+      <div class="stat-row"><span class="stat-num">۱۲۰۰+</span><span class="stat-label">عضو فعال</span></div>
+      <div class="stat-row"><span class="stat-num">۱۸</span><span class="stat-label">مربی متخصص</span></div>
+      <div class="stat-row"><span class="stat-num">۶ صبح — ۱۲ شب</span><span class="stat-label">ساعت فعالیت</span></div>
+      <div class="stat-row"><span class="stat-num">۹۰۰ متر</span><span class="stat-label">سالن تمرین</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee">
+  <div class="marquee-inner">
+    <span class="hl">بدنسازی</span><span>کراسفیت</span><span class="hl">پرورش اندام</span><span>پاورلیفتینگ</span><span class="hl">تمرینات عملکردی</span><span>باکس</span><span class="hl">بدنسازی</span><span>کراسفیت</span><span class="hl">پرورش اندام</span><span>پاورلیفتینگ</span><span class="hl">تمرینات عملکردی</span><span>باکس</span>
+  </div>
+</div>
+
+<section class="section" id="programs">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-title">برنامه‌های تمرینی</div>
+      <div class="section-desc">هر برنامه بر اساس هدف بدنی طراحی شده — از افزایش حجم تا کاهش چربی.</div>
+    </div>
+    <div class="programs">
+      <div class="prog-card">
+        <div class="prog-num">۰۱</div>
+        <div class="prog-name">پرورش اندام</div>
+        <div class="prog-desc">افزایش حجم عضلانی با برنامه تمرینی اسپلیت و رژیم غذایی اختصاصی.</div>
+      </div>
+      <div class="prog-card">
+        <div class="prog-num">۰۲</div>
+        <div class="prog-name">کراسفیت</div>
+        <div class="prog-desc">تمرینات ترکیبی با شدت بالا برای افزایش استقامت و قدرت انفجاری.</div>
+      </div>
+      <div class="prog-card">
+        <div class="prog-num">۰۳</div>
+        <div class="prog-name">پاورلیفتینگ</div>
+        <div class="prog-desc">تمرکز روی سه حرکت اصلی: اسکوات، ددلیفت و پرس سینه.</div>
+      </div>
+      <div class="prog-card">
+        <div class="prog-num">۰۴</div>
+        <div class="prog-name">تمرینات عملکردی</div>
+        <div class="prog-desc">بهبود تعادل، هماهنگی و آمادگی بدنی برای زندگی روزمره.</div>
+      </div>
+      <div class="prog-card">
+        <div class="prog-num">۰۵</div>
+        <div class="prog-name">باکس و MMA</div>
+        <div class="prog-desc">تمرینات رزمی برای افزایش قدرت، سرعت واکنش و اعتماد به نفس.</div>
+      </div>
+      <div class="prog-card">
+        <div class="prog-num">۰۶</div>
+        <div class="prog-name">کاهش وزن</div>
+        <div class="prog-desc">ترکیب کاردیو و تمرین مقاومتی با برنامه تغذیه شخصی‌سازی‌شده.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="coaches" style="border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-title">مربی‌های ما</div>
+      <div class="section-desc">تیمی از مربیان دارای مدرک بین‌المللی، همراه شما تا رسیدن به هدف.</div>
+    </div>
+    <div class="coaches">
+      <div class="coach"><div class="coach-img">آ.م</div><div class="coach-info"><div class="coach-name">آرش محمدی</div><div class="coach-role">مربی پرورش اندام</div></div></div>
+      <div class="coach"><div class="coach-img">س.ک</div><div class="coach-info"><div class="coach-name">سارا کریمی</div><div class="coach-role">مربی کراسفیت</div></div></div>
+      <div class="coach"><div class="coach-img">ن.ر</div><div class="coach-info"><div class="coach-name">نیما رستمی</div><div class="coach-role">مربی پاورلیفتینگ</div></div></div>
+      <div class="coach"><div class="coach-img">ه.ص</div><div class="coach-info"><div class="coach-name">هستی صادقی</div><div class="coach-role">مربی تغذیه ورزشی</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pricing">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-title">اشتراک‌ها</div>
+      <div class="section-desc">بدون قرارداد بلندمدت. هر وقت خواستی لغو کن.</div>
+    </div>
+    <div class="pricing">
+      <div class="price-card">
+        <div class="price-plan">پایه</div>
+        <div class="price-num">۸۹۰<span> هزار / ماه</span></div>
+        <ul class="price-list">
+          <li>دسترسی آزاد به سالن</li>
+          <li>کمد اختصاصی</li>
+          <li>یک جلسه ارزیابی بدنی</li>
+        </ul>
+        <a class="price-btn" href="#contact">انتخاب پلن</a>
+      </div>
+      <div class="price-card popular">
+        <div class="tag">پرطرفدار</div>
+        <div class="price-plan">حرفه‌ای</div>
+        <div class="price-num">۱٬۴۹۰<span> هزار / ماه</span></div>
+        <ul class="price-list">
+          <li>همه امکانات پلن پایه</li>
+          <li>۴ جلسه با مربی شخصی</li>
+          <li>برنامه تغذیه اختصاصی</li>
+          <li>دسترسی به کلاس‌های گروهی</li>
+        </ul>
+        <a class="price-btn" href="#contact">انتخاب پلن</a>
+      </div>
+      <div class="price-card">
+        <div class="price-plan">نامحدود</div>
+        <div class="price-num">۲٬۲۹۰<span> هزار / ماه</span></div>
+        <ul class="price-list">
+          <li>همه امکانات پلن حرفه‌ای</li>
+          <li>مربی شخصی نامحدود</li>
+          <li>دسترسی ۲۴ ساعته</li>
+          <li>ماساژ ریکاوری ماهانه</li>
+        </ul>
+        <a class="price-btn" href="#contact">انتخاب پلن</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap">
+    <h2>اولین جلسه‌ات رایگانه</h2>
+    <a href="#contact" class="btn-fill">رزرو جلسه رایگان</a>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo">پاور<span>هاوس</span></div>
+        <p class="foot-desc">باشگاه بدنسازی پاورهاوس، کرج، خیابان شهید بهشتی، پلاک ۱۴. برای هماهنگی بازدید با ما تماس بگیرید.</p>
+      </div>
+      <div class="foot-col">
+        <h4>لینک‌ها</h4>
+        <a href="#programs">برنامه‌ها</a>
+        <a href="#coaches">مربی‌ها</a>
+        <a href="#pricing">اشتراک‌ها</a>
+      </div>
+      <div class="foot-col">
+        <h4>تماس</h4>
+        <a href="tel:02634001234">۰۲۶-۳۴۰۰۱۲۳۴</a>
+        <a href="#">اینستاگرام</a>
+        <a href="#">تلگرام</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© تمامی حقوق محفوظ است — باشگاه پاورهاوس</span>
+      <span>طراحی: ByteLab</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

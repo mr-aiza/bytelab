@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>املاک آسمان | مشاور املاک</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=Noto+Naskh+Arabic:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0F1C2E;
+    --navy-light:#182A42;
+    --gold:#B8935F;
+    --gold-light:#D9BE93;
+    --cream:#F3EEE6;
+    --white:#FBF9F5;
+    --gray:#8B95A5;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--white);color:var(--navy);font-family:'Vazirmatn',sans-serif;}
+  .serif{font-family:'Noto Naskh Arabic',serif;}
+  a{text-decoration:none;color:inherit;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(251,249,245,.92);backdrop-filter:blur(10px);border-bottom:1px solid #E4DDD0;}
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;height:88px;}
+  .logo{font-size:24px;font-weight:700;letter-spacing:.5px;}
+  .logo span{color:var(--gold);}
+  .navlinks{display:flex;gap:34px;font-size:14px;font-weight:500;}
+  .navlinks a:hover{color:var(--gold);}
+  .cta-btn{border:1.5px solid var(--navy);padding:12px 26px;font-size:13.5px;font-weight:600;border-radius:2px;}
+  .cta-btn:hover{background:var(--navy);color:#fff;}
+  .burger{display:none;font-size:24px;background:none;border:none;}
+
+  .hero{
+    background:var(--navy);color:#fff;padding:100px 0 80px;position:relative;
+    background-image:
+      linear-gradient(160deg, rgba(15,28,46,.97), rgba(15,28,46,.85)),
+      repeating-linear-gradient(45deg, rgba(184,147,95,.04) 0px, rgba(184,147,95,.04) 2px, transparent 2px, transparent 40px);
+  }
+  .hero-eyebrow{color:var(--gold-light);font-size:13px;letter-spacing:4px;font-weight:600;margin-bottom:24px;text-align:center;}
+  h1.hero-title{font-size:clamp(36px,6vw,64px);font-weight:700;text-align:center;line-height:1.4;max-width:800px;margin:0 auto;}
+  h1.hero-title em{font-style:normal;color:var(--gold-light);}
+  .hero-sub{color:#B9C2D4;text-align:center;font-size:16px;max-width:520px;margin:26px auto 0;line-height:1.9;}
+
+  .search-panel{
+    background:var(--white);border-radius:8px;padding:28px;margin-top:50px;
+    display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:14px;align-items:end;
+    box-shadow:0 30px 60px rgba(0,0,0,.35);
+  }
+  .field label{display:block;font-size:12px;color:var(--gray);margin-bottom:8px;font-weight:600;}
+  .field select,.field input{width:100%;border:1px solid #E4DDD0;border-radius:6px;padding:12px 14px;font-family:inherit;font-size:14px;color:var(--navy);background:#fff;}
+  .search-btn{background:var(--gold);color:#fff;border:none;padding:13px 30px;border-radius:6px;font-weight:700;font-size:14px;cursor:pointer;}
+
+  .stats-strip{background:var(--white);padding:40px 0;border-bottom:1px solid #E4DDD0;}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);text-align:center;}
+  .stat-num{font-size:32px;font-weight:700;color:var(--gold);}
+  .stat-label{font-size:13px;color:var(--gray);margin-top:6px;}
+
+  .section{padding:90px 0;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px;flex-wrap:wrap;gap:16px;}
+  .section-eyebrow{color:var(--gold);font-size:12.5px;letter-spacing:3px;font-weight:700;margin-bottom:10px;}
+  .section-title{font-size:clamp(28px,4vw,42px);font-weight:700;}
+  .section-link{color:var(--gold);font-weight:600;font-size:14px;}
+
+  .listings{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+  .listing-card{background:#fff;border:1px solid #E4DDD0;border-radius:6px;overflow:hidden;transition:.25s;}
+  .listing-card:hover{box-shadow:0 20px 40px rgba(15,28,46,.1);transform:translateY(-4px);}
+  .listing-img{height:220px;background:linear-gradient(150deg,var(--cream),#E4DDD0);display:flex;align-items:center;justify-content:center;font-size:44px;color:var(--gold-light);position:relative;}
+  .price-ribbon{position:absolute;top:16px;left:0;background:var(--navy);color:#fff;padding:8px 18px 8px 14px;font-size:14px;font-weight:700;border-radius:0 6px 6px 0;}
+  .listing-type{position:absolute;top:16px;right:16px;background:var(--gold);color:#fff;font-size:11px;padding:5px 12px;border-radius:20px;font-weight:600;}
+  .listing-body{padding:20px;}
+  .listing-loc{color:var(--gray);font-size:12.5px;margin-bottom:8px;}
+  .listing-name{font-weight:700;font-size:17px;margin-bottom:14px;}
+  .listing-specs{display:flex;gap:16px;font-size:13px;color:var(--gray);border-top:1px solid #E4DDD0;padding-top:14px;}
+  .listing-specs span{display:flex;align-items:center;gap:5px;}
+
+  .feature-band{background:var(--navy);color:#fff;border-radius:10px;padding:60px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+  .feature-band-eyebrow{color:var(--gold-light);font-size:12.5px;letter-spacing:3px;font-weight:700;margin-bottom:16px;}
+  .feature-band h3{font-size:clamp(24px,3.5vw,34px);font-weight:700;line-height:1.5;}
+  .feature-list{margin-top:24px;}
+  .feature-item{display:flex;gap:12px;margin-bottom:16px;font-size:14.5px;color:#C9D0DD;}
+  .feature-item b{color:var(--gold-light);}
+  .feature-visual{aspect-ratio:4/3;background:linear-gradient(135deg,var(--gold),var(--navy-light));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:60px;color:rgba(255,255,255,.3);}
+
+  .agents{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .agent-card{text-align:center;padding:30px;border:1px solid #E4DDD0;border-radius:6px;}
+  .agent-img{width:90px;height:90px;border-radius:50%;background:var(--cream);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:var(--gold);}
+  .agent-name{font-weight:700;font-size:16px;}
+  .agent-role{color:var(--gray);font-size:13px;margin:6px 0 14px;}
+  .agent-phone{color:var(--gold);font-weight:600;font-size:13.5px;}
+
+  .cta-band{background:var(--cream);padding:70px 0;text-align:center;}
+  .cta-band h2{font-size:clamp(26px,3.5vw,38px);font-weight:700;margin-bottom:18px;}
+  .cta-band p{color:var(--gray);margin-bottom:28px;font-size:15px;}
+  .btn-navy{background:var(--navy);color:#fff;padding:15px 34px;border-radius:2px;font-weight:600;font-size:14.5px;display:inline-block;}
+
+  footer{background:var(--navy);color:#B9C2D4;padding:60px 0 28px;}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:36px;}
+  .foot-desc{font-size:13.5px;line-height:1.9;margin-top:14px;max-width:280px;color:#8593AA;}
+  .foot-col h4{color:#fff;font-size:13.5px;font-weight:700;margin-bottom:16px;}
+  .foot-col a{display:block;font-size:13.5px;margin-bottom:10px;color:#B9C2D4;}
+  .foot-bottom{border-top:1px solid #263759;padding-top:22px;text-align:center;font-size:12.5px;}
+
+  @media(max-width:960px){
+    .navlinks{display:none;}
+    .burger{display:block;}
+    .search-panel{grid-template-columns:1fr 1fr;}
+    .stats-grid{grid-template-columns:repeat(2,1fr);gap:24px;}
+    .listings{grid-template-columns:1fr;}
+    .feature-band{grid-template-columns:1fr;padding:36px;}
+    .agents{grid-template-columns:1fr;}
+    .foot-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo serif">آسمان<span>.</span></div>
+    <div class="navlinks">
+      <a href="#listings">آگهی‌ها</a>
+      <a href="#services">خدمات</a>
+      <a href="#agents">مشاوران</a>
+      <a href="#contact">تماس</a>
+    </div>
+    <a href="#contact" class="cta-btn">درخواست مشاوره</a>
+    <button class="burger">☰</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">مشاور املاک آسمان — کرج</div>
+    <h1 class="hero-title serif">خانه‌ی رویایی خود را<br><em>همین امروز</em> پیدا کنید</h1>
+    <p class="hero-sub">بیش از ۱۵ سال تجربه در خرید، فروش و رهن و اجاره ملک با مشاوره تخصصی و شفاف‌سازی کامل قیمت بازار.</p>
+
+    <div class="search-panel">
+      <div class="field"><label>نوع معامله</label><select><option>خرید</option><option>رهن و اجاره</option><option>فروش</option></select></div>
+      <div class="field"><label>نوع ملک</label><select><option>آپارتمان</option><option>ویلا</option><option>زمین</option><option>تجاری</option></select></div>
+      <div class="field"><label>منطقه</label><input placeholder="مثلاً گوهردشت، کرج"></div>
+      <button class="search-btn">جستجو</button>
+    </div>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div class="wrap stats-grid">
+    <div><div class="stat-num">۴۲۰+</div><div class="stat-label">ملک فروخته‌شده</div></div>
+    <div><div class="stat-num">۱۵</div><div class="stat-label">سال تجربه</div></div>
+    <div><div class="stat-num">۹۸٪</div><div class="stat-label">رضایت مشتریان</div></div>
+    <div><div class="stat-num">۱۲</div><div class="stat-label">مشاور متخصص</div></div>
+  </div>
+</div>
+
+<section class="section" id="listings">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">آگهی‌های ویژه</div>
+        <div class="section-title serif">ملک‌های منتخب</div>
+      </div>
+      <a href="#" class="section-link">مشاهده همه آگهی‌ها ←</a>
+    </div>
+    <div class="listings">
+      <div class="listing-card">
+        <div class="listing-img">🏢<div class="price-ribbon">۴٫۲ میلیارد</div><div class="listing-type">فروش</div></div>
+        <div class="listing-body">
+          <div class="listing-loc">📍 گوهردشت، کرج</div>
+          <div class="listing-name">آپارتمان ۱۳۰ متری، ۳ خواب</div>
+          <div class="listing-specs"><span>🛏 ۳ خواب</span><span>🛁 ۲ سرویس</span><span>📐 ۱۳۰ متر</span></div>
+        </div>
+      </div>
+      <div class="listing-card">
+        <div class="listing-img">🏠<div class="price-ribbon">رهن کامل ۹۵۰م</div><div class="listing-type">رهن و اجاره</div></div>
+        <div class="listing-body">
+          <div class="listing-loc">📍 مهرشهر، کرج</div>
+          <div class="listing-name">ویلایی دوبلکس، حیاط اختصاصی</div>
+          <div class="listing-specs"><span>🛏 ۴ خواب</span><span>🛁 ۳ سرویس</span><span>📐ٰ ۲۲۰ متر</span></div>
+        </div>
+      </div>
+      <div class="listing-card">
+        <div class="listing-img">🏬<div class="price-ribbon">۶٫۸ میلیارد</div><div class="listing-type">فروش</div></div>
+        <div class="listing-body">
+          <div class="listing-loc">📍 عظیمیه، کرج</div>
+          <div class="listing-name">پنت‌هاوس لوکس، نمای شهر</div>
+          <div class="listing-specs"><span>🛏 ۳ خواب</span><span>🛁 ۲ سرویس</span><span>📐 ۱۸۰ متر</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="services" style="background:var(--cream);">
+  <div class="wrap">
+    <div class="feature-band">
+      <div>
+        <div class="feature-band-eyebrow">چرا آسمان؟</div>
+        <h3 class="serif">خدمات کامل، از بازدید تا تحویل سند</h3>
+        <div class="feature-list">
+          <div class="feature-item"><b>۰۱ ·</b> ارزیابی رایگان و دقیق قیمت ملک بر اساس بازار روز</div>
+          <div class="feature-item"><b>۰۲ ·</b> مشاوره حقوقی رایگان برای تنظیم قرارداد و انتقال سند</div>
+          <div class="feature-item"><b>۰۳ ·</b> بازدید هماهنگ‌شده و همراهی تا امضای قرارداد نهایی</div>
+        </div>
+      </div>
+      <div class="feature-visual">🏙️</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="agents">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">تیم ما</div>
+        <div class="section-title serif">مشاوران متخصص</div>
+      </div>
+    </div>
+    <div class="agents">
+      <div class="agent-card">
+        <div class="agent-img">ر.ص</div>
+        <div class="agent-name">رضا صادقی</div>
+        <div class="agent-role">مشاور ارشد فروش</div>
+        <div class="agent-phone">۰۹۱۲-۱۲۳۴۵۶۷</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-img">م.ن</div>
+        <div class="agent-name">مریم نوری</div>
+        <div class="agent-role">مشاور رهن و اجاره</div>
+        <div class="agent-phone">۰۹۱۲-۲۳۴۵۶۷۸</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-img">ک.ف</div>
+        <div class="agent-name">کاوه فرهادی</div>
+        <div class="agent-role">مشاور املاک تجاری</div>
+        <div class="agent-phone">۰۹۱۲-۳۴۵۶۷۸۹</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band" id="contact">
+  <div class="wrap">
+    <h2 class="serif">می‌خواهید ملکتان را بفروشید یا اجاره دهید؟</h2>
+    <p>همین حالا با یک تماس، ارزیابی رایگان ملک خود را دریافت کنید.</p>
+    <a href="tel:02632009090" class="btn-navy">تماس با مشاور</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo serif" style="color:#fff;">آسمان<span style="color:var(--gold-light);">.</span></div>
+        <p class="foot-desc">مشاور املاک آسمان، کرج، بلوار طالقانی، برج نگین. مشاوره تخصصی خرید، فروش و رهن و اجاره ملک.</p>
+      </div>
+      <div class="foot-col">
+        <h4>خدمات</h4>
+        <a href="#listings">آگهی‌ها</a>
+        <a href="#services">خدمات ما</a>
+        <a href="#agents">مشاوران</a>
+      </div>
+      <div class="foot-col">
+        <h4>راهنما</h4>
+        <a href="#">قیمت روز مسکن</a>
+        <a href="#">راهنمای تنظیم قرارداد</a>
+      </div>
+      <div class="foot-col">
+        <h4>تماس</h4>
+        <a href="tel:02632009090">۰۲۶-۳۲۰۰۹۰۹۰</a>
+        <a href="#">اینستاگرام</a>
+      </div>
+    </div>
+    <div class="foot-bottom">© تمامی حقوق محفوظ است — مشاور املاک آسمان | طراحی: ByteLab</div>
+  </div>
+</footer>
+
+</body>
+</html>
