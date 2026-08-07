@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فشرده‌سازی تصویر | بایت‌لب</title>
+<meta name="description" content="تصاویرت رو آنلاین فشرده‌سازی کن، اندازه‌شون رو کم کن، کیفیت رو کنترل کن — بدون نیاز به نرم‌افزار.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070b12;
+    --panel:#0f1620;
+    --panel-2:#141d2b;
+    --line:#1e2a38;
+    --cyan:#4df0c9;
+    --violet:#9c7bff;
+    --orange:#f2c14e;
+    --paper:#eaf0f4;
+    --muted:#7c8b9c;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;
+    line-height:1.7;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.02em;}
+  a{color:var(--cyan);text-decoration:none;}
+  
+  .wrap{max-width:1000px;margin:0 auto;padding:0 24px;}
+  
+  /* Hero Section */
+  .hero{padding:60px 0 40px;}
+  .hero-tag{
+    font-weight:700;font-size:13px;color:var(--violet);
+    display:inline-block;margin-bottom:12px;
+  }
+  .hero h1{
+    font-size:clamp(28px,3vw,42px);font-weight:900;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .hero p{
+    font-size:17px;color:var(--muted);max-width:680px;line-height:1.9;
+  }
+  
+  /* Main Layout */
+  .layout{display:grid;grid-template-columns:1fr 1fr;gap:40px;padding:50px 0;align-items:start;}
+  @media (max-width:900px){ .layout{grid-template-columns:1fr;gap:30px;} }
+  
+  /* Upload Area */
+  .upload-zone{
+    border:2px dashed var(--line);border-radius:20px;padding:50px 30px;
+    text-align:center;background:rgba(77,240,201,.02);
+    cursor:pointer;transition:all .3s ease;position:relative;
+    min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .upload-zone:hover{
+    border-color:var(--cyan);background:rgba(77,240,201,.06);
+  }
+  .upload-zone.active{
+    border-color:var(--cyan);background:rgba(77,240,201,.1);
+  }
+  .upload-zone input{display:none;}
+  .upload-icon{font-size:48px;margin-bottom:12px;}
+  .upload-text{color:var(--muted);font-size:14px;margin-bottom:8px;}
+  .upload-hint{font-size:12px;color:var(--muted);opacity:.8;}
+  
+  /* Controls */
+  .controls{display:flex;flex-direction:column;gap:20px;margin:30px 0;}
+  .control-group{display:flex;flex-direction:column;gap:8px;}
+  .control-label{
+    font-weight:600;font-size:13.5px;color:var(--paper);
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .control-value{font-size:13px;color:var(--cyan);font-weight:700;}
+  input[type=range]{
+    width:100%;height:6px;background:var(--line);border-radius:999px;
+    outline:none;-webkit-appearance:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+    background:var(--cyan);cursor:pointer;box-shadow:0 0 12px rgba(77,240,201,.4);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;
+    background:var(--cyan);border:none;cursor:pointer;box-shadow:0 0 12px rgba(77,240,201,.4);
+  }
+  
+  .format-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .format-btn{
+    flex:1;min-width:70px;padding:10px 14px;border:1px solid var(--line);background:var(--panel);
+    color:var(--muted);border-radius:10px;cursor:pointer;font-family:inherit;font-weight:600;
+    font-size:13px;transition:all .2s ease;
+  }
+  .format-btn.active{background:var(--cyan);color:#06120f;border-color:var(--cyan);}
+  .format-btn:hover{border-color:var(--cyan);}
+  
+  /* Preview */
+  .preview-box{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:16px;
+  }
+  .preview-img{max-width:100%;max-height:300px;border-radius:12px;display:block;}
+  .preview-empty{color:var(--muted);font-size:14px;text-align:center;}
+  
+  /* Info Box */
+  .info-box{
+    background:rgba(77,240,201,.06);border:1px solid var(--line);border-radius:14px;
+    padding:16px;font-size:13px;color:var(--muted);line-height:1.8;
+  }
+  .info-box b{color:var(--paper);}
+  
+  /* Results */
+  .results{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:24px;margin-top:20px;
+  }
+  .result-row{
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    padding:12px 0;border-bottom:1px solid var(--line);font-size:13.5px;
+  }
+  .result-row:last-child{border-bottom:none;}
+  .result-label{color:var(--muted);}
+  .result-value{font-weight:700;color:var(--cyan);font-family:'JetBrains Mono',monospace;}
+  .result-badge{
+    background:rgba(77,240,201,.1);color:var(--cyan);padding:4px 10px;
+    border-radius:999px;font-size:12px;font-weight:700;
+  }
+  
+  /* Buttons */
+  .btn{
+    border:none;border-radius:999px;padding:12px 24px;font-family:inherit;font-size:14px;
+    font-weight:700;cursor:pointer;transition:all .2s ease;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-primary{
+    background:var(--cyan);color:#06120f;
+    box-shadow:0 0 24px rgba(77,240,201,.3);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 32px rgba(77,240,201,.5);}
+  .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .btn-secondary{
+    background:transparent;color:var(--cyan);border:1px solid var(--cyan);
+  }
+  .btn-secondary:hover{background:rgba(77,240,201,.1);}
+  
+  .button-group{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
+  
+  /* Status Messages */
+  .msg{
+    padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:12px;
+    display:none;align-items:center;gap:8px;
+  }
+  .msg.show{display:flex;}
+  .msg-success{background:rgba(77,240,201,.1);color:var(--cyan);border:1px solid rgba(77,240,201,.3);}
+  .msg-error{background:rgba(255,138,138,.1);color:#ff8a8a;border:1px solid rgba(255,138,138,.3);}
+  .msg-loading{background:rgba(156,123,255,.1);color:var(--violet);border:1px solid rgba(156,123,255,.3);}
+  
+  /* Footer */
+  .footer{text-align:center;padding:40px 0;color:var(--muted);font-size:13px;}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="hero-tag">🖼️ ابزار فشرده‌سازی تصویر</span>
+    <h1>تصویرت رو فشرده کن، کیفیت رو نگه‌دار</h1>
+    <p>تصاویرت رو آنلاین فشرده‌سازی کن بدون کاهش قابل‌توجهی کیفیت. اندازه‌رو کم کن، سرعت وب‌سایتت رو بالا ببر.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="layout">
+    <div>
+      <div id="uploadMsg" class="msg msg-loading"></div>
+      
+      <label class="upload-zone" id="uploadZone">
+        <input type="file" id="imageInput" accept="image/*">
+        <div class="upload-icon">📤</div>
+        <div class="upload-text">تصویرت رو اینجا بیندازـ یا کلیک کن</div>
+        <div class="upload-hint">PNG, JPG, WebP, GIF (حداکثر 10MB)</div>
+      </label>
+
+      <div class="controls">
+        <div class="control-group">
+          <div class="control-label">
+            <span>کیفیت</span>
+            <span class="control-value"><span id="qualityVal">75</span>%</span>
+          </div>
+          <input type="range" id="quality" min="10" max="100" value="75">
+          <div class="info-box">کیفیت کمتر = فایل کوچک‌تر. از 75-80 برای بیشتر تصاویر خوب است.</div>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">
+            <span>حداکثر عرض (پیکسل)</span>
+            <span class="control-value"><span id="widthVal">1920</span>px</span>
+          </div>
+          <input type="range" id="maxWidth" min="200" max="4000" value="1920" step="100">
+          <div class="info-box">اگه تصویر از این عرض بزرگ‌تر بود، به این اندازه تغییر می‌کنه.</div>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">
+            <span>فرمت خروجی</span>
+          </div>
+          <div class="format-group">
+            <button type="button" class="format-btn active" data-format="jpeg">JPEG</button>
+            <button type="button" class="format-btn" data-format="png">PNG</button>
+            <button type="button" class="format-btn" data-format="webp">WebP</button>
+          </div>
+          <div class="info-box"><b>WebP:</b> کوچک‌تر و سریع‌تر (اما پشتیبانی مرورگر کمتر). <b>JPEG:</b> سریع‌ترین لود. <b>PNG:</b> بدون تغییر رنگ.</div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="button" class="btn btn-primary" id="compressBtn" disabled>
+          ⚡ فشرده‌سازی
+        </button>
+        <button type="button" class="btn btn-secondary" id="downloadBtn" style="display:none;">
+          ⬇️ دانلود
+        </button>
+        <button type="button" class="btn btn-secondary" id="resetBtn" style="display:none;">
+          🔄 ریست
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="preview-box" id="previewBox">
+        <div class="preview-empty">تصویرت رو آپلود کن.</div>
+      </div>
+      <div class="results" id="results" style="display:none;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--cyan);">📊 نتایج فشرده‌سازی</div>
+        <div class="result-row">
+          <span class="result-label">اندازه اصلی</span>
+          <span class="result-value" id="originalSize">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">اندازه فشرده</span>
+          <span class="result-value" id="compressedSize">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">کاهش</span>
+          <span class="result-value" id="reduction">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">ابعاد</span>
+          <span class="result-value" id="dimensions">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">فرمت</span>
+          <span class="result-badge" id="resultFormat">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  © ۱۴۰۵ بایت‌لب — تمام فشرده‌سازی روی مرورگرت انجام می‌شه، هیچ فایلی آپلود نمی‌شه.
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  const state = {
+    file: null,
+    image: null,
+    canvas: null,
+    quality: 75,
+    maxWidth: 1920,
+    format: 'jpeg',
+    compressed: null,
+    compressedBlob: null
+  };
+
+  const els = {
+    uploadZone: document.getElementById('uploadZone'),
+    imageInput: document.getElementById('imageInput'),
+    quality: document.getElementById('quality'),
+    qualityVal: document.getElementById('qualityVal'),
+    maxWidth: document.getElementById('maxWidth'),
+    widthVal: document.getElementById('widthVal'),
+    formatBtns: document.querySelectorAll('.format-btn'),
+    previewBox: document.getElementById('previewBox'),
+    compressBtn: document.getElementById('compressBtn'),
+    downloadBtn: document.getElementById('downloadBtn'),
+    resetBtn: document.getElementById('resetBtn'),
+    results: document.getElementById('results'),
+    originalSize: document.getElementById('originalSize'),
+    compressedSize: document.getElementById('compressedSize'),
+    reduction: document.getElementById('reduction'),
+    dimensions: document.getElementById('dimensions'),
+    resultFormat: document.getElementById('resultFormat'),
+    msg: document.getElementById('uploadMsg')
+  };
+
+  function formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+  }
+
+  function showMsg(text, type) {
+    els.msg.textContent = text;
+    els.msg.className = 'msg show msg-' + type;
+  }
+
+  function hideMsg() {
+    els.msg.classList.remove('show');
+  }
+
+  // Upload handling
+  function handleFileSelect(file) {
+    if (!file.type.startsWith('image/')) {
+      showMsg('❌ فقط تصاویر پذیرفته می‌شوند', 'error');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      showMsg('❌ فایل خیلی بزرگه (حداکثر 10MB)', 'error');
+      return;
+    }
+
+    state.file = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        state.image = img;
+        renderPreview();
+        els.compressBtn.disabled = false;
+        showMsg('✓ تصویر لود شد', 'success');
+        setTimeout(hideMsg, 2000);
+      };
+      img.onerror = () => showMsg('❌ خطا در بارگذاری تصویر', 'error');
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function renderPreview() {
+    els.previewBox.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = state.image.src;
+    img.className = 'preview-img';
+    els.previewBox.appendChild(img);
+
+    const info = document.createElement('div');
+    info.style.cssText = 'font-size:13px;color:var(--muted);text-align:center;margin-top:12px;';
+    info.innerHTML = `
+      <strong>${state.image.width}</strong> × <strong>${state.image.height}</strong> px<br>
+      ${formatBytes(state.file.size)}
+    `;
+    els.previewBox.appendChild(info);
+
+    els.originalSize.textContent = formatBytes(state.file.size);
+  }
+
+  async function compressImage() {
+    if (!state.image || !state.file) return;
+    
+    showMsg('⏳ در حال فشرده‌سازی…', 'loading');
+    els.compressBtn.disabled = true;
+
+    // Create canvas
+    const canvas = document.createElement('canvas');
+    let width = state.image.width;
+    let height = state.image.height;
+
+    if (width > state.maxWidth) {
+      height = (state.maxWidth / width) * height;
+      width = state.maxWidth;
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(state.image, 0, 0, width, height);
+
+    // Convert quality (0-100) to decimal (0-1) for canvas
+    const qualityDecimal = state.quality / 100;
+    const mimeType = 'image/' + state.format;
+    
+    canvas.toBlob(
+      blob => {
+        state.compressedBlob = blob;
+        state.compressed = canvas.toDataURL(mimeType, qualityDecimal);
+
+        // Update results
+        els.compressedSize.textContent = formatBytes(blob.size);
+        const reduction = ((1 - blob.size / state.file.size) * 100).toFixed(1);
+        els.reduction.textContent = reduction + '%';
+        els.dimensions.textContent = Math.round(width) + ' × ' + Math.round(height) + ' px';
+        els.resultFormat.textContent = state.format.toUpperCase();
+
+        els.results.style.display = 'block';
+        els.downloadBtn.style.display = 'inline-flex';
+        els.resetBtn.style.display = 'inline-flex';
+
+        showMsg('✓ فشرده‌سازی انجام شد', 'success');
+        setTimeout(hideMsg, 2000);
+      },
+      mimeType,
+      qualityDecimal
+    );
+
+    els.compressBtn.disabled = false;
+  }
+
+  function downloadCompressed() {
+    if (!state.compressedBlob) return;
+    const url = URL.createObjectURL(state.compressedBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'compressed-' + Date.now() + '.' + state.format;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function reset() {
+    state.file = null;
+    state.image = null;
+    state.compressed = null;
+    state.compressedBlob = null;
+    els.imageInput.value = '';
+    els.previewBox.innerHTML = '<div class="preview-empty">تصویرت رو آپلود کن.</div>';
+    els.results.style.display = 'none';
+    els.downloadBtn.style.display = 'none';
+    els.resetBtn.style.display = 'none';
+    els.compressBtn.disabled = true;
+    hideMsg();
+  }
+
+  // Event bindings
+  els.uploadZone.addEventListener('click', () => els.imageInput.click());
+  els.imageInput.addEventListener('change', e => {
+    if (e.target.files[0]) handleFileSelect(e.target.files[0]);
+  });
+
+  els.uploadZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    els.uploadZone.classList.add('active');
+  });
+  els.uploadZone.addEventListener('dragleave', () => els.uploadZone.classList.remove('active'));
+  els.uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    els.uploadZone.classList.remove('active');
+    if (e.dataTransfer.files[0]) handleFileSelect(e.dataTransfer.files[0]);
+  });
+
+  els.quality.addEventListener('input', e => {
+    state.quality = parseInt(e.target.value);
+    els.qualityVal.textContent = state.quality;
+  });
+
+  els.maxWidth.addEventListener('input', e => {
+    state.maxWidth = parseInt(e.target.value);
+    els.widthVal.textContent = state.maxWidth;
+  });
+
+  els.formatBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      els.formatBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.format = btn.dataset.format;
+    });
+  });
+
+  els.compressBtn.addEventListener('click', compressImage);
+  els.downloadBtn.addEventListener('click', downloadCompressed);
+  els.resetBtn.addEventListener('click', reset);
+})();
+</script>
+
+</body>
+</html>
