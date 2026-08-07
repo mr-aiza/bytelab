@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>برآورد هزینه پروژه | بایت‌لب</title>
+<meta name="description" content="نوع پروژه، امکانات و حجم کار رو مشخص کن و رایگان برات قیمت و زمان تحویل دقیق ارسال می‌کنیم.">
+<link rel="canonical" href="https://bytelabpro.xyz/project-estimator.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="بایت‌لب">
+<meta property="og:title" content="برآورد هزینه پروژه | بایت‌لب">
+<meta property="og:description" content="نوع پروژه، امکانات و حجم کار رو مشخص کن و رایگان برات قیمت و زمان تحویل دقیق ارسال می‌کنیم.">
+<meta property="og:url" content="https://bytelabpro.xyz/project-estimator.html">
+<meta property="og:image" content="https://bytelabpro.xyz/favicon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="assets/bytelab-auth.js"></script>
+<style>
+  :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--radius:18px;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;width:100%;margin:0;padding:0;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  main{margin-top:88px;padding:40px 16px 100px;max-width:680px;margin-left:auto;margin-right:auto;}
+  .page-header{margin-bottom:32px;}
+  .sec-eyebrow{font-weight:700;font-size:12px;color:var(--violet);letter-spacing:.02em;margin-bottom:8px;display:block;text-transform:uppercase;}
+  h1{font-size:28px;font-weight:800;margin:0 0 12px;}
+  .sec-sub{color:var(--muted);font-size:14px;line-height:1.6;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+  .card h2{font-size:14px;color:var(--cyan);margin:0 0 16px;font-weight:700;letter-spacing:.02em;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .opt{border:1px solid var(--line);background:var(--panel-2);border-radius:12px;padding:14px 12px;cursor:pointer;text-align:center;transition:.15s ease;user-select:none;}
+  .opt:hover{border-color:#3a4457;}
+  .opt .ic{font-size:20px;display:block;margin-bottom:6px;}
+  .opt .lbl{font-size:13px;font-weight:600;}
+  .opt.active{border-color:var(--cyan);background:rgba(77,240,201,.08);box-shadow:0 0 0 1px rgba(77,240,201,.35) inset;}
+
+  .feat-row{display:flex;align-items:center;justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--line);font-size:14px;}
+  .feat-row:last-child{border-bottom:none;}
+  .feat-left{display:flex;align-items:center;gap:10px;}
+
+  .switch{width:42px;height:24px;border-radius:99px;background:#252c3a;position:relative;cursor:pointer;flex-shrink:0;transition:.15s;}
+  .switch::after{content:'';position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:#8a93a6;transition:.15s;}
+  .switch.on{background:rgba(77,240,201,.25);}
+  .switch.on::after{background:var(--cyan);right:21px;box-shadow:0 0 8px var(--cyan);}
+
+  .slider-row{margin-top:6px;}
+  .slider-row .slabel{display:flex;justify-content:space-between;font-size:13px;margin-bottom:10px;}
+  .slider-row .slabel b{color:var(--cyan);font-weight:700;}
+  input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--cyan),var(--violet));outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--cyan);cursor:pointer;}
+
+  .radio-row{display:flex;gap:8px;}
+  .radio-opt{flex:1;text-align:center;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:13px;cursor:pointer;background:var(--panel-2);}
+  .radio-opt.active{border-color:var(--violet);background:rgba(156,123,255,.12);color:#c9b6ff;}
+
+  /* --- فرم اطلاعات تماس: به سبک telegram/contact.html --- */
+  label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:6px;}
+  label .counter{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4c5a6b;}
+  .field{margin-bottom:16px;}
+  input[type=text],input[type=tel],textarea{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:13px 14px;
+    color:var(--paper);font-family:'Vazirmatn',sans-serif;font-size:14px;outline:none;transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  input::placeholder,textarea::placeholder{color:#4c5a6b;}
+  input[type=text]:focus,input[type=tel]:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(77,240,201,.15);}
+  textarea{resize:vertical;min-height:90px;}
+  .field-error{display:none;font-size:12px;color:var(--danger);margin-top:6px;}
+  .field-error.show{display:block;}
+
+  /* فیلد تله‌ی اسپم — برای کاربر واقعی هرگز دیده نمی‌شه */
+  .hp{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+  .submit-bar{
+    position:sticky;bottom:14px;margin-top:22px;border-radius:16px;overflow:hidden;
+    border:1px solid rgba(77,240,201,.35);background:rgba(10,14,20,.9);backdrop-filter:blur(10px);
+    padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.5);
+  }
+  .submit-bar .info{font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:14px;}
+  .submit-btn{
+    width:100%;background:linear-gradient(135deg,var(--cyan),var(--violet));color:var(--ink);font-weight:800;font-size:15px;
+    padding:14px;border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+    transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;box-shadow:0 0 24px rgba(77,240,201,.25);
+  }
+  .submit-btn:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(77,240,201,.4);}
+  .submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .spinner-btn{width:15px;height:15px;border:2px solid rgba(7,11,18,.35);border-top-color:var(--ink);border-radius:50%;display:none;animation:spin .7s linear infinite;}
+  .submit-btn.loading .spinner-btn{display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .statusMsg{font-size:13px;margin-top:12px;text-align:center;display:none;}
+  .statusMsg.show{display:block;}
+  .statusMsg.ok{color:var(--cyan);}
+  .statusMsg.err{color:var(--danger);}
+
+  @media(max-width:640px){
+    main{padding:30px 12px 90px;margin-top:72px;}
+    h1{font-size:24px;}
+    .card{padding:16px;}
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="page-header">
+    <span class="sec-eyebrow">📐 ابزار</span>
+    <h1>پروژه‌تو برامون تعریف کن</h1>
+    <p class="sec-sub">نوع پروژه، امکانات و حجم کار رو مشخص کن، اطلاعات تماست رو بذار، ما بررسی می‌کنیم و قیمت و زمان دقیق رو برات ارسال می‌کنیم.</p>
+  </header>
+
+  <div class="card">
+    <h2>نوع پروژه</h2>
+    <div class="grid" id="projectTypes"></div>
+  </div>
+
+  <div class="card">
+    <h2>حجم و پیچیدگی</h2>
+    <div class="slider-row">
+      <div class="slabel"><span>تعداد صفحات / بخش‌ها</span><b id="pagesVal">8</b></div>
+      <input type="range" id="pagesSlider" min="1" max="40" value="8">
+    </div>
+    <div class="slider-row" style="margin-top:20px">
+      <div class="slabel"><span>سطح طراحی</span></div>
+      <div class="radio-row" id="designLevel">
+        <div class="radio-opt" data-mult="0.8">قالب آماده</div>
+        <div class="radio-opt active" data-mult="1">طراحی نیمه‌اختصاصی</div>
+        <div class="radio-opt" data-mult="1.5">طراحی کاملاً اختصاصی</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>امکانات اضافه</h2>
+    <div id="features"></div>
+  </div>
+
+  <div class="card">
+    <h2>اطلاعات تماس</h2>
+    <form id="estForm" novalidate>
+      <div class="field">
+        <label for="nameInput">نام و نام‌خانوادگی</label>
+        <input type="text" id="nameInput" name="name" placeholder="مثلاً علیرضا محمدی" minlength="2" maxlength="60" required>
+        <div class="field-error" id="err-nameInput">لطفاً نام و نام‌خانوادگی رو وارد کن.</div>
+      </div>
+      <div class="field">
+        <label for="phoneInput">شماره تماس یا آیدی تلگرام</label>
+        <input type="tel" id="phoneInput" name="phone" placeholder="09xxxxxxxxx یا @username" required minlength="4">
+        <div class="field-error" id="err-phoneInput">لطفاً شماره تماس یا آیدی تلگرامت رو وارد کن.</div>
+      </div>
+      <div class="field">
+        <label for="descInput">توضیح کوتاه پروژه (اختیاری) <span class="counter" id="descCounter">0/500</span></label>
+        <textarea id="descInput" name="description" placeholder="هر نکته‌ی مهمی که فکر می‌کنی باید بدونیم..." maxlength="500"></textarea>
+      </div>
+
+      <!-- تله‌ی اسپم -->
+      <div class="hp" aria-hidden="true">
+        <label for="estWebsite">وب‌سایت</label>
+        <input type="text" id="estWebsite" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="submit-bar">
+        <div class="info">با ارسال فرم، خلاصه‌ی درخواستت مستقیم برای تیم بایت‌لب ارسال میشه و در سریع‌ترین زمان باهات تماس می‌گیریم.</div>
+        <button type="submit" class="submit-btn" id="sendBtn">
+          <span class="spinner-btn"></span>
+          <span class="btn-text">ارسال درخواست</span>
+        </button>
+        <div class="statusMsg" id="statusMsg" role="status" aria-live="polite"></div>
+      </div>
+    </form>
+  </div>
+
+</main>
+
+<script src="header.js"></script>
+<script>
+// همون Worker تلگرام که فرم تماس (contact.html) و پنل ادمین ازش استفاده می‌کنن — وورکر جدیدی ساخته نشده
+const TELEGRAM_WORKER_URL = "https://bytelab-telegram.bytelab.workers.dev/";
+
+// قیمت‌ها فقط داخلی محاسبه و همراه فرم ارسال میشن؛ به کاربر نمایش داده نمیشن
+const PROJECT_TYPES = [
+  {id:'landing', label:'لندینگ پیج', icon:'🚀', base:2500000, days:4},
+  {id:'corporate', label:'سایت شرکتی', icon:'🏢', base:7000000, days:8},
+  {id:'shop', label:'فروشگاهی', icon:'🛍️', base:12000000, days:16},
+  {id:'admin', label:'پنل مدیریت', icon:'📊', base:9000000, days:12},
+  {id:'app', label:'اپلیکیشن موبایل', icon:'📱', base:20000000, days:28},
+  {id:'bot', label:'ربات تلگرام', icon:'🤖', base:4500000, days:6},
+];
+
+const FEATURES = [
+  {id:'payment', label:'درگاه پرداخت آنلاین', icon:'💳', price:2000000, days:2},
+  {id:'ai', label:'چت‌بات هوش مصنوعی', icon:'🧠', price:4000000, days:4},
+  {id:'multilang', label:'چندزبانه', icon:'🌐', price:2000000, days:3},
+  {id:'pwa', label:'نسخه PWA / نصب‌شونده', icon:'📲', price:1800000, days:2},
+  {id:'seo', label:'سئو پیشرفته و آنالیتیکس', icon:'🔍', price:1500000, days:2},
+  {id:'panel', label:'پنل مدیریت اختصاصی', icon:'🛠️', price:4500000, days:5},
+  {id:'hosting', label:'هاست + دامنه (۱ سال)', icon:'☁️', price:1200000, days:1},
+  {id:'support', label:'پشتیبانی فنی ۱ ساله', icon:'🧰', price:3000000, days:0},
+];
+
+let selectedType = 'corporate';
+let designMult = 1;
+let activeFeatures = new Set();
+
+const typesEl = document.getElementById('projectTypes');
+PROJECT_TYPES.forEach(t=>{
+  const d = document.createElement('div');
+  d.className = 'opt' + (t.id===selectedType ? ' active' : '');
+  d.innerHTML = `<span class="ic">${t.icon}</span><span class="lbl">${t.label}</span>`;
+  d.onclick = ()=>{ selectedType = t.id; renderTypes(); };
+  d.dataset.id = t.id;
+  typesEl.appendChild(d);
+});
+function renderTypes(){
+  document.querySelectorAll('#projectTypes .opt').forEach(el=>{
+    el.classList.toggle('active', el.dataset.id===selectedType);
+  });
+}
+
+document.querySelectorAll('#designLevel .radio-opt').forEach(el=>{
+  el.onclick = ()=>{
+    document.querySelectorAll('#designLevel .radio-opt').forEach(x=>x.classList.remove('active'));
+    el.classList.add('active');
+    designMult = parseFloat(el.dataset.mult);
+  };
+});
+
+const featEl = document.getElementById('features');
+FEATURES.forEach(f=>{
+  const row = document.createElement('div');
+  row.className='feat-row';
+  row.innerHTML = `
+    <div class="feat-left">
+      <span>${f.icon}</span>
+      <div>${f.label}</div>
+    </div>
+    <div class="switch" data-id="${f.id}"></div>
+  `;
+  const sw = row.querySelector('.switch');
+  sw.onclick = ()=>{
+    if(activeFeatures.has(f.id)){ activeFeatures.delete(f.id); sw.classList.remove('on'); }
+    else { activeFeatures.add(f.id); sw.classList.add('on'); }
+  };
+  featEl.appendChild(row);
+});
+
+const pagesSlider = document.getElementById('pagesSlider');
+const pagesVal = document.getElementById('pagesVal');
+pagesSlider.oninput = ()=>{ pagesVal.textContent = pagesSlider.value; };
+
+// این برآورد فقط برای پنل ادمین محاسبه میشه و به بازدیدکننده نشون داده نمیشه
+function calcInternalEstimate(){
+  const type = PROJECT_TYPES.find(t=>t.id===selectedType);
+  const pages = parseInt(pagesSlider.value,10);
+  const pageFactor = 1 + Math.max(0, pages-5) * 0.03;
+
+  let price = type.base * designMult * pageFactor;
+  let days = type.days * designMult * (1 + Math.max(0,pages-5)*0.02);
+
+  activeFeatures.forEach(id=>{
+    const f = FEATURES.find(x=>x.id===id);
+    price += f.price;
+    days += f.days;
+  });
+
+  price = Math.round(price/500000)*500000;
+  days = Math.round(days);
+  return {price, days};
+}
+
+// ==== فرم: اعتبارسنجی + تله‌ی اسپم + اسپینر (به سبک contact.html) ====
+const estForm = document.getElementById('estForm');
+const sendBtn = document.getElementById('sendBtn');
+const sendBtnText = sendBtn.querySelector('.btn-text');
+const statusMsg = document.getElementById('statusMsg');
+const descInput = document.getElementById('descInput');
+const descCounter = document.getElementById('descCounter');
+const estFields = ['nameInput', 'phoneInput'];
+
+function showStatus(text, type){ statusMsg.textContent = text; statusMsg.className = 'statusMsg show ' + type; }
+function clearFieldError(id){ const el = document.getElementById('err-' + id); if(el) el.classList.remove('show'); }
+function showFieldError(id){ const el = document.getElementById('err-' + id); if(el) el.classList.add('show'); }
+function validateField(id){
+  const el = document.getElementById(id);
+  const valid = el.checkValidity();
+  if(valid) clearFieldError(id); else showFieldError(id);
+  return valid;
+}
+estFields.forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('blur', () => validateField(id));
+  el.addEventListener('input', () => clearFieldError(id));
+});
+descInput.addEventListener('input', () => { descCounter.textContent = descInput.value.length + '/500'; });
+
+estForm.addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  const honeypot = document.getElementById('estWebsite').value.trim();
+  if(honeypot){
+    showStatus('درخواستت ثبت شد ✅ به‌زودی باهات تماس می‌گیریم.', 'ok');
+    estForm.reset();
+    return;
+  }
+
+  let allValid = true;
+  estFields.forEach(id => { if(!validateField(id)) allValid = false; });
+  if(!allValid){
+    showStatus('لطفاً فیلدهای مشخص‌شده رو تکمیل کن.', 'err');
+    return;
+  }
+
+  const name = document.getElementById('nameInput').value.trim();
+  const phone = document.getElementById('phoneInput').value.trim();
+  const desc = descInput.value.trim();
+
+  const type = PROJECT_TYPES.find(t=>t.id===selectedType);
+  const estimate = calcInternalEstimate();
+
+  const payload = {
+    type: 'project_estimate',
+    name,
+    phone,
+    description: desc,
+    projectType: type.label,
+    pages: parseInt(pagesSlider.value,10),
+    designLevel: document.querySelector('#designLevel .radio-opt.active').textContent.trim(),
+    features: Array.from(activeFeatures).map(id => FEATURES.find(f=>f.id===id).label),
+    internalEstimatePrice: estimate.price,
+    internalEstimateDays: estimate.days,
+    source: 'project-estimator.html'
+  };
+
+  sendBtn.disabled = true;
+  sendBtn.classList.add('loading');
+  sendBtnText.textContent = 'در حال ارسال...';
+  statusMsg.className = 'statusMsg';
+
+  try{
+    const res = await fetch(TELEGRAM_WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error('bad status');
+
+    showStatus('درخواستت ثبت شد ✅ به‌زودی باهات تماس می‌گیریم.', 'ok');
+    sendBtnText.textContent = 'ارسال شد ✓';
+    estForm.reset();
+    descCounter.textContent = '0/500';
+  }catch(err){
+    showStatus('ارسال با خطا مواجه شد. لطفاً دوباره تلاش کن یا مستقیم پیام بده.', 'err');
+    sendBtn.disabled = false;
+    sendBtn.classList.remove('loading');
+    sendBtnText.textContent = 'ارسال درخواست';
+    return;
+  }
+  sendBtn.classList.remove('loading');
+});
+
+// ==== اوتوفیل از پروفایل کاربر لاگین‌کرده ====
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    if (window.BytelabAuth && BytelabAuth.isLoggedIn()) {
+      const user = BytelabAuth.getUser();
+      if (user) {
+        const nameEl = document.getElementById('nameInput');
+        const phoneEl = document.getElementById('phoneInput');
+        if (nameEl && user.name && !nameEl.value) nameEl.value = user.name;
+        if (phoneEl && user.phone && !phoneEl.value) phoneEl.value = user.phone;
+      }
+    }
+  }catch(e){ /* اگه اوتوفیل شکست خورد، فرم دستی هم قابل پرکردنه */ }
+});
+</script>
+</body>
+</html>
