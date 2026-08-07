@@ -296,6 +296,17 @@
     if(authOverlay) authOverlay.classList.add('hidden');
     if(formSection) formSection.style.display = 'block';
     if(pageContent) pageContent.style.display = 'block';
+
+    // اوتوفیل نام و راه ارتباطی از پروفایل کاربر
+    try {
+      const user = BytelabAuth.getUser();
+      if (user) {
+        const authorEl = document.getElementById('pfAuthor');
+        const contactEl = document.getElementById('pfContact');
+        if (authorEl && user.name && !authorEl.value) authorEl.value = user.name;
+        if (contactEl && user.phone && !contactEl.value) contactEl.value = user.phone;
+      }
+    } catch (e) { /* اگه اوتوفیل شکست خورد، فرم دستی هم قابل پرکردنه */ }
   }
 })();
 </script>
