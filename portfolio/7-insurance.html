@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ایمن | دفتر بیمه</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#101B3D;
+    --navy-light:#1B2A5C;
+    --cyan:#3DA9DC;
+    --coral:#FF6B4A;
+    --mint:#EAF4F1;
+    --bg:#F5F7FA;
+    --ink:#1B2233;
+    --gray:#6B7386;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--ink);font-family:'Vazirmatn',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{text-decoration:none;color:inherit;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(245,247,250,.92);backdrop-filter:blur(10px);border-bottom:1px solid #E3E7EE;}
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;height:84px;}
+  .logo{font-size:23px;font-weight:800;}
+  .logo span{color:var(--cyan);}
+  .navlinks{display:flex;gap:32px;font-size:14px;font-weight:500;}
+  .navlinks a:hover{color:var(--cyan);}
+  .cta-btn{background:var(--coral);color:#fff;padding:12px 26px;font-size:13.5px;font-weight:700;border-radius:8px;}
+  .cta-btn:hover{background:#E85A3B;}
+  .burger{display:none;font-size:24px;background:none;border:none;}
+
+  .hero{background:linear-gradient(165deg,var(--navy),var(--navy-light));color:#fff;padding:96px 0 0;position:relative;overflow:hidden;}
+  .hero-eyebrow{color:var(--cyan);font-size:12.5px;letter-spacing:3px;font-weight:700;margin-bottom:22px;text-align:center;}
+  h1.hero-title{font-size:clamp(32px,5vw,54px);font-weight:800;text-align:center;line-height:1.45;max-width:760px;margin:0 auto;}
+  h1.hero-title em{font-style:normal;color:var(--cyan);}
+  .hero-sub{color:#AEB6D0;text-align:center;font-size:15.5px;max-width:520px;margin:24px auto 0;line-height:1.9;}
+
+  .quote-panel{
+    background:#fff;border-radius:14px;padding:28px;margin-top:46px;position:relative;top:56px;
+    display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:14px;align-items:end;
+    box-shadow:0 30px 60px rgba(16,27,61,.35);color:var(--ink);
+  }
+  .field label{display:block;font-size:12px;color:var(--gray);margin-bottom:8px;font-weight:600;}
+  .field select,.field input{width:100%;border:1px solid #E3E7EE;border-radius:8px;padding:12px 14px;font-family:inherit;font-size:14px;color:var(--ink);background:#fff;}
+  .quote-btn{background:var(--navy);color:#fff;border:none;padding:13px 30px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;}
+
+  .trust-strip{background:#fff;padding:96px 0 40px;border-bottom:1px solid #E3E7EE;}
+  .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);text-align:center;}
+  .trust-num{font-size:30px;font-weight:800;color:var(--navy);}
+  .trust-label{font-size:12.5px;color:var(--gray);margin-top:6px;}
+
+  .section{padding:90px 0;}
+  .section-eyebrow{color:var(--coral);font-size:12px;letter-spacing:3px;font-weight:700;margin-bottom:10px;text-align:center;}
+  .section-title{font-size:clamp(27px,3.6vw,38px);font-weight:800;text-align:center;}
+  .section-head{margin-bottom:52px;}
+
+  .plans{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  .plan-card{background:#fff;border:1px solid #E3E7EE;border-radius:14px;padding:30px 24px;transition:.25s;}
+  .plan-card:hover{border-color:var(--cyan);box-shadow:0 20px 40px rgba(16,27,61,.08);transform:translateY(-4px);}
+  .plan-icon{width:52px;height:52px;border-radius:12px;background:var(--mint);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px;}
+  .plan-title{font-weight:700;font-size:16.5px;margin-bottom:10px;}
+  .plan-desc{font-size:13px;color:var(--gray);line-height:1.85;margin-bottom:16px;}
+  .plan-price{font-size:13px;color:var(--navy);font-weight:700;}
+
+  .feature-band{background:#fff;border:1px solid #E3E7EE;border-radius:16px;padding:60px;display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;}
+  .feature-band-eyebrow{color:var(--coral);font-size:12px;letter-spacing:3px;font-weight:700;margin-bottom:16px;}
+  .feature-band h3{font-size:clamp(23px,3.2vw,32px);font-weight:800;line-height:1.6;}
+  .feature-list{margin-top:24px;display:grid;gap:16px;}
+  .feature-item{display:flex;gap:14px;font-size:14px;color:var(--gray);align-items:flex-start;}
+  .feature-item .fi-icn{width:34px;height:34px;flex:none;border-radius:9px;background:var(--mint);display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .feature-item b{color:var(--ink);display:block;margin-bottom:2px;}
+  .feature-visual{aspect-ratio:4/3;background:linear-gradient(135deg,var(--navy),var(--cyan));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:58px;}
+
+  .advisors{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .advisor-card{text-align:center;padding:30px;background:#fff;border:1px solid #E3E7EE;border-radius:14px;}
+  .advisor-img{width:88px;height:88px;border-radius:50%;background:var(--mint);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--navy);}
+  .advisor-name{font-weight:700;font-size:16px;}
+  .advisor-role{color:var(--gray);font-size:13px;margin:6px 0 14px;}
+  .advisor-phone{color:var(--coral);font-weight:700;font-size:13.5px;}
+
+  .cta-band{background:linear-gradient(165deg,var(--navy),var(--navy-light));color:#fff;border-radius:16px;padding:70px 40px;text-align:center;}
+  .cta-band h2{font-size:clamp(25px,3.4vw,36px);font-weight:800;margin-bottom:16px;}
+  .cta-band p{color:#AEB6D0;margin-bottom:28px;font-size:14.5px;}
+  .btn-coral{background:var(--coral);color:#fff;padding:15px 34px;border-radius:10px;font-weight:700;font-size:14.5px;display:inline-block;}
+
+  footer{background:var(--navy);color:#AEB6D0;padding:60px 0 26px;margin-top:0;}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:34px;}
+  .foot-desc{font-size:13px;line-height:1.9;margin-top:14px;max-width:280px;color:#7C88AC;}
+  .foot-col h4{color:#fff;font-size:13.5px;font-weight:700;margin-bottom:16px;}
+  .foot-col a{display:block;font-size:13px;margin-bottom:10px;color:#AEB6D0;}
+  .foot-bottom{border-top:1px solid #26315C;padding-top:22px;text-align:center;font-size:12px;}
+
+  @media(max-width:960px){
+    .navlinks{display:none;}
+    .burger{display:block;}
+    .quote-panel{grid-template-columns:1fr 1fr;position:static;margin-bottom:-40px;}
+    .trust-strip{padding-top:56px;}
+    .trust-grid{grid-template-columns:repeat(2,1fr);gap:24px;}
+    .plans{grid-template-columns:1fr 1fr;}
+    .feature-band{grid-template-columns:1fr;padding:36px;}
+    .advisors{grid-template-columns:1fr;}
+    .foot-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">ای<span>من</span></div>
+    <div class="navlinks">
+      <a href="#plans">انواع بیمه</a>
+      <a href="#services">خدمات</a>
+      <a href="#advisors">مشاوران</a>
+      <a href="#contact">تماس</a>
+    </div>
+    <a href="#contact" class="cta-btn">استعلام حق بیمه</a>
+    <button class="burger">☰</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">دفتر بیمه ایمن — کرج</div>
+    <h1 class="hero-title">امروز را <em>ایمن</em> کنید،<br>برای فردایی آرام</h1>
+    <p class="hero-sub">صدور و پرداخت خسارت انواع بیمه‌نامه، با مشاوره تخصصی و شفاف‌ترین شرایط پوشش بازار.</p>
+
+    <div class="wrap" style="padding:0;">
+      <div class="quote-panel">
+        <div class="field"><label>نوع بیمه</label><select><option>بدنه خودرو</option><option>درمان تکمیلی</option><option>عمر و زندگی</option><option>آتش‌سوزی</option></select></div>
+        <div class="field"><label>سن بیمه‌گذار</label><input placeholder="مثلاً ۳۵"></div>
+        <div class="field"><label>شماره تماس</label><input placeholder="۰۹1۲..."></div>
+        <button class="quote-btn">دریافت استعلام</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="trust-strip">
+  <div class="wrap trust-grid">
+    <div><div class="trust-num mono">۱۴۰۰۰+</div><div class="trust-label">بیمه‌گذار فعال</div></div>
+    <div><div class="trust-num mono">۱۲</div><div class="trust-label">سال فعالیت</div></div>
+    <div><div class="trust-num mono">۴۸<span style="font-size:16px;">ساعت</span></div><div class="trust-label">میانگین پرداخت خسارت</div></div>
+    <div><div class="trust-num mono">۹۶٪</div><div class="trust-label">رضایت بیمه‌گذاران</div></div>
+  </div>
+</div>
+
+<section class="section" id="plans">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">پوشش‌های ما</div>
+      <div class="section-title">بیمه‌نامه‌ای متناسب با شرایط شما</div>
+    </div>
+    <div class="plans">
+      <div class="plan-card">
+        <div class="plan-icon">🚗</div>
+        <div class="plan-title">بیمه بدنه خودرو</div>
+        <div class="plan-desc">پوشش کامل سرقت، آتش‌سوزی و خسارات ناشی از تصادف.</div>
+        <div class="plan-price mono">از ۳٬۲۰۰٬۰۰۰ تومان/سال</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-icon">🩺</div>
+        <div class="plan-title">درمان تکمیلی</div>
+        <div class="plan-desc">پوشش هزینه بستری، پاراکلینیک و دندان‌پزشکی خانواده.</div>
+        <div class="plan-price mono">از ۸۵۰٬۰۰۰ تومان/ماه</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-icon">👨‍👩‍👧</div>
+        <div class="plan-title">بیمه عمر و زندگی</div>
+        <div class="plan-desc">پس‌انداز بلندمدت همراه با پوشش فوت و از کارافتادگی.</div>
+        <div class="plan-price mono">از ۵۰۰٬۰۰۰ تومان/ماه</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-icon">🏠</div>
+        <div class="plan-title">آتش‌سوزی و مسئولیت</div>
+        <div class="plan-desc">پوشش منزل، مغازه و مسئولیت مدنی در برابر خسارت به همسایه.</div>
+        <div class="plan-price mono">از ۴۰۰٬۰۰۰ تومان/سال</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="services" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feature-band">
+      <div class="feature-visual">🛡️</div>
+      <div>
+        <div class="feature-band-eyebrow">چرا ایمن؟</div>
+        <h3>خسارت شما را با سرعت و شفافیت پرداخت می‌کنیم</h3>
+        <div class="feature-list">
+          <div class="feature-item"><span class="fi-icn">⚡</span><div><b>پرداخت سریع خسارت</b>میانگین رسیدگی کمتر از ۴۸ ساعت.</div></div>
+          <div class="feature-item"><span class="fi-icn">📋</span><div><b>مشاوره رایگان انتخاب طرح</b>بررسی نیاز واقعی شما پیش از صدور بیمه‌نامه.</div></div>
+          <div class="feature-item"><span class="fi-icn">🔄</span><div><b>تمدید و پیگیری آنلاین</b>مدیریت بیمه‌نامه بدون نیاز به مراجعه حضوری.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="advisors">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">تیم ما</div>
+      <div class="section-title">مشاوران بیمه ایمن</div>
+    </div>
+    <div class="advisors">
+      <div class="advisor-card">
+        <div class="advisor-img">ن.ح</div>
+        <div class="advisor-name">نیما حیدری</div>
+        <div class="advisor-role">مشاور ارشد بیمه‌های اتومبیل</div>
+        <div class="advisor-phone mono">۰۹۱۲-۴۵۶۷۸۹۰</div>
+      </div>
+      <div class="advisor-card">
+        <div class="advisor-img">ل.ع</div>
+        <div class="advisor-name">لیلا عابدی</div>
+        <div class="advisor-role">مشاور بیمه‌های درمان و عمر</div>
+        <div class="advisor-phone mono">۰۹۱۲-۵۶۷۸۹۰۱</div>
+      </div>
+      <div class="advisor-card">
+        <div class="advisor-img">آ.ط</div>
+        <div class="advisor-name">آرش طاهری</div>
+        <div class="advisor-role">مشاور بیمه‌های اموال و مسئولیت</div>
+        <div class="advisor-phone mono">۰۹۱۲-۶۷۸۹۰۱۲</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="contact">
+  <div class="wrap">
+    <div class="cta-band">
+      <h2>هنوز بیمه‌نامه مناسب خودتون رو پیدا نکردید؟</h2>
+      <p>با یک تماس، استعلام رایگان دریافت کنید.</p>
+      <a href="tel:02632556677" class="btn-coral">تماس با مشاور بیمه</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo" style="color:#fff;">ای<span style="color:var(--cyan);">من</span></div>
+        <p class="foot-desc">دفتر بیمه ایمن، کرج، میدان طالقانی، برج آفتاب، طبقه دوم.</p>
+      </div>
+      <div class="foot-col">
+        <h4>پوشش‌ها</h4>
+        <a href="#plans">بیمه بدنه</a>
+        <a href="#plans">درمان تکمیلی</a>
+        <a href="#plans">بیمه عمر</a>
+      </div>
+      <div class="foot-col">
+        <h4>دفتر</h4>
+        <a href="#advisors">مشاوران</a>
+        <a href="#services">خدمات ما</a>
+      </div>
+      <div class="foot-col">
+        <h4>تماس</h4>
+        <a href="tel:02632556677">۰۲۶-۳۲۵۵۶۶۷۷</a>
+        <a href="#">اینستاگرام</a>
+      </div>
+    </div>
+    <div class="foot-bottom">© تمامی حقوق محفوظ است — دفتر بیمه ایمن | طراحی: ByteLab</div>
+  </div>
+</footer>
+
+</body>
+</html>

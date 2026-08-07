@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>میزان | دفتر وکالت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Noto+Naskh+Arabic:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14181F;
+    --ink-light:#20262F;
+    --brass:#A9822F;
+    --brass-light:#CBA755;
+    --wine:#6E2A33;
+    --paper:#EDE7DA;
+    --white:#FAF8F3;
+    --gray:#8A8478;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--white);color:var(--ink);font-family:'Vazirmatn',sans-serif;}
+  .serif{font-family:'Noto Naskh Arabic',serif;}
+  a{text-decoration:none;color:inherit;}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 28px;}
+  .rule{width:52px;height:2px;background:var(--brass);}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(250,248,243,.94);backdrop-filter:blur(10px);border-bottom:1px solid #E2DBC9;}
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;height:86px;}
+  .logo{font-size:23px;font-weight:700;letter-spacing:.3px;}
+  .logo span{color:var(--brass);}
+  .navlinks{display:flex;gap:32px;font-size:14px;font-weight:500;}
+  .navlinks a:hover{color:var(--brass);}
+  .cta-btn{background:var(--ink);color:#fff;padding:12px 26px;font-size:13.5px;font-weight:600;border-radius:2px;}
+  .cta-btn:hover{background:var(--wine);}
+  .burger{display:none;font-size:24px;background:none;border:none;}
+
+  .hero{background:var(--ink);color:#fff;padding:110px 0 90px;position:relative;overflow:hidden;}
+  .hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(160deg, rgba(20,24,31,.98), rgba(20,24,31,.88)),repeating-linear-gradient(90deg, rgba(169,130,47,.05) 0px, rgba(169,130,47,.05) 1px, transparent 1px, transparent 64px);}
+  .hero-inner{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center;}
+  .hero-eyebrow{color:var(--brass-light);font-size:12.5px;letter-spacing:4px;font-weight:600;margin-bottom:22px;}
+  h1.hero-title{font-size:clamp(32px,4.4vw,52px);font-weight:700;line-height:1.5;}
+  h1.hero-title em{font-style:normal;color:var(--brass-light);}
+  .hero-sub{color:#B7B2A5;font-size:15.5px;max-width:480px;margin:24px 0 34px;line-height:1.95;}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-brass{background:var(--brass);color:var(--ink);padding:14px 30px;border-radius:2px;font-weight:700;font-size:14px;}
+  .btn-outline{border:1.5px solid rgba(255,255,255,.35);color:#fff;padding:14px 30px;border-radius:2px;font-weight:600;font-size:14px;}
+
+  .hero-panel{background:rgba(255,255,255,.05);border:1px solid rgba(203,167,85,.3);border-radius:6px;padding:32px;}
+  .hero-panel-head{font-size:12.5px;letter-spacing:2px;color:var(--brass-light);font-weight:700;margin-bottom:18px;}
+  .win-stat{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;}
+  .win-num{font-size:34px;font-weight:800;color:#fff;}
+  .win-label{font-size:12.5px;color:#8A8478;}
+  .hero-panel hr{border:none;border-top:1px solid rgba(255,255,255,.1);margin:18px 0;}
+
+  .trust-strip{background:var(--paper);padding:34px 0;border-bottom:1px solid #E2DBC9;}
+  .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);text-align:center;}
+  .trust-num{font-size:28px;font-weight:700;color:var(--wine);}
+  .trust-label{font-size:12.5px;color:var(--gray);margin-top:6px;}
+
+  .section{padding:92px 0;}
+  .section-eyebrow{color:var(--brass);font-size:12px;letter-spacing:3px;font-weight:700;margin-bottom:10px;}
+  .section-title{font-size:clamp(27px,3.6vw,38px);font-weight:700;}
+  .section-head{margin-bottom:50px;}
+
+  .areas{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  .area-card{border:1px solid #E2DBC9;border-radius:6px;padding:30px 24px;transition:.25s;}
+  .area-card:hover{border-color:var(--brass);box-shadow:0 16px 34px rgba(20,24,31,.08);transform:translateY(-3px);}
+  .area-num{font-family:'Noto Naskh Arabic',serif;font-size:13px;color:var(--brass);font-weight:700;margin-bottom:14px;}
+  .area-title{font-weight:700;font-size:16.5px;margin-bottom:10px;}
+  .area-desc{font-size:13px;color:var(--gray);line-height:1.85;}
+
+  .feature-band{background:var(--ink);color:#fff;border-radius:8px;padding:60px;display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;}
+  .feature-band-eyebrow{color:var(--brass-light);font-size:12px;letter-spacing:3px;font-weight:700;margin-bottom:16px;}
+  .feature-band h3{font-size:clamp(23px,3.2vw,32px);font-weight:700;line-height:1.6;}
+  .feature-list{margin-top:24px;}
+  .feature-item{display:flex;gap:12px;margin-bottom:16px;font-size:14px;color:#C4BFB2;padding-right:20px;border-right:2px solid var(--brass);}
+  .feature-item b{color:#fff;display:block;margin-bottom:4px;}
+  .feature-visual{aspect-ratio:4/3;background:linear-gradient(135deg,var(--wine),var(--ink-light));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:56px;}
+
+  .attorneys{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .attorney-card{border:1px solid #E2DBC9;border-radius:6px;overflow:hidden;}
+  .attorney-img{height:200px;background:linear-gradient(150deg,var(--paper),#E2DBC9);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:var(--brass);}
+  .attorney-body{padding:22px;}
+  .attorney-name{font-weight:700;font-size:16.5px;}
+  .attorney-role{color:var(--wine);font-size:13px;margin:6px 0 12px;font-weight:600;}
+  .attorney-desc{font-size:12.5px;color:var(--gray);line-height:1.8;}
+
+  .cta-band{background:var(--paper);padding:74px 0;text-align:center;}
+  .cta-band h2{font-size:clamp(25px,3.4vw,36px);font-weight:700;margin-bottom:16px;}
+  .cta-band p{color:var(--gray);margin-bottom:28px;font-size:14.5px;}
+
+  footer{background:var(--ink);color:#B7B2A5;padding:60px 0 26px;}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:34px;}
+  .foot-desc{font-size:13px;line-height:1.9;margin-top:14px;max-width:280px;color:#7C7768;}
+  .foot-col h4{color:#fff;font-size:13.5px;font-weight:700;margin-bottom:16px;}
+  .foot-col a{display:block;font-size:13px;margin-bottom:10px;color:#B7B2A5;}
+  .foot-bottom{border-top:1px solid #2A2E37;padding-top:22px;text-align:center;font-size:12px;}
+
+  @media(max-width:960px){
+    .navlinks{display:none;}
+    .burger{display:block;}
+    .hero-inner{grid-template-columns:1fr;}
+    .trust-grid{grid-template-columns:repeat(2,1fr);gap:22px;}
+    .areas{grid-template-columns:1fr 1fr;}
+    .feature-band{grid-template-columns:1fr;padding:36px;}
+    .attorneys{grid-template-columns:1fr;}
+    .foot-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">می<span>زان</span></div>
+    <div class="navlinks">
+      <a href="#areas">حوزه‌های تخصصی</a>
+      <a href="#attorneys">وکلا</a>
+      <a href="#process">روند کار</a>
+      <a href="#contact">تماس</a>
+    </div>
+    <a href="#contact" class="cta-btn">مشاوره رایگان</a>
+    <button class="burger">☰</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div>
+      <div class="hero-eyebrow">دفتر وکالت میزان — کرج</div>
+      <h1 class="hero-title">حق شما، <em>با استدلال</em><br>و تجربه دفاع می‌شود</h1>
+      <p class="hero-sub">تیمی از وکلای پایه‌یک دادگستری در پرونده‌های حقوقی، کیفری، خانواده و تجاری، همراه شما تا صدور رأی نهایی.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-brass">رزرو مشاوره حضوری</a>
+        <a href="#areas" class="btn-outline">حوزه‌های تخصصی</a>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <div class="hero-panel-head">پرونده‌های موفق</div>
+      <div class="win-stat"><span class="win-num">۹۲٪</span><span class="win-label">نرخ موفقیت پرونده‌ها</span></div>
+      <div class="win-stat"><span class="win-num">۱۸</span><span class="win-label">سال سابقه فعالیت</span></div>
+      <hr>
+      <div class="win-stat"><span class="win-num">+۶۰۰</span><span class="win-label">پرونده مختومه</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="trust-strip">
+  <div class="wrap trust-grid">
+    <div><div class="trust-num">۱۸</div><div class="trust-label">سال تجربه حرفه‌ای</div></div>
+    <div><div class="trust-num">۶۰۰+</div><div class="trust-label">پرونده رسیدگی‌شده</div></div>
+    <div><div class="trust-num">۹</div><div class="trust-label">وکیل پایه‌یک</div></div>
+    <div><div class="trust-num">۹۲٪</div><div class="trust-label">رضایت موکلین</div></div>
+  </div>
+</div>
+
+<section class="section" id="areas">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">حوزه‌های تخصصی</div>
+      <div class="section-title serif">در چه پرونده‌هایی کنار شماییم</div>
+    </div>
+    <div class="areas">
+      <div class="area-card">
+        <div class="area-num">۰۱</div>
+        <div class="area-title">حقوق خانواده</div>
+        <div class="area-desc">طلاق، مهریه، حضانت فرزند و تنظیم توافقات با رعایت کامل حریم خانواده.</div>
+      </div>
+      <div class="area-card">
+        <div class="area-num">۰۲</div>
+        <div class="area-title">حقوق کیفری</div>
+        <div class="area-desc">دفاع در دادسرا و دادگاه کیفری، از بازجویی تا صدور و اجرای حکم.</div>
+      </div>
+      <div class="area-card">
+        <div class="area-num">۰۳</div>
+        <div class="area-title">حقوق ملکی</div>
+        <div class="area-desc">دعاوی ملکی، الزام به تنظیم سند، تخلیه و اختلافات قراردادی مستغلات.</div>
+      </div>
+      <div class="area-card">
+        <div class="area-num">۰۴</div>
+        <div class="area-title">حقوق تجاری</div>
+        <div class="area-desc">تنظیم قراردادهای شرکتی، وصول مطالبات و دعاوی چک و سفته.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--paper);padding-top:0;">
+  <div class="wrap">
+    <div class="feature-band">
+      <div>
+        <div class="feature-band-eyebrow">چرا میزان؟</div>
+        <h3 class="serif">پرونده شما را با استدلال روشن و شفاف پیش می‌بریم</h3>
+        <div class="feature-list">
+          <div class="feature-item"><b>بررسی رایگان اولیه</b>ارزیابی مستندات پرونده پیش از هرگونه تعهد مالی.</div>
+          <div class="feature-item"><b>گزارش‌دهی مرحله‌به‌مرحله</b>اطلاع از هر جلسه دادرسی و پیشرفت پرونده.</div>
+          <div class="feature-item"><b>حق‌الوکاله شفاف</b>توافق مکتوب و بدون هزینه پنهان از ابتدای همکاری.</div>
+        </div>
+      </div>
+      <div class="feature-visual">⚖️</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="attorneys">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">تیم ما</div>
+      <div class="section-title serif">وکلای پایه‌یک دادگستری</div>
+    </div>
+    <div class="attorneys">
+      <div class="attorney-card">
+        <div class="attorney-img">ح.م</div>
+        <div class="attorney-body">
+          <div class="attorney-name">حامد میرزایی</div>
+          <div class="attorney-role">وکیل ارشد — حقوق کیفری</div>
+          <div class="attorney-desc">بیش از ۱۵ سال سابقه دفاع در پرونده‌های کیفری پیچیده.</div>
+        </div>
+      </div>
+      <div class="attorney-card">
+        <div class="attorney-img">س.ر</div>
+        <div class="attorney-body">
+          <div class="attorney-name">سارا رستمی</div>
+          <div class="attorney-role">وکیل — حقوق خانواده</div>
+          <div class="attorney-desc">متخصص در دعاوی طلاق توافقی و حضانت فرزندان.</div>
+        </div>
+      </div>
+      <div class="attorney-card">
+        <div class="attorney-img">ب.ک</div>
+        <div class="attorney-body">
+          <div class="attorney-name">بهروز کاظمی</div>
+          <div class="attorney-role">وکیل — حقوق تجاری و ملکی</div>
+          <div class="attorney-desc">تنظیم و بررسی قراردادهای شرکتی و دعاوی ملکی.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band" id="contact">
+  <div class="wrap">
+    <h2 class="serif">قبل از هر تصمیمی، مشورت کنید</h2>
+    <p>جلسه اول مشاوره حضوری یا تلفنی، کاملاً رایگان است.</p>
+    <a href="tel:02632112233" class="cta-btn" style="display:inline-block;">تماس با دفتر</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo" style="color:#fff;">می<span style="color:var(--brass-light);">زان</span></div>
+        <p class="foot-desc">دفتر وکالت میزان، کرج، بلوار طالقانی، ساختمان عدالت، طبقه سوم.</p>
+      </div>
+      <div class="foot-col">
+        <h4>حوزه‌ها</h4>
+        <a href="#areas">حقوق خانواده</a>
+        <a href="#areas">حقوق کیفری</a>
+        <a href="#areas">حقوق ملکی</a>
+      </div>
+      <div class="foot-col">
+        <h4>دفتر</h4>
+        <a href="#attorneys">وکلای ما</a>
+        <a href="#process">روند رسیدگی</a>
+      </div>
+      <div class="foot-col">
+        <h4>تماس</h4>
+        <a href="tel:02632112233">۰۲۶-۳۲۱۱۲۲۳۳</a>
+        <a href="#">اینستاگرام</a>
+      </div>
+    </div>
+    <div class="foot-bottom">© تمامی حقوق محفوظ است — دفتر وکالت میزان | طراحی: ByteLab</div>
+  </div>
+</footer>
+
+</body>
+</html>

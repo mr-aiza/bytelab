@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>هم‌راه | فروشگاه موبایل</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F8FA;
+    --ink:#12151C;
+    --blue:#2D5BFF;
+    --orange:#FF6B35;
+    --line:#E4E7EE;
+    --gray:#6B7280;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--ink);font-family:'Vazirmatn',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{text-decoration:none;color:inherit;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(247,248,250,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;height:82px;}
+  .logo{font-size:23px;font-weight:900;}
+  .logo span{color:var(--blue);}
+  .navlinks{display:flex;gap:30px;font-size:14px;font-weight:600;}
+  .navlinks a:hover{color:var(--blue);}
+  .cta-btn{background:var(--ink);color:#fff;padding:12px 26px;font-size:13.5px;font-weight:700;border-radius:8px;}
+  .cta-btn:hover{background:var(--blue);}
+  .burger{display:none;font-size:24px;background:none;border:none;}
+
+  .hero{position:relative;overflow:hidden;padding:70px 0 0;}
+  .hero::before{content:"";position:absolute;top:0;left:0;width:60%;height:100%;background:linear-gradient(160deg,var(--blue),#1A3AC7);clip-path:polygon(0 0,100% 0,78% 100%,0% 100%);z-index:0;}
+  .hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding-bottom:60px;}
+  .hero-badge{display:inline-block;background:var(--orange);color:#fff;font-size:12px;font-weight:700;padding:6px 16px;border-radius:999px;margin-bottom:22px;}
+  h1.hero-title{color:#fff;font-size:clamp(30px,4.6vw,50px);font-weight:900;line-height:1.35;}
+  .hero-sub{color:#D6DEFF;font-size:15px;max-width:420px;margin:20px 0 30px;line-height:1.9;}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-orange{background:var(--orange);color:#fff;padding:14px 28px;border-radius:8px;font-weight:700;font-size:14px;}
+  .btn-white{background:#fff;color:var(--ink);padding:14px 28px;border-radius:8px;font-weight:700;font-size:14px;}
+
+  .hero-spec-card{background:#fff;border-radius:16px;padding:26px;box-shadow:0 30px 60px rgba(18,21,28,.16);}
+  .hero-spec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+  .hero-spec-name{font-weight:800;font-size:16px;}
+  .hero-spec-price{color:var(--blue);font-weight:800;font-size:16px;}
+  .spec-row{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line);font-size:13px;color:var(--gray);}
+  .spec-row b{color:var(--ink);}
+
+  .cat-strip{background:#fff;padding:0 0 60px;}
+  .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:-40px;position:relative;z-index:2;}
+  .cat-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px;text-align:center;box-shadow:0 14px 30px rgba(18,21,28,.06);}
+  .cat-icon{font-size:30px;margin-bottom:10px;}
+  .cat-name{font-weight:700;font-size:14px;}
+
+  .section{padding:80px 0;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:44px;flex-wrap:wrap;gap:16px;}
+  .section-eyebrow{color:var(--blue);font-size:12.5px;letter-spacing:2.5px;font-weight:700;margin-bottom:8px;}
+  .section-title{font-size:clamp(26px,3.6vw,36px);font-weight:800;}
+
+  .products{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  .product-card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative;transition:.25s;}
+  .product-card:hover{box-shadow:0 20px 40px rgba(18,21,28,.1);transform:translateY(-4px);}
+  .product-badge{position:absolute;top:14px;right:14px;background:var(--orange);color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:999px;z-index:1;}
+  .product-img{height:150px;background:linear-gradient(150deg,#EEF1FF,#DCE3FF);display:flex;align-items:center;justify-content:center;font-size:42px;}
+  .product-body{padding:18px;}
+  .product-name{font-weight:700;font-size:14.5px;margin-bottom:6px;}
+  .product-specs{font-size:11.5px;color:var(--gray);margin-bottom:12px;}
+  .product-price{font-weight:800;font-size:15.5px;}
+  .product-old{color:#B4B9C6;text-decoration:line-through;font-size:12px;margin-right:6px;}
+
+  .feature-band{background:var(--ink);color:#fff;border-radius:18px;padding:60px;display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;}
+  .feature-band-eyebrow{color:var(--orange);font-size:12px;letter-spacing:2.5px;font-weight:700;margin-bottom:16px;}
+  .feature-band h3{font-size:clamp(23px,3.2vw,32px);font-weight:800;line-height:1.6;}
+  .feature-list{margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .feature-item{font-size:13.5px;color:#B7BCC9;}
+  .feature-item b{color:#fff;display:block;margin-bottom:4px;font-size:14.5px;}
+  .feature-visual{aspect-ratio:4/3;background:linear-gradient(135deg,var(--blue),var(--orange));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:56px;}
+
+  .cta-band{background:linear-gradient(120deg,var(--blue),#1A3AC7);color:#fff;border-radius:18px;padding:70px 40px;text-align:center;}
+  .cta-band h2{font-size:clamp(25px,3.4vw,36px);font-weight:800;margin-bottom:16px;}
+  .cta-band p{color:#D6DEFF;margin-bottom:28px;font-size:14.5px;}
+
+  footer{background:var(--ink);color:#9BA1AE;padding:60px 0 26px;}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:34px;}
+  .foot-desc{font-size:13px;line-height:1.9;margin-top:14px;max-width:280px;color:#6B7280;}
+  .foot-col h4{color:#fff;font-size:13.5px;font-weight:700;margin-bottom:16px;}
+  .foot-col a{display:block;font-size:13px;margin-bottom:10px;color:#9BA1AE;}
+  .foot-bottom{border-top:1px solid #262A34;padding-top:22px;text-align:center;font-size:12px;}
+
+  @media(max-width:960px){
+    .navlinks{display:none;}
+    .burger{display:block;}
+    .hero::before{width:100%;clip-path:none;}
+    .hero-inner{grid-template-columns:1fr;}
+    .cat-grid{grid-template-columns:1fr 1fr;margin-top:24px;}
+    .products{grid-template-columns:1fr 1fr;}
+    .feature-band{grid-template-columns:1fr;padding:36px;}
+    .feature-list{grid-template-columns:1fr;}
+    .foot-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">هم<span>‌راه</span></div>
+    <div class="navlinks">
+      <a href="#products">محصولات</a>
+      <a href="#trade">معاوضه</a>
+      <a href="#services">خدمات</a>
+      <a href="#contact">تماس</a>
+    </div>
+    <a href="#contact" class="cta-btn">استعلام قیمت</a>
+    <button class="burger">☰</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div>
+      <div class="hero-badge">🔥 جدیدترین گوشی‌های بازار</div>
+      <h1 class="hero-title">همراهت رو<br>هوشمندانه انتخاب کن</h1>
+      <p class="hero-sub">موبایل، تبلت و اکسسوری اورجینال با گارانتی رسمی، اقساط بدون بهره کارتی و معاوضه گوشی قدیمی.</p>
+      <div class="hero-actions">
+        <a href="#products" class="btn-orange">مشاهده محصولات</a>
+        <a href="#trade" class="btn-white">معاوضه گوشی قدیمی</a>
+      </div>
+    </div>
+    <div class="hero-spec-card">
+      <div class="hero-spec-head">
+        <div class="hero-spec-name">گلکسی S25 Ultra</div>
+        <div class="hero-spec-price mono">۶۹٬۹۰۰٬۰۰۰</div>
+      </div>
+      <div class="spec-row"><span>حافظه</span><b class="mono">۲۵۶GB</b></div>
+      <div class="spec-row"><span>رم</span><b class="mono">۱۲GB</b></div>
+      <div class="spec-row"><span>دوربین</span><b class="mono">۲۰۰MP</b></div>
+      <div class="spec-row"><span>گارانتی</span><b>۱۸ ماهه رسمی</b></div>
+    </div>
+  </div>
+</section>
+
+<div class="cat-strip">
+  <div class="wrap cat-grid">
+    <a href="#" class="cat-card"><div class="cat-icon">📱</div><div class="cat-name">اپل</div></a>
+    <a href="#" class="cat-card"><div class="cat-icon">📲</div><div class="cat-name">سامسونگ</div></a>
+    <a href="#" class="cat-card"><div class="cat-icon">🔋</div><div class="cat-name">شیائومی</div></a>
+    <a href="#" class="cat-card"><div class="cat-icon">🎧</div><div class="cat-name">اکسسوری</div></a>
+  </div>
+</div>
+
+<section class="section" id="products">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">پرفروش‌ترین‌ها</div>
+        <div class="section-title">پیشنهاد ویژه هم‌راه</div>
+      </div>
+      <a href="#" class="cta-btn" style="background:none;color:var(--blue);padding:0;">مشاهده همه محصولات ←</a>
+    </div>
+    <div class="products">
+      <div class="product-card">
+        <div class="product-badge">تخفیف</div>
+        <div class="product-img">📱</div>
+        <div class="product-body">
+          <div class="product-name">آیفون ۱۵ پرو</div>
+          <div class="product-specs mono">256GB · تیتانیوم</div>
+          <div class="product-price mono">۸۹٬۵۰۰٬۰۰۰<span class="product-old">۹۴٬۰۰۰٬۰۰۰</span></div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-badge">جدید</div>
+        <div class="product-img">📲</div>
+        <div class="product-body">
+          <div class="product-name">گلکسی A55</div>
+          <div class="product-specs mono">128GB · مشکی</div>
+          <div class="product-price mono">۲۱٬۹۰۰٬۰۰۰</div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-img">🔋</div>
+        <div class="product-body">
+          <div class="product-name">شیائومی نوت ۱۳</div>
+          <div class="product-specs mono">256GB · آبی</div>
+          <div class="product-price mono">۱۷٬۴۰۰٬۰۰۰</div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-badge">تخفیف</div>
+        <div class="product-img">🎧</div>
+        <div class="product-body">
+          <div class="product-name">ایرپاد پرو ۲</div>
+          <div class="product-specs mono">نسخه اورجینال</div>
+          <div class="product-price mono">۱۲٬۲۰۰٬۰۰۰<span class="product-old">۱۳٬۸۰۰٬۰۰۰</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="services" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feature-band">
+      <div class="feature-visual">📶</div>
+      <div>
+        <div class="feature-band-eyebrow">چرا هم‌راه؟</div>
+        <h3>خیالتون از خرید گوشی راحت باشه</h3>
+        <div class="feature-list">
+          <div class="feature-item"><b>گارانتی اصالت کالا</b>تمام محصولات با کد اصالت و فاکتور رسمی.</div>
+          <div class="feature-item"><b>اقساط بدون بهره</b>خرید با کارت‌های اعتباری تا ۱۲ ماهه.</div>
+          <div class="feature-item"><b id="trade">معاوضه گوشی قدیمی</b>ارزیابی رایگان و کسر مبلغ از خرید جدید.</div>
+          <div class="feature-item"><b>تحویل اکسپرس</b>ارسال همان‌روز در سراسر کرج.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="contact">
+  <div class="wrap">
+    <div class="cta-band">
+      <h2>قیمت گوشی موردنظرت رو نمی‌دونی؟</h2>
+      <p>همین حالا با یک تماس یا پیام، استعلام قیمت بگیر.</p>
+      <a href="tel:02632991122" class="btn-white" style="display:inline-block;color:var(--blue);">تماس با فروشگاه</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo" style="color:#fff;">هم<span style="color:var(--orange);">‌راه</span></div>
+        <p class="foot-desc">فروشگاه موبایل هم‌راه، کرج، خیابان شریعتی، پاساژ دیجیتال، طبقه اول.</p>
+      </div>
+      <div class="foot-col">
+        <h4>محصولات</h4>
+        <a href="#products">گوشی موبایل</a>
+        <a href="#products">تبلت</a>
+        <a href="#products">اکسسوری</a>
+      </div>
+      <div class="foot-col">
+        <h4>خدمات</h4>
+        <a href="#trade">معاوضه</a>
+        <a href="#services">اقساط خرید</a>
+      </div>
+      <div class="foot-col">
+        <h4>تماس</h4>
+        <a href="tel:02632991122">۰۲۶-۳۲۹۹۱۱۲۲</a>
+        <a href="#">اینستاگرام</a>
+      </div>
+    </div>
+    <div class="foot-bottom">© تمامی حقوق محفوظ است — فروشگاه موبایل هم‌راه | طراحی: ByteLab</div>
+  </div>
+</footer>
+
+</body>
+</html>

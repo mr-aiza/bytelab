@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنجه | پت‌شاپ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --peach:#FF9E5E;
+    --peach-light:#FFD9B3;
+    --teal:#2F8F7B;
+    --teal-light:#CDEAE3;
+    --cream:#FFF8EF;
+    --ink:#3A2E22;
+    --gray:#8A7B6C;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--cream);color:var(--ink);font-family:'Vazirmatn',sans-serif;}
+  a{text-decoration:none;color:inherit;}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 28px;}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(255,248,239,.92);backdrop-filter:blur(10px);}
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;height:90px;}
+  .logo{font-size:25px;font-weight:800;}
+  .logo span{color:var(--teal);}
+  .navlinks{display:flex;gap:30px;font-size:14px;font-weight:600;}
+  .navlinks a:hover{color:var(--peach);}
+  .cta-btn{background:var(--teal);color:#fff;padding:13px 28px;font-size:13.5px;font-weight:700;border-radius:999px;}
+  .cta-btn:hover{background:#256F5F;}
+  .burger{display:none;font-size:24px;background:none;border:none;}
+
+  .hero{padding:60px 0 40px;position:relative;overflow:hidden;}
+  .hero-inner{display:grid;grid-template-columns:1fr .9fr;gap:44px;align-items:center;}
+  .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--teal-light);color:var(--teal);font-size:12.5px;font-weight:700;padding:8px 18px;border-radius:999px;margin-bottom:22px;}
+  h1.hero-title{font-size:clamp(32px,5vw,54px);font-weight:900;line-height:1.35;}
+  h1.hero-title span{color:var(--peach);}
+  .hero-sub{color:var(--gray);font-size:15.5px;max-width:440px;margin:22px 0 32px;line-height:1.95;}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-peach{background:var(--peach);color:#fff;padding:15px 32px;border-radius:999px;font-weight:700;font-size:14px;}
+  .btn-outline-teal{border:2px solid var(--teal);color:var(--teal);padding:13px 30px;border-radius:999px;font-weight:700;font-size:14px;}
+
+  .hero-visual{aspect-ratio:1/1;border-radius:36px;background:linear-gradient(150deg,var(--peach-light),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:88px;gap:10px;}
+
+  .cat-strip{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:34px 0 70px;}
+  .cat-chip{background:#fff;border:2px solid transparent;padding:14px 26px;border-radius:999px;font-size:14px;font-weight:700;box-shadow:0 8px 20px rgba(58,46,34,.06);}
+  .cat-chip:hover{border-color:var(--peach);color:var(--peach);}
+
+  .section{padding:80px 0;}
+  .section-head{text-align:center;margin-bottom:50px;}
+  .section-eyebrow{color:var(--teal);font-size:12.5px;letter-spacing:2.5px;font-weight:700;margin-bottom:10px;}
+  .section-title{font-size:clamp(27px,3.6vw,38px);font-weight:800;}
+
+  .products{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+  .product-card{background:#fff;border-radius:24px;overflow:hidden;transition:.25s;box-shadow:0 8px 24px rgba(58,46,34,.06);}
+  .product-card:hover{transform:translateY(-5px);box-shadow:0 22px 44px rgba(58,46,34,.12);}
+  .product-img{height:160px;background:linear-gradient(150deg,var(--peach-light),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:46px;}
+  .product-body{padding:20px;}
+  .product-name{font-weight:700;font-size:15.5px;margin-bottom:8px;}
+  .product-tag{font-size:12px;color:var(--gray);margin-bottom:12px;}
+  .product-price{font-weight:800;color:var(--teal);font-size:15px;}
+
+  .feature-band{background:var(--teal);color:#fff;border-radius:32px;padding:60px;display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;}
+  .feature-band-eyebrow{color:var(--peach-light);font-size:12.5px;letter-spacing:2.5px;font-weight:700;margin-bottom:16px;}
+  .feature-band h3{font-size:clamp(23px,3.2vw,32px);font-weight:800;line-height:1.6;}
+  .feature-list{margin-top:24px;display:grid;gap:16px;}
+  .feature-item{display:flex;gap:12px;font-size:14px;color:#DCF0EB;align-items:flex-start;}
+  .feature-item span{font-size:22px;}
+  .feature-visual{aspect-ratio:4/3;background:linear-gradient(135deg,var(--peach),#256F5F);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:60px;}
+
+  .services{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .service-card{background:#fff;border-radius:22px;padding:34px 26px;text-align:center;box-shadow:0 8px 24px rgba(58,46,34,.06);}
+  .service-icon{width:60px;height:60px;border-radius:50%;background:var(--peach-light);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px;}
+  .service-title{font-weight:700;font-size:15.5px;margin-bottom:10px;}
+  .service-desc{font-size:13px;color:var(--gray);line-height:1.85;}
+
+  .cta-band{background:var(--peach-light);border-radius:32px;padding:70px 40px;text-align:center;}
+  .cta-band h2{font-size:clamp(25px,3.4vw,36px);font-weight:800;margin-bottom:16px;}
+  .cta-band p{color:var(--ink);opacity:.75;margin-bottom:28px;font-size:14.5px;}
+
+  footer{background:#2A241E;color:#C4B8A9;padding:60px 0 26px;}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:34px;}
+  .foot-desc{font-size:13px;line-height:1.9;margin-top:14px;max-width:280px;color:#8A7D6C;}
+  .foot-col h4{color:#fff;font-size:13.5px;font-weight:700;margin-bottom:16px;}
+  .foot-col a{display:block;font-size:13px;margin-bottom:10px;color:#C4B8A9;}
+  .foot-bottom{border-top:1px solid #3D362D;padding-top:22px;text-align:center;font-size:12px;}
+
+  @media(max-width:960px){
+    .navlinks{display:none;}
+    .burger{display:block;}
+    .hero-inner{grid-template-columns:1fr;}
+    .hero-visual{max-width:280px;margin:0 auto;}
+    .products{grid-template-columns:1fr 1fr;}
+    .feature-band{grid-template-columns:1fr;padding:36px;}
+    .services{grid-template-columns:1fr;}
+    .foot-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">پن<span>جه</span></div>
+    <div class="navlinks">
+      <a href="#products">محصولات</a>
+      <a href="#services">خدمات</a>
+      <a href="#vet">دامپزشکی</a>
+      <a href="#contact">تماس</a>
+    </div>
+    <a href="#contact" class="cta-btn">رزرو نوبت دامپزشک</a>
+    <button class="burger">☰</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div>
+      <div class="hero-eyebrow">🐾 پت‌شاپ پنجه — کرج</div>
+      <h1 class="hero-title">هر چی حیوون خونگیت<br>لازم داره، <span>اینجاست</span></h1>
+      <p class="hero-sub">غذا، اسباب‌بازی، اکسسوری و خدمات دامپزشکی برای سگ، گربه، پرنده و آبزیان، با مشاوره رایگان تغذیه.</p>
+      <div class="hero-actions">
+        <a href="#products" class="btn-peach">مشاهده محصولات</a>
+        <a href="#vet" class="btn-outline-teal">رزرو نوبت دامپزشک</a>
+      </div>
+    </div>
+    <div class="hero-visual">🐶🐱</div>
+  </div>
+</section>
+
+<div class="wrap cat-strip">
+  <a href="#" class="cat-chip">🐕 سگ</a>
+  <a href="#" class="cat-chip">🐈 گربه</a>
+  <a href="#" class="cat-chip">🐦 پرنده</a>
+  <a href="#" class="cat-chip">🐠 آبزیان</a>
+  <a href="#" class="cat-chip">🐹 جوندگان</a>
+</div>
+
+<section class="section" id="products">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">پرفروش‌ترین‌ها</div>
+      <div class="section-title">محصولات محبوب پنجه</div>
+    </div>
+    <div class="products">
+      <div class="product-card">
+        <div class="product-img">🍖</div>
+        <div class="product-body">
+          <div class="product-name">غذای خشک سگ رویال کنین</div>
+          <div class="product-tag">۱۵ کیلوگرم</div>
+          <div class="product-price">۲٬۹۵۰٬۰۰۰ تومان</div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-img">🐟</div>
+        <div class="product-body">
+          <div class="product-name">غذای گربه پروپلن</div>
+          <div class="product-tag">۱۰ کیلوگرم</div>
+          <div class="product-price">۱٬۸۵۰٬۰۰۰ تومان</div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-img">🧸</div>
+        <div class="product-body">
+          <div class="product-name">اسباب‌بازی جویدنی سگ</div>
+          <div class="product-tag">ضد حساسیت</div>
+          <div class="product-price">۱۸۰٬۰۰۰ تومان</div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-img">🏠</div>
+        <div class="product-body">
+          <div class="product-name">خانه چوبی گربه</div>
+          <div class="product-tag">دو طبقه</div>
+          <div class="product-price">۱٬۴۵۰٬۰۰۰ تومان</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="services" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feature-band">
+      <div class="feature-visual">🐾</div>
+      <div>
+        <div class="feature-band-eyebrow">چرا پنجه؟</div>
+        <h3>مثل یه عضو خانواده بهش رسیدگی می‌کنیم</h3>
+        <div class="feature-list">
+          <div class="feature-item"><span>🩺</span><div>دامپزشک همکار برای واکسیناسیون و معاینه رایگان اولیه.</div></div>
+          <div class="feature-item"><span>🚚</span><div>ارسال رایگان برای خریدهای بالای ۱ میلیون تومان.</div></div>
+          <div class="feature-item"><span>🥗</span><div>مشاوره رایگان تغذیه متناسب با نژاد و سن حیوان.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="vet">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">خدمات ما</div>
+      <div class="section-title">فراتر از یک فروشگاه</div>
+    </div>
+    <div class="services">
+      <div class="service-card">
+        <div class="service-icon">🩺</div>
+        <div class="service-title">دامپزشکی و واکسیناسیون</div>
+        <div class="service-desc">معاینه دوره‌ای، واکسن و مشاوره تخصصی با نوبت‌دهی آنلاین.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">✂️</div>
+        <div class="service-title">آرایش و نظافت حیوانات</div>
+        <div class="service-desc">حمام، کوتاهی مو و ناخن با تجهیزات استاندارد.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🏡</div>
+        <div class="service-title">هتل حیوانات خانگی</div>
+        <div class="service-desc">نگهداری امن و راحت در سفرهای شما.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="contact">
+  <div class="wrap">
+    <div class="cta-band">
+      <h2>یه دوست چهارپا اومده خونه‌تون؟</h2>
+      <p>برای مشاوره رایگان تغذیه و لوازم موردنیاز، تماس بگیرید.</p>
+      <a href="tel:02632445566" class="cta-btn" style="display:inline-block;padding:16px 36px;">تماس با پنجه</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo" style="color:#fff;">پن<span style="color:var(--peach-light);">جه</span></div>
+        <p class="foot-desc">پت‌شاپ پنجه، کرج، خیابان مطهری، نبش کوچه ۱۲.</p>
+      </div>
+      <div class="foot-col">
+        <h4>محصولات</h4>
+        <a href="#products">غذا و تغذیه</a>
+        <a href="#products">اسباب‌بازی</a>
+        <a href="#products">اکسسوری</a>
+      </div>
+      <div class="foot-col">
+        <h4>خدمات</h4>
+        <a href="#vet">دامپزشکی</a>
+        <a href="#vet">آرایش حیوانات</a>
+      </div>
+      <div class="foot-col">
+        <h4>تماس</h4>
+        <a href="tel:02632445566">۰۲۶-۳۲۴۴۵۵۶۶</a>
+        <a href="#">اینستاگرام</a>
+      </div>
+    </div>
+    <div class="foot-bottom">© تمامی حقوق محفوظ است — پت‌شاپ پنجه | طراحی: ByteLab</div>
+  </div>
+</footer>
+
+</body>
+</html>

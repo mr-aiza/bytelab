@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شکوفه | گل‌فروشی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=Noto+Naskh+Arabic:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sage:#5B7B5A;
+    --sage-light:#8FAE8B;
+    --rose:#D98A8A;
+    --rose-light:#EFC1BF;
+    --cream:#FBF7F0;
+    --ink:#3A2E35;
+    --gray:#8A7E80;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--cream);color:var(--ink);font-family:'Vazirmatn',sans-serif;font-weight:300;}
+  .serif{font-family:'Noto Naskh Arabic',serif;font-weight:600;}
+  a{text-decoration:none;color:inherit;}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 28px;}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(251,247,240,.9);backdrop-filter:blur(10px);}
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;height:92px;}
+  .logo{font-size:25px;}
+  .logo span{color:var(--rose);}
+  .navlinks{display:flex;gap:32px;font-size:14px;font-weight:400;}
+  .navlinks a:hover{color:var(--rose);}
+  .cta-btn{background:var(--sage);color:#fff;padding:12px 28px;font-size:13.5px;font-weight:500;border-radius:999px;}
+  .cta-btn:hover{background:#4A6749;}
+  .burger{display:none;font-size:24px;background:none;border:none;}
+
+  .hero{padding:70px 0 90px;position:relative;overflow:hidden;}
+  .hero-inner{display:grid;grid-template-columns:1fr .85fr;gap:50px;align-items:center;}
+  .hero-eyebrow{color:var(--sage);font-size:13px;letter-spacing:2px;font-weight:600;margin-bottom:20px;}
+  h1.hero-title{font-size:clamp(34px,5vw,58px);line-height:1.4;}
+  h1.hero-title i{font-style:normal;color:var(--rose);}
+  .hero-sub{color:var(--gray);font-size:15.5px;max-width:440px;margin:24px 0 34px;line-height:2;}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-rose{background:var(--rose);color:#fff;padding:15px 32px;border-radius:999px;font-weight:500;font-size:14px;}
+  .btn-outline-sage{border:1.5px solid var(--sage);color:var(--sage);padding:15px 32px;border-radius:999px;font-weight:500;font-size:14px;}
+
+  .hero-visual{aspect-ratio:1/1;border-radius:50%;background:radial-gradient(circle at 32% 28%, var(--rose-light), var(--sage-light) 75%);display:flex;align-items:center;justify-content:center;font-size:96px;position:relative;}
+  .hero-visual::after{content:"";position:absolute;inset:-18px;border:1.5px dashed rgba(91,123,90,.35);border-radius:50%;}
+
+  .chip-strip{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;padding:0 0 70px;}
+  .chip{background:#fff;border:1px solid #E9E0D6;padding:10px 22px;border-radius:999px;font-size:13.5px;font-weight:500;}
+  .chip:hover{border-color:var(--rose);color:var(--rose);}
+
+  .section{padding:80px 0;}
+  .section-head{text-align:center;margin-bottom:52px;}
+  .section-eyebrow{color:var(--rose);font-size:12.5px;letter-spacing:2.5px;font-weight:600;margin-bottom:10px;}
+  .section-title{font-size:clamp(27px,3.6vw,38px);}
+
+  .products{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+  .product-card{background:#fff;border-radius:20px;overflow:hidden;border:1px solid #F0E8DD;transition:.25s;}
+  .product-card:hover{box-shadow:0 20px 44px rgba(58,46,53,.1);transform:translateY(-4px);}
+  .product-img{height:170px;background:linear-gradient(150deg,var(--rose-light),var(--sage-light));display:flex;align-items:center;justify-content:center;font-size:44px;}
+  .product-body{padding:20px;}
+  .product-name{font-weight:500;font-size:15.5px;margin-bottom:8px;}
+  .product-occ{font-size:12px;color:var(--gray);margin-bottom:12px;}
+  .product-price{font-weight:600;color:var(--sage);font-size:15px;}
+
+  .feature-band{background:var(--sage);color:#fff;border-radius:28px;padding:60px;display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;}
+  .feature-band-eyebrow{color:var(--rose-light);font-size:12.5px;letter-spacing:2.5px;font-weight:600;margin-bottom:16px;}
+  .feature-band h3{font-size:clamp(23px,3.2vw,32px);line-height:1.6;}
+  .feature-list{margin-top:24px;display:grid;gap:16px;}
+  .feature-item{display:flex;gap:12px;font-size:14px;color:#E4EEE3;align-items:flex-start;}
+  .feature-item span{font-size:20px;}
+  .feature-visual{aspect-ratio:4/3;background:linear-gradient(135deg,var(--rose),#4A6749);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:60px;}
+
+  .occasions{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center;}
+  .occ-card{padding:34px 20px;}
+  .occ-icon{font-size:36px;margin-bottom:14px;}
+  .occ-title{font-weight:500;font-size:15px;margin-bottom:8px;}
+  .occ-desc{font-size:12.5px;color:var(--gray);line-height:1.8;}
+
+  .cta-band{background:var(--rose-light);border-radius:28px;padding:70px 40px;text-align:center;}
+  .cta-band h2{font-size:clamp(25px,3.4vw,36px);margin-bottom:16px;}
+  .cta-band p{color:var(--ink);opacity:.75;margin-bottom:28px;font-size:14.5px;}
+
+  footer{background:#2E2530;color:#C9BFC1;padding:60px 0 26px;}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:34px;}
+  .foot-desc{font-size:13px;line-height:1.9;margin-top:14px;max-width:280px;color:#9C8F92;}
+  .foot-col h4{color:#fff;font-size:13.5px;font-weight:500;margin-bottom:16px;}
+  .foot-col a{display:block;font-size:13px;margin-bottom:10px;color:#C9BFC1;}
+  .foot-bottom{border-top:1px solid #443A46;padding-top:22px;text-align:center;font-size:12px;}
+
+  @media(max-width:960px){
+    .navlinks{display:none;}
+    .burger{display:block;}
+    .hero-inner{grid-template-columns:1fr;}
+    .hero-visual{max-width:280px;margin:0 auto;}
+    .products{grid-template-columns:1fr 1fr;}
+    .feature-band{grid-template-columns:1fr;padding:36px;}
+    .occasions{grid-template-columns:1fr 1fr;}
+    .foot-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo serif">شکو<span>فه</span></div>
+    <div class="navlinks">
+      <a href="#products">دسته گل‌ها</a>
+      <a href="#occasions">مناسبت‌ها</a>
+      <a href="#about">درباره ما</a>
+      <a href="#contact">تماس</a>
+    </div>
+    <a href="#contact" class="cta-btn">سفارش آنلاین</a>
+    <button class="burger">☰</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div>
+      <div class="hero-eyebrow">گل‌فروشی شکوفه — کرج</div>
+      <h1 class="hero-title serif">هر احساسی،<br>یک <i>دسته گل</i> دارد</h1>
+      <p class="hero-sub">گل‌های تازه هر روز از مزرعه تا مغازه، با بسته‌بندی دست‌ساز و ارسال همان‌روز به سراسر کرج.</p>
+      <div class="hero-actions">
+        <a href="#products" class="btn-rose">مشاهده دسته گل‌ها</a>
+        <a href="#contact" class="btn-outline-sage">سفارش تلفنی</a>
+      </div>
+    </div>
+    <div class="hero-visual">💐</div>
+  </div>
+</section>
+
+<div class="wrap chip-strip">
+  <a href="#" class="chip">🎂 تولد</a>
+  <a href="#" class="chip">💍 عروسی</a>
+  <a href="#" class="chip">🕊️ تسلیت</a>
+  <a href="#" class="chip">🏪 تزیین مغازه و مراسم</a>
+  <a href="#" class="chip">🌱 گیاه آپارتمانی</a>
+</div>
+
+<section class="section" id="products">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">محبوب‌ترین‌ها</div>
+      <div class="section-title serif">دسته گل‌های این هفته</div>
+    </div>
+    <div class="products">
+      <div class="product-card">
+        <div class="product-img">🌹</div>
+        <div class="product-body">
+          <div class="product-name">دسته رز هلندی</div>
+          <div class="product-occ">مناسب برای عاشقانه</div>
+          <div class="product-price">۶۹۰٬۰۰۰ تومان</div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-img">🌻</div>
+        <div class="product-body">
+          <div class="product-name">باکس آفتابگردان</div>
+          <div class="product-occ">مناسب برای تبریک</div>
+          <div class="product-price">۴۵۰٬۰۰۰ تومان</div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-img">🌷</div>
+        <div class="product-body">
+          <div class="product-name">سبد لاله رنگارنگ</div>
+          <div class="product-occ">مناسب برای تولد</div>
+          <div class="product-price">۵۲۰٬۰۰۰ تومان</div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-img">🪷</div>
+        <div class="product-body">
+          <div class="product-name">تاج گل تسلیت</div>
+          <div class="product-occ">مناسب برای مراسم ترحیم</div>
+          <div class="product-price">۱٬۲۵۰٬۰۰۰ تومان</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feature-band">
+      <div class="feature-visual">🌸</div>
+      <div>
+        <div class="feature-band-eyebrow">چرا شکوفه؟</div>
+        <h3 class="serif">تازگی گل‌ها، همیشه اولویت اول ماست</h3>
+        <div class="feature-list">
+          <div class="feature-item"><span>🌿</span><div>گل‌های تازه هر روز از گلخانه‌های محلی کرج.</div></div>
+          <div class="feature-item"><span>🚴‍♂️</span><div>ارسال همان‌روز در سراسر شهر، تا درب منزل یا محل کار.</div></div>
+          <div class="feature-item"><span>🎀</span><div>بسته‌بندی دست‌ساز و کارت تبریک شخصی‌سازی‌شده رایگان.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="occasions">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">مناسبت‌ها</div>
+      <div class="section-title serif">برای هر لحظه‌ی مهم زندگی</div>
+    </div>
+    <div class="occasions">
+      <div class="occ-card">
+        <div class="occ-icon">🎉</div>
+        <div class="occ-title">جشن‌ها و تولد</div>
+        <div class="occ-desc">دسته گل‌های شاد و رنگارنگ</div>
+      </div>
+      <div class="occ-card">
+        <div class="occ-icon">💐</div>
+        <div class="occ-title">عروسی و نامزدی</div>
+        <div class="occ-desc">دسته عروس و تزیین تالار</div>
+      </div>
+      <div class="occ-card">
+        <div class="occ-icon">🕊️</div>
+        <div class="occ-title">تسلیت</div>
+        <div class="occ-desc">تاج گل و سبد ترحیم</div>
+      </div>
+      <div class="occ-card">
+        <div class="occ-icon">🏢</div>
+        <div class="occ-title">افتتاحیه</div>
+        <div class="occ-desc">تاج گل افتتاحیه و تبریک شغلی</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="contact">
+  <div class="wrap">
+    <div class="cta-band">
+      <h2 class="serif">دسته گل امروزتان را سفارش دهید</h2>
+      <p>تا ساعت ۱۶ سفارش دهید، همان‌روز درب منزل تحویل می‌گیرید.</p>
+      <a href="tel:02632778899" class="cta-btn" style="display:inline-block;padding:16px 36px;">سفارش تلفنی</a>
+    </div>
+  </div>
+</section>
+
+<footer id="about">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo serif" style="color:#fff;">شکو<span style="color:var(--rose-light);">فه</span></div>
+        <p class="foot-desc">گل‌فروشی شکوفه، کرج، خیابان شهید بهشتی، نبش کوچه یاس.</p>
+      </div>
+      <div class="foot-col">
+        <h4>محصولات</h4>
+        <a href="#products">دسته گل</a>
+        <a href="#occasions">تاج گل</a>
+        <a href="#occasions">گیاه آپارتمانی</a>
+      </div>
+      <div class="foot-col">
+        <h4>خدمات</h4>
+        <a href="#">ارسال همان‌روز</a>
+        <a href="#">سفارش سازمانی</a>
+      </div>
+      <div class="foot-col">
+        <h4>تماس</h4>
+        <a href="tel:02632778899">۰۲۶-۳۲۷۷۸۸۹۹</a>
+        <a href="#">اینستاگرام</a>
+      </div>
+    </div>
+    <div class="foot-bottom">© تمامی حقوق محفوظ است — گل‌فروشی شکوفه | طراحی: ByteLab</div>
+  </div>
+</footer>
+
+</body>
+</html>
