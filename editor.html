@@ -89,7 +89,18 @@
   }
   .ed-note b{color:var(--paper);}
 
-  .ed-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:26px 0 30px;}
+  /* ============ گروه‌بندی تب‌های قالب ============ */
+  .ed-tabs{margin:26px 0 30px;display:flex;flex-direction:column;gap:16px;}
+  .ed-tab-group{display:flex;flex-direction:column;gap:9px;}
+  .ed-tab-group-label{
+    display:flex;align-items:center;gap:8px;
+    font-size:11.5px;font-weight:700;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.05em;padding-right:2px;
+  }
+  .ed-tab-group-label::after{
+    content:'';flex:1;height:1px;background:var(--line);
+  }
+  .ed-tab-row{display:flex;gap:8px;flex-wrap:wrap;}
   .ed-tab{
     border:1px solid var(--line);background:var(--panel);color:var(--paper);
     padding:10px 18px;border-radius:999px;font-family:inherit;font-size:13.5px;font-weight:600;
@@ -204,20 +215,51 @@
     </div>
 
     <div class="ed-tabs" id="edTabs">
-      <button type="button" class="ed-tab" data-key="gold">زرّین گالری <em>طلا و جواهر</em></button>
-      <button type="button" class="ed-tab" data-key="cafe">کافه اِمبر <em>کافه و رستوران</em></button>
-      <button type="button" class="ed-tab" data-key="car">گالری پرستیژ <em>نمایشگاه خودرو</em></button>
-      <button type="button" class="ed-tab" data-key="tashrifat">تشریفات رویایی <em>خدمات مراسم</em></button>
-      <button type="button" class="ed-tab" data-key="gym">پاورهاوس <em>باشگاه بدنسازی</em></button>
-      <button type="button" class="ed-tab" data-key="cosmetics">گلبرگ <em>آرایشی و بهداشتی</em></button>
-      <button type="button" class="ed-tab" data-key="appliances">خانه‌مدرن <em>لوازم خانگی</em></button>
-      <button type="button" class="ed-tab" data-key="realestate">املاک آسمان <em>مشاور املاک</em></button>
-      <button type="button" class="ed-tab" data-key="tattoo">مرکب <em>استودیو تتو</em></button>
-      <button type="button" class="ed-tab" data-key="lawyer">میزان <em>دفتر وکالت</em></button>
-      <button type="button" class="ed-tab" data-key="insurance">ایمن <em>دفتر بیمه</em></button>
-      <button type="button" class="ed-tab" data-key="flowers">شکوفه <em>گل‌فروشی</em></button>
-      <button type="button" class="ed-tab" data-key="mobile">هم‌راه <em>فروشگاه موبایل</em></button>
-      <button type="button" class="ed-tab" data-key="petshop">پنجه <em>پت‌شاپ</em></button>
+
+      <div class="ed-tab-group">
+        <span class="ed-tab-group-label">فروشگاهی</span>
+        <div class="ed-tab-row">
+          <button type="button" class="ed-tab" data-key="gold">زرّین گالری <em>طلا و جواهر</em></button>
+          <button type="button" class="ed-tab" data-key="cosmetics">گلبرگ <em>آرایشی و بهداشتی</em></button>
+          <button type="button" class="ed-tab" data-key="appliances">خانه‌مدرن <em>لوازم خانگی</em></button>
+          <button type="button" class="ed-tab" data-key="mobile">هم‌راه <em>فروشگاه موبایل</em></button>
+          <button type="button" class="ed-tab" data-key="flowers">شکوفه <em>گل‌فروشی</em></button>
+          <button type="button" class="ed-tab" data-key="petshop">پنجه <em>پت‌شاپ</em></button>
+        </div>
+      </div>
+
+      <div class="ed-tab-group">
+        <span class="ed-tab-group-label">خدمات و مراسم</span>
+        <div class="ed-tab-row">
+          <button type="button" class="ed-tab" data-key="cafe">کافه اِمبر <em>کافه و رستوران</em></button>
+          <button type="button" class="ed-tab" data-key="tashrifat">تشریفات رویایی <em>خدمات مراسم</em></button>
+        </div>
+      </div>
+
+      <div class="ed-tab-group">
+        <span class="ed-tab-group-label">کسب‌وکار حرفه‌ای</span>
+        <div class="ed-tab-row">
+          <button type="button" class="ed-tab" data-key="lawyer">میزان <em>دفتر وکالت</em></button>
+          <button type="button" class="ed-tab" data-key="insurance">ایمن <em>دفتر بیمه</em></button>
+          <button type="button" class="ed-tab" data-key="realestate">املاک آسمان <em>مشاور املاک</em></button>
+        </div>
+      </div>
+
+      <div class="ed-tab-group">
+        <span class="ed-tab-group-label">سلامت و زیبایی</span>
+        <div class="ed-tab-row">
+          <button type="button" class="ed-tab" data-key="gym">پاورهاوس <em>باشگاه بدنسازی</em></button>
+          <button type="button" class="ed-tab" data-key="tattoo">مرکب <em>استودیو تتو</em></button>
+        </div>
+      </div>
+
+      <div class="ed-tab-group">
+        <span class="ed-tab-group-label">خودرو</span>
+        <div class="ed-tab-row">
+          <button type="button" class="ed-tab" data-key="car">گالری پرستیژ <em>نمایشگاه خودرو</em></button>
+        </div>
+      </div>
+
     </div>
 
     <div class="ed-inline-bar">
