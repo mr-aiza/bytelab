@@ -848,6 +848,18 @@ async function loadLeads(){
 }
 function leadStatusLabel(s){ return {new:"جدید", contacted:"تماس‌گرفته‌شده", later:"بعداً", rejected:"رد‌شده"}[s] || s; }
 function leadStatusClass(s){ return {new:"text-bg-warning", contacted:"text-bg-success", later:"text-bg-info", rejected:"text-bg-secondary"}[s] || "text-bg-secondary"; }
+function leadTypeLabel(t){
+  return {
+    contact: "فرم تماس",
+    profile: "ثبت‌نام کاربر",
+    abandoned_form: "فرم رهاشده",
+    site_health_request: "بررسی سلامت سایت",
+    project_estimate: "برآورد پروژه",
+    portfolio_submit: "ارسال نمونه‌کار",
+    apk_download: "دانلود اپلیکیشن",
+    page_visit: "بازدید صفحه"
+  }[t] || t || "-";
+}
 function renderLeadsTable(){
   const q = (document.getElementById("leadSearchInput").value || "").trim().toLowerCase();
   const statusFilter = document.getElementById("leadStatusFilter").value;
@@ -856,7 +868,7 @@ function renderLeadsTable(){
   if(q) list = list.filter(l => [l.name,l.phone,l.email,l.service,l.message].filter(Boolean).some(f=>String(f).toLowerCase().includes(q)));
   document.getElementById("leadsBody").innerHTML = list.map(l =>
     "<tr><td class='fw-bold'>"+escapeHtml(l.name||"-")+"</td><td>"+escapeHtml(l.phone||"-")+"</td>"+
-    "<td class='small'>"+escapeHtml(l.service||"-")+"</td><td class='small'>"+escapeHtml(l.type||"-")+"</td>"+
+    "<td class='small'>"+escapeHtml(l.service||"-")+"</td><td class='small'>"+escapeHtml(leadTypeLabel(l.type))+"</td>"+
     "<td><span class='badge "+leadStatusClass(l.status)+"'>"+leadStatusLabel(l.status)+"</span></td>"+
     "<td class='small'>"+fmtDate(l.createdAt)+"</td>"+
     "<td class='text-end'>"+
@@ -882,8 +894,14 @@ function openLeadNoteModal(id){
   document.getElementById("leadNoteId").value = id;
   document.getElementById("leadNoteText").value = (l && l.note) || "";
   document.getElementById("leadDetailBox").innerHTML = l ?
-    "نام: "+escapeHtml(l.name||"-")+"<br>شماره: "+escapeHtml(l.phone||"-")+"<br>خدمت: "+escapeHtml(l.service||"-")+
-    (l.message ? "<br>پیام: "+escapeHtml(l.message) : "") : "";
+    "نوع: "+escapeHtml(leadTypeLabel(l.type))+
+    "<br>نام: "+escapeHtml(l.name||"-")+"<br>شماره: "+escapeHtml(l.phone||"-")+"<br>خدمت: "+escapeHtml(l.service||"-")+
+    (l.projectType ? "<br>نوع پروژه: "+escapeHtml(l.projectType) : "") +
+    (l.checkedUrl ? "<br>آدرس بررسی‌شده: "+escapeHtml(l.checkedUrl) : "") +
+    (l.score !== undefined && l.score !== null ? "<br>امتیاز: "+escapeHtml(String(l.score))+"/100" : "") +
+    (Array.isArray(l.features) && l.features.length ? "<br>امکانات/مشکلات: "+escapeHtml(l.features.join("، ")) : "") +
+    (l.message ? "<br>پیام: "+escapeHtml(l.message) : "") +
+    (l.description ? "<br>توضیحات: "+escapeHtml(l.description) : "") : "";
   leadNoteModal.show();
 }
 async function saveLeadNote(){
@@ -895,7 +913,7 @@ async function saveLeadNote(){
 function exportLeadsCsv(){
   if(!leadsCache.length) return toast("لیدی برای خروجی نیست.", "warning");
   const headers = ["نام","شماره","ایمیل","خدمت","نوع","وضعیت","تاریخ","یادداشت"];
-  const rows = leadsCache.map(l => [l.name,l.phone,l.email,l.service,l.type,leadStatusLabel(l.status),fmtDate(l.createdAt),l.note]
+  const rows = leadsCache.map(l => [l.name,l.phone,l.email,l.service,leadTypeLabel(l.type),leadStatusLabel(l.status),fmtDate(l.createdAt),l.note]
     .map(v => '"' + String(v||"").replace(/"/g,'""') + '"').join(","));
   const csv = "\uFEFF" + headers.join(",") + "\n" + rows.join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
