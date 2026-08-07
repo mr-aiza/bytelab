@@ -332,7 +332,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     {
       group: true,
       text: "ابزارها",
-      match: ["playground.html", "editor.html", "audit.html", "qr.html", "invoice.html", "site-health-checker.html", "project-estimator.html"],
+      match: ["playground.html", "editor.html", "audit.html", "qr.html", "invoice.html", "site-health-checker.html", "project-estimator.html", "image-compressor.html"],
       children: [
         { href: "playground.html", text: "پلی‌گراند کد زنده", icon: "⚡", match: ["playground.html"] },
         { href: "editor.html", text: "ویرایش آنلاین قالب", icon: "🛠️", match: ["editor.html"] },
@@ -340,7 +340,8 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
         { href: "site-health-checker.html", text: "بررسی سلامت سایت", icon: "🩺", match: ["site-health-checker.html"] },
         { href: "qr.html", text: "QR کد ساز", icon: "📱", match: ["qr.html"] },
         { href: "invoice.html", text: "فاکتور ساز", icon: "🧾", match: ["invoice.html"] },
-        { href: "project-estimator.html", text: "برآورد هزینه پروژه", icon: "📐", match: ["project-estimator.html"] }
+        { href: "project-estimator.html", text: "برآورد هزینه پروژه", icon: "📐", match: ["project-estimator.html"] },
+        { href: "image-compressor.html", text: "فشرده‌سازی تصویر", icon: "🖼️", match: ["image-compressor.html"] }
       ]
     },
     {
@@ -783,7 +784,8 @@ ${quickDockHTML}
       "site-health-checker.html": "بررسی سلامت سایت",
       "qr.html": "QR کد ساز",
       "invoice.html": "فاکتور ساز",
-      "project-estimator.html": "برآورد هزینه پروژه"
+      "project-estimator.html": "برآورد هزینه پروژه",
+      "image-compressor.html": "فشرده‌سازی تصویر"
     };
     const pageName = TRACKED_PAGES[current];
     if (pageName && !sessionStorage.getItem("visited_" + current)) {
