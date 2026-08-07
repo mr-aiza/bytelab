@@ -448,10 +448,11 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   const SHOW_QUICK_DOCK = true;
   const isPortfolioPage = current === "portfolio.html" || location.pathname.indexOf("/portfolio/") !== -1;
 
-  // --- فقط ۴ صفحه مهم سایت روی نوار پایین ---
+  // --- ۵ صفحه مهم سایت روی نوار پایین ---
   const DOCK_TABS = [
     { id: "home", href: "index.html", icon: "🏠", label: "خانه", acc: "#4df0c9", match: ["index.html", ""] },
     { id: "portfolio", href: PORTFOLIO_SUBMIT_HREF, icon: "🎨", label: "نمونه‌کار", acc: "#9c7bff", match: [], forceActive: isPortfolioPage },
+    { id: "order", href: "telegram/contact.html", icon: "📝", label: "ثبت سفارش", acc: "#f2c14e", match: [] },
     { id: "chat", href: "chat.html", icon: "💬", label: "هوش مصنوعی", acc: "#4df0c9", match: ["chat.html"] },
     { id: "bazaar", href: "https://cafebazaar.ir/app/com.bytelab.app", icon: "⬇️", label: "دانلود", acc: "#f2c14e", external: true, match: [] }
   ].map(t => ({ ...t, active: t.forceActive || isActive(t.match) }));
