@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>بررسی آی‌پی (IP Analysis) | بایت‌لب</title>
+<meta name="description" content="آی‌پی خودت رو ببین یا هر آی‌پی دیگه‌ای رو بررسی کن؛ کشور، شهر، ISP، ASN و منطقه زمانی، رایگان و در چند ثانیه.">
+<link rel="canonical" href="https://bytelabpro.xyz/ip-tools.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="بایت‌لب">
+<meta property="og:title" content="بررسی آی‌پی (IP Analysis) | بایت‌لب">
+<meta property="og:description" content="آی‌پی خودت رو ببین یا هر آی‌پی دیگه‌ای رو بررسی کن؛ رایگان و در چند ثانیه.">
+<meta property="og:url" content="https://bytelabpro.xyz/ip-tools.html">
+<meta property="og:image" content="https://bytelabpro.xyz/favicon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--radius:18px;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;width:100%;margin:0;padding:0;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:var(--cyan);}
+  main{margin-top:88px;padding:40px 16px 60px;max-width:640px;margin-left:auto;margin-right:auto;}
+  h1{font-size:28px;font-weight:800;margin:0 0 12px;}
+  .page-header{margin-bottom:32px;}
+  .sec-eyebrow{font-weight:700;font-size:12px;color:var(--violet);letter-spacing:.02em;margin-bottom:8px;text-transform:uppercase;display:block;}
+  .sec-sub{color:var(--muted);font-size:14px;line-height:1.6;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+  .card h2{font-size:14px;color:var(--cyan);margin:0 0 14px;font-weight:700;}
+
+  .input-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  input[type=text]{
+    flex:1;min-width:150px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;color:var(--paper);font-family:'JetBrains Mono',monospace;font-size:15px;direction:ltr;text-align:left;
+  }
+  input[type=text]:focus{outline:2px solid var(--cyan);border-color:var(--cyan);}
+  button{background:var(--cyan);border:none;border-radius:10px;padding:12px 20px;color:var(--ink);font-weight:700;font-family:inherit;font-size:14px;cursor:pointer;white-space:nowrap;transition:transform .2s ease;}
+  button:hover{transform:translateY(-1px);}
+  button:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .hint{color:var(--muted);font-size:12px;margin-top:8px;}
+
+  .loading{display:none;text-align:center;padding:24px 0;color:var(--muted);}
+  .spinner{width:32px;height:32px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--cyan);margin:0 auto 10px;animation:spin 1s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .error{display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);color:#fca5a5;padding:12px 14px;border-radius:10px;margin-top:12px;font-size:13px;}
+
+  #result{display:none;}
+  .ip-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .ip-flag{font-size:34px;line-height:1;}
+  .ip-addr{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;direction:ltr;}
+  .ip-type{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+
+  .ip-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media (max-width:520px){ .ip-grid{grid-template-columns:1fr;} }
+  .ip-field{background:var(--panel-2);border-radius:10px;padding:12px 14px;}
+  .ip-field span{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;}
+  .ip-field b{font-size:13.5px;word-break:break-word;}
+  .ip-field b.mono{font-family:'JetBrains Mono',monospace;direction:ltr;display:block;text-align:left;}
+
+  .ip-map-link{display:inline-block;margin-top:16px;font-size:13px;color:var(--cyan);text-decoration:none;}
+  .ip-map-link:hover{text-decoration:underline;}
+
+  .self-ip-hint{color:var(--muted);font-size:12px;margin-top:6px;}
+
+  @media (max-width:640px){
+    main{padding:30px 12px 50px;margin-top:72px;}
+    h1{font-size:24px;}
+    .card{padding:16px;}
+    input[type=text]{font-size:16px;padding:12px;}
+    button{padding:12px 18px;font-size:14px;}
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="page-header">
+    <span class="sec-eyebrow">🌍 ابزار</span>
+    <h1>بررسی آی‌پی (IP Analysis)</h1>
+    <p class="sec-sub">آی‌پی خودت رو ببین یا هر آی‌پی دیگه‌ای رو وارد کن؛ کشور، شهر، ارائه‌دهنده اینترنت (ISP)، ASN و منطقه زمانی رو نشون می‌دیم.</p>
+  </header>
+
+  <div class="card">
+    <h2>آی‌پی مورد نظر</h2>
+    <div class="input-row">
+      <input type="text" id="ipInput" placeholder="خالی بذار برای آی‌پی خودت، یا مثلاً 8.8.8.8" autocomplete="off">
+      <button id="ipCheckBtn">بررسی کن</button>
+    </div>
+    <div class="hint">اگه چیزی وارد نکنی، آی‌پی همین اتصال فعلیت بررسی می‌شه.</div>
+    <div class="error" id="ipErrorBox"></div>
+    <div class="loading" id="ipLoadingBox">
+      <div class="spinner"></div>
+      در حال دریافت اطلاعات...
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="card">
+      <div class="ip-head">
+        <span class="ip-flag" id="ipFlag"></span>
+        <div>
+          <div class="ip-addr" id="ipAddr"></div>
+          <div class="ip-type" id="ipType"></div>
+        </div>
+      </div>
+      <div class="ip-grid">
+        <div class="ip-field"><span>کشور</span><b id="ipCountry">—</b></div>
+        <div class="ip-field"><span>استان / منطقه</span><b id="ipRegion">—</b></div>
+        <div class="ip-field"><span>شهر</span><b id="ipCity">—</b></div>
+        <div class="ip-field"><span>کد پستی</span><b id="ipPostal">—</b></div>
+        <div class="ip-field"><span>ارائه‌دهنده اینترنت (ISP)</span><b id="ipIsp">—</b></div>
+        <div class="ip-field"><span>سازمان (Org)</span><b id="ipOrg">—</b></div>
+        <div class="ip-field"><span>شماره ASN</span><b class="mono" id="ipAsn">—</b></div>
+        <div class="ip-field"><span>منطقه زمانی</span><b id="ipTz">—</b></div>
+      </div>
+      <a href="#" target="_blank" rel="noopener" class="ip-map-link" id="ipMapLink">📍 مشاهده موقعیت روی نقشه گوگل ←</a>
+    </div>
+  </div>
+</main>
+
+<script src="header.js"></script>
+<script>
+/* ---------------------------------------------------------------------
+   کاملاً سمت مرورگر انجام می‌شه — از سرویس رایگان و بدون کلید ipwho.is
+   استفاده می‌کنیم (HTTPS و CORS باز، بدون نیاز به هیچ Workerی).
+   -------------------------------------------------------------------- */
+const IPWHO_ENDPOINT = 'https://ipwho.is/';
+
+const ipInput = document.getElementById('ipInput');
+const ipCheckBtn = document.getElementById('ipCheckBtn');
+const ipErrorBox = document.getElementById('ipErrorBox');
+const ipLoadingBox = document.getElementById('ipLoadingBox');
+const ipResultBox = document.getElementById('result');
+
+function isValidIp(v){
+  const ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
+  const ipv6 = /^[0-9a-fA-F:]{2,45}$/;
+  if (ipv4.test(v)) return v.split('.').every(n => Number(n) <= 255);
+  return ipv6.test(v) && v.includes(':');
+}
+
+function setLoading(on){
+  ipCheckBtn.disabled = on;
+  ipLoadingBox.style.display = on ? 'block' : 'none';
+  if (on){ ipErrorBox.style.display = 'none'; ipResultBox.style.display = 'none'; }
+}
+
+function fieldOrDash(v){
+  if (v === null || v === undefined || v === '') return '—';
+  return v;
+}
+
+async function runLookup(){
+  const raw = ipInput.value.trim();
+  if (raw && !isValidIp(raw)){
+    ipErrorBox.textContent = 'این یه آی‌پی معتبر (IPv4 یا IPv6) نیست.';
+    ipErrorBox.style.display = 'block';
+    return;
+  }
+
+  setLoading(true);
+  try{
+    const res = await fetch(IPWHO_ENDPOINT + encodeURIComponent(raw));
+    const data = await res.json();
+    if (!data || data.success === false){
+      throw new Error((data && data.message) || 'اطلاعاتی برای این آی‌پی پیدا نشد.');
+    }
+
+    document.getElementById('ipFlag').textContent = (data.flag && data.flag.emoji) || '🌐';
+    document.getElementById('ipAddr').textContent = data.ip || raw || '—';
+    document.getElementById('ipType').textContent = 'نوع: ' + (data.type || '—');
+    document.getElementById('ipCountry').textContent = fieldOrDash(data.country);
+    document.getElementById('ipRegion').textContent = fieldOrDash(data.region);
+    document.getElementById('ipCity').textContent = fieldOrDash(data.city);
+    document.getElementById('ipPostal').textContent = fieldOrDash(data.postal);
+
+    const conn = data.connection || {};
+    document.getElementById('ipIsp').textContent = fieldOrDash(conn.isp);
+    document.getElementById('ipOrg').textContent = fieldOrDash(conn.org);
+    document.getElementById('ipAsn').textContent = conn.asn ? ('AS' + conn.asn) : '—';
+
+    const tz = data.timezone || {};
+    document.getElementById('ipTz').textContent = fieldOrDash(tz.id);
+
+    const mapLink = document.getElementById('ipMapLink');
+    if (data.latitude && data.longitude){
+      mapLink.href = 'https://www.google.com/maps?q=' + data.latitude + ',' + data.longitude;
+      mapLink.style.display = 'inline-block';
+    } else {
+      mapLink.style.display = 'none';
+    }
+
+    ipResultBox.style.display = 'block';
+  }catch(e){
+    ipErrorBox.textContent = (e && e.message) ? e.message : 'نتونستیم اطلاعات این آی‌پی رو بگیریم.';
+    ipErrorBox.style.display = 'block';
+  }finally{
+    setLoading(false);
+  }
+}
+
+ipCheckBtn.addEventListener('click', runLookup);
+ipInput.addEventListener('keydown', e => { if (e.key === 'Enter') runLookup(); });
+
+// اولین باری که صفحه باز می‌شه، خودکار آی‌پی خود کاربر رو نشون بده
+document.addEventListener('DOMContentLoaded', runLookup);
+</script>
+</body>
+</html>

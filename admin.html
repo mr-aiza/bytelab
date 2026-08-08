@@ -855,6 +855,8 @@ function leadTypeLabel(t){
     abandoned_form: "فرم رهاشده",
     site_health_request: "بررسی سلامت سایت",
     project_estimate: "برآورد پروژه",
+    dns_check_request: "بررسی/تنظیم DNS",
+    whois_lookup_lead: "پیگیری دامنه (WHOIS)",
     portfolio_submit: "ارسال نمونه‌کار",
     apk_download: "دانلود اپلیکیشن",
     page_visit: "بازدید صفحه"
@@ -898,6 +900,7 @@ function openLeadNoteModal(id){
     "<br>نام: "+escapeHtml(l.name||"-")+"<br>شماره: "+escapeHtml(l.phone||"-")+"<br>خدمت: "+escapeHtml(l.service||"-")+
     (l.projectType ? "<br>نوع پروژه: "+escapeHtml(l.projectType) : "") +
     (l.checkedUrl ? "<br>آدرس بررسی‌شده: "+escapeHtml(l.checkedUrl) : "") +
+    (l.domain ? "<br>دامنه: "+escapeHtml(l.domain) : "") +
     (l.score !== undefined && l.score !== null ? "<br>امتیاز: "+escapeHtml(String(l.score))+"/100" : "") +
     (Array.isArray(l.features) && l.features.length ? "<br>امکانات/مشکلات: "+escapeHtml(l.features.join("، ")) : "") +
     (l.message ? "<br>پیام: "+escapeHtml(l.message) : "") +

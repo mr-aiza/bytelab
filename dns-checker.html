@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>بررسی رکوردهای DNS دامنه | بایت‌لب</title>
+<meta name="description" content="آدرس دامنه‌ات رو وارد کن و رکوردهای A، AAAA، CNAME، MX، TXT، NS و SOA رو رایگان و در چند ثانیه ببین.">
+<link rel="canonical" href="https://bytelabpro.xyz/dns-checker.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="بایت‌لب">
+<meta property="og:title" content="بررسی رکوردهای DNS دامنه | بایت‌لب">
+<meta property="og:description" content="آدرس دامنه‌ات رو وارد کن و رکوردهای DNS رو رایگان و در چند ثانیه ببین.">
+<meta property="og:url" content="https://bytelabpro.xyz/dns-checker.html">
+<meta property="og:image" content="https://bytelabpro.xyz/favicon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="assets/bytelab-auth.js"></script>
+<style>
+  :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--radius:18px;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;width:100%;margin:0;padding:0;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  main{padding:24px 16px 60px;max-width:680px;margin-left:auto;margin-right:auto;}
+  .page-header{margin-bottom:32px;}
+  .sec-eyebrow{font-weight:700;font-size:12px;color:var(--violet);letter-spacing:.02em;margin-bottom:8px;display:block;text-transform:uppercase;}
+  h1{font-size:28px;font-weight:800;margin:0 0 12px;}
+  .sec-sub{color:var(--muted);font-size:14px;line-height:1.6;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+  .card h2{font-size:14px;color:var(--cyan);margin:0 0 14px;font-weight:700;}
+
+  .input-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  input[type=text],input[type=tel]{
+    flex:1;min-width:150px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;color:var(--paper);font-family:inherit;font-size:16px;
+  }
+  #dnsDomainInput{direction:ltr;text-align:left;}
+  input[type=text]:focus,input[type=tel]:focus{outline:2px solid var(--cyan);border-color:var(--cyan);}
+  button{background:var(--cyan);border:none;border-radius:10px;padding:12px 20px;color:var(--ink);font-weight:700;font-family:inherit;font-size:14px;cursor:pointer;white-space:nowrap;transition:transform .2s ease;}
+  button:hover{transform:translateY(-1px);}
+  button:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .hint{color:var(--muted);font-size:12px;margin-top:8px;}
+
+  .loading{display:none;text-align:center;padding:24px 0;color:var(--muted);}
+  .spinner{width:32px;height:32px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--cyan);margin:0 auto 10px;animation:spin 1s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .error{display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);color:#fca5a5;padding:12px 14px;border-radius:10px;margin-top:12px;font-size:13px;}
+
+  #result{margin-top:0;display:none;}
+  .rec-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+  .rec-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .rec-card-head b{font-size:13.5px;color:var(--cyan);}
+  .rec-card-head span{font-size:11px;color:var(--muted);}
+  .rec-rows{display:flex;flex-direction:column;gap:5px;}
+  .rec-row{display:flex;justify-content:space-between;gap:12px;font-family:'JetBrains Mono',monospace;font-size:12.5px;direction:ltr;text-align:left;background:var(--ink);border-radius:8px;padding:8px 10px;flex-wrap:wrap;}
+  .rec-row .ttl{color:var(--violet);min-width:60px;}
+  .rec-empty{color:var(--muted);font-size:12.5px;text-align:center;padding:4px;}
+
+  #requestCard{display:none;}
+  #requestCard .req-lead{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:18px;}
+  label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:6px;}
+  label .counter{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4c5a6b;}
+  .field{margin-bottom:16px;}
+  .field textarea{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:13px 14px;
+    color:var(--paper);font-family:'Vazirmatn',sans-serif;font-size:16px;outline:none;resize:vertical;min-height:90px;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .field input{width:100%;}
+  .field input,.field textarea{transition:border-color .2s ease, box-shadow .2s ease;}
+  .field input:focus,.field textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(77,240,201,.15);}
+  input::placeholder,textarea::placeholder{color:#4c5a6b;}
+  .field-error{display:none;font-size:12px;color:var(--danger);margin-top:6px;}
+  .field-error.show{display:block;}
+
+  .hp{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+  .submit-btn{
+    width:100%;background:linear-gradient(135deg,var(--cyan),var(--violet));color:var(--ink);font-weight:800;font-size:15px;
+    padding:14px;border:none;border-radius:12px;cursor:pointer;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;
+    transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;box-shadow:0 0 24px rgba(77,240,201,.25);
+  }
+  .submit-btn:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(77,240,201,.4);}
+  .submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .spinner-btn{width:15px;height:15px;border:2px solid rgba(7,11,18,.35);border-top-color:var(--ink);border-radius:50%;display:none;animation:spin .7s linear infinite;}
+  .submit-btn.loading .spinner-btn{display:inline-block;}
+  .statusMsg{margin-top:14px;font-size:13px;text-align:center;display:none;}
+  .statusMsg.show{display:block;}
+  .statusMsg.ok{color:var(--cyan);}
+  .statusMsg.err{color:var(--danger);}
+
+  @media (max-width:640px){
+    main{padding:16px 12px 40px;}
+    h1{font-size:24px;}
+    .card{padding:16px;}
+    input[type=text],input[type=tel]{font-size:16px;padding:12px;}
+    button{padding:12px 18px;font-size:14px;}
+    .field textarea,.field input{font-size:16px;}
+  }
+</style>
+</head>
+<body>
+<div id="siteHeaderPlaceholder"></div>
+<main>
+  <header class="page-header">
+    <span class="sec-eyebrow">🌐 ابزار</span>
+    <h1>بررسی رکوردهای DNS دامنه</h1>
+    <p class="sec-sub">دامنه‌ات رو وارد کن؛ رکوردهای A، AAAA، CNAME، MX، TXT، NS و SOA رو مستقیم از سرورهای DNS واقعی و رایگان می‌خونیم.</p>
+  </header>
+
+  <div class="card">
+    <h2>آدرس دامنه</h2>
+    <div class="input-row">
+      <input type="text" id="dnsDomainInput" placeholder="example.com" inputmode="url" autocomplete="off">
+      <button id="dnsCheckBtn">بررسی کن</button>
+    </div>
+    <div class="hint">فقط دامنه رو بنویس، بدون https://</div>
+    <div class="error" id="dnsErrorBox"></div>
+    <div class="loading" id="dnsLoadingBox">
+      <div class="spinner"></div>
+      در حال دریافت رکوردها...
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="card">
+      <h2>نتیجه بررسی</h2>
+      <div id="dnsRecCards"></div>
+    </div>
+  </div>
+
+  <!-- کارت درخواست فرم: دقیقاً به سبک site-health-checker.html / telegram/contact.html -->
+  <div class="card" id="requestCard">
+    <h2>می‌خوای DNS ات درست و اصولی تنظیم بشه؟</h2>
+    <p class="req-lead">تیم بایت‌لب می‌تونه رکوردهای دامنه‌ات رو تنظیم کنه یا مهاجرت هاست/ایمیلت رو انجام بده. اطلاعاتت رو بذار، به‌زودی تماس می‌گیریم.</p>
+
+    <form id="reqForm" novalidate>
+      <div class="field">
+        <label for="reqName">نام و نام‌خانوادگی</label>
+        <input type="text" id="reqName" name="name" placeholder="مثلاً علی احمدی" minlength="2" maxlength="60" required>
+        <div class="field-error" id="err-reqName">لطفاً نام و نام‌خانوادگی رو وارد کن.</div>
+      </div>
+      <div class="field">
+        <label for="reqPhone">شماره تماس</label>
+        <input type="tel" id="reqPhone" name="phone" placeholder="09xxxxxxxxx" dir="ltr" inputmode="numeric" pattern="^0?9\d{9}$" required>
+        <div class="field-error" id="err-reqPhone">شماره موبایل معتبر نیست (مثلاً 09123456789).</div>
+      </div>
+      <div class="field">
+        <label for="reqMsg">توضیح اضافه <span class="counter" id="reqMsgCounter">0/500</span></label>
+        <textarea id="reqMsg" name="message" placeholder="تنظیم DNS، مهاجرت هاست، رفع مشکل ایمیل و ..." maxlength="500"></textarea>
+      </div>
+
+      <!-- تله‌ی اسپم -->
+      <div class="hp" aria-hidden="true">
+        <label for="reqWebsite">وب‌سایت</label>
+        <input type="text" id="reqWebsite" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <button type="submit" class="submit-btn" id="reqSubmitBtn">
+        <span class="spinner-btn"></span>
+        <span class="btn-text">ارسال درخواست</span>
+      </button>
+      <div class="statusMsg" id="reqStatus" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+</main>
+
+<script src="header.js"></script>
+<script>
+/* ---------------------------------------------------------------------
+   بررسی DNS کاملاً سمت مرورگر انجام می‌شه — از DNS-over-HTTPS کلادفلر
+   استفاده می‌کنیم (cloudflare-dns.com/dns-query، فرمت JSON، CORS باز).
+   هیچ Workerی برای خود بررسی لازم نیست؛ فقط فرم درخواست به همون Worker
+   تلگرام موجود سایت می‌ره (دقیقاً همون endpoint که contact.html و
+   site-health-checker.html ازش استفاده می‌کنن — وورکر جدیدی ساخته نشده).
+   -------------------------------------------------------------------- */
+const DOH_ENDPOINT = 'https://cloudflare-dns.com/dns-query';
+const TELEGRAM_WORKER_URL = 'https://bytelab-telegram.bytelab.workers.dev/';
+const RECORD_TYPES = ['A', 'AAAA', 'CNAME', 'MX', 'TXT', 'NS', 'SOA'];
+const TYPE_LABELS = {
+  A: 'آدرس IPv4', AAAA: 'آدرس IPv6', CNAME: 'نام مستعار', MX: 'سرور ایمیل',
+  TXT: 'رکورد متنی', NS: 'سرور نام (DNS)', SOA: 'اطلاعات مرجع دامنه'
+};
+
+const dnsDomainInput = document.getElementById('dnsDomainInput');
+const dnsCheckBtn = document.getElementById('dnsCheckBtn');
+const dnsErrorBox = document.getElementById('dnsErrorBox');
+const dnsLoadingBox = document.getElementById('dnsLoadingBox');
+const dnsResultBox = document.getElementById('result');
+const dnsRecCards = document.getElementById('dnsRecCards');
+const requestCard = document.getElementById('requestCard');
+
+let lastCheckedDomain = '';
+let lastTotalFound = 0;
+
+function normalizeDomain(v){
+  v = v.trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '');
+  if (!v) return null;
+  if (!/^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63})+$/.test(v)) return null;
+  return v;
+}
+
+function setLoading(on){
+  dnsCheckBtn.disabled = on;
+  dnsLoadingBox.style.display = on ? 'block' : 'none';
+  if (on){ dnsErrorBox.style.display = 'none'; dnsResultBox.style.display = 'none'; requestCard.style.display = 'none'; }
+}
+
+async function queryRecord(domain, type){
+  const url = DOH_ENDPOINT + '?name=' + encodeURIComponent(domain) + '&type=' + type;
+  const res = await fetch(url, { headers: { 'Accept': 'application/dns-json' } });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.Answer || [];
+}
+
+function renderRecCard(type, answers){
+  const card = document.createElement('div');
+  card.className = 'rec-card';
+  const head = document.createElement('div');
+  head.className = 'rec-card-head';
+  head.innerHTML = `<b>${type} — ${TYPE_LABELS[type]}</b><span>${answers.length ? answers.length + ' مورد' : 'یافت نشد'}</span>`;
+  card.appendChild(head);
+
+  const rows = document.createElement('div');
+  rows.className = 'rec-rows';
+  if (!answers.length){
+    rows.innerHTML = '<div class="rec-empty">رکوردی از این نوع ثبت نشده.</div>';
+  } else {
+    answers.forEach(a => {
+      const row = document.createElement('div');
+      row.className = 'rec-row';
+      row.innerHTML = `<span class="ttl">TTL ${a.TTL}</span><span>${escapeHtml(a.data)}</span>`;
+      rows.appendChild(row);
+    });
+  }
+  card.appendChild(rows);
+  return card;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function runCheck(){
+  const domain = normalizeDomain(dnsDomainInput.value);
+  if (!domain){
+    dnsErrorBox.textContent = 'یه دامنه معتبر وارد کن (مثلاً example.com)';
+    dnsErrorBox.style.display = 'block';
+    return;
+  }
+  setLoading(true);
+  try{
+    const results = await Promise.all(RECORD_TYPES.map(type => queryRecord(domain, type).catch(() => [])));
+    dnsRecCards.innerHTML = '';
+    let totalFound = 0;
+    RECORD_TYPES.forEach((type, i) => {
+      totalFound += results[i].length;
+      dnsRecCards.appendChild(renderRecCard(type, results[i]));
+    });
+    lastCheckedDomain = domain;
+    lastTotalFound = totalFound;
+    dnsResultBox.style.display = 'block';
+    requestCard.style.display = 'block';
+    if (!totalFound){
+      dnsErrorBox.textContent = 'هیچ رکوردی پیدا نشد. مطمئنی دامنه درسته یا فعاله؟';
+      dnsErrorBox.style.display = 'block';
+    }
+  }catch(e){
+    dnsErrorBox.textContent = 'نتونستیم رکوردهای DNS رو بگیریم. دوباره امتحان کن.';
+    dnsErrorBox.style.display = 'block';
+  }finally{
+    setLoading(false);
+  }
+}
+dnsCheckBtn.addEventListener('click', runCheck);
+dnsDomainInput.addEventListener('keydown', e => { if (e.key === 'Enter') runCheck(); });
+
+// ==== فرم درخواست: دقیقاً به سبک site-health-checker.html / contact.html ====
+const reqForm = document.getElementById('reqForm');
+const reqBtn = document.getElementById('reqSubmitBtn');
+const reqBtnText = reqBtn.querySelector('.btn-text');
+const reqStatusEl = document.getElementById('reqStatus');
+const reqMsgEl = document.getElementById('reqMsg');
+const reqMsgCounter = document.getElementById('reqMsgCounter');
+const reqFields = ['reqName', 'reqPhone'];
+
+function reqShowStatus(text, type){ reqStatusEl.textContent = text; reqStatusEl.className = 'statusMsg show ' + type; }
+function reqClearFieldError(id){ const el = document.getElementById('err-' + id); if (el) el.classList.remove('show'); }
+function reqShowFieldError(id){ const el = document.getElementById('err-' + id); if (el) el.classList.add('show'); }
+function reqValidateField(id){
+  const el = document.getElementById(id);
+  const valid = el.checkValidity();
+  if (valid) reqClearFieldError(id); else reqShowFieldError(id);
+  return valid;
+}
+reqFields.forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('blur', () => reqValidateField(id));
+  el.addEventListener('input', () => reqClearFieldError(id));
+});
+reqMsgEl.addEventListener('input', () => { reqMsgCounter.textContent = reqMsgEl.value.length + '/500'; });
+
+reqForm.addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  const honeypot = document.getElementById('reqWebsite').value.trim();
+  if (honeypot){
+    reqShowStatus('درخواستت ثبت شد ✅ به‌زودی تماس می‌گیریم.', 'ok');
+    reqForm.reset();
+    return;
+  }
+
+  let allValid = true;
+  reqFields.forEach(id => { if (!reqValidateField(id)) allValid = false; });
+  if (!allValid){
+    reqShowStatus('لطفاً فیلدهای مشخص‌شده رو تکمیل کن.', 'err');
+    return;
+  }
+
+  const name = document.getElementById('reqName').value.trim();
+  const phone = document.getElementById('reqPhone').value.trim();
+  const message = reqMsgEl.value.trim();
+  const summary = `دامنه بررسی‌شده: ${lastCheckedDomain || '-'} | تعداد رکورد پیدا‌شده: ${lastTotalFound}`;
+  const description = [summary, message].filter(Boolean).join('\n');
+
+  reqBtn.disabled = true;
+  reqBtn.classList.add('loading');
+  reqBtnText.textContent = 'در حال ارسال...';
+  reqStatusEl.className = 'statusMsg';
+
+  try{
+    const res = await fetch(TELEGRAM_WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        type: 'dns_check_request',
+        name, phone,
+        domain: lastCheckedDomain,
+        message: description,
+        source: 'dns-checker.html'
+      })
+    });
+    if (!res.ok) throw new Error('bad status');
+    reqShowStatus('درخواستت ثبت شد ✅ به‌زودی باهات تماس می‌گیریم.', 'ok');
+    reqForm.reset();
+    reqMsgCounter.textContent = '0/500';
+  }catch(err){
+    reqShowStatus('ارسال با خطا مواجه شد. لطفاً دوباره تلاش کن یا مستقیم پیام بده.', 'err');
+  }finally{
+    reqBtn.disabled = false;
+    reqBtn.classList.remove('loading');
+    reqBtnText.textContent = 'ارسال درخواست';
+  }
+});
+
+// ==== اوتوفیل از پروفایل کاربر لاگین‌کرده ====
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    if (window.BytelabAuth && BytelabAuth.isLoggedIn()) {
+      const user = BytelabAuth.getUser();
+      if (user) {
+        const nameEl = document.getElementById('reqName');
+        const phoneEl = document.getElementById('reqPhone');
+        if (nameEl && user.name && !nameEl.value) nameEl.value = user.name;
+        if (phoneEl && user.phone && !phoneEl.value) phoneEl.value = user.phone;
+      }
+    }
+  }catch(e){ /* اگه اوتوفیل شکست خورد، فرم دستی هم قابل پرکردنه */ }
+
+  // اگه دامنه تو URL باشه (مثلاً ?d=example.com) خودکار پر و بررسی کن
+  const params = new URLSearchParams(location.search);
+  const d = params.get('d');
+  if (d) { dnsDomainInput.value = d; runCheck(); }
+});
+</script>
+</body>
+</html>

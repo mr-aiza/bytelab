@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>دامنه مال کیه؟ | استعلام WHOIS بایت‌لب</title>
+<meta name="description" content="آدرس دامنه رو وارد کن و ثبت‌کننده، تاریخ ثبت و انقضا، و سرورهای نام (Name Server) اونو رایگان ببین.">
+<link rel="canonical" href="https://bytelabpro.xyz/whois.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="بایت‌لب">
+<meta property="og:title" content="دامنه مال کیه؟ | استعلام WHOIS بایت‌لب">
+<meta property="og:description" content="ثبت‌کننده، تاریخ ثبت و انقضا و سرورهای نام دامنه رو رایگان استعلام بگیر.">
+<meta property="og:url" content="https://bytelabpro.xyz/whois.html">
+<meta property="og:image" content="https://bytelabpro.xyz/favicon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="assets/bytelab-auth.js"></script>
+<style>
+  :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--warn:#f2c14e;--radius:18px;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;width:100%;margin:0;padding:0;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:var(--cyan);}
+  main{padding:24px 16px 60px;max-width:680px;margin-left:auto;margin-right:auto;}
+  .page-header{margin-bottom:32px;}
+  .sec-eyebrow{font-weight:700;font-size:12px;color:var(--violet);letter-spacing:.02em;margin-bottom:8px;display:block;text-transform:uppercase;}
+  h1{font-size:28px;font-weight:800;margin:0 0 12px;}
+  .sec-sub{color:var(--muted);font-size:14px;line-height:1.6;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+  .card h2{font-size:14px;color:var(--cyan);margin:0 0 14px;font-weight:700;}
+
+  .input-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  input[type=text],input[type=tel]{
+    flex:1;min-width:150px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;color:var(--paper);font-family:inherit;font-size:16px;
+  }
+  #whDomainInput{direction:ltr;text-align:left;}
+  input[type=text]:focus,input[type=tel]:focus{outline:2px solid var(--cyan);border-color:var(--cyan);}
+  button{background:var(--cyan);border:none;border-radius:10px;padding:12px 20px;color:var(--ink);font-weight:700;font-family:inherit;font-size:14px;cursor:pointer;white-space:nowrap;transition:transform .2s ease;}
+  button:hover{transform:translateY(-1px);}
+  button:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .hint{color:var(--muted);font-size:12px;margin-top:8px;}
+
+  .loading{display:none;text-align:center;padding:24px 0;color:var(--muted);}
+  .spinner{width:32px;height:32px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--cyan);margin:0 auto 10px;animation:spin 1s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .error{display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);color:#fca5a5;padding:12px 14px;border-radius:10px;margin-top:12px;font-size:13px;}
+  .warn-box{display:none;background:rgba(242,193,78,.1);border:1px solid rgba(242,193,78,.4);color:var(--warn);padding:14px 16px;border-radius:10px;margin-top:12px;font-size:13px;line-height:1.9;}
+  .warn-box a{color:var(--cyan);font-weight:700;}
+
+  #result{margin-top:0;display:none;}
+  .wh-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .wh-head b{font-size:15px;font-family:'JetBrains Mono',monospace;direction:ltr;}
+  .badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px;background:rgba(255,138,138,.12);color:var(--danger);}
+  .badge.free{background:rgba(77,240,201,.12);color:var(--cyan);}
+  .wh-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media (max-width:520px){ .wh-grid{grid-template-columns:1fr;} }
+  .wh-field{background:var(--panel-2);border-radius:10px;padding:12px 14px;}
+  .wh-field span{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;}
+  .wh-field b{font-size:13px;font-family:'JetBrains Mono',monospace;direction:ltr;display:block;text-align:left;word-break:break-word;}
+  .wh-ns{margin-top:14px;}
+  .wh-ns > span{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;}
+  .wh-ns-list{display:flex;flex-wrap:wrap;gap:6px;}
+  .wh-ns-list b{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:var(--panel-2);padding:6px 10px;border-radius:8px;direction:ltr;font-weight:400;}
+
+  #requestCard{display:none;}
+  #requestCard .req-lead{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:18px;}
+  label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:6px;}
+  label .counter{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4c5a6b;}
+  .field{margin-bottom:16px;}
+  .field textarea{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:13px 14px;
+    color:var(--paper);font-family:'Vazirmatn',sans-serif;font-size:16px;outline:none;resize:vertical;min-height:90px;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .field input{width:100%;}
+  .field input,.field textarea{transition:border-color .2s ease, box-shadow .2s ease;}
+  .field input:focus,.field textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(77,240,201,.15);}
+  input::placeholder,textarea::placeholder{color:#4c5a6b;}
+  .field-error{display:none;font-size:12px;color:var(--danger);margin-top:6px;}
+  .field-error.show{display:block;}
+
+  .hp{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+  .submit-btn{
+    width:100%;background:linear-gradient(135deg,var(--cyan),var(--violet));color:var(--ink);font-weight:800;font-size:15px;
+    padding:14px;border:none;border-radius:12px;cursor:pointer;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;
+    transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;box-shadow:0 0 24px rgba(77,240,201,.25);
+  }
+  .submit-btn:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(77,240,201,.4);}
+  .submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .spinner-btn{width:15px;height:15px;border:2px solid rgba(7,11,18,.35);border-top-color:var(--ink);border-radius:50%;display:none;animation:spin .7s linear infinite;}
+  .submit-btn.loading .spinner-btn{display:inline-block;}
+  .statusMsg{margin-top:14px;font-size:13px;text-align:center;display:none;}
+  .statusMsg.show{display:block;}
+  .statusMsg.ok{color:var(--cyan);}
+  .statusMsg.err{color:var(--danger);}
+
+  @media (max-width:640px){
+    main{padding:16px 12px 40px;}
+    h1{font-size:24px;}
+    .card{padding:16px;}
+    input[type=text],input[type=tel]{font-size:16px;padding:12px;}
+    button{padding:12px 18px;font-size:14px;}
+    .field textarea,.field input{font-size:16px;}
+  }
+</style>
+</head>
+<body>
+<div id="siteHeaderPlaceholder"></div>
+<main>
+  <header class="page-header">
+    <span class="sec-eyebrow">🔎 ابزار</span>
+    <h1>دامنه مال کیه؟</h1>
+    <p class="sec-sub">دامنه رو وارد کن؛ ثبت‌کننده، تاریخ ثبت و انقضا، وضعیت فعلی و سرورهای نام رو نشون می‌دیم. برای خیلی از دامنه‌ها (به‌خصوص .ir) اطلاعات مالکیت به‌خاطر حریم خصوصی یا محدودیت رجیستری، محدود یا پنهانه.</p>
+  </header>
+
+  <div class="card">
+    <h2>آدرس دامنه</h2>
+    <div class="input-row">
+      <input type="text" id="whDomainInput" placeholder="example.com" inputmode="url" autocomplete="off">
+      <button id="whCheckBtn">استعلام بگیر</button>
+    </div>
+    <div class="hint">برای دامنه‌های .ir از <a href="https://whois.nic.ir" target="_blank" rel="noopener">whois.nic.ir</a> استفاده می‌شه؛ اینجا خودکار لینکش رو بهت می‌دیم.</div>
+    <div class="error" id="whErrorBox"></div>
+    <div class="warn-box" id="whWarnBox"></div>
+    <div class="loading" id="whLoadingBox">
+      <div class="spinner"></div>
+      در حال استعلام...
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="card">
+      <div class="wh-head">
+        <b id="whDomainName"></b>
+        <span class="badge" id="whBadge"></span>
+      </div>
+      <div class="wh-grid">
+        <div class="wh-field"><span>ثبت‌کننده (Registrar)</span><b id="whRegistrar">—</b></div>
+        <div class="wh-field"><span>تاریخ ثبت</span><b id="whCreated">—</b></div>
+        <div class="wh-field"><span>تاریخ انقضا</span><b id="whExpires">—</b></div>
+        <div class="wh-field"><span>آخرین به‌روزرسانی</span><b id="whUpdated">—</b></div>
+      </div>
+      <div class="wh-ns">
+        <span>سرورهای نام (Name Servers)</span>
+        <div class="wh-ns-list" id="whNsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- کارت درخواست فرم: دقیقاً به سبک site-health-checker.html / telegram/contact.html -->
+  <div class="card" id="requestCard">
+    <h2>می‌خوای این دامنه رو بخری، منتقل کنی یا سایت روش راه بندازی؟</h2>
+    <p class="req-lead">اطلاعاتت رو بذار، تیم بایت‌لب باهات تماس می‌گیره و کل مراحل خرید/انتقال دامنه یا راه‌اندازی سایت رو برات انجام می‌ده.</p>
+
+    <form id="reqForm" novalidate>
+      <div class="field">
+        <label for="reqName">نام و نام‌خانوادگی</label>
+        <input type="text" id="reqName" name="name" placeholder="مثلاً علی احمدی" minlength="2" maxlength="60" required>
+        <div class="field-error" id="err-reqName">لطفاً نام و نام‌خانوادگی رو وارد کن.</div>
+      </div>
+      <div class="field">
+        <label for="reqPhone">شماره تماس</label>
+        <input type="tel" id="reqPhone" name="phone" placeholder="09xxxxxxxxx" dir="ltr" inputmode="numeric" pattern="^0?9\d{9}$" required>
+        <div class="field-error" id="err-reqPhone">شماره موبایل معتبر نیست (مثلاً 09123456789).</div>
+      </div>
+      <div class="field">
+        <label for="reqMsg">توضیح اضافه <span class="counter" id="reqMsgCounter">0/500</span></label>
+        <textarea id="reqMsg" name="message" placeholder="خرید دامنه، انتقال، راه‌اندازی سایت و ..." maxlength="500"></textarea>
+      </div>
+
+      <!-- تله‌ی اسپم -->
+      <div class="hp" aria-hidden="true">
+        <label for="reqWebsite">وب‌سایت</label>
+        <input type="text" id="reqWebsite" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <button type="submit" class="submit-btn" id="reqSubmitBtn">
+        <span class="spinner-btn"></span>
+        <span class="btn-text">ارسال درخواست</span>
+      </button>
+      <div class="statusMsg" id="reqStatus" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+</main>
+
+<script src="header.js"></script>
+<script>
+/* ---------------------------------------------------------------------
+   استعلام WHOIS از طریق RDAP (جایگزین رایگان و بدون کلید WHOIS) روی
+   همون Worker حساب‌کاربری موجود سایت (bytelab-users) پروکسی می‌شه —
+   دقیقاً همون الگویی که audit.html برای /api/audit استفاده می‌کنه.
+   -------------------------------------------------------------------- */
+const API_ENDPOINT = 'https://bytelab-users.bytelab.workers.dev/api/whois';
+const TELEGRAM_WORKER_URL = 'https://bytelab-telegram.bytelab.workers.dev/';
+
+const whDomainInput = document.getElementById('whDomainInput');
+const whCheckBtn = document.getElementById('whCheckBtn');
+const whErrorBox = document.getElementById('whErrorBox');
+const whWarnBox = document.getElementById('whWarnBox');
+const whLoadingBox = document.getElementById('whLoadingBox');
+const whResultBox = document.getElementById('result');
+const requestCard = document.getElementById('requestCard');
+
+let lastCheckedDomain = '';
+
+function normalizeDomain(v){
+  v = v.trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '');
+  if (!v) return null;
+  if (!/^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63})+$/.test(v)) return null;
+  return v;
+}
+
+function setLoading(on){
+  whCheckBtn.disabled = on;
+  whLoadingBox.style.display = on ? 'block' : 'none';
+  if (on){ whErrorBox.style.display = 'none'; whWarnBox.style.display = 'none'; whResultBox.style.display = 'none'; requestCard.style.display = 'none'; }
+}
+
+function fmtDate(iso){
+  if (!iso) return '—';
+  try{ return new Date(iso).toLocaleDateString('fa-IR', { year:'numeric', month:'long', day:'numeric' }); }
+  catch(e){ return iso; }
+}
+
+function showFallback(domain){
+  whWarnBox.innerHTML = '⚠ اطلاعات این دامنه از طریق استعلام خودکار در دسترس نیست (معمولاً برای دامنه‌های .ir یا برخی رجیستری‌های خاص). برای بررسی دستی از <a href="https://whois.nic.ir/?domain=' + encodeURIComponent(domain) + '" target="_blank" rel="noopener">whois.nic.ir</a> استفاده کن.';
+  whWarnBox.style.display = 'block';
+  requestCard.style.display = 'block';
+}
+
+async function runCheck(){
+  const domain = normalizeDomain(whDomainInput.value);
+  if (!domain){
+    whErrorBox.textContent = 'یه دامنه معتبر وارد کن (مثلاً example.com)';
+    whErrorBox.style.display = 'block';
+    return;
+  }
+  setLoading(true);
+  lastCheckedDomain = domain;
+  try{
+    const res = await fetch(API_ENDPOINT + '?domain=' + encodeURIComponent(domain));
+    let data;
+    try{ data = await res.json(); }catch(e){ throw new Error('پاسخ سرور معتبر نبود'); }
+    if (!res.ok || data.error) throw new Error(data.error || 'خطای سرور');
+
+    if (data.unsupported){
+      showFallback(domain);
+      return;
+    }
+
+    document.getElementById('whDomainName').textContent = domain;
+    const badge = document.getElementById('whBadge');
+    if (data.registered === false){
+      badge.textContent = 'آزاد — هنوز ثبت نشده';
+      badge.className = 'badge free';
+    } else {
+      badge.textContent = 'ثبت‌شده';
+      badge.className = 'badge';
+    }
+    document.getElementById('whRegistrar').textContent = data.registrar || 'نامشخص / خصوصی';
+    document.getElementById('whCreated').textContent = fmtDate(data.createdDate);
+    document.getElementById('whExpires').textContent = fmtDate(data.expiresDate);
+    document.getElementById('whUpdated').textContent = fmtDate(data.updatedDate);
+
+    const nsList = document.getElementById('whNsList');
+    nsList.innerHTML = '';
+    const servers = data.nameServers || [];
+    if (!servers.length){
+      nsList.innerHTML = '<b>ثبت نشده</b>';
+    } else {
+      servers.forEach(ns => { const b = document.createElement('b'); b.textContent = ns; nsList.appendChild(b); });
+    }
+
+    whResultBox.style.display = 'block';
+    requestCard.style.display = 'block';
+  }catch(e){
+    showFallback(domain);
+  }finally{
+    setLoading(false);
+  }
+}
+whCheckBtn.addEventListener('click', runCheck);
+whDomainInput.addEventListener('keydown', e => { if (e.key === 'Enter') runCheck(); });
+
+// ==== فرم درخواست: دقیقاً به سبک site-health-checker.html / contact.html ====
+const reqForm = document.getElementById('reqForm');
+const reqBtn = document.getElementById('reqSubmitBtn');
+const reqBtnText = reqBtn.querySelector('.btn-text');
+const reqStatusEl = document.getElementById('reqStatus');
+const reqMsgEl = document.getElementById('reqMsg');
+const reqMsgCounter = document.getElementById('reqMsgCounter');
+const reqFields = ['reqName', 'reqPhone'];
+
+function reqShowStatus(text, type){ reqStatusEl.textContent = text; reqStatusEl.className = 'statusMsg show ' + type; }
+function reqClearFieldError(id){ const el = document.getElementById('err-' + id); if (el) el.classList.remove('show'); }
+function reqShowFieldError(id){ const el = document.getElementById('err-' + id); if (el) el.classList.add('show'); }
+function reqValidateField(id){
+  const el = document.getElementById(id);
+  const valid = el.checkValidity();
+  if (valid) reqClearFieldError(id); else reqShowFieldError(id);
+  return valid;
+}
+reqFields.forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('blur', () => reqValidateField(id));
+  el.addEventListener('input', () => reqClearFieldError(id));
+});
+reqMsgEl.addEventListener('input', () => { reqMsgCounter.textContent = reqMsgEl.value.length + '/500'; });
+
+reqForm.addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  const honeypot = document.getElementById('reqWebsite').value.trim();
+  if (honeypot){
+    reqShowStatus('درخواستت ثبت شد ✅ به‌زودی تماس می‌گیریم.', 'ok');
+    reqForm.reset();
+    return;
+  }
+
+  let allValid = true;
+  reqFields.forEach(id => { if (!reqValidateField(id)) allValid = false; });
+  if (!allValid){
+    reqShowStatus('لطفاً فیلدهای مشخص‌شده رو تکمیل کن.', 'err');
+    return;
+  }
+
+  const name = document.getElementById('reqName').value.trim();
+  const phone = document.getElementById('reqPhone').value.trim();
+  const message = reqMsgEl.value.trim();
+  const description = ['دامنه: ' + (lastCheckedDomain || whDomainInput.value.trim() || '-'), message].filter(Boolean).join('\n');
+
+  reqBtn.disabled = true;
+  reqBtn.classList.add('loading');
+  reqBtnText.textContent = 'در حال ارسال...';
+  reqStatusEl.className = 'statusMsg';
+
+  try{
+    const res = await fetch(TELEGRAM_WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        type: 'whois_lookup_lead',
+        name, phone,
+        domain: lastCheckedDomain || whDomainInput.value.trim(),
+        message: description,
+        source: 'whois.html'
+      })
+    });
+    if (!res.ok) throw new Error('bad status');
+    reqShowStatus('درخواستت ثبت شد ✅ به‌زودی باهات تماس می‌گیریم.', 'ok');
+    reqForm.reset();
+    reqMsgCounter.textContent = '0/500';
+  }catch(err){
+    reqShowStatus('ارسال با خطا مواجه شد. لطفاً دوباره تلاش کن یا مستقیم پیام بده.', 'err');
+  }finally{
+    reqBtn.disabled = false;
+    reqBtn.classList.remove('loading');
+    reqBtnText.textContent = 'ارسال درخواست';
+  }
+});
+
+// ==== اوتوفیل از پروفایل کاربر لاگین‌کرده ====
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    if (window.BytelabAuth && BytelabAuth.isLoggedIn()) {
+      const user = BytelabAuth.getUser();
+      if (user) {
+        const nameEl = document.getElementById('reqName');
+        const phoneEl = document.getElementById('reqPhone');
+        if (nameEl && user.name && !nameEl.value) nameEl.value = user.name;
+        if (phoneEl && user.phone && !phoneEl.value) phoneEl.value = user.phone;
+      }
+    }
+  }catch(e){ /* اگه اوتوفیل شکست خورد، فرم دستی هم قابل پرکردنه */ }
+
+  const params = new URLSearchParams(location.search);
+  const d = params.get('d');
+  if (d) { whDomainInput.value = d; runCheck(); }
+});
+</script>
+</body>
+</html>

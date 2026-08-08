@@ -501,6 +501,93 @@ async function handleAudit(request, env) {
 }
 
 // ============================================================
+//  استعلام WHOIS دامنه (whois.html) — از طریق RDAP (جایگزین رایگان
+//  و بدون کلید WHOIS)، چون سرورهای RDAP معمولاً CORS مستقیم به
+//  مرورگر نمی‌دن و باید از سمت Worker پروکسی بشه.
+//  TLDهایی مثل .ir معمولاً RDAP عمومی ندارن → پاسخ { unsupported:true }
+//  تا کلاینت خودش کاربر رو به whois.nic.ir هدایت کنه.
+// ============================================================
+const WHOIS_UNSUPPORTED_TLDS = ["ir"];
+
+async function handleWhois(request, env) {
+  const { searchParams } = new URL(request.url);
+  const domain = (searchParams.get("domain") || "").trim().toLowerCase();
+
+  if (!domain || !/^(?!-)[a-z0-9-]{1,63}(?<!-)(\.[a-z0-9-]{1,63})+$/.test(domain)) {
+    return jsonResponse({ error: "دامنه نامعتبر است" }, 400, env);
+  }
+
+  // ---- محدودیت نرخ ساده بر اساس IP (۲۰ استعلام در روز) ----
+  try {
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    const today = new Date().toISOString().slice(0, 10);
+    const rlKey = `whoisrl:${ip}:${today}`;
+    const current = parseInt((await env.USERS_KV.get(rlKey)) || "0", 10);
+    if (current >= 20) {
+      return jsonResponse({ error: "تعداد استعلام‌های امروز شما زیاده. فردا دوباره امتحان کن." }, 429, env);
+    }
+    await env.USERS_KV.put(rlKey, String(current + 1), { expirationTtl: 86400 });
+  } catch (e) {
+    // اگه KV مشکل داشت، جلوی خود استعلام رو نمی‌گیریم
+  }
+
+  const tld = domain.split(".").pop();
+  if (WHOIS_UNSUPPORTED_TLDS.includes(tld)) {
+    return jsonResponse({ unsupported: true }, 200, env);
+  }
+
+  try {
+    // rdap.org یه bootstrap عمومیه که خودش به سرور RDAP درست برای اون
+    // TLD ریدایرکت می‌کنه — نیازی به نگه‌داشتن دیتابیس TLD→سرور نیست.
+    const rdapRes = await fetch("https://rdap.org/domain/" + domain, {
+      headers: { Accept: "application/rdap+json", "User-Agent": "ByteLabWhoisBot/1.0 (+https://bytelabpro.xyz)" },
+      cf: { cacheTtl: 3600, cacheEverything: true },
+    });
+
+    if (rdapRes.status === 404) {
+      return jsonResponse({ registered: false }, 200, env);
+    }
+    if (!rdapRes.ok) {
+      return jsonResponse({ unsupported: true }, 200, env);
+    }
+
+    const data = await rdapRes.json();
+    const events = data.events || [];
+    const findEvent = (action) => {
+      const e = events.find((ev) => ev.eventAction === action);
+      return e ? e.eventDate : null;
+    };
+
+    const registrarEntity = (data.entities || []).find((e) => (e.roles || []).includes("registrar"));
+    let registrarName = null;
+    if (registrarEntity) {
+      try {
+        const props = (registrarEntity.vcardArray && registrarEntity.vcardArray[1]) || [];
+        const fn = props.find((p) => p[0] === "fn");
+        registrarName = fn ? fn[3] : registrarEntity.handle || null;
+      } catch (e) {
+        registrarName = registrarEntity.handle || null;
+      }
+    }
+
+    return jsonResponse(
+      {
+        registered: true,
+        registrar: registrarName,
+        createdDate: findEvent("registration"),
+        expiresDate: findEvent("expiration"),
+        updatedDate: findEvent("last changed") || findEvent("last update of RDAP database"),
+        nameServers: (data.nameservers || []).map((ns) => (ns.ldhName || "").toLowerCase()),
+      },
+      200,
+      env
+    );
+  } catch (err) {
+    return jsonResponse({ unsupported: true }, 200, env);
+  }
+}
+
+// ============================================================
 //  روتر اصلی
 // ============================================================
 export default {
@@ -527,6 +614,7 @@ export default {
       if (url.pathname === "/api/admin/users/toggle-access" && request.method === "POST") return await handleAdminToggleAccess(request, env);
 
       if (url.pathname === "/api/audit" && request.method === "GET") return await handleAudit(request, env);
+      if (url.pathname === "/api/whois" && request.method === "GET") return await handleWhois(request, env);
 
       return jsonResponse({ error: "not found" }, 404, env);
     } catch (err) {
