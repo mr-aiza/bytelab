@@ -821,12 +821,12 @@ async function getDashboardData(env) {
   const isToday = (ts) =>
     new Date(ts).toLocaleDateString("fa-IR-u-ca-gregory", { timeZone: "Asia/Tehran" }) === today;
 
-  const newLeadsToday = leads.filter((l) => ["contact", "profile", "site_health_request", "project_estimate"].includes(l.type) && isToday(l.createdAt)).length;
+  const newLeadsToday = leads.filter((l) => ["contact", "profile", "site_health_request", "project_estimate", "dns_check_request", "whois_lookup_lead"].includes(l.type) && isToday(l.createdAt)).length;
   const portfolioToday = portfolioItems.filter((p) => isToday(p.createdAt)).length;
   const blogToday = blogPosts.filter((b) => isToday(b.createdAt)).length;
 
   const pendingLeads = leads.filter(
-    (l) => ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate"].includes(l.type) && (!l.status || l.status === "new" || l.status === "later")
+    (l) => ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate", "dns_check_request", "whois_lookup_lead"].includes(l.type) && (!l.status || l.status === "new" || l.status === "later")
   ).length;
   const pendingPortfolio = portfolioItems.filter((p) => p.status === "pending").length;
 
@@ -926,7 +926,7 @@ async function sendFullStats(env, chatId) {
 
   const inRange = (arr, ms) => arr.filter((x) => now - x.createdAt <= ms).length;
 
-  const leadTypes = ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate"];
+  const leadTypes = ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate", "dns_check_request", "whois_lookup_lead"];
   const relevantLeads = leads.filter((l) => leadTypes.includes(l.type));
 
   const contacted = leads.filter((l) => l.status === "contacted").length;
@@ -971,7 +971,7 @@ async function countBlogPosts(env) {
 // ---- 📤 خروجی لیدها به‌صورت فایل متنی ----
 async function exportLeadsFile(env, chatId) {
   const leads = await getAllLeads(env);
-  const relevant = leads.filter((l) => ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate"].includes(l.type));
+  const relevant = leads.filter((l) => ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate", "dns_check_request", "whois_lookup_lead"].includes(l.type));
 
   if (relevant.length === 0) {
     await tgSendTo(env, chatId, "هیچ لیدی برای خروجی گرفتن وجود نداره.");
@@ -1343,7 +1343,7 @@ async function askFaqService(env, chatId) {
 
 async function sendLeadsList(env, chatId) {
   const leads = (await getAllLeads(env))
-    .filter((l) => ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate"].includes(l.type))
+    .filter((l) => ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate", "dns_check_request", "whois_lookup_lead"].includes(l.type))
     .slice(0, 10);
   if (leads.length === 0) {
     await tgSendTo(env, chatId, "هنوز هیچ لیدی ثبت نشده.");
@@ -1358,6 +1358,8 @@ async function sendLeadsList(env, chatId) {
     if (l.type === "abandoned_form") msg += `   🕓 ${l.name || "-"} | 📞 ${l.phone || "-"} (رهاشده)\n`;
     if (l.type === "site_health_request") msg += `   🩺 ${l.name || "-"} | 📞 ${l.phone || "-"} (بررسی سلامت سایت)\n`;
     if (l.type === "project_estimate") msg += `   📐 ${l.name || "-"} | 📞 ${l.phone || "-"} | ${l.projectType || "-"}\n`;
+    if (l.type === "dns_check_request") msg += `   🌐 ${l.name || "-"} | 📞 ${l.phone || "-"} | دامنه: ${l.domain || "-"} (بررسی DNS)\n`;
+    if (l.type === "whois_lookup_lead") msg += `   🔎 ${l.name || "-"} | 📞 ${l.phone || "-"} | دامنه: ${l.domain || "-"} (پیگیری WHOIS)\n`;
     if (l.note) msg += `   📝 ${l.note}\n`;
     msg += `   🕐 ${date}\n\n`;
   });
@@ -1366,7 +1368,7 @@ async function sendLeadsList(env, chatId) {
 
 // ---- 🔍 جستجوی لید بر اساس اسم/تلفن/ایمیل ----
 async function searchLeads(env, chatId, query) {
-  const leads = (await getAllLeads(env)).filter((l) => ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate"].includes(l.type));
+  const leads = (await getAllLeads(env)).filter((l) => ["contact", "profile", "abandoned_form", "site_health_request", "project_estimate", "dns_check_request", "whois_lookup_lead"].includes(l.type));
   const q = query.toLowerCase().trim();
   const results = leads
     .filter(
@@ -2622,6 +2624,8 @@ export default {
         abandoned_form: { max: 10, windowSeconds: 3600 },
         site_health_request: { max: 5, windowSeconds: 3600 },
         project_estimate: { max: 5, windowSeconds: 3600 },
+        dns_check_request: { max: 5, windowSeconds: 3600 },
+        whois_lookup_lead: { max: 5, windowSeconds: 3600 },
       };
       const rl = RATE_LIMITS[data.type];
       if (rl) {
@@ -2724,6 +2728,22 @@ export default {
           `💰 برآورد داخلی: ${priceText}\n` +
           `⏱ زمان تحویل: ${data.internalEstimateDays ?? "-"} روز\n` +
           (data.description ? `📝 توضیحات: ${data.description}\n` : "");
+      } else if (data.type === "dns_check_request") {
+        isLead = true; withButtons = true;
+        text =
+          `🌐 درخواست بررسی/تنظیم DNS\n\n` +
+          `👤 نام: ${data.name || "-"}\n` +
+          `📞 شماره: ${data.phone || "-"}\n` +
+          `🔗 دامنه: ${data.domain || "-"}\n` +
+          `💬 پیام: ${data.message || "-"}`;
+      } else if (data.type === "whois_lookup_lead") {
+        isLead = true; withButtons = true;
+        text =
+          `🔎 پیگیری دامنه (WHOIS)\n\n` +
+          `👤 نام: ${data.name || "-"}\n` +
+          `📞 شماره: ${data.phone || "-"}\n` +
+          `🔗 دامنه: ${data.domain || "-"}\n` +
+          `💬 پیام: ${data.message || "-"}`;
       } else {
         text = `📦 داده دریافتی:\n${JSON.stringify(data, null, 2)}`;
       }
@@ -2808,7 +2828,7 @@ async function checkFollowUps(env) {
   const now = Date.now();
 
   for (const lead of leads) {
-    if (!["contact", "profile", "abandoned_form", "site_health_request", "project_estimate"].includes(lead.type)) continue;
+    if (!["contact", "profile", "abandoned_form", "site_health_request", "project_estimate", "dns_check_request", "whois_lookup_lead"].includes(lead.type)) continue;
 
     if (lead.status === "later") {
       if (!lead.reminded && lead.snoozeUntil && now > lead.snoozeUntil) {
