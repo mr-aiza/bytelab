@@ -57,6 +57,8 @@ STATIC_PAGES = [
     ("whois.html", "0.5", "monthly"),
     ("dev-tools.html", "0.5", "monthly"),
     ("ip-tools.html", "0.5", "monthly"),
+    ("image-converter.html", "0.5", "monthly"),
+    ("pdf-tools.html", "0.5", "monthly"),
     ("qr.html", "0.5", "monthly"),
     ("invoice.html", "0.5", "monthly"),
     ("portfolio/zarrin-gallery-gold-shop.html", "0.5", "monthly"),
