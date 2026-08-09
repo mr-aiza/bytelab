@@ -332,7 +332,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     {
       group: true,
       text: "ابزارها",
-      match: ["playground.html", "editor.html", "audit.html", "qr.html", "invoice.html", "site-health-checker.html", "project-estimator.html", "image-compressor.html", "dns-checker.html", "whois.html", "dev-tools.html", "ip-tools.html"],
+      match: ["playground.html", "editor.html", "audit.html", "qr.html", "invoice.html", "site-health-checker.html", "project-estimator.html", "image-compressor.html", "dns-checker.html", "whois.html", "dev-tools.html", "ip-tools.html", "image-converter.html", "pdf-tools.html"],
       children: [
         { href: "playground.html", text: "پلی‌گراند کد زنده", icon: "⚡", match: ["playground.html"] },
         { href: "editor.html", text: "ویرایش آنلاین قالب", icon: "🛠️", match: ["editor.html"] },
@@ -345,7 +345,9 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
         { href: "qr.html", text: "QR کد ساز", icon: "📱", match: ["qr.html"] },
         { href: "invoice.html", text: "فاکتور ساز", icon: "🧾", match: ["invoice.html"] },
         { href: "project-estimator.html", text: "برآورد هزینه پروژه", icon: "📐", match: ["project-estimator.html"] },
-        { href: "image-compressor.html", text: "فشرده‌سازی تصویر", icon: "🖼️", match: ["image-compressor.html"] }
+        { href: "image-compressor.html", text: "فشرده‌سازی تصویر", icon: "🖼️", match: ["image-compressor.html"] },
+        { href: "image-converter.html", text: "تبدیل فرمت تصویر", icon: "🔄", match: ["image-converter.html"] },
+        { href: "pdf-tools.html", text: "ابزار PDF", icon: "📄", match: ["pdf-tools.html"] }
       ]
     },
     {
@@ -790,6 +792,8 @@ ${quickDockHTML}
       "whois.html": "دامنه مال کیه (WHOIS)",
       "dev-tools.html": "ابزارهای توسعه‌دهنده",
       "ip-tools.html": "بررسی آی‌پی",
+      "image-converter.html": "تبدیل فرمت تصویر",
+      "pdf-tools.html": "ابزار PDF",
       "qr.html": "QR کد ساز",
       "invoice.html": "فاکتور ساز",
       "project-estimator.html": "برآورد هزینه پروژه",

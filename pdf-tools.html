@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ابزار PDF | بایت‌لب</title>
+<meta name="description" content="عکس رو به PDF تبدیل کن، صفحات PDF رو به عکس تبدیل کن، یا چند PDF رو با هم ادغام کن؛ رایگان و کاملاً تو مرورگر.">
+<link rel="canonical" href="https://bytelabpro.xyz/pdf-tools.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ابزار PDF | بایت‌لب">
+<meta property="og:description" content="عکس به PDF، PDF به عکس، ادغام چند PDF؛ رایگان و کاملاً تو مرورگر.">
+<meta property="og:url" content="https://bytelabpro.xyz/pdf-tools.html">
+<meta property="og:image" content="https://bytelabpro.xyz/favicon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--radius:18px;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;min-height:100vh;padding-bottom:60px;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:var(--cyan);text-decoration:none;}
+  .wrap{max-width:900px;margin:0 auto;padding:0 24px;}
+
+  .hero{padding:60px 0 30px;}
+  .hero-tag{font-weight:700;font-size:13px;color:var(--violet);display:inline-block;margin-bottom:12px;}
+  .hero h1{font-size:clamp(26px,3vw,38px);font-weight:900;margin-bottom:14px;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .hero p{font-size:15.5px;color:var(--muted);max-width:640px;line-height:1.9;}
+
+  .tools-tabs{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap;}
+  .tool-tab{flex:1;min-width:130px;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:13px;cursor:pointer;color:var(--muted);transition:all .2s;font-weight:600;}
+  .tool-tab.active{background:var(--cyan);color:var(--ink);border-color:transparent;}
+  .tool-panel{display:none;}
+  .tool-panel.active{display:block;}
+
+  .upload-zone{
+    border:2px dashed var(--line);border-radius:20px;padding:40px 24px;text-align:center;
+    background:rgba(77,240,201,.02);cursor:pointer;transition:all .3s ease;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .upload-zone:hover, .upload-zone.active{border-color:var(--cyan);background:rgba(77,240,201,.06);}
+  .upload-zone input{display:none;}
+  .upload-icon{font-size:40px;margin-bottom:10px;}
+  .upload-text{color:var(--muted);font-size:14px;margin-bottom:6px;}
+  .upload-hint{font-size:12px;color:var(--muted);opacity:.8;}
+
+  .file-list{margin-top:20px;display:flex;flex-direction:column;gap:8px;}
+  .file-row{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:12px;}
+  .file-thumb{width:40px;height:40px;border-radius:8px;object-fit:cover;background:var(--panel-2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .file-meta{flex:1;min-width:0;}
+  .file-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .file-sub{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;direction:ltr;text-align:left;}
+  .file-order{display:flex;flex-direction:column;gap:2px;}
+  .file-order button{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;width:22px;height:20px;font-size:11px;cursor:pointer;}
+  .file-order button:hover{border-color:var(--cyan);color:var(--cyan);}
+  .file-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px;}
+  .file-remove:hover{color:var(--danger);}
+
+  .info-box{background:rgba(77,240,201,.06);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:12.5px;color:var(--muted);line-height:1.8;margin-top:16px;}
+  .info-box b{color:var(--paper);}
+
+  .btn{border:none;border-radius:999px;padding:12px 24px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s ease;display:inline-flex;align-items:center;gap:8px;}
+  .btn-primary{background:var(--cyan);color:#06120f;box-shadow:0 0 24px rgba(77,240,201,.3);}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 32px rgba(77,240,201,.5);}
+  .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .btn-secondary{background:transparent;color:var(--cyan);border:1px solid var(--cyan);}
+  .btn-secondary:hover{background:rgba(77,240,201,.1);}
+  .button-group{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
+
+  .msg{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:14px;display:none;align-items:center;gap:8px;}
+  .msg.show{display:flex;}
+  .msg-error{background:rgba(255,138,138,.1);color:var(--danger);border:1px solid rgba(255,138,138,.3);}
+  .msg-success{background:rgba(77,240,201,.1);color:var(--cyan);border:1px solid rgba(77,240,201,.3);}
+
+  .page-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:20px;}
+  .page-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;text-align:center;}
+  .page-card img{width:100%;display:block;background:#fff;}
+  .page-card span{display:block;font-size:11px;color:var(--muted);padding:6px 0;}
+  .page-card a{display:block;font-size:11px;color:var(--cyan);padding-bottom:8px;}
+
+  .footer{text-align:center;padding:40px 0 0;color:var(--muted);font-size:13px;}
+
+  @media (max-width:640px){
+    .hero{padding:40px 0 24px;}
+    .upload-zone{padding:28px 16px;}
+    .tool-tab{font-size:12px;padding:9px 8px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="siteHeaderPlaceholder"></div>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="hero-tag">📄 ابزار PDF</span>
+    <h1>عکس به PDF، PDF به عکس، ادغام PDF</h1>
+    <p>سه ابزار PDF کاملاً رایگان و تو مرورگر — هیچ فایلی آپلود یا روی سرور ذخیره نمی‌شه.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="tools-tabs" id="pdfTabs">
+    <div class="tool-tab active" data-panel="img2pdf">عکس ← PDF</div>
+    <div class="tool-tab" data-panel="pdf2img">PDF ← عکس</div>
+    <div class="tool-tab" data-panel="merge">ادغام PDF</div>
+  </div>
+
+  <div class="msg msg-error" id="errMsg"></div>
+  <div class="msg msg-success" id="okMsg"></div>
+
+  <!-- ================= عکس به PDF ================= -->
+  <div class="tool-panel active" id="panel-img2pdf">
+    <label class="upload-zone" id="imgZone">
+      <input type="file" id="imgInput" accept="image/*" multiple>
+      <div class="upload-icon">📤</div>
+      <div class="upload-text">عکس‌ها رو اینجا بیانداز یا کلیک کن</div>
+      <div class="upload-hint">می‌تونی چند عکس انتخاب کنی؛ هر عکس یه صفحه‌ی PDF می‌شه</div>
+    </label>
+    <div class="file-list" id="imgFileList"></div>
+    <div class="info-box"><b>ترتیب صفحات:</b> با فلش‌های کنار هر عکس می‌تونی جاش رو تو PDF نهایی جابه‌جا کنی.</div>
+    <div class="button-group">
+      <button type="button" class="btn btn-primary" id="makePdfBtn" disabled>📄 ساخت PDF</button>
+      <button type="button" class="btn btn-secondary" id="resetImgBtn" style="display:none;">🔄 ریست</button>
+    </div>
+  </div>
+
+  <!-- ================= PDF به عکس ================= -->
+  <div class="tool-panel" id="panel-pdf2img">
+    <label class="upload-zone" id="pdfZone">
+      <input type="file" id="pdfInput" accept="application/pdf">
+      <div class="upload-icon">📄</div>
+      <div class="upload-text">فایل PDF رو اینجا بیانداز یا کلیک کن</div>
+      <div class="upload-hint">هر صفحه‌ی PDF به‌صورت یه فایل PNG جدا تبدیل می‌شه</div>
+    </label>
+    <div id="pdfFileInfo" class="file-sub" style="margin-top:10px;"></div>
+    <div class="button-group">
+      <button type="button" class="btn btn-primary" id="renderPdfBtn" disabled>🖼️ تبدیل به عکس</button>
+      <button type="button" class="btn btn-secondary" id="zipPagesBtn" style="display:none;">📦 دانلود همه (ZIP)</button>
+      <button type="button" class="btn btn-secondary" id="resetPdfBtn" style="display:none;">🔄 ریست</button>
+    </div>
+    <div class="page-grid" id="pageGrid"></div>
+  </div>
+
+  <!-- ================= ادغام PDF ================= -->
+  <div class="tool-panel" id="panel-merge">
+    <label class="upload-zone" id="mergeZone">
+      <input type="file" id="mergeInput" accept="application/pdf" multiple>
+      <div class="upload-icon">🗂️</div>
+      <div class="upload-text">چند فایل PDF رو اینجا بیانداز یا کلیک کن</div>
+      <div class="upload-hint">به همون ترتیبی که تو لیست هستن، پشت هم ادغام می‌شن</div>
+    </label>
+    <div class="file-list" id="mergeFileList"></div>
+    <div class="button-group">
+      <button type="button" class="btn btn-primary" id="mergeBtn" disabled>🔗 ادغام کن</button>
+      <button type="button" class="btn btn-secondary" id="resetMergeBtn" style="display:none;">🔄 ریست</button>
+    </div>
+  </div>
+</section>
+
+<div class="footer">© ۱۴۰۵ بایت‌لب — این ابزار رایگانه؛ هیچ فایلی روی سرور ما آپلود یا ذخیره نمی‌شه.</div>
+
+<script src="header.js"></script>
+<script>
+if (window['pdfjsLib']) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+const errMsg = document.getElementById('errMsg');
+const okMsg = document.getElementById('okMsg');
+function showErr(text){ errMsg.textContent = text; errMsg.classList.add('show'); okMsg.classList.remove('show'); setTimeout(() => errMsg.classList.remove('show'), 5000); }
+function showOk(text){ okMsg.textContent = text; okMsg.classList.add('show'); errMsg.classList.remove('show'); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+document.querySelectorAll('.tool-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tool-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+    errMsg.classList.remove('show'); okMsg.classList.remove('show');
+  });
+});
+
+/* ============================================================
+   ۱) عکس‌ها به PDF — با jsPDF
+   ============================================================ */
+let imgFiles = [];
+const imgZone = document.getElementById('imgZone');
+const imgInput = document.getElementById('imgInput');
+const imgFileList = document.getElementById('imgFileList');
+const makePdfBtn = document.getElementById('makePdfBtn');
+
+imgZone.addEventListener('dragover', e => { e.preventDefault(); imgZone.classList.add('active'); });
+imgZone.addEventListener('dragleave', () => imgZone.classList.remove('active'));
+imgZone.addEventListener('drop', e => { e.preventDefault(); imgZone.classList.remove('active'); addImgFiles(e.dataTransfer.files); });
+imgInput.addEventListener('change', e => addImgFiles(e.target.files));
+
+function addImgFiles(fileListObj){
+  const files = Array.from(fileListObj).filter(f => f.type.startsWith('image/'));
+  if (!files.length){ showErr('هیچ فایل تصویری معتبری پیدا نشد.'); return; }
+  files.forEach(file => {
+    imgFiles.push({ id: 'i' + Date.now() + Math.random().toString(36).slice(2,6), file, url: URL.createObjectURL(file) });
+  });
+  renderImgList();
+  makePdfBtn.disabled = imgFiles.length === 0;
+}
+
+function renderImgList(){
+  imgFileList.innerHTML = imgFiles.map((f, i) => `
+    <div class="file-row" data-id="${f.id}">
+      <img class="file-thumb" src="${f.url}" alt="">
+      <div class="file-meta"><div class="file-name">${i+1}. ${escapeHtml(f.file.name)}</div><div class="file-sub">${(f.file.size/1024).toFixed(0)} KB</div></div>
+      <div class="file-order">
+        <button type="button" data-up="${f.id}" ${i===0?'disabled':''}>▲</button>
+        <button type="button" data-down="${f.id}" ${i===imgFiles.length-1?'disabled':''}>▼</button>
+      </div>
+      <button type="button" class="file-remove" data-remove="${f.id}">✕</button>
+    </div>`).join('');
+
+  imgFileList.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => {
+    imgFiles = imgFiles.filter(f => f.id !== b.dataset.remove);
+    renderImgList(); makePdfBtn.disabled = imgFiles.length === 0;
+  }));
+  imgFileList.querySelectorAll('[data-up]').forEach(b => b.addEventListener('click', () => moveImg(b.dataset.up, -1)));
+  imgFileList.querySelectorAll('[data-down]').forEach(b => b.addEventListener('click', () => moveImg(b.dataset.down, 1)));
+}
+
+function moveImg(id, dir){
+  const idx = imgFiles.findIndex(f => f.id === id);
+  const swapIdx = idx + dir;
+  if (swapIdx < 0 || swapIdx >= imgFiles.length) return;
+  [imgFiles[idx], imgFiles[swapIdx]] = [imgFiles[swapIdx], imgFiles[idx]];
+  renderImgList();
+}
+
+makePdfBtn.addEventListener('click', async () => {
+  if (!window.jspdf){ showErr('کتابخانه‌ی PDF لود نشده — اتصال اینترنتت رو چک کن.'); return; }
+  makePdfBtn.disabled = true;
+  makePdfBtn.textContent = '⏳ در حال ساخت...';
+  try{
+    const { jsPDF } = window.jspdf;
+    let doc = null;
+    for (let i = 0; i < imgFiles.length; i++){
+      const img = await loadImage(imgFiles[i].url);
+      const isLandscape = img.width > img.height;
+      const orientation = isLandscape ? 'l' : 'p';
+      if (!doc){
+        doc = new jsPDF({ orientation, unit: 'px', format: [img.width, img.height] });
+      } else {
+        doc.addPage([img.width, img.height], orientation);
+      }
+      const format = imgFiles[i].file.type.includes('png') ? 'PNG' : 'JPEG';
+      doc.addImage(img, format, 0, 0, img.width, img.height);
+    }
+    doc.save('bytelab-images.pdf');
+    showOk('✓ فایل PDF ساخته و دانلود شد.');
+  }catch(e){
+    showErr('ساخت PDF با خطا مواجه شد: ' + (e && e.message ? e.message : ''));
+  }
+  makePdfBtn.disabled = false;
+  makePdfBtn.textContent = '📄 ساخت PDF';
+});
+
+function loadImage(url){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+document.getElementById('resetImgBtn').addEventListener('click', () => {
+  imgFiles.forEach(f => URL.revokeObjectURL(f.url));
+  imgFiles = [];
+  renderImgList();
+  makePdfBtn.disabled = true;
+  imgInput.value = '';
+});
+
+/* ============================================================
+   ۲) PDF به عکس — با pdf.js
+   ============================================================ */
+let currentPdfFile = null;
+const pdfZone = document.getElementById('pdfZone');
+const pdfInput = document.getElementById('pdfInput');
+const pdfFileInfo = document.getElementById('pdfFileInfo');
+const renderPdfBtn = document.getElementById('renderPdfBtn');
+const pageGrid = document.getElementById('pageGrid');
+const zipPagesBtn = document.getElementById('zipPagesBtn');
+let renderedPages = [];
+
+pdfZone.addEventListener('dragover', e => { e.preventDefault(); pdfZone.classList.add('active'); });
+pdfZone.addEventListener('dragleave', () => pdfZone.classList.remove('active'));
+pdfZone.addEventListener('drop', e => { e.preventDefault(); pdfZone.classList.remove('active'); handlePdfFile(e.dataTransfer.files[0]); });
+pdfInput.addEventListener('change', e => handlePdfFile(e.target.files[0]));
+
+function handlePdfFile(file){
+  if (!file || file.type !== 'application/pdf'){ showErr('لطفاً یه فایل PDF معتبر انتخاب کن.'); return; }
+  currentPdfFile = file;
+  pdfFileInfo.textContent = file.name + ' — ' + (file.size/1024).toFixed(0) + ' KB';
+  renderPdfBtn.disabled = false;
+  pageGrid.innerHTML = '';
+  zipPagesBtn.style.display = 'none';
+}
+
+renderPdfBtn.addEventListener('click', async () => {
+  if (!window.pdfjsLib){ showErr('کتابخانه‌ی pdf.js لود نشده — اتصال اینترنتت رو چک کن.'); return; }
+  renderPdfBtn.disabled = true;
+  renderPdfBtn.textContent = '⏳ در حال پردازش...';
+  pageGrid.innerHTML = '';
+  renderedPages = [];
+  try{
+    const buf = await currentPdfFile.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    for (let p = 1; p <= pdf.numPages; p++){
+      const page = await pdf.getPage(p);
+      const viewport = page.getViewport({ scale: 1.5 });
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+      const url = URL.createObjectURL(blob);
+      renderedPages.push({ page: p, blob, url });
+
+      const card = document.createElement('div');
+      card.className = 'page-card';
+      card.innerHTML = '<img src="' + url + '" alt="صفحه ' + p + '"><span>صفحه ' + p + '</span><a href="' + url + '" download="page-' + p + '.png">دانلود</a>';
+      pageGrid.appendChild(card);
+    }
+    showOk('✓ ' + pdf.numPages + ' صفحه با موفقیت به عکس تبدیل شد.');
+    zipPagesBtn.style.display = 'inline-flex';
+  }catch(e){
+    showErr('تبدیل PDF با خطا مواجه شد. مطمئنی فایل خراب نیست؟');
+  }
+  renderPdfBtn.disabled = false;
+  renderPdfBtn.textContent = '🖼️ تبدیل به عکس';
+});
+
+zipPagesBtn.addEventListener('click', async () => {
+  if (!renderedPages.length) return;
+  const zip = new JSZip();
+  renderedPages.forEach(p => zip.file('page-' + p.page + '.png', p.blob));
+  zipPagesBtn.disabled = true;
+  zipPagesBtn.textContent = '⏳ در حال ساخت ZIP...';
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bytelab-pdf-pages.zip';
+  document.body.appendChild(a); a.click(); a.remove();
+  zipPagesBtn.disabled = false;
+  zipPagesBtn.textContent = '📦 دانلود همه (ZIP)';
+});
+
+document.getElementById('resetPdfBtn').addEventListener('click', () => {
+  currentPdfFile = null;
+  renderedPages.forEach(p => URL.revokeObjectURL(p.url));
+  renderedPages = [];
+  pageGrid.innerHTML = '';
+  pdfFileInfo.textContent = '';
+  renderPdfBtn.disabled = true;
+  zipPagesBtn.style.display = 'none';
+  pdfInput.value = '';
+});
+
+/* ============================================================
+   ۳) ادغام چند PDF — با pdf-lib
+   ============================================================ */
+let mergeFiles = [];
+const mergeZone = document.getElementById('mergeZone');
+const mergeInput = document.getElementById('mergeInput');
+const mergeFileList = document.getElementById('mergeFileList');
+const mergeBtn = document.getElementById('mergeBtn');
+
+mergeZone.addEventListener('dragover', e => { e.preventDefault(); mergeZone.classList.add('active'); });
+mergeZone.addEventListener('dragleave', () => mergeZone.classList.remove('active'));
+mergeZone.addEventListener('drop', e => { e.preventDefault(); mergeZone.classList.remove('active'); addMergeFiles(e.dataTransfer.files); });
+mergeInput.addEventListener('change', e => addMergeFiles(e.target.files));
+
+function addMergeFiles(fileListObj){
+  const files = Array.from(fileListObj).filter(f => f.type === 'application/pdf');
+  if (!files.length){ showErr('هیچ فایل PDF معتبری پیدا نشد.'); return; }
+  files.forEach(file => {
+    mergeFiles.push({ id: 'm' + Date.now() + Math.random().toString(36).slice(2,6), file });
+  });
+  renderMergeList();
+  mergeBtn.disabled = mergeFiles.length < 2;
+}
+
+function renderMergeList(){
+  mergeFileList.innerHTML = mergeFiles.map((f, i) => `
+    <div class="file-row" data-id="${f.id}">
+      <div class="file-thumb">📄</div>
+      <div class="file-meta"><div class="file-name">${i+1}. ${escapeHtml(f.file.name)}</div><div class="file-sub">${(f.file.size/1024).toFixed(0)} KB</div></div>
+      <div class="file-order">
+        <button type="button" data-up="${f.id}" ${i===0?'disabled':''}>▲</button>
+        <button type="button" data-down="${f.id}" ${i===mergeFiles.length-1?'disabled':''}>▼</button>
+      </div>
+      <button type="button" class="file-remove" data-remove="${f.id}">✕</button>
+    </div>`).join('');
+
+  mergeFileList.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => {
+    mergeFiles = mergeFiles.filter(f => f.id !== b.dataset.remove);
+    renderMergeList(); mergeBtn.disabled = mergeFiles.length < 2;
+  }));
+  mergeFileList.querySelectorAll('[data-up]').forEach(b => b.addEventListener('click', () => moveMerge(b.dataset.up, -1)));
+  mergeFileList.querySelectorAll('[data-down]').forEach(b => b.addEventListener('click', () => moveMerge(b.dataset.down, 1)));
+}
+
+function moveMerge(id, dir){
+  const idx = mergeFiles.findIndex(f => f.id === id);
+  const swapIdx = idx + dir;
+  if (swapIdx < 0 || swapIdx >= mergeFiles.length) return;
+  [mergeFiles[idx], mergeFiles[swapIdx]] = [mergeFiles[swapIdx], mergeFiles[idx]];
+  renderMergeList();
+}
+
+mergeBtn.addEventListener('click', async () => {
+  if (!window.PDFLib){ showErr('کتابخانه‌ی pdf-lib لود نشده — اتصال اینترنتت رو چک کن.'); return; }
+  mergeBtn.disabled = true;
+  mergeBtn.textContent = '⏳ در حال ادغام...';
+  try{
+    const { PDFDocument } = PDFLib;
+    const mergedPdf = await PDFDocument.create();
+    for (const f of mergeFiles){
+      const buf = await f.file.arrayBuffer();
+      const srcPdf = await PDFDocument.load(buf);
+      const pages = await mergedPdf.copyPages(srcPdf, srcPdf.getPageIndices());
+      pages.forEach(p => mergedPdf.addPage(p));
+    }
+    const mergedBytes = await mergedPdf.save();
+    const blob = new Blob([mergedBytes], { type: 'application/pdf' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'bytelab-merged.pdf';
+    document.body.appendChild(a); a.click(); a.remove();
+    showOk('✓ ' + mergeFiles.length + ' فایل با موفقیت ادغام و دانلود شد.');
+  }catch(e){
+    showErr('ادغام با خطا مواجه شد. مطمئنی همه‌ی فایل‌ها PDF سالمن؟');
+  }
+  mergeBtn.disabled = false;
+  mergeBtn.textContent = '🔗 ادغام کن';
+});
+
+document.getElementById('resetMergeBtn').addEventListener('click', () => {
+  mergeFiles = [];
+  renderMergeList();
+  mergeBtn.disabled = true;
+  mergeInput.value = '';
+});
+</script>
+</body>
+</html>

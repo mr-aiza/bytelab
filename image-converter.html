@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تبدیل فرمت تصویر | بایت‌لب</title>
+<meta name="description" content="چند تا عکس رو با هم بین PNG، JPG و WebP تبدیل کن و همه رو یه‌جا به‌صورت ZIP دانلود کن؛ رایگان و کاملاً تو مرورگر.">
+<link rel="canonical" href="https://bytelabpro.xyz/image-converter.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="تبدیل فرمت تصویر | بایت‌لب">
+<meta property="og:description" content="چند تا عکس رو با هم بین PNG، JPG و WebP تبدیل کن و همه رو یه‌جا ZIP دانلود کن.">
+<meta property="og:url" content="https://bytelabpro.xyz/image-converter.html">
+<meta property="og:image" content="https://bytelabpro.xyz/favicon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--radius:18px;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;min-height:100vh;padding-bottom:60px;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:var(--cyan);text-decoration:none;}
+  .wrap{max-width:900px;margin:0 auto;padding:0 24px;}
+
+  .hero{padding:60px 0 36px;}
+  .hero-tag{font-weight:700;font-size:13px;color:var(--violet);display:inline-block;margin-bottom:12px;}
+  .hero h1{font-size:clamp(26px,3vw,38px);font-weight:900;margin-bottom:14px;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .hero p{font-size:15.5px;color:var(--muted);max-width:640px;line-height:1.9;}
+
+  .upload-zone{
+    border:2px dashed var(--line);border-radius:20px;padding:40px 24px;text-align:center;
+    background:rgba(77,240,201,.02);cursor:pointer;transition:all .3s ease;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .upload-zone:hover, .upload-zone.active{border-color:var(--cyan);background:rgba(77,240,201,.06);}
+  .upload-zone input{display:none;}
+  .upload-icon{font-size:40px;margin-bottom:10px;}
+  .upload-text{color:var(--muted);font-size:14px;margin-bottom:6px;}
+  .upload-hint{font-size:12px;color:var(--muted);opacity:.8;}
+
+  .format-group{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 6px;}
+  .format-btn{flex:1;min-width:80px;padding:11px 14px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:10px;cursor:pointer;font-family:inherit;font-weight:700;font-size:13.5px;transition:all .2s ease;}
+  .format-btn.active{background:var(--cyan);color:#06120f;border-color:var(--cyan);}
+  .format-btn:hover{border-color:var(--cyan);}
+  .info-box{background:rgba(77,240,201,.06);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:12.5px;color:var(--muted);line-height:1.8;margin-top:10px;}
+  .info-box b{color:var(--paper);}
+
+  .quality-row{margin-top:18px;display:none;}
+  .quality-row.show{display:block;}
+  .quality-label{display:flex;justify-content:space-between;font-size:13px;color:var(--paper);font-weight:600;margin-bottom:8px;}
+  .quality-label span{color:var(--cyan);font-weight:700;}
+  input[type=range]{width:100%;height:6px;background:var(--line);border-radius:999px;outline:none;-webkit-appearance:none;cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 12px rgba(77,240,201,.4);}
+
+  .file-list{margin-top:22px;display:flex;flex-direction:column;gap:8px;}
+  .file-row{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:12px;}
+  .file-thumb{width:42px;height:42px;border-radius:8px;object-fit:cover;background:var(--panel-2);flex-shrink:0;}
+  .file-meta{flex:1;min-width:0;}
+  .file-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .file-sub{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;direction:ltr;text-align:left;}
+  .file-status{font-size:11px;color:var(--muted);white-space:nowrap;}
+  .file-status.done{color:var(--cyan);}
+  .file-status.err{color:var(--danger);}
+  .file-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px;}
+  .file-remove:hover{color:var(--danger);}
+
+  .btn{border:none;border-radius:999px;padding:12px 24px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s ease;display:inline-flex;align-items:center;gap:8px;}
+  .btn-primary{background:var(--cyan);color:#06120f;box-shadow:0 0 24px rgba(77,240,201,.3);}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 32px rgba(77,240,201,.5);}
+  .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .btn-secondary{background:transparent;color:var(--cyan);border:1px solid var(--cyan);}
+  .btn-secondary:hover{background:rgba(77,240,201,.1);}
+  .button-group{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
+
+  .msg{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:14px;display:none;align-items:center;gap:8px;}
+  .msg.show{display:flex;}
+  .msg-error{background:rgba(255,138,138,.1);color:var(--danger);border:1px solid rgba(255,138,138,.3);}
+  .msg-success{background:rgba(77,240,201,.1);color:var(--cyan);border:1px solid rgba(77,240,201,.3);}
+
+  .footer{text-align:center;padding:40px 0 0;color:var(--muted);font-size:13px;}
+
+  @media (max-width:640px){
+    .hero{padding:40px 0 26px;}
+    .upload-zone{padding:28px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="siteHeaderPlaceholder"></div>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="hero-tag">🖼️ ابزار تبدیل فرمت تصویر</span>
+    <h1>چند تا عکس رو یه‌جا بین فرمت‌ها تبدیل کن</h1>
+    <p>فایل‌ها رو بریز اینجا، فرمت خروجی رو انتخاب کن، همه رو با هم تبدیل کن و به‌صورت ZIP یا تکی دانلود کن. هیچی آپلود نمی‌شه؛ همه‌چیز رو مرورگر خودت پردازش می‌شه.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="msg msg-error" id="errMsg"></div>
+  <div class="msg msg-success" id="okMsg"></div>
+
+  <label class="upload-zone" id="uploadZone">
+    <input type="file" id="imageInput" accept="image/*" multiple>
+    <div class="upload-icon">📤</div>
+    <div class="upload-text">عکس‌ها رو اینجا بیانداز یا کلیک کن</div>
+    <div class="upload-hint">می‌تونی چند فایل با هم انتخاب کنی — PNG, JPG, WebP, GIF, BMP</div>
+  </label>
+
+  <div class="format-group" id="formatGroup">
+    <button type="button" class="format-btn active" data-format="image/jpeg" data-ext="jpg">JPG</button>
+    <button type="button" class="format-btn" data-format="image/png" data-ext="png">PNG</button>
+    <button type="button" class="format-btn" data-format="image/webp" data-ext="webp">WebP</button>
+  </div>
+  <div class="info-box"><b>JPG:</b> کوچک‌ترین حجم، بدون پس‌زمینه شفاف. <b>PNG:</b> پس‌زمینه شفاف، حجم بیشتر. <b>WebP:</b> حجم کم + شفافیت، اما پشتیبانی قدیمی‌ترها کمتره.</div>
+
+  <div class="quality-row" id="qualityRow">
+    <div class="quality-label"><span>کیفیت خروجی</span><span id="qualityVal">85</span>%</div>
+    <input type="range" id="qualitySlider" min="30" max="100" value="85">
+  </div>
+
+  <div class="file-list" id="fileList"></div>
+
+  <div class="button-group">
+    <button type="button" class="btn btn-primary" id="convertBtn" disabled>⚡ تبدیل همه</button>
+    <button type="button" class="btn btn-secondary" id="zipBtn" style="display:none;">📦 دانلود همه (ZIP)</button>
+    <button type="button" class="btn btn-secondary" id="resetBtn" style="display:none;">🔄 ریست</button>
+  </div>
+</section>
+
+<div class="footer">© ۱۴۰۵ بایت‌لب — این ابزار رایگانه؛ هیچ عکسی روی سرور ما آپلود یا ذخیره نمی‌شه.</div>
+
+<script src="header.js"></script>
+<script>
+const els = {
+  uploadZone: document.getElementById('uploadZone'),
+  imageInput: document.getElementById('imageInput'),
+  formatGroup: document.getElementById('formatGroup'),
+  qualityRow: document.getElementById('qualityRow'),
+  qualitySlider: document.getElementById('qualitySlider'),
+  qualityVal: document.getElementById('qualityVal'),
+  fileList: document.getElementById('fileList'),
+  convertBtn: document.getElementById('convertBtn'),
+  zipBtn: document.getElementById('zipBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  errMsg: document.getElementById('errMsg'),
+  okMsg: document.getElementById('okMsg')
+};
+
+const state = { files: [], outFormat: 'image/jpeg', outExt: 'jpg' };
+
+function showErr(text){ els.errMsg.textContent = text; els.errMsg.classList.add('show'); setTimeout(() => els.errMsg.classList.remove('show'), 4000); }
+function showOk(text){ els.okMsg.textContent = text; els.okMsg.classList.add('show'); }
+
+els.formatGroup.querySelectorAll('.format-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    els.formatGroup.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.outFormat = btn.dataset.format;
+    state.outExt = btn.dataset.ext;
+    els.qualityRow.classList.toggle('show', state.outFormat !== 'image/png');
+  });
+});
+els.qualitySlider.addEventListener('input', () => { els.qualityVal.textContent = els.qualitySlider.value; });
+
+els.uploadZone.addEventListener('dragover', e => { e.preventDefault(); els.uploadZone.classList.add('active'); });
+els.uploadZone.addEventListener('dragleave', () => els.uploadZone.classList.remove('active'));
+els.uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  els.uploadZone.classList.remove('active');
+  handleFiles(e.dataTransfer.files);
+});
+els.imageInput.addEventListener('change', e => handleFiles(e.target.files));
+
+function handleFiles(fileListObj){
+  const files = Array.from(fileListObj).filter(f => f.type.startsWith('image/'));
+  if (!files.length){ showErr('هیچ فایل تصویری معتبری پیدا نشد.'); return; }
+
+  files.forEach(file => {
+    if (file.size > 15 * 1024 * 1024){ showErr(file.name + ' بزرگ‌تر از ۱۵ مگابایته و رد شد.'); return; }
+    const id = 'f' + Date.now() + Math.random().toString(36).slice(2, 7);
+    const srcUrl = URL.createObjectURL(file);
+    state.files.push({ id, file, name: file.name, srcUrl, resultBlob: null, resultUrl: null, status: 'آماده' });
+  });
+
+  renderFileList();
+  els.convertBtn.disabled = state.files.length === 0;
+}
+
+function renderFileList(){
+  els.fileList.innerHTML = state.files.map(f => `
+    <div class="file-row" data-id="${f.id}">
+      <img class="file-thumb" src="${f.srcUrl}" alt="">
+      <div class="file-meta">
+        <div class="file-name">${escapeHtml(f.name)}</div>
+        <div class="file-sub">${(f.file.size / 1024).toFixed(0)} KB</div>
+      </div>
+      <div class="file-status ${f.status === 'تبدیل شد' ? 'done' : (f.status === 'خطا' ? 'err' : '')}">${f.status}</div>
+      <button type="button" class="file-remove" data-remove="${f.id}">✕</button>
+    </div>
+  `).join('');
+
+  els.fileList.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.files = state.files.filter(f => f.id !== btn.dataset.remove);
+      renderFileList();
+      els.convertBtn.disabled = state.files.length === 0;
+      if (!state.files.length) resetAll();
+    });
+  });
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function convertOne(item){
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      if (state.outFormat === 'image/jpeg'){
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      ctx.drawImage(img, 0, 0);
+      const quality = state.outFormat === 'image/png' ? undefined : (Number(els.qualitySlider.value) / 100);
+      canvas.toBlob(blob => {
+        if (!blob){ item.status = 'خطا'; resolve(); return; }
+        item.resultBlob = blob;
+        item.resultUrl = URL.createObjectURL(blob);
+        item.status = 'تبدیل شد';
+        resolve();
+      }, state.outFormat, quality);
+    };
+    img.onerror = () => { item.status = 'خطا'; resolve(); };
+    img.src = item.srcUrl;
+  });
+}
+
+els.convertBtn.addEventListener('click', async () => {
+  els.convertBtn.disabled = true;
+  els.convertBtn.textContent = '⏳ در حال تبدیل...';
+  for (const item of state.files){
+    await convertOne(item);
+    renderFileList();
+  }
+  els.convertBtn.textContent = '⚡ تبدیل همه';
+  els.convertBtn.disabled = false;
+  els.zipBtn.style.display = 'inline-flex';
+  els.resetBtn.style.display = 'inline-flex';
+  showOk('✓ تبدیل تموم شد. حالا می‌تونی تک‌تک یا با ZIP دانلود کنی.');
+  addDownloadButtons();
+});
+
+function addDownloadButtons(){
+  state.files.forEach(f => {
+    if (!f.resultUrl) return;
+    const row = els.fileList.querySelector('[data-id="' + f.id + '"]');
+    if (!row || row.querySelector('.file-dl')) return;
+    const a = document.createElement('a');
+    a.className = 'file-dl';
+    a.href = f.resultUrl;
+    a.download = renameExt(f.name, state.outExt);
+    a.style.cssText = 'color:var(--cyan);font-size:12px;font-weight:700;';
+    a.textContent = '⬇️';
+    row.insertBefore(a, row.querySelector('.file-remove'));
+  });
+}
+
+function renameExt(name, ext){
+  const base = name.replace(/\.[^.]+$/, '');
+  return base + '.' + ext;
+}
+
+els.zipBtn.addEventListener('click', async () => {
+  const zip = new JSZip();
+  const done = state.files.filter(f => f.resultBlob);
+  if (!done.length){ showErr('هیچ فایل تبدیل‌شده‌ای برای دانلود نیست.'); return; }
+
+  done.forEach(f => { zip.file(renameExt(f.name, state.outExt), f.resultBlob); });
+
+  els.zipBtn.disabled = true;
+  els.zipBtn.textContent = '⏳ در حال ساخت ZIP...';
+  try{
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'bytelab-images-' + state.outExt + '.zip';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }catch(e){
+    showErr('ساخت فایل ZIP با خطا مواجه شد.');
+  }
+  els.zipBtn.disabled = false;
+  els.zipBtn.textContent = '📦 دانلود همه (ZIP)';
+});
+
+els.resetBtn.addEventListener('click', resetAll);
+function resetAll(){
+  state.files.forEach(f => { URL.revokeObjectURL(f.srcUrl); if (f.resultUrl) URL.revokeObjectURL(f.resultUrl); });
+  state.files = [];
+  renderFileList();
+  els.convertBtn.disabled = true;
+  els.zipBtn.style.display = 'none';
+  els.resetBtn.style.display = 'none';
+  els.imageInput.value = '';
+  els.okMsg.classList.remove('show');
+}
+</script>
+</body>
+</html>
