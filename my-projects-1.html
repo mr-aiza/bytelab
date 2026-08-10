@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پروژه‌های من | بایت‌لب</title>
+<meta name="description" content="پروژه‌هایی که در بایت‌لب بارگذاری و ذخیره کردی رو اینجا مدیریت کن؛ پیش‌نمایش بگیر، دانلود ZIP کن یا حذفشون کن.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://bytelabpro.xyz/my-projects.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- JSZip برای دانلود ZIP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<style>
+  :root{
+    --ink:#070b12; --panel:#0f1620; --panel-2:#141d2b; --line:#1e2a38;
+    --cyan:#4df0c9; --violet:#9c7bff; --paper:#eaf0f4; --muted:#7c8b9c;
+    --danger:#ff8a8a; --success:#66d9a6; --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;min-height:100vh;}
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;}
+
+  /* Overlay ورود (همون الگوی project-upload.html) */
+  .auth-overlay{
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(7,11,18,.96);backdrop-filter:blur(8px);
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;opacity:1;transition:opacity .3s ease;padding:20px;
+  }
+  .auth-overlay.hidden{ opacity:0;pointer-events:none; }
+  .auth-modal{
+    background:var(--panel);border:1px solid var(--line);border-radius:24px;
+    padding:40px;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .auth-modal h2{
+    font-size:24px;font-weight:800;margin-bottom:14px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  }
+  .auth-modal p{ color:var(--muted);font-size:15px;line-height:1.8;margin-bottom:28px; }
+  .auth-modal .auth-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    color:#06120f;font-weight:800;font-size:15px;border:none;border-radius:999px;
+    padding:14px 32px;cursor:pointer;box-shadow:0 0 24px rgba(77,240,201,.3);
+    transition:transform .2s ease, box-shadow .2s ease;text-decoration:none;
+  }
+  .auth-modal .auth-btn:hover{ transform:translateY(-2px);box-shadow:0 0 32px rgba(77,240,201,.5); }
+
+  .page-head{padding:150px 0 24px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+  .page-eyebrow{font-weight:700;font-size:13px;color:var(--violet);letter-spacing:.02em;margin-bottom:14px;display:block;}
+  .page-title{font-size:clamp(26px,4vw,38px);font-weight:800;}
+  .page-sub{color:var(--muted);margin-top:14px;font-size:15px;}
+  .new-project-btn{
+    display:inline-flex;align-items:center;gap:8px;flex-shrink:0;
+    background:var(--cyan);color:#06120f;font-weight:700;font-size:14px;
+    padding:13px 24px;border-radius:999px;box-shadow:0 0 24px rgba(77,240,201,.3);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .new-project-btn:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(77,240,201,.5);}
+
+  .stats-row{display:flex;gap:14px;flex-wrap:wrap;padding:6px 0 28px;}
+  .stat-chip{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:12px 18px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;
+  }
+  .stat-chip b{color:var(--paper);font-size:15px;}
+
+  .proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;padding-bottom:110px;}
+  .proj-note{grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 20px;}
+  .proj-note a{color:var(--cyan);font-weight:600;}
+
+  .proj-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:border-color .25s ease, transform .25s ease;}
+  .proj-card:hover{border-color:var(--cyan);transform:translateY(-3px);}
+  .proj-thumb{
+    aspect-ratio:16/10;background:var(--panel-2);display:flex;align-items:center;justify-content:center;
+    font-size:34px;color:var(--muted);position:relative;overflow:hidden;
+  }
+  .proj-thumb iframe{width:220%;height:220%;transform:scale(.4545);transform-origin:top right;border:0;pointer-events:none;background:#fff;}
+  .proj-body{padding:16px 18px 18px;}
+  .proj-name{font-size:15px;font-weight:700;margin-bottom:6px;word-break:break-word;}
+  .proj-meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .proj-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .proj-actions button{
+    flex:1;min-width:78px;background:var(--panel-2);border:1px solid var(--line);color:var(--paper);
+    font-family:inherit;font-size:12.5px;font-weight:600;padding:9px 8px;border-radius:10px;cursor:pointer;
+    transition:border-color .2s ease, color .2s ease;
+  }
+  .proj-actions button:hover{border-color:var(--cyan);color:var(--cyan);}
+  .proj-actions button.danger:hover{border-color:var(--danger);color:var(--danger);}
+  .proj-actions button:disabled{opacity:.55;cursor:default;}
+
+  /* مودال پیش‌نمایش */
+  .preview-modal{
+    position:fixed;inset:0;background:rgba(4,7,12,.82);backdrop-filter:blur(6px);
+    z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
+    opacity:0;pointer-events:none;transition:opacity .25s ease;
+  }
+  .preview-modal.open{opacity:1;pointer-events:auto;}
+  .preview-box{
+    background:var(--panel);border:1px solid var(--line);border-radius:20px;
+    width:min(920px,100%);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .preview-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);}
+  .preview-head span{font-weight:700;font-size:14.5px;}
+  .preview-head button{background:none;border:1px solid var(--line);color:var(--paper);width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:15px;}
+  .preview-frame-wrap{flex:1;background:#fff;overflow:auto;}
+  .preview-frame-wrap iframe{width:100%;height:70vh;border:0;}
+
+  @media (max-width:640px){
+    .page-head{padding-top:130px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="siteHeaderPlaceholder"></div>
+
+<!-- Overlay محافظت با ورود -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-modal">
+    <h2>🔐 دسترسی محدود</h2>
+    <p>صفحه‌ی «پروژه‌های من» فقط برای اعضای ثبت‌نام‌شده‌ی بایت‌لب فعاله. لطفاً ابتدا به حساب خود وارد شوید.</p>
+    <a href="account.html" class="auth-btn">ورود / ثبت‌نام ←</a>
+  </div>
+</div>
+
+<div id="pageMain" style="display:none;">
+  <div class="wrap">
+    <section class="page-head">
+      <div>
+        <span class="page-eyebrow">حساب کاربری</span>
+        <h1 class="page-title">پروژه‌های من</h1>
+        <p class="page-sub">پروژه‌هایی که با ابزار «بارگذاری پروژه» تو حساب خودت ذخیره کردی.</p>
+      </div>
+      <a href="project-upload.html" class="new-project-btn">📦 بارگذاری پروژه جدید</a>
+    </section>
+
+    <div class="stats-row" id="statsRow" style="display:none;">
+      <div class="stat-chip">📁 <b id="statCount">0</b> پروژه</div>
+      <div class="stat-chip">💾 <b id="statSize">0 KB</b> مجموع حجم</div>
+    </div>
+
+    <div class="proj-grid" id="projGrid">
+      <div class="proj-note">در حال بارگذاری...</div>
+    </div>
+  </div>
+</div>
+
+<!-- مودال پیش‌نمایش -->
+<div class="preview-modal" id="previewModal">
+  <div class="preview-box">
+    <div class="preview-head">
+      <span id="previewTitle">پیش‌نمایش</span>
+      <button id="previewClose" aria-label="بستن">✕</button>
+    </div>
+    <div class="preview-frame-wrap">
+      <iframe id="previewFrame" title="پیش‌نمایش پروژه"></iframe>
+    </div>
+  </div>
+</div>
+
+<script src="assets/bytelab-auth.js"></script>
+<script>
+(function(){
+  const grid = document.getElementById('projGrid');
+  const statsRow = document.getElementById('statsRow');
+  const statCount = document.getElementById('statCount');
+  const statSize = document.getElementById('statSize');
+  let projectsCache = [];
+
+  function escapeHtml(text){
+    const div = document.createElement('div');
+    div.textContent = text == null ? '' : String(text);
+    return div.innerHTML;
+  }
+
+  function formatFileSize(bytes){
+    bytes = Number(bytes) || 0;
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.min(sizes.length - 1, Math.floor(Math.log(bytes) / Math.log(k)));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  function formatDate(iso){
+    if (!iso) return '';
+    try { return new Date(iso).toLocaleString('fa-IR'); } catch(e){ return ''; }
+  }
+
+  function cardHTML(p){
+    const safeName = escapeHtml(p.name);
+    return `
+      <div class="proj-card" data-name="${safeName}">
+        <div class="proj-thumb">📦</div>
+        <div class="proj-body">
+          <div class="proj-name">${safeName}</div>
+          <div class="proj-meta">
+            <span>🕒 ${escapeHtml(formatDate(p.updatedAt))}</span>
+            <span>💾 ${escapeHtml(formatFileSize(p.size || 0))}</span>
+          </div>
+          <div class="proj-actions">
+            <button data-act="preview">👁️ پیش‌نمایش</button>
+            <button data-act="zip">⬇️ ZIP</button>
+            <button data-act="delete" class="danger">🗑️ حذف</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderStats(){
+    if (projectsCache.length === 0){ statsRow.style.display = 'none'; return; }
+    statsRow.style.display = 'flex';
+    statCount.textContent = projectsCache.length;
+    const total = projectsCache.reduce((s, p) => s + (p.size || 0), 0);
+    statSize.textContent = formatFileSize(total);
+  }
+
+  function render(){
+    renderStats();
+    if (projectsCache.length === 0){
+      grid.innerHTML = `<div class="proj-note">هنوز پروژه‌ای ذخیره نکردی. از <a href="project-upload.html">بارگذاری پروژه</a> شروع کن.</div>`;
+      return;
+    }
+    grid.innerHTML = projectsCache.map(cardHTML).join('');
+
+    grid.querySelectorAll('.proj-card').forEach(card => {
+      const name = card.getAttribute('data-name');
+      card.querySelector('[data-act="preview"]').addEventListener('click', () => openPreview(name));
+      card.querySelector('[data-act="zip"]').addEventListener('click', (e) => downloadZip(name, e.currentTarget));
+      card.querySelector('[data-act="delete"]').addEventListener('click', (e) => deleteProject(name, e.currentTarget));
+    });
+  }
+
+  async function fetchProjects(){
+    grid.innerHTML = `<div class="proj-note"><span class="spinner"></span> در حال بارگذاری...</div>`;
+    try {
+      const res = await window.BytelabAuth.apiFetch('/api/projects/mine', { method: 'GET' });
+      projectsCache = res.projects || [];
+      render();
+    } catch(err){
+      grid.innerHTML = `<div class="proj-note" style="color:var(--danger);">✗ ${escapeHtml(err.message || 'خطا در دریافت پروژه‌ها')}</div>`;
+    }
+  }
+
+  async function openPreview(name){
+    const modal = document.getElementById('previewModal');
+    const frame = document.getElementById('previewFrame');
+    const title = document.getElementById('previewTitle');
+    title.textContent = name;
+    modal.classList.add('open');
+    frame.srcdoc = '<body style="font-family:sans-serif;color:#888;padding:20px;">در حال بارگذاری...</body>';
+    try {
+      const res = await window.BytelabAuth.apiFetch('/api/projects/get?name=' + encodeURIComponent(name), { method: 'GET' });
+      const p = res.project;
+      const fullHTML = `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${p.name}</title>
+<style>${p.files.css.content}</style>
+</head>
+<body>
+${p.files.html.content}
+<script>${p.files.js.content}<\/script>
+</body>
+</html>`;
+      frame.srcdoc = fullHTML;
+    } catch(err){
+      frame.srcdoc = '<body style="font-family:sans-serif;color:#c00;padding:20px;">خطا در بارگذاری پیش‌نمایش: ' + (err.message || '') + '</body>';
+    }
+  }
+
+  function closePreview(){
+    document.getElementById('previewModal').classList.remove('open');
+    document.getElementById('previewFrame').srcdoc = '';
+  }
+  document.getElementById('previewClose').addEventListener('click', closePreview);
+  document.getElementById('previewModal').addEventListener('click', (e) => {
+    if (e.target.id === 'previewModal') closePreview();
+  });
+
+  async function downloadZip(name, btn){
+    const original = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const res = await window.BytelabAuth.apiFetch('/api/projects/get?name=' + encodeURIComponent(name), { method: 'GET' });
+      const p = res.project;
+      const zip = new JSZip();
+      const folder = zip.folder(p.name);
+      folder.file(p.files.html.name || 'index.html', p.files.html.content);
+      folder.file(p.files.css.name || 'style.css', p.files.css.content);
+      folder.file(p.files.js.name || 'script.js', p.files.js.content);
+      folder.file('README.md', `# ${p.name}\n\nیک پروژه از بایت‌لب\n`);
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${p.name}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch(err){
+      alert('خطا در ساخت ZIP: ' + (err.message || ''));
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = original;
+    }
+  }
+
+  async function deleteProject(name, btn){
+    if (!confirm(`مطمئنی می‌خوای پروژه‌ی «${name}» رو حذف کنی؟ این کار غیرقابل بازگشته.`)) return;
+    const original = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      await window.BytelabAuth.apiFetch('/api/projects/delete', {
+        method: 'POST',
+        body: JSON.stringify({ name })
+      });
+      projectsCache = projectsCache.filter(p => p.name !== name);
+      render();
+    } catch(err){
+      alert('خطا در حذف پروژه: ' + (err.message || ''));
+      btn.disabled = false;
+      btn.innerHTML = original;
+    }
+  }
+
+  // محافظت با ورود (همون الگوی project-upload.html)
+  const authOverlay = document.getElementById('authOverlay');
+  const pageMain = document.getElementById('pageMain');
+  const loggedIn = (typeof BytelabAuth !== 'undefined') && BytelabAuth.isLoggedIn();
+  if (!loggedIn){
+    pageMain.style.display = 'none';
+    authOverlay.classList.remove('hidden');
+  } else {
+    authOverlay.classList.add('hidden');
+    pageMain.style.display = 'block';
+    fetchProjects();
+  }
+})();
+</script>
+<script src="header.js"></script>
+</body>
+</html>
