@@ -104,6 +104,9 @@
     direction:ltr;text-align:left;unicode-bidi:embed;
   }
   .proj-modal-footer{padding:14px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;}
+  #projModalPreview{
+    width:100%;height:60vh;border:1px solid var(--line);border-radius:10px;background:#fff;display:none;
+  }
 </style>
 </head>
 <body>
@@ -167,9 +170,11 @@
       <button class="proj-modal-tab active" data-file="html">index.html</button>
       <button class="proj-modal-tab" data-file="css">style.css</button>
       <button class="proj-modal-tab" data-file="js">script.js</button>
+      <button class="proj-modal-tab" data-file="preview">👁 پیش‌نمایش</button>
     </div>
     <div class="proj-modal-body">
       <pre id="projModalCode"></pre>
+      <iframe id="projModalPreview" sandbox="allow-scripts"></iframe>
     </div>
     <div class="proj-modal-footer">
       <button class="toggle-btn" id="projModalClose2">بستن</button>
@@ -336,9 +341,22 @@
   const projModalTitle = document.getElementById("projModalTitle");
   const projModalOwner = document.getElementById("projModalOwner");
   const projModalCode = document.getElementById("projModalCode");
+  const projModalPreview = document.getElementById("projModalPreview");
   const projModalDelete = document.getElementById("projModalDelete");
   let currentModalProject = null; // { phone, name, files }
   let currentModalTab = "html";
+
+  function buildPreviewDoc(files){
+    const htmlFile = files.html && files.html.content ? files.html.content : "<!DOCTYPE html><html><head></head><body></body></html>";
+    const css = files.css && files.css.content ? files.css.content : "";
+    const js = files.js && files.js.content ? files.js.content : "";
+    let doc = htmlFile;
+    const styleTag = css ? `<style>${css}</style>` : "";
+    const scriptTag = js ? `<script>${js}<\/script>` : "";
+    doc = doc.includes("</head>") ? doc.replace("</head>", styleTag + "</head>") : styleTag + doc;
+    doc = doc.includes("</body>") ? doc.replace("</body>", scriptTag + "</body>") : doc + scriptTag;
+    return doc;
+  }
 
   async function openProjectModal(phone, name){
     projModalOverlay.classList.add("show");
@@ -359,6 +377,14 @@
 
   function renderModalTab(){
     if (!currentModalProject) return;
+    if (currentModalTab === "preview") {
+      projModalCode.style.display = "none";
+      projModalPreview.style.display = "block";
+      projModalPreview.srcdoc = buildPreviewDoc(currentModalProject.files);
+      return;
+    }
+    projModalPreview.style.display = "none";
+    projModalCode.style.display = "block";
     const f = currentModalProject.files[currentModalTab];
     projModalCode.textContent = f ? f.content : "(خالی)";
   }
@@ -375,6 +401,7 @@
   function closeProjectModal(){
     projModalOverlay.classList.remove("show");
     currentModalProject = null;
+    projModalPreview.srcdoc = "";
   }
   document.getElementById("projModalClose").addEventListener("click", closeProjectModal);
   document.getElementById("projModalClose2").addEventListener("click", closeProjectModal);
