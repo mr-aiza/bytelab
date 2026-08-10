@@ -164,7 +164,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       max-height:0;overflow:hidden;display:flex;flex-direction:column;
       transition:max-height .3s ease;
     }
-    .mm-group.open .mm-submenu{max-height:450px;overflow-y:auto;}
+    .mm-group.open .mm-submenu{max-height:560px;overflow-y:auto;}
     .mm-submenu a{
       display:flex;align-items:center;gap:8px;
       padding:9px 4px 9px 16px;font-size:14px;color:#a9b6c4;
@@ -173,6 +173,15 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     .mm-submenu a:last-child{padding-bottom:13px;}
     .mm-submenu a.active{color:#4df0c9;}
     .mm-sub-icon{font-size:13px;line-height:1;}
+
+    /* دسته‌بندی داخل زیرمنو (مثلاً «ابزارهای طراحی» / «ابزارهای سایت») */
+    .mm-subcat{display:flex;flex-direction:column;}
+    .mm-subcat-title{
+      padding:12px 4px 6px 16px;font-size:11.5px;font-weight:700;color:#4df0c9;
+      opacity:.85;letter-spacing:.02em;
+    }
+    .mm-subcat:first-child .mm-subcat-title{padding-top:8px;}
+    .mm-subcat + .mm-subcat{border-top:1px dashed rgba(30,42,56,.9);}
 
     /* --- مسیر صفحه (Breadcrumb): بلاک معمولیه (نه fixed)، دقیقاً زیر هدر ثابت می‌شینه --- */
     .mn-breadcrumb{
@@ -332,22 +341,39 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     {
       group: true,
       text: "ابزارها",
-      match: ["playground.html", "editor.html", "audit.html", "qr.html", "invoice.html", "site-health-checker.html", "project-estimator.html", "image-compressor.html", "dns-checker.html", "whois.html", "dev-tools.html", "ip-tools.html", "image-converter.html", "pdf-tools.html"],
+      categorized: true,
+      match: ["playground.html", "editor.html", "audit.html", "qr.html", "invoice.html", "site-health-checker.html", "project-estimator.html", "image-compressor.html", "dns-checker.html", "whois.html", "dev-tools.html", "ip-tools.html", "image-converter.html", "pdf-tools.html", "project-upload.html"],
       children: [
-        { href: "playground.html", text: "پلی‌گراند کد زنده", icon: "⚡", match: ["playground.html"] },
-        { href: "editor.html", text: "ویرایش آنلاین قالب", icon: "🛠️", match: ["editor.html"] },
-        { href: "audit.html", text: "آنالیزور سایت", icon: "🔍", match: ["audit.html"] },
-        { href: "site-health-checker.html", text: "بررسی سلامت سایت", icon: "🩺", match: ["site-health-checker.html"] },
-        { href: "dns-checker.html", text: "بررسی DNS دامنه", icon: "🌐", match: ["dns-checker.html"] },
-        { href: "whois.html", text: "دامنه مال کیه؟ (WHOIS)", icon: "🔎", match: ["whois.html"] },
-        { href: "ip-tools.html", text: "بررسی آی‌پی (IP)", icon: "🌍", match: ["ip-tools.html"] },
-        { href: "dev-tools.html", text: "ابزارهای توسعه‌دهنده", icon: "🧰", match: ["dev-tools.html"] },
-        { href: "qr.html", text: "QR کد ساز", icon: "📱", match: ["qr.html"] },
-        { href: "invoice.html", text: "فاکتور ساز", icon: "🧾", match: ["invoice.html"] },
-        { href: "project-estimator.html", text: "برآورد هزینه پروژه", icon: "📐", match: ["project-estimator.html"] },
-        { href: "image-compressor.html", text: "فشرده‌سازی تصویر", icon: "🖼️", match: ["image-compressor.html"] },
-        { href: "image-converter.html", text: "تبدیل فرمت تصویر", icon: "🔄", match: ["image-converter.html"] },
-        { href: "pdf-tools.html", text: "ابزار PDF", icon: "📄", match: ["pdf-tools.html"] }
+        {
+          category: "🎨 طراحی و ساخت وب",
+          items: [
+            { href: "playground.html", text: "پلی‌گراند کد زنده", icon: "⚡", match: ["playground.html"] },
+            { href: "editor.html", text: "ویرایش آنلاین قالب", icon: "🛠️", match: ["editor.html"] },
+            { href: "project-upload.html", text: "بارگذاری پروژه", icon: "📦", match: ["project-upload.html"] },
+            { href: "image-compressor.html", text: "فشرده‌سازی تصویر", icon: "🖼️", match: ["image-compressor.html"] },
+            { href: "image-converter.html", text: "تبدیل فرمت تصویر", icon: "🔄", match: ["image-converter.html"] }
+          ]
+        },
+        {
+          category: "🌐 بررسی و آنالیز سایت",
+          items: [
+            { href: "audit.html", text: "آنالیزور سایت", icon: "🔍", match: ["audit.html"] },
+            { href: "site-health-checker.html", text: "بررسی سلامت سایت", icon: "🩺", match: ["site-health-checker.html"] },
+            { href: "dns-checker.html", text: "بررسی DNS دامنه", icon: "🌐", match: ["dns-checker.html"] },
+            { href: "whois.html", text: "دامنه مال کیه؟ (WHOIS)", icon: "🔎", match: ["whois.html"] },
+            { href: "ip-tools.html", text: "بررسی آی‌پی (IP)", icon: "🌍", match: ["ip-tools.html"] }
+          ]
+        },
+        {
+          category: "🧰 ابزارهای کاربردی",
+          items: [
+            { href: "dev-tools.html", text: "ابزارهای توسعه‌دهنده", icon: "🧰", match: ["dev-tools.html"] },
+            { href: "qr.html", text: "QR کد ساز", icon: "📱", match: ["qr.html"] },
+            { href: "invoice.html", text: "فاکتور ساز", icon: "🧾", match: ["invoice.html"] },
+            { href: "project-estimator.html", text: "برآورد هزینه پروژه", icon: "📐", match: ["project-estimator.html"] },
+            { href: "pdf-tools.html", text: "ابزار PDF", icon: "📄", match: ["pdf-tools.html"] }
+          ]
+        }
       ]
     },
     {
@@ -492,10 +518,13 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   const linksHTML = NAV_LINKS.map((l, gi) => {
     if (l.group) {
       const groupActive = isActive(l.match);
-      const childrenHTML = l.children.map(c => {
+      const renderLink = (c) => {
         const cActive = isActive(c.match);
         return `<a href="${c.href}"${cActive ? ' class="active"' : ""}><span class="mm-sub-icon">${c.icon || ""}</span>${c.text}</a>`;
-      }).join("\n      ");
+      };
+      const childrenHTML = l.categorized
+        ? l.children.map(cat => `<div class="mm-subcat"><div class="mm-subcat-title">${cat.category}</div>${cat.items.map(renderLink).join("\n        ")}</div>`).join("\n      ")
+        : l.children.map(renderLink).join("\n      ");
       return `
   <div class="mm-group${groupActive ? " open" : ""}">
     <button type="button" class="mm-group-toggle${groupActive ? " active" : ""}" aria-expanded="${groupActive ? "true" : "false"}">
@@ -797,7 +826,8 @@ ${quickDockHTML}
       "qr.html": "QR کد ساز",
       "invoice.html": "فاکتور ساز",
       "project-estimator.html": "برآورد هزینه پروژه",
-      "image-compressor.html": "فشرده‌سازی تصویر"
+      "image-compressor.html": "فشرده‌سازی تصویر",
+      "project-upload.html": "بارگذاری پروژه"
     };
     const pageName = TRACKED_PAGES[current];
     if (pageName && !sessionStorage.getItem("visited_" + current)) {
