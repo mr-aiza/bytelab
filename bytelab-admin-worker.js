@@ -31,6 +31,11 @@
 //
 //  KV Binding لازم: LEADS_KV → دقیقاً همون namespace ای که وورکر
 //  bytelab-telegram (telegram/worker.js) استفاده می‌کنه.
+//
+//  لاگ فعالیت (کلید KV: admin_activity) بین این Worker و bytelab-telegram
+//  کاملاً مشترکه — اقداماتی که از تلگرام هم انجام بشن، با فیلد source
+//  ("telegram") تو همین لاگ ثبت می‌شن و از منوی «لاگ فعالیت‌ها» در هر دو
+//  رابط (پنل وب و داشبورد تلگرام) با هم دیده می‌شن.
 // ============================================================
 
 const DEFAULT_SESSION_HOURS = 12;
@@ -150,7 +155,7 @@ async function logActivity(env, action, detail) {
   try {
     const raw = await env.LEADS_KV.get("admin_activity");
     let logs = raw ? JSON.parse(raw) : [];
-    logs.unshift({ action, detail: detail || null, time: Date.now() });
+    logs.unshift({ action, detail: detail || null, time: Date.now(), source: "panel" });
     if (logs.length > ACTIVITY_LOG_CAP) logs = logs.slice(0, ACTIVITY_LOG_CAP);
     await env.LEADS_KV.put("admin_activity", JSON.stringify(logs));
   } catch (err) {
