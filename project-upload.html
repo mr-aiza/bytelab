@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بارگذاری پروژه | بایت‌لب</title>
+<script src="assets/bytelab-auth.js"></script>
+<meta name="description" content="فایل‌های HTML، CSS و جاوااسکریپت پروژه‌ت رو بارگذاری کن، پیش‌نمایش زنده بگیر، دانلود ZIP کن یا مستقیم تو حساب کاربری‌ت ذخیره کن.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://bytelabpro.xyz/project-upload.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="بایت‌لب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="بارگذاری پروژه | بایت‌لب">
+<meta property="og:description" content="فایل‌های HTML، CSS و جاوااسکریپت پروژه‌ت رو بارگذاری کن، پیش‌نمایش زنده بگیر و تو حساب کاربری‌ت ذخیره کن.">
+<meta property="og:url" content="https://bytelabpro.xyz/project-upload.html">
+<meta property="og:image" content="https://bytelabpro.xyz/favicon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- JSZip برای دانلود ZIP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<style>
+  :root{
+    --ink:#070b12;
+    --panel:#0f1620;
+    --panel-2:#141d2b;
+    --line:#1e2a38;
+    --cyan:#4df0c9;
+    --violet:#9c7bff;
+    --paper:#eaf0f4;
+    --muted:#7c8b9c;
+    --danger:#ff8a8a;
+    --success:#66d9a6;
+    --radius:18px;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;
+    line-height:1.7;
+    min-height:100vh;
+    padding:0;
+  }
+
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.02em;font-size:13px;}
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ============================================================
+     Overlay ورود (همون الگوی playground.html)
+  ============================================================ */
+  .auth-overlay{
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(7,11,18,.96);backdrop-filter:blur(8px);
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;opacity:1;
+    transition:opacity .3s ease;
+    padding:20px;
+  }
+  .auth-overlay.hidden{ opacity:0;pointer-events:none; }
+  .auth-modal{
+    background:var(--panel);border:1px solid var(--line);border-radius:24px;
+    padding:40px;max-width:420px;text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .auth-modal h2{
+    font-size:24px;font-weight:800;margin-bottom:14px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .auth-modal p{ color:var(--muted);font-size:15px;line-height:1.8;margin-bottom:28px; }
+  .auth-modal .auth-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    color:#06120f;font-weight:800;font-size:15px;
+    border:none;border-radius:999px;
+    padding:14px 32px;cursor:pointer;
+    box-shadow:0 0 24px rgba(77,240,201,.3);
+    transition:transform .2s ease, box-shadow .2s ease;
+    text-decoration:none;
+  }
+  .auth-modal .auth-btn:hover{ transform:translateY(-2px);box-shadow:0 0 32px rgba(77,240,201,.5); }
+
+  /* فاصله‌ی بالای صفحه برای هدر ثابت سایت */
+  #wizardMain{ padding-top:120px; }
+
+  /* ============================================================
+     مشترک بین مرحله ۱ و ۲ (کارت‌ها، دکمه‌ها، تیتر و ...)
+     پیش‌فرض‌ها: سایز دکمه/اسپینر/نقطه‌ی وضعیت مطابق مرحله ۱ و ۲.
+     مرحله ۳ (لی‌آوت تمام‌صفحه) پایین‌تر اورراید می‌شه.
+  ============================================================ */
+  .wrap{max-width:1000px;margin:0 auto;padding:20px;}
+
+  .top-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:40px;
+  }
+
+  .back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--cyan);
+    padding:10px 16px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:14px;
+    transition:all .2s ease;
+  }
+  .back-btn:hover{ background:var(--panel-2); border-color:var(--cyan); }
+
+  h1{
+    font-size:32px;
+    font-weight:800;
+    margin-bottom:12px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+
+  .subtitle{ color:var(--muted); font-size:15px; margin-bottom:40px; }
+
+  .form-container, .container{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:40px;
+    margin-bottom:40px;
+  }
+
+  .progress-bar{ display:flex; gap:8px; margin-bottom:32px; }
+  .progress-step{ flex:1; height:6px; background:var(--panel-2); border-radius:3px; overflow:hidden; }
+  .progress-step.active{ background:var(--cyan); }
+  .progress-step.completed{ background:var(--success); }
+
+  .info-box{
+    background:rgba(77,240,201,.05);
+    border-left:3px solid var(--cyan);
+    padding:16px;
+    border-radius:8px;
+    margin-bottom:24px;
+    font-size:13px;
+    line-height:1.6;
+  }
+  .info-box strong{ color:var(--cyan); }
+
+  .section{ margin-bottom:32px; }
+  .section:last-child{ margin-bottom:0; }
+  .section-title{
+    font-size:16px;
+    font-weight:700;
+    color:var(--cyan);
+    margin-bottom:16px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .section-title::before{
+    content:'';
+    width:3px;
+    height:16px;
+    background:var(--cyan);
+    border-radius:2px;
+  }
+
+  /* Input Group (مرحله ۱) */
+  .input-group{ margin-bottom:20px; }
+  .input-group:last-child{ margin-bottom:0; }
+
+  label{ display:block; font-size:14px; font-weight:600; margin-bottom:8px; color:var(--paper); }
+
+  input[type="text"], input[type="file"]{
+    width:100%;
+    padding:12px 14px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;
+    font-size:14px;
+    transition:all .2s ease;
+  }
+  input[type="text"]::placeholder{ color:var(--muted); }
+  input[type="text"]:focus, input[type="file"]:focus{
+    outline:none; border-color:var(--cyan); box-shadow:0 0 16px rgba(77,240,201,.2);
+  }
+  input[type="file"]{ cursor:pointer; padding:32px 14px; text-align:center; }
+  input[type="file"]::file-selector-button{
+    background:linear-gradient(135deg,var(--cyan),var(--cyan));
+    color:var(--ink);
+    border:none;
+    padding:10px 16px;
+    border-radius:8px;
+    font-weight:700;
+    cursor:pointer;
+    font-size:14px;
+    margin-right:12px;
+  }
+  input[type="file"]::file-selector-button:hover{ opacity:0.9; }
+
+  .file-status{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    background:rgba(77,240,201,.08);
+    border:1px solid rgba(77,240,201,.3);
+    border-radius:8px;
+    font-size:13px;
+    margin-top:6px;
+  }
+  .file-status.success{ background:rgba(102,217,166,.08); border-color:rgba(102,217,166,.3); color:var(--success); }
+  .file-status.error{ background:rgba(255,138,138,.08); border-color:rgba(255,138,138,.3); color:var(--danger); }
+
+  /* نقطه‌ی وضعیت: پیش‌فرض = نسخه‌ی سبز کوچیک (مرحله ۲/۳) */
+  .status-dot{ width:6px; height:6px; border-radius:50%; background:var(--success); }
+  /* داخل کارت آپلود مرحله ۱ رنگش پویاست (currentColor) و کمی بزرگ‌تره */
+  #step1 .status-dot{ width:8px; height:8px; background:currentColor; }
+
+  .button-group{
+    display:flex;
+    gap:12px;
+    margin-top:32px;
+    padding-top:32px;
+    border-top:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+
+  button{
+    padding:14px 24px;
+    border:none;
+    border-radius:12px;
+    font-family:'Vazirmatn',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    transition:all .2s ease;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    justify-content:center;
+  }
+  .btn-primary{ background:linear-gradient(135deg,var(--cyan),var(--cyan)); color:var(--ink); flex:1; }
+  .btn-primary:hover:not(:disabled){ transform:translateY(-2px); box-shadow:0 8px 24px rgba(77,240,201,.3); }
+  .btn-primary:disabled{ opacity:0.5; cursor:not-allowed; }
+  .btn-secondary{ background:var(--panel-2); border:1px solid var(--line); color:var(--paper); flex:1; }
+  .btn-secondary:hover{ background:var(--panel); border-color:var(--cyan); }
+  .btn-violet{ background:linear-gradient(135deg,var(--violet),var(--violet)); color:var(--ink); flex:1; }
+  .btn-violet:hover:not(:disabled){ transform:translateY(-2px); box-shadow:0 8px 24px rgba(156,123,255,.3); }
+
+  /* پیش‌نمایش فایل‌ها (مرحله ۱) */
+  .preview-container{ margin-top:40px; }
+  .preview-title{ font-size:20px; font-weight:700; margin-bottom:20px; color:var(--paper); }
+  .files-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+  .file-card{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px; transition:all .3s ease; }
+  .file-card:hover{ border-color:var(--cyan); box-shadow:0 0 24px rgba(77,240,201,.1); }
+  .file-card-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .file-type-badge{ display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:8px; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px; }
+  .file-type-badge.html{ background:rgba(255,127,80,.15); color:#ff7f50; }
+  .file-type-badge.css{ background:rgba(100,149,237,.15); color:#6495ed; }
+  .file-type-badge.js{ background:rgba(240,230,140,.15); color:#f0e68c; }
+  .file-info{ flex:1; }
+  .file-name{ font-weight:700; font-size:15px; color:var(--paper); margin-bottom:4px; word-break:break-all; }
+  .file-size{ font-size:12px; color:var(--muted); }
+  .file-delete{ background:none; border:none; color:var(--danger); cursor:pointer; padding:4px 8px; font-size:16px; transition:color .2s ease; }
+  .file-delete:hover{ color:#ff6b6b; }
+  .file-content-preview{ background:var(--panel-2); border-radius:8px; padding:12px; margin-top:12px; max-height:150px; overflow-y:auto; }
+  .file-content-preview code{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); white-space:pre-wrap; word-break:break-all; }
+
+  .empty-state{ text-align:center; padding:40px 20px; background:var(--panel-2); border-radius:var(--radius); border:1px dashed var(--line); }
+  .empty-state-icon{ font-size:48px; margin-bottom:16px; }
+  .empty-state-text{ color:var(--muted); font-size:14px; }
+
+  /* فایل‌های نمونه‌ی تست (توکار در مرحله ۱) */
+  .sample-toggle{ margin-top:16px; }
+  .sample-panel{
+    display:none;
+    margin-top:20px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px;
+  }
+  .sample-panel.open{ display:block; }
+  .sample-panel .sample-hint{ color:var(--muted); font-size:13px; margin-bottom:20px; }
+  .sample-files-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+  .sample-file-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px; }
+  .sample-file-card .sfc-header{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .sample-file-card .sfc-icon{ font-size:26px; }
+  .sample-file-card h4{ font-weight:700; font-size:14px; margin-bottom:2px; }
+  .sample-file-card .sfc-type{ font-size:11px; color:var(--muted); }
+  .sample-file-card .sfc-content{ background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:10px; margin-bottom:12px; max-height:120px; overflow-y:auto; }
+  .sample-file-card .sfc-content code{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted); white-space:pre-wrap; word-break:break-all; }
+  .sample-file-card .sfc-dl{ width:100%; background:var(--cyan); color:var(--ink); border:none; border-radius:8px; padding:10px; font-weight:700; cursor:pointer; font-family:'Vazirmatn',sans-serif; font-size:13px; transition:all .2s ease; }
+  .sample-file-card .sfc-dl:hover{ transform:translateY(-2px); box-shadow:0 4px 12px rgba(77,240,201,.3); }
+  .sample-use-btn{ width:100%; margin-top:24px; }
+
+  /* Folder tree (مرحله ۲) */
+  .folder-tree{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    line-height:1.8;
+    overflow-x:auto;
+  }
+  .folder-line{ color:var(--muted); margin-bottom:4px; }
+  .folder-indent-1{ padding-left:20px; }
+  .folder-indent-2{ padding-left:40px; }
+  .folder-indent-3{ padding-left:60px; }
+  .folder-icon{ color:var(--cyan); margin-right:6px; }
+  .ft-icon{ color:var(--violet); margin-right:6px; }
+  .ft-name{ color:var(--paper); }
+
+  .file-list{ margin-top:20px; }
+  .file-item{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .file-item-info{ display:flex; align-items:center; gap:12px; }
+  .file-item-icon{ font-size:20px; }
+  .file-item-content{ flex:1; }
+  .file-item-name{ font-weight:600; color:var(--paper); margin-bottom:4px; font-family:'JetBrains Mono',monospace; font-size:13px; }
+  .file-item-status{ display:flex; align-items:center; gap:4px; font-size:12px; color:var(--success); }
+
+  .status-message{
+    background:rgba(102,217,166,.1);
+    border-left:3px solid var(--success);
+    padding:16px;
+    border-radius:8px;
+    margin-bottom:24px;
+    color:var(--success);
+    font-size:14px;
+    display:none;
+  }
+  .status-message.show{ display:block; }
+  .status-message.error-msg{
+    background:rgba(255,138,138,.1);
+    border-left-color:var(--danger);
+    color:var(--danger);
+  }
+
+  /* پنل «ذخیره در حساب کاربری» + پروژه‌های ذخیره‌شده (افزوده‌ی جدید) */
+  .save-account-box{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px;
+    margin-top:8px;
+  }
+  .save-account-box .sab-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .save-account-box .sab-info{ font-size:13px; color:var(--muted); }
+  .save-account-box .sab-info b{ color:var(--cyan); }
+  .my-projects-list{ margin-top:16px; display:none; }
+  .my-projects-list.show{ display:block; }
+  .my-projects-list .mp-item{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; margin-bottom:8px; font-size:13px;
+  }
+  .my-projects-list .mp-item .mp-name{ font-family:'JetBrains Mono',monospace; color:var(--paper); font-weight:600; }
+  .my-projects-list .mp-item .mp-meta{ color:var(--muted); font-size:11.5px; margin-top:2px; }
+  .my-projects-list .mp-load{
+    background:var(--panel-2); border:1px solid var(--line); color:var(--cyan);
+    padding:6px 12px; border-radius:8px; font-size:12px; cursor:pointer; font-weight:700;
+  }
+  .my-projects-list .mp-load:hover{ border-color:var(--cyan); }
+
+  .spinner{
+    display:inline-block; width:16px; height:16px;
+    border:2px solid rgba(77,240,201,.2); border-top-color:var(--cyan);
+    border-radius:50%; animation:spin .6s linear infinite;
+  }
+
+  @media(max-width:640px){
+    h1{ font-size:24px; }
+    .form-container, .container{ padding:24px; }
+    .button-group{ flex-direction:column; }
+    .files-grid{ grid-template-columns:1fr; }
+    .folder-tree{ font-size:12px; padding:16px; }
+    .folder-indent-1{ padding-left:16px; }
+    .folder-indent-2{ padding-left:32px; }
+    .folder-indent-3{ padding-left:48px; }
+  }
+
+  /* ============================================================
+     مرحله ۳ — لی‌آوت تمام‌صفحه‌ی پیش‌نمایش زنده (اورراید محلی)
+  ============================================================ */
+  .step-view{ display:none; }
+  .step-view.active{ display:block; }
+  #step3.active{ display:flex; flex-direction:column; min-height:calc(100vh - 120px); }
+
+  #step3 .pu-header{
+    background:var(--panel);
+    border-bottom:1px solid var(--line);
+    padding:16px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  #step3 .pu-header-left{ display:flex; align-items:center; gap:16px; }
+  #step3 .back-btn{ padding:8px 12px; font-size:13px; gap:6px; }
+  #step3 .project-info{ display:flex; align-items:center; gap:12px; }
+  #step3 .project-name{
+    font-weight:700; font-size:16px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  #step3 .project-status{ font-size:12px; color:var(--success); display:flex; align-items:center; gap:4px; }
+  #step3 .pu-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  #step3 button{ padding:8px 14px; font-size:13px; gap:6px; }
+  #step3 .spinner{ width:12px; height:12px; }
+
+  #step3 .main-content{ display:grid; grid-template-columns:1fr 1fr; gap:0; flex:1; overflow:hidden; }
+  #step3 .code-panel{ background:var(--panel); border-right:1px solid var(--line); display:flex; flex-direction:column; overflow:hidden; }
+  #step3 .code-panel-header{ background:var(--panel-2); border-bottom:1px solid var(--line); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; }
+  #step3 .code-tabs{ display:flex; gap:8px; overflow-x:auto; }
+  #step3 .code-tab{ padding:6px 12px; background:none; border:none; border-bottom:2px solid transparent; color:var(--muted); cursor:pointer; font-weight:600; font-size:12px; transition:all .2s ease; }
+  #step3 .code-tab.active{ color:var(--cyan); border-bottom-color:var(--cyan); }
+  #step3 .code-tab:hover{ color:var(--paper); }
+  #step3 .code-editor{ flex:1; overflow:auto; padding:16px; background:var(--ink); }
+  #step3 .code-editor code{ font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; color:var(--muted); white-space:pre-wrap; word-break:break-all; }
+  #step3 .code-editor code .tag{ color:#ff7f50; }
+  #step3 .code-editor code .attr{ color:#66d9a6; }
+  #step3 .preview-panel{ background:var(--paper); display:flex; flex-direction:column; overflow:hidden; }
+  #step3 .preview-header{ background:#f0f0f0; border-bottom:1px solid #ddd; padding:12px 16px; font-weight:600; font-size:13px; color:#333; }
+  #step3 .preview-container-full{ flex:1; overflow:auto; background:white; }
+  #step3 #preview-iframe{ width:100%; height:100%; border:none; }
+
+  @media(max-width:1024px){
+    #step3 .main-content{ grid-template-columns:1fr; }
+    #step3 .code-panel{ border-right:none; border-bottom:1px solid var(--line); max-height:50%; }
+  }
+  @media(max-width:768px){
+    #step3 .pu-header{ flex-direction:column; align-items:flex-start; }
+    #step3 .pu-actions{ width:100%; }
+    #step3 .pu-actions button{ flex:1; }
+  }
+</style>
+</head>
+<body>
+
+<div id="siteHeaderPlaceholder"></div>
+
+<!-- Overlay محافظت با ورود -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-modal">
+    <h2>🔐 دسترسی محدود</h2>
+    <p>ابزار «بارگذاری پروژه» فقط برای اعضای ثبت‌نام‌شده‌ی بایت‌لب فعاله. لطفاً ابتدا به حساب خود وارد شوید.</p>
+    <a href="account.html" class="auth-btn">ورود / ثبت‌نام ←</a>
+  </div>
+</div>
+
+<div id="wizardMain">
+
+  <!-- ==================== مرحله ۱: بارگذاری ==================== -->
+  <section id="step1" class="step-view active">
+    <div class="wrap">
+
+      <div class="top-bar">
+        <button class="back-btn" onclick="history.back()">← بازگشت</button>
+      </div>
+
+      <h1>📦 بارگذاری پروژه</h1>
+      <p class="subtitle">فایل‌های HTML، CSS و JavaScript خود را بارگذاری کنید — قدم اول</p>
+
+      <div class="form-container">
+
+        <div class="info-box">
+          <strong>💡 نکته:</strong> فایل‌ها فقط داخل همین صفحه نگه‌داری می‌شن؛ در مرحله‌ی بعد می‌تونی دانلودشون کنی یا مستقیم تو حساب کاربری‌ت ذخیره کنی.
+        </div>
+
+        <div class="section">
+          <div class="section-title">نام پروژه</div>
+          <div class="input-group">
+            <label for="projectName">نام پروژه یا نام کاربری</label>
+            <input type="text" id="projectName" placeholder="مثال: my-awesome-project" maxlength="50">
+            <div class="file-status">
+              <span class="status-dot"></span>
+              <span id="nameStatus">فقط حروف، اعداد و خط فاصله</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">فایل‌های پروژه</div>
+
+          <div class="input-group">
+            <label for="htmlFile">📄 فایل HTML</label>
+            <input type="file" id="htmlFile" accept=".html">
+            <div id="htmlStatus" class="file-status" style="display:none;">
+              <span class="status-dot"></span>
+              <span id="htmlStatusText">آماده</span>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="cssFile">🎨 فایل CSS</label>
+            <input type="file" id="cssFile" accept=".css">
+            <div id="cssStatus" class="file-status" style="display:none;">
+              <span class="status-dot"></span>
+              <span id="cssStatusText">آماده</span>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="jsFile">⚙️ فایل JavaScript</label>
+            <input type="file" id="jsFile" accept=".js">
+            <div id="jsStatus" class="file-status" style="display:none;">
+              <span class="status-dot"></span>
+              <span id="jsStatusText">آماده</span>
+            </div>
+          </div>
+
+          <div class="sample-toggle">
+            <button type="button" class="btn-secondary" style="width:100%;" onclick="toggleSamplePanel()">🧪 فایل‌های نمونه برای تست ندارید؟ اینجا بزنید</button>
+          </div>
+
+          <!-- ============ فایل‌های نمونه‌ی تست (از sample-project-test.html) ============ -->
+          <div class="sample-panel" id="samplePanel">
+            <div class="sample-hint">سه فایل تست آماده برای امتحان‌کردن ویژگی بارگذاری پروژه — دانلود کن و آپلود کن، یا مستقیم «استفاده در این پروژه» رو بزن.</div>
+
+            <div class="sample-files-grid">
+              <div class="sample-file-card">
+                <div class="sfc-header">
+                  <div class="sfc-icon">📄</div>
+                  <div>
+                    <h4>index.html</h4>
+                    <div class="sfc-type">فایل HTML</div>
+                  </div>
+                </div>
+                <div class="sfc-content"><code id="sampleHtmlPreview"></code></div>
+                <button class="sfc-dl" onclick="downloadSampleFile('index.html', SAMPLE_FILES.html)">💾 دانلود HTML</button>
+              </div>
+
+              <div class="sample-file-card">
+                <div class="sfc-header">
+                  <div class="sfc-icon">🎨</div>
+                  <div>
+                    <h4>style.css</h4>
+                    <div class="sfc-type">فایل CSS</div>
+                  </div>
+                </div>
+                <div class="sfc-content"><code id="sampleCssPreview"></code></div>
+                <button class="sfc-dl" onclick="downloadSampleFile('style.css', SAMPLE_FILES.css)">💾 دانلود CSS</button>
+              </div>
+
+              <div class="sample-file-card">
+                <div class="sfc-header">
+                  <div class="sfc-icon">⚙️</div>
+                  <div>
+                    <h4>script.js</h4>
+                    <div class="sfc-type">فایل JavaScript</div>
+                  </div>
+                </div>
+                <div class="sfc-content"><code id="sampleJsPreview"></code></div>
+                <button class="sfc-dl" onclick="downloadSampleFile('script.js', SAMPLE_FILES.js)">💾 دانلود JS</button>
+              </div>
+            </div>
+
+            <button type="button" class="btn-primary sample-use-btn" onclick="useSampleProject()">⚡ استفاده مستقیم از این فایل‌های نمونه در پروژه</button>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn-secondary" onclick="clearAllFiles()">🗑️ پاک کردن</button>
+          <button class="btn-primary" id="nextBtn" disabled onclick="goToStep2()">ادامه → مرحله ۲</button>
+        </div>
+      </div>
+
+      <div id="previewSection" style="display:none;">
+        <h2 class="preview-title">📋 پیش‌نمایش فایل‌ها</h2>
+        <div id="filesGrid" class="files-grid"></div>
+      </div>
+
+      <div id="emptyPreview" class="empty-state">
+        <div class="empty-state-icon">📁</div>
+        <div class="empty-state-text">فایلی بارگذاری نشده‌است</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== مرحله ۲: آماده‌سازی + ذخیره ==================== -->
+  <section id="step2" class="step-view">
+    <div class="wrap">
+
+      <div class="top-bar">
+        <button class="back-btn" onclick="goBack()">← بازگشت</button>
+      </div>
+
+      <h1>🚀 مرحله ۲: آماده‌سازی پروژه</h1>
+      <p class="subtitle" id="projectNameDisplay">لطفاً صبر کنید...</p>
+
+      <div class="progress-bar" style="margin-bottom:40px;">
+        <div class="progress-step completed"></div>
+        <div class="progress-step active"></div>
+        <div class="progress-step"></div>
+      </div>
+
+      <div class="container">
+
+        <div class="info-box">
+          <strong>✅ موفق:</strong> فایل‌های شما دریافت شدند. حالا می‌توانید پروژه را به‌صورت ZIP دانلود کنید، مستقیم در حساب کاربری‌تان ذخیره کنید، یا در مرحله‌ی بعدی به محیط پیش‌نمایش بروید.
+        </div>
+
+        <div id="statusMessage" class="status-message">✓ پروژه آماده است</div>
+
+        <div class="section">
+          <div class="section-title">👤 اطلاعات پروژه</div>
+          <div style="background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:16px;">
+            <div style="margin-bottom:8px;">
+              <span style="color:var(--muted);font-size:13px;">نام پروژه:</span>
+            </div>
+            <div style="font-weight:700;font-size:16px;color:var(--cyan);" id="projectNameValue">...</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">📁 ساختار پوشه</div>
+          <div class="folder-tree">
+            <div class="folder-line">
+              <span class="folder-icon">📦</span>
+              <span class="ft-name" id="folderName">project-name</span>
+            </div>
+            <div class="folder-line folder-indent-1">
+              <span class="ft-icon">📄</span>
+              <span class="ft-name" id="htmlFileName">index.html</span>
+            </div>
+            <div class="folder-line folder-indent-1">
+              <span class="ft-icon">🎨</span>
+              <span class="ft-name" id="cssFileName">style.css</span>
+            </div>
+            <div class="folder-line folder-indent-1">
+              <span class="ft-icon">⚙️</span>
+              <span class="ft-name" id="jsFileName">script.js</span>
+            </div>
+            <div class="folder-line folder-indent-1">
+              <span class="ft-icon">📋</span>
+              <span class="ft-name">README.md</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">📋 جزئیات فایل‌ها</div>
+          <div class="file-list" id="fileList"></div>
+        </div>
+
+        <!-- ============ ذخیره در حساب کاربری (افزوده‌ی جدید) ============ -->
+        <div class="section">
+          <div class="section-title">☁️ ذخیره در حساب کاربری</div>
+          <div class="save-account-box">
+            <div class="sab-row">
+              <div class="sab-info">پروژه با نام حساب شما (<b id="sabUserLabel">...</b>) و در پوشه‌ی اختصاصی خودتون ذخیره می‌شه؛ کاربر دیگه‌ای بهش دسترسی نداره.</div>
+              <button class="btn-violet" id="saveAccountBtn" style="flex:0 0 auto;" onclick="saveProjectToAccount()">☁️ ذخیره در حساب</button>
+            </div>
+            <div id="saveAccountMsg" style="margin-top:10px;font-size:13px;display:none;"></div>
+
+            <button type="button" class="btn-secondary" style="width:100%;margin-top:14px;" onclick="toggleMyProjects()">📂 پروژه‌های ذخیره‌شده‌ی من</button>
+            <div class="my-projects-list" id="myProjectsList"></div>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn-secondary" onclick="goBack()">← بازگشت</button>
+          <button class="btn-primary" id="downloadBtn" onclick="downloadAsZip()">💾 دانلود ZIP</button>
+          <button class="btn-violet" id="nextBtn2" onclick="goToStep3()">👁️ مرحله ۳: پیش‌نمایش →</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== مرحله ۳: پیش‌نمایش زنده ==================== -->
+  <section id="step3" class="step-view">
+
+    <div class="pu-header">
+      <div class="pu-header-left">
+        <button class="back-btn" onclick="goBack()">← بازگشت</button>
+        <div class="project-info">
+          <div class="project-name" id="projectNameStep3">...</div>
+          <div class="project-status">
+            <span class="status-dot"></span>
+            <span>فعال</span>
+          </div>
+        </div>
+      </div>
+      <div class="pu-actions">
+        <button class="btn-secondary" id="refreshBtn" onclick="refreshPreview()">🔄 تازه‌کردن</button>
+        <button class="btn-violet" id="saveAccountBtn3" onclick="saveProjectToAccount()">☁️ ذخیره</button>
+        <button class="btn-primary" id="downloadBtn3" onclick="downloadAsZip()">💾 دانلود</button>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="code-panel">
+        <div class="code-panel-header">
+          <div class="code-tabs" id="codeTabs"></div>
+        </div>
+        <div class="code-editor" id="codeEditor">
+          <code id="codeContent"></code>
+        </div>
+      </div>
+
+      <div class="preview-panel">
+        <div class="preview-header">👁️ پیش‌نمایش زنده</div>
+        <div class="preview-container-full">
+          <iframe id="preview-iframe"></iframe>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+<script>
+  // ============================================================
+  // فایل‌های نمونه‌ی تست (از sample-project-test.html)
+  // ============================================================
+  const SAMPLE_FILES = {
+    html: `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>پروژه تست</title>
+</head>
+<body>
+  <div class="container">
+    <h1>سلام بایت‌لب 👋</h1>
+    <p id="counter">شمارنده: 0</p>
+    <button id="btn">افزایش +1</button>
+  </div>
+</body>
+</html>`,
+    css: `* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #070b12, #0f1620);
+  color: #eaf0f4;
+  font-family: 'Vazirmatn', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  text-align: center;
+  padding: 40px;
+  background: rgba(15, 22, 32, 0.8);
+  border-radius: 18px;
+  border: 1px solid #1e2a38;
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-size: 32px;
+}
+
+#counter {
+  font-size: 18px;
+  color: #4df0c9;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #4df0c9, #9c7bff);
+  color: #070b12;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(77, 240, 201, 0.3);
+}`,
+    js: `// شمارنده
+let count = 0;
+
+const button = document.getElementById('btn');
+const counter = document.getElementById('counter');
+
+// رویداد کلیک
+button.addEventListener('click', () => {
+  count++;
+  counter.textContent = 'شمارنده: ' + count;
+
+  // انیمیشن
+  button.style.transform = 'scale(0.95)';
+  setTimeout(() => {
+    button.style.transform = 'scale(1)';
+  }, 100);
+});
+
+// پیام خوش‌آمدی
+console.log('🎉 پروژه به‌درستی لود شد!');
+console.log('دکمه را کلیک کن تا شمارنده افزایش پیدا کند');`
+  };
+
+  document.getElementById('sampleHtmlPreview').textContent = SAMPLE_FILES.html.slice(0, 200) + (SAMPLE_FILES.html.length > 200 ? '\n...' : '');
+  document.getElementById('sampleCssPreview').textContent = SAMPLE_FILES.css.slice(0, 200) + (SAMPLE_FILES.css.length > 200 ? '\n...' : '');
+  document.getElementById('sampleJsPreview').textContent = SAMPLE_FILES.js.slice(0, 200) + (SAMPLE_FILES.js.length > 200 ? '\n...' : '');
+
+  function toggleSamplePanel() {
+    document.getElementById('samplePanel').classList.toggle('open');
+  }
+
+  function downloadSampleFile(filename, content) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function useSampleProject() {
+    uploadedFiles.html = { name: 'index.html', size: new Blob([SAMPLE_FILES.html]).size, content: SAMPLE_FILES.html };
+    uploadedFiles.css  = { name: 'style.css',  size: new Blob([SAMPLE_FILES.css]).size,  content: SAMPLE_FILES.css };
+    uploadedFiles.js   = { name: 'script.js',  size: new Blob([SAMPLE_FILES.js]).size,   content: SAMPLE_FILES.js };
+
+    ['html', 'css', 'js'].forEach((type) => {
+      const statusElement = document.getElementById(type + 'Status');
+      const statusText = document.getElementById(type + 'StatusText');
+      statusElement.style.display = 'flex';
+      statusElement.classList.add('success');
+      statusText.textContent = `✓ ${uploadedFiles[type].name} (${formatFileSize(uploadedFiles[type].size)})`;
+    });
+
+    const nameInput = document.getElementById('projectName');
+    if (!nameInput.value.trim()) {
+      nameInput.value = 'sample-project';
+      validateProjectName('sample-project');
+    }
+
+    document.getElementById('samplePanel').classList.remove('open');
+    updatePreview();
+    checkCanProceed();
+  }
+
+  // ============================================================
+  // وضعیت مشترک ویزارد (جایگزین sessionStorage قدیمی — همه‌چیز تو یک صفحه‌ست)
+  // ============================================================
+  let uploadedFiles = { html: null, css: null, js: null };
+  let projectData = { name: '', files: {} };
+  let currentStep = 1;
+  let currentTab = 'html';
+
+  function showStep(n) {
+    document.querySelectorAll('.step-view').forEach((el) => el.classList.remove('active'));
+    document.getElementById('step' + n).classList.add('active');
+    currentStep = n;
+    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  }
+
+  function goBack() {
+    if (currentStep === 3) { showStep(2); return; }
+    if (currentStep === 2) { showStep(1); return; }
+    history.back();
+  }
+
+  // ---------------- مرحله ۱ ----------------
+  document.getElementById('htmlFile').addEventListener('change', (e) => handleFileUpload(e, 'html'));
+  document.getElementById('cssFile').addEventListener('change', (e) => handleFileUpload(e, 'css'));
+  document.getElementById('jsFile').addEventListener('change', (e) => handleFileUpload(e, 'js'));
+  document.getElementById('projectName').addEventListener('input', (e) => validateProjectName(e.target.value));
+
+  function handleFileUpload(event, type) {
+    const file = event.target.files[0];
+    const statusElement = document.getElementById(type + 'Status');
+    const statusText = document.getElementById(type + 'StatusText');
+
+    if (file) {
+      uploadedFiles[type] = { name: file.name, size: file.size, content: null, file: file };
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        uploadedFiles[type].content = e.target.result;
+        statusElement.classList.add('success');
+        statusText.textContent = `✓ ${file.name} (${formatFileSize(file.size)})`;
+        updatePreview();
+        checkCanProceed();
+      };
+      reader.readAsText(file);
+
+      statusElement.style.display = 'flex';
+    } else {
+      uploadedFiles[type] = null;
+      statusElement.style.display = 'none';
+      updatePreview();
+      checkCanProceed();
+    }
+  }
+
+  function validateProjectName(name) {
+    const statusElement = document.getElementById('nameStatus');
+    const isValid = /^[a-zA-Z0-9آ-ی_-]*$/.test(name) && name.length > 0;
+
+    if (name.length === 0) {
+      statusElement.textContent = 'لطفاً نام را وارد کنید';
+      document.getElementById('projectName').style.borderColor = '';
+      checkCanProceed();
+      return false;
+    }
+
+    if (isValid) {
+      statusElement.textContent = '✓ نام معتبر';
+      statusElement.classList.add('success');
+      document.getElementById('projectName').style.borderColor = 'var(--cyan)';
+    } else {
+      statusElement.textContent = '⚠️ فقط حروف، اعداد و خط فاصله مجاز';
+      statusElement.classList.remove('success');
+      document.getElementById('projectName').style.borderColor = '';
+    }
+
+    checkCanProceed();
+    return isValid;
+  }
+
+  function updatePreview() {
+    const filesGrid = document.getElementById('filesGrid');
+    const emptyPreview = document.getElementById('emptyPreview');
+    const previewSection = document.getElementById('previewSection');
+
+    filesGrid.innerHTML = '';
+    let hasFiles = false;
+
+    const types = [
+      { key: 'html', label: 'HTML', badge: 'html', icon: '📄' },
+      { key: 'css', label: 'CSS', badge: 'css', icon: '🎨' },
+      { key: 'js', label: 'JavaScript', badge: 'js', icon: '⚙️' }
+    ];
+
+    types.forEach((type) => {
+      if (uploadedFiles[type.key]) {
+        hasFiles = true;
+        const file = uploadedFiles[type.key];
+        const previewContent = file.content.substring(0, 200);
+        const isLong = file.content.length > 200;
+
+        const card = document.createElement('div');
+        card.className = 'file-card';
+        card.innerHTML = `
+          <div class="file-card-header">
+            <div class="file-info">
+              <div class="file-name">${type.icon} ${file.name}</div>
+              <div class="file-size">${formatFileSize(file.size)}</div>
+            </div>
+            <button class="file-delete" onclick="deleteFile('${type.key}')">✕</button>
+          </div>
+          <div class="file-content-preview">
+            <code>${escapeHtml(previewContent)}${isLong ? '\n...' : ''}</code>
+          </div>
+        `;
+        filesGrid.appendChild(card);
+      }
+    });
+
+    if (hasFiles) {
+      previewSection.style.display = 'block';
+      emptyPreview.style.display = 'none';
+    } else {
+      previewSection.style.display = 'none';
+      emptyPreview.style.display = 'block';
+    }
+  }
+
+  function deleteFile(type) {
+    uploadedFiles[type] = null;
+    document.getElementById(type + 'File').value = '';
+    document.getElementById(type + 'Status').style.display = 'none';
+    updatePreview();
+    checkCanProceed();
+  }
+
+  function clearAllFiles() {
+    uploadedFiles = { html: null, css: null, js: null };
+    document.getElementById('htmlFile').value = '';
+    document.getElementById('cssFile').value = '';
+    document.getElementById('jsFile').value = '';
+    document.getElementById('htmlStatus').style.display = 'none';
+    document.getElementById('cssStatus').style.display = 'none';
+    document.getElementById('jsStatus').style.display = 'none';
+    document.getElementById('projectName').value = '';
+    updatePreview();
+    checkCanProceed();
+  }
+
+  function checkCanProceed() {
+    const projectName = document.getElementById('projectName').value.trim();
+    const hasAllFiles = uploadedFiles.html && uploadedFiles.css && uploadedFiles.js;
+    const isNameValid = validateProjectName(projectName);
+    document.getElementById('nextBtn').disabled = !(hasAllFiles && isNameValid);
+  }
+
+  function goToStep2() {
+    const projectName = document.getElementById('projectName').value.trim();
+
+    projectData.name = projectName;
+    projectData.files = {
+      html: { name: uploadedFiles.html.name, content: uploadedFiles.html.content },
+      css: { name: uploadedFiles.css.name, content: uploadedFiles.css.content },
+      js: { name: uploadedFiles.js.name, content: uploadedFiles.js.content }
+    };
+
+    populateStep2();
+    showStep(2);
+  }
+
+  // ---------------- مرحله ۲ ----------------
+  function populateStep2() {
+    document.getElementById('projectNameDisplay').textContent = `پروژه: ${projectData.name}`;
+    document.getElementById('projectNameValue').textContent = projectData.name;
+    document.getElementById('folderName').textContent = projectData.name;
+
+    document.getElementById('htmlFileName').textContent = projectData.files.html.name;
+    document.getElementById('cssFileName').textContent = projectData.files.css.name;
+    document.getElementById('jsFileName').textContent = projectData.files.js.name;
+
+    renderFileList();
+    updateSaveAccountLabel();
+  }
+
+  function renderFileList() {
+    const fileList = document.getElementById('fileList');
+    fileList.innerHTML = '';
+
+    const files = [
+      { key: 'html', icon: '📄', label: 'HTML' },
+      { key: 'css', icon: '🎨', label: 'CSS' },
+      { key: 'js', icon: '⚙️', label: 'JavaScript' }
+    ];
+
+    files.forEach((f) => {
+      const fileData = projectData.files[f.key];
+      const size = formatFileSize(new Blob([fileData.content]).size);
+
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      item.innerHTML = `
+        <div class="file-item-info">
+          <div class="file-item-icon">${f.icon}</div>
+          <div class="file-item-content">
+            <div class="file-item-name">${fileData.name}</div>
+            <div class="file-item-status">
+              <span class="status-dot"></span>
+              <span>${size} • ${countLines(fileData.content)} خط</span>
+            </div>
+          </div>
+        </div>
+      `;
+      fileList.appendChild(item);
+    });
+  }
+
+  function countLines(text) { return text.split('\n').length; }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  async function downloadAsZip() {
+    const btnId = currentStep === 3 ? 'downloadBtn3' : 'downloadBtn';
+    const btn = document.getElementById(btnId);
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> در حال ایجاد ZIP...';
+
+    try {
+      const zip = new JSZip();
+      const folder = zip.folder(projectData.name);
+
+      folder.file(projectData.files.html.name, projectData.files.html.content);
+      folder.file(projectData.files.css.name, projectData.files.css.content);
+      folder.file(projectData.files.js.name, projectData.files.js.content);
+
+      const readmeContent = `# ${projectData.name}
+
+یک پروژه از بایت‌لب
+
+## فایل‌ها
+- ${projectData.files.html.name} - ساختار HTML
+- ${projectData.files.css.name} - استایل‌های CSS
+- ${projectData.files.js.name} - منطق JavaScript
+
+ساخت‌شده در: ${new Date().toLocaleString('fa-IR')}
+`;
+      folder.file('README.md', readmeContent);
+
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${projectData.name}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+
+      const statusMsg = document.getElementById('statusMessage');
+      if (statusMsg) statusMsg.classList.add('show');
+    } catch (err) {
+      console.error('خطا در ایجاد ZIP:', err);
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+      alert('خطایی در دانلود رخ داد');
+    }
+  }
+
+  function goToStep3() {
+    populateStep3();
+    showStep(3);
+  }
+
+  // ---------------- ذخیره در حساب کاربری (افزوده‌ی جدید) ----------------
+  function updateSaveAccountLabel() {
+    const label = document.getElementById('sabUserLabel');
+    if (!label) return;
+    const loggedIn = (typeof BytelabAuth !== 'undefined') && BytelabAuth.isLoggedIn();
+    if (loggedIn) {
+      const user = BytelabAuth.getUser();
+      label.textContent = (user && (user.name || user.phone)) || 'حساب شما';
+    } else {
+      label.textContent = 'برای ورود کلیک کنید';
+    }
+  }
+
+  async function saveProjectToAccount() {
+    if (!(typeof BytelabAuth !== 'undefined' && BytelabAuth.isLoggedIn())) {
+      window.location.href = 'account.html';
+      return;
+    }
+    if (!projectData.name || !projectData.files.html) {
+      alert('اول فایل‌های پروژه رو در مرحله‌ی ۱ بارگذاری کن.');
+      return;
+    }
+
+    const msgEl = document.getElementById('saveAccountMsg');
+    const btn = document.getElementById('saveAccountBtn');
+    const btn3 = document.getElementById('saveAccountBtn3');
+    [btn, btn3].forEach((b) => { if (b) { b.disabled = true; } });
+    if (btn) btn.innerHTML = '<span class="spinner"></span> در حال ذخیره...';
+
+    try {
+      const res = await BytelabAuth.apiFetch('/api/projects/save', {
+        method: 'POST',
+        body: JSON.stringify({ name: projectData.name, files: projectData.files })
+      });
+
+      if (msgEl) {
+        msgEl.style.display = 'block';
+        msgEl.style.color = 'var(--success)';
+        msgEl.textContent = `✓ پروژه «${res.project.name}» با موفقیت در پوشه‌ی اختصاصی حساب شما ذخیره شد.`;
+      }
+    } catch (err) {
+      if (msgEl) {
+        msgEl.style.display = 'block';
+        msgEl.style.color = 'var(--danger)';
+        msgEl.textContent = '✗ ' + (err.message || 'ذخیره پروژه با خطا مواجه شد.');
+      }
+    } finally {
+      [btn, btn3].forEach((b) => { if (b) { b.disabled = false; } });
+      if (btn) btn.innerHTML = '☁️ ذخیره در حساب';
+    }
+  }
+
+  async function toggleMyProjects() {
+    const list = document.getElementById('myProjectsList');
+    if (list.classList.contains('show')) {
+      list.classList.remove('show');
+      return;
+    }
+    if (!(typeof BytelabAuth !== 'undefined' && BytelabAuth.isLoggedIn())) {
+      window.location.href = 'account.html';
+      return;
+    }
+
+    list.innerHTML = '<div style="color:var(--muted);font-size:13px;">در حال بارگذاری...</div>';
+    list.classList.add('show');
+
+    try {
+      const res = await BytelabAuth.apiFetch('/api/projects/mine', { method: 'GET' });
+      const projects = res.projects || [];
+      if (projects.length === 0) {
+        list.innerHTML = '<div style="color:var(--muted);font-size:13px;">هنوز پروژه‌ای ذخیره نکردی.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      projects.forEach((p) => {
+        const item = document.createElement('div');
+        item.className = 'mp-item';
+        const dateStr = p.updatedAt ? new Date(p.updatedAt).toLocaleString('fa-IR') : '';
+        item.innerHTML = `
+          <div>
+            <div class="mp-name">${escapeHtml(p.name)}</div>
+            <div class="mp-meta">${dateStr} • ${formatFileSize(p.size || 0)}</div>
+          </div>
+          <button class="mp-load" onclick="loadMyProject('${p.name.replace(/'/g, "\\'")}')">بارگذاری</button>
+        `;
+        list.appendChild(item);
+      });
+    } catch (err) {
+      list.innerHTML = `<div style="color:var(--danger);font-size:13px;">✗ ${err.message || 'خطا در دریافت لیست پروژه‌ها'}</div>`;
+    }
+  }
+
+  async function loadMyProject(name) {
+    try {
+      const res = await BytelabAuth.apiFetch('/api/projects/get?name=' + encodeURIComponent(name), { method: 'GET' });
+      const p = res.project;
+      projectData.name = p.name;
+      projectData.files = p.files;
+
+      uploadedFiles.html = { name: p.files.html.name, content: p.files.html.content, size: new Blob([p.files.html.content]).size };
+      uploadedFiles.css  = { name: p.files.css.name,  content: p.files.css.content,  size: new Blob([p.files.css.content]).size };
+      uploadedFiles.js   = { name: p.files.js.name,   content: p.files.js.content,   size: new Blob([p.files.js.content]).size };
+
+      populateStep2();
+      showStep(2);
+    } catch (err) {
+      alert('خطا در بارگذاری پروژه: ' + (err.message || ''));
+    }
+  }
+
+  // ---------------- مرحله ۳ ----------------
+  function populateStep3() {
+    document.getElementById('projectNameStep3').textContent = projectData.name;
+    createTabs();
+    loadPreview();
+  }
+
+  function createTabs() {
+    const tabsContainer = document.getElementById('codeTabs');
+    tabsContainer.innerHTML = '';
+
+    const tabs = [
+      { key: 'html', label: '📄 HTML' },
+      { key: 'css', label: '🎨 CSS' },
+      { key: 'js', label: '⚙️ JS' }
+    ];
+
+    tabs.forEach((tab) => {
+      const btn = document.createElement('button');
+      btn.className = `code-tab ${tab.key === 'html' ? 'active' : ''}`;
+      btn.textContent = tab.label;
+      btn.onclick = (ev) => switchTab(tab.key, ev);
+      tabsContainer.appendChild(btn);
+    });
+
+    switchTab('html', null);
+  }
+
+  function switchTab(fileType, ev) {
+    currentTab = fileType;
+
+    document.querySelectorAll('#step3 .code-tab').forEach((tab) => tab.classList.remove('active'));
+    if (ev && ev.target) {
+      ev.target.classList.add('active');
+    } else {
+      const idx = ['html', 'css', 'js'].indexOf(fileType);
+      const tabs = document.querySelectorAll('#step3 .code-tab');
+      if (tabs[idx]) tabs[idx].classList.add('active');
+    }
+
+    const content = projectData.files[fileType].content;
+    const codeContent = document.getElementById('codeContent');
+
+    if (fileType === 'html') {
+      codeContent.innerHTML = highlightHTML(content);
+    } else if (fileType === 'css') {
+      codeContent.innerHTML = highlightCSS(content);
+    } else if (fileType === 'js') {
+      codeContent.innerHTML = highlightJS(content);
+    } else {
+      codeContent.textContent = content;
+    }
+  }
+
+  function highlightHTML(code) {
+    return escapeHtml(code)
+      .replace(/(&lt;\/?[a-z]+[^&]*?&gt;)/gi, '<span class="tag">$1</span>')
+      .replace(/([a-z-]+)=/gi, '<span class="attr">$1</span>=');
+  }
+  function highlightCSS(code) {
+    return escapeHtml(code).replace(/([a-z-]+):/g, '<span class="attr">$1</span>:');
+  }
+  function highlightJS(code) { return escapeHtml(code); }
+
+  function loadPreview() {
+    const iframe = document.getElementById('preview-iframe');
+    const htmlContent = projectData.files.html.content;
+    const cssContent = projectData.files.css.content;
+    const jsContent = projectData.files.js.content;
+
+    const fullHTML = `
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${projectData.name}</title>
+  <style>
+    ${cssContent}
+  </style>
+</head>
+<body>
+  ${htmlContent}
+  <script>
+    ${jsContent}
+  <\/script>
+</body>
+</html>
+    `;
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write(fullHTML);
+    iframeDoc.close();
+  }
+
+  function refreshPreview() {
+    const btn = document.getElementById('refreshBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> تازه‌کردن...';
+
+    setTimeout(() => {
+      loadPreview();
+      btn.disabled = false;
+      btn.innerHTML = '🔄 تازه‌کردن';
+    }, 300);
+  }
+</script>
+
+<!-- ============ محافظت با ورود (همون الگوی playground.html) ============ -->
+<script>
+(function () {
+  const authOverlay = document.getElementById('authOverlay');
+  const wizardMain = document.getElementById('wizardMain');
+
+  const loggedIn = (typeof BytelabAuth !== 'undefined') && BytelabAuth.isLoggedIn();
+
+  if (!loggedIn) {
+    if (wizardMain) wizardMain.style.display = 'none';
+    if (authOverlay) authOverlay.classList.remove('hidden');
+  } else {
+    if (authOverlay) authOverlay.classList.add('hidden');
+    if (wizardMain) wizardMain.style.display = 'block';
+    if (typeof updateSaveAccountLabel === 'function') updateSaveAccountLabel();
+  }
+})();
+</script>
+
+<script src="header.js"></script>
+</body>
+</html>
