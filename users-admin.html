@@ -14,8 +14,11 @@
     --cyan:#4df0c9; --violet:#9c7bff; --paper:#eaf0f4; --muted:#7c8b9c; --radius:16px;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;min-height:100vh;}
-  .wrap{max-width:900px;margin:0 auto;padding:40px 20px 80px;}
+  html{overflow-x:hidden;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;min-height:100vh;overflow-x:hidden;}
+  .wrap{max-width:900px;margin:0 auto;padding:40px 20px 80px;overflow-x:hidden;}
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius);}
+  .table-scroll table{min-width:640px;border-radius:0;}
   h1{font-size:22px;font-weight:800;margin-bottom:6px;}
   .sub{color:var(--muted);font-size:13px;margin-bottom:28px;}
 
@@ -144,12 +147,14 @@
         <span class="stat" id="statText"></span>
         <button class="refresh-btn" id="refreshBtn" style="width:auto;">بروزرسانی</button>
       </div>
-      <table>
-        <thead>
-          <tr><th>نام</th><th>شماره تماس</th><th>ایمیل</th><th>علاقه‌مندی‌ها</th><th>وضعیت</th><th></th></tr>
-        </thead>
-        <tbody id="usersBody"></tbody>
-      </table>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>نام</th><th>شماره تماس</th><th>ایمیل</th><th>علاقه‌مندی‌ها</th><th>وضعیت</th><th></th></tr>
+          </thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="tab-panel" id="tabProjects">
@@ -157,12 +162,14 @@
         <span class="stat" id="projStatText"></span>
         <button class="refresh-btn" id="refreshProjBtn" style="width:auto;">بروزرسانی</button>
       </div>
-      <table>
-        <thead>
-          <tr><th>نام پروژه</th><th>صاحب پروژه</th><th>حجم</th><th>آخرین ذخیره</th><th></th></tr>
-        </thead>
-        <tbody id="projectsBody"></tbody>
-      </table>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>نام پروژه</th><th>صاحب پروژه</th><th>حجم</th><th>آخرین ذخیره</th><th></th></tr>
+          </thead>
+          <tbody id="projectsBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
