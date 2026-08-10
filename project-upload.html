@@ -908,7 +908,7 @@ console.log('دکمه را کلیک کن تا شمارنده افزایش پید
   document.getElementById('htmlFile').addEventListener('change', (e) => handleFileUpload(e, 'html'));
   document.getElementById('cssFile').addEventListener('change', (e) => handleFileUpload(e, 'css'));
   document.getElementById('jsFile').addEventListener('change', (e) => handleFileUpload(e, 'js'));
-  document.getElementById('projectName').addEventListener('input', (e) => validateProjectName(e.target.value));
+  document.getElementById('projectName').addEventListener('input', (e) => { validateProjectName(e.target.value); checkCanProceed(); });
 
   function handleFileUpload(event, type) {
     const file = event.target.files[0];
@@ -944,7 +944,6 @@ console.log('دکمه را کلیک کن تا شمارنده افزایش پید
     if (name.length === 0) {
       statusElement.textContent = 'لطفاً نام را وارد کنید';
       document.getElementById('projectName').style.borderColor = '';
-      checkCanProceed();
       return false;
     }
 
@@ -958,7 +957,6 @@ console.log('دکمه را کلیک کن تا شمارنده افزایش پید
       document.getElementById('projectName').style.borderColor = '';
     }
 
-    checkCanProceed();
     return isValid;
   }
 
