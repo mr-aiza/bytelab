@@ -483,6 +483,52 @@ async function handleAdminToggleAccess(request, env) {
   return jsonResponse({ ok: true, active: user.active }, 200, env);
 }
 
+// ---- نظارت ادمین روی همه‌ی پروژه‌های بارگذاری‌شده‌ی همه‌ی کاربرها ----
+async function handleAdminListProjects(request, env) {
+  if (!(await requireAdmin(request, env))) return jsonResponse({ error: "دسترسی نداری." }, 401, env);
+  const index = await getUserIndex(env);
+  const allProjects = [];
+  for (const phone of index) {
+    const projects = await getProjectIndex(phone, env);
+    if (!projects.length) continue;
+    const u = await getUserRaw(phone, env);
+    for (const p of projects) {
+      allProjects.push({
+        name: p.name,
+        size: p.size,
+        updatedAt: p.updatedAt,
+        ownerPhone: phone,
+        ownerName: (u && u.name) || "",
+      });
+    }
+  }
+  allProjects.sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+  return jsonResponse({ projects: allProjects }, 200, env);
+}
+
+async function handleAdminGetProject(request, env) {
+  if (!(await requireAdmin(request, env))) return jsonResponse({ error: "دسترسی نداری." }, 401, env);
+  const url = new URL(request.url);
+  const phone = String(url.searchParams.get("phone") || "").trim();
+  const name = sanitizeProjectName(url.searchParams.get("name"));
+  if (!phone || !name) return jsonResponse({ error: "شماره‌تماس یا نام پروژه نامعتبره." }, 400, env);
+  const raw = await env.USERS_KV.get("project:" + phone + ":" + name);
+  if (!raw) return jsonResponse({ error: "پروژه پیدا نشد." }, 404, env);
+  return jsonResponse({ project: JSON.parse(raw) }, 200, env);
+}
+
+async function handleAdminDeleteProject(request, env) {
+  if (!(await requireAdmin(request, env))) return jsonResponse({ error: "دسترسی نداری." }, 401, env);
+  const body = await readJson(request);
+  const phone = String(body.phone || "").trim();
+  const name = sanitizeProjectName(body.name);
+  if (!phone || !name) return jsonResponse({ error: "شماره‌تماس یا نام پروژه نامعتبره." }, 400, env);
+  await env.USERS_KV.delete("project:" + phone + ":" + name);
+  const index = await getProjectIndex(phone, env);
+  await saveProjectIndex(phone, index.filter((p) => p.name !== name), env);
+  return jsonResponse({ ok: true }, 200, env);
+}
+
 // ============================================================
 //  آنالیزور سایت (audit.html) — بررسی SSL/سرعت/سئو/ریسپانسیو
 // ============================================================
@@ -716,6 +762,9 @@ export default {
       if (url.pathname === "/api/admin/login" && request.method === "POST") return await handleAdminLogin(request, env);
       if (url.pathname === "/api/admin/users" && request.method === "GET") return await handleAdminListUsers(request, env);
       if (url.pathname === "/api/admin/users/toggle-access" && request.method === "POST") return await handleAdminToggleAccess(request, env);
+      if (url.pathname === "/api/admin/projects" && request.method === "GET") return await handleAdminListProjects(request, env);
+      if (url.pathname === "/api/admin/projects/get" && request.method === "GET") return await handleAdminGetProject(request, env);
+      if (url.pathname === "/api/admin/projects/delete" && request.method === "POST") return await handleAdminDeleteProject(request, env);
 
       if (url.pathname === "/api/audit" && request.method === "GET") return await handleAudit(request, env);
       if (url.pathname === "/api/whois" && request.method === "GET") return await handleWhois(request, env);
