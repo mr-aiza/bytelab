@@ -983,7 +983,8 @@ async function loadActivity(){
     const data = await api("/activity");
     document.getElementById("activityBody").innerHTML = data.logs.map(l =>
       "<div class='rg-activity-item'><div class='rg-activity-dot'></div><div class='rg-activity-body'>"+
-        "<div><i class='bi "+activityActionIcon(l.action)+" me-1'></i><strong>"+escapeHtml(l.action)+"</strong></div>"+
+        "<div><i class='bi "+activityActionIcon(l.action)+" me-1'></i><strong>"+escapeHtml(l.action)+"</strong> "+
+        "<span class='badge bg-secondary' style='font-size:10px;'>"+(l.source==="telegram"?"📱 تلگرام":"💻 پنل وب")+"</span></div>"+
         (l.detail ? "<div class='small'>"+escapeHtml(l.detail)+"</div>" : "")+
         "<small>"+fmtDate(l.time)+"</small></div></div>"
     ).join("") || "<div class='text-center text-muted py-4'>هنوز فعالیتی ثبت نشده</div>";
