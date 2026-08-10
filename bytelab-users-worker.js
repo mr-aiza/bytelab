@@ -320,6 +320,105 @@ async function handleFavoriteToggle(request, env) {
   return jsonResponse({ favorited, favorites: list }, 200, env);
 }
 
+// ============================================================
+//  پروژه‌های بارگذاری‌شده (ابزار «بارگذاری پروژه» / project-upload.html)
+//  هر کاربر یک فضای اختصاصی (پوشه‌ی مجازی) داره که با شماره‌تماسش
+//  ایزوله می‌شه: project:{phone}:{projectName}
+//  فهرست پروژه‌های هر کاربر هم زیر projects:{phone} نگه‌داری می‌شه.
+// ============================================================
+const MAX_PROJECT_BYTES = 4 * 1024 * 1024; // سقف ۴ مگابایت برای هر پروژه
+
+function sanitizeProjectName(name) {
+  return String(name || "").trim().slice(0, 50).replace(/[^a-zA-Z0-9آ-ی_-]/g, "");
+}
+
+async function getProjectIndex(phone, env) {
+  const raw = await env.USERS_KV.get("projects:" + phone);
+  return raw ? JSON.parse(raw) : [];
+}
+async function saveProjectIndex(phone, list, env) {
+  await env.USERS_KV.put("projects:" + phone, JSON.stringify(list));
+}
+
+async function handleSaveProject(request, env) {
+  const user = await getUserFromRequest(request, env);
+  if (!user) return jsonResponse({ error: "برای ذخیره پروژه باید وارد حساب بشی." }, 401, env);
+
+  const body = await readJson(request);
+  const name = sanitizeProjectName(body.name);
+  if (!name) return jsonResponse({ error: "نام پروژه نامعتبره (فقط حروف، عدد و خط‌فاصله)." }, 400, env);
+
+  const files = body.files || {};
+  const html = String((files.html && files.html.content) || "");
+  const css = String((files.css && files.css.content) || "");
+  const js = String((files.js && files.js.content) || "");
+  if (!html || !css || !js) return jsonResponse({ error: "هر سه فایل HTML، CSS و JS لازمه." }, 400, env);
+
+  const htmlName = String((files.html && files.html.name) || "index.html");
+  const cssName = String((files.css && files.css.name) || "style.css");
+  const jsName = String((files.js && files.js.name) || "script.js");
+
+  const totalBytes = new TextEncoder().encode(html + css + js).length;
+  if (totalBytes > MAX_PROJECT_BYTES) {
+    return jsonResponse({ error: "حجم پروژه بیشتر از حد مجازه (حداکثر ۴ مگابایت)." }, 400, env);
+  }
+
+  const record = {
+    name,
+    owner: user.phone,
+    files: {
+      html: { name: htmlName, content: html },
+      css: { name: cssName, content: css },
+      js: { name: jsName, content: js },
+    },
+    updatedAt: new Date().toISOString(),
+    size: totalBytes,
+  };
+
+  // ذخیره‌ی خود پروژه، ایزوله زیر «پوشه»ی شماره‌تماس همون کاربر
+  await env.USERS_KV.put("project:" + user.phone + ":" + name, JSON.stringify(record));
+
+  // به‌روزرسانی فهرست پروژه‌های همون کاربر
+  const index = await getProjectIndex(user.phone, env);
+  const meta = { name, updatedAt: record.updatedAt, size: record.size };
+  const existingIdx = index.findIndex((p) => p.name === name);
+  if (existingIdx >= 0) index[existingIdx] = meta; else index.push(meta);
+  await saveProjectIndex(user.phone, index, env);
+
+  return jsonResponse({ ok: true, project: meta, folder: "project:" + user.phone }, 200, env);
+}
+
+async function handleMyProjects(request, env) {
+  const user = await getUserFromRequest(request, env);
+  if (!user) return jsonResponse({ error: "برای دیدن پروژه‌هات باید وارد حساب بشی." }, 401, env);
+  const index = await getProjectIndex(user.phone, env);
+  index.sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+  return jsonResponse({ projects: index, folder: "project:" + user.phone }, 200, env);
+}
+
+async function handleGetProject(request, env) {
+  const user = await getUserFromRequest(request, env);
+  if (!user) return jsonResponse({ error: "برای دیدن پروژه باید وارد حساب بشی." }, 401, env);
+  const url = new URL(request.url);
+  const name = sanitizeProjectName(url.searchParams.get("name"));
+  if (!name) return jsonResponse({ error: "نام پروژه نامعتبره." }, 400, env);
+  const raw = await env.USERS_KV.get("project:" + user.phone + ":" + name);
+  if (!raw) return jsonResponse({ error: "پروژه پیدا نشد." }, 404, env);
+  return jsonResponse({ project: JSON.parse(raw) }, 200, env);
+}
+
+async function handleDeleteProject(request, env) {
+  const user = await getUserFromRequest(request, env);
+  if (!user) return jsonResponse({ error: "برای حذف پروژه باید وارد حساب بشی." }, 401, env);
+  const body = await readJson(request);
+  const name = sanitizeProjectName(body.name);
+  if (!name) return jsonResponse({ error: "نام پروژه نامعتبره." }, 400, env);
+  await env.USERS_KV.delete("project:" + user.phone + ":" + name);
+  const index = await getProjectIndex(user.phone, env);
+  await saveProjectIndex(user.phone, index.filter((p) => p.name !== name), env);
+  return jsonResponse({ ok: true }, 200, env);
+}
+
 async function handleMyFavorites(request, env) {
   const user = await getUserFromRequest(request, env);
   if (!user) return jsonResponse({ error: "برای دیدن علاقه‌مندی‌هات باید وارد حساب بشی." }, 401, env);
@@ -608,6 +707,11 @@ export default {
 
       if (url.pathname === "/api/favorites/toggle" && request.method === "POST") return await handleFavoriteToggle(request, env);
       if (url.pathname === "/api/favorites/mine" && request.method === "GET") return await handleMyFavorites(request, env);
+
+      if (url.pathname === "/api/projects/save" && request.method === "POST") return await handleSaveProject(request, env);
+      if (url.pathname === "/api/projects/mine" && request.method === "GET") return await handleMyProjects(request, env);
+      if (url.pathname === "/api/projects/get" && request.method === "GET") return await handleGetProject(request, env);
+      if (url.pathname === "/api/projects/delete" && request.method === "POST") return await handleDeleteProject(request, env);
 
       if (url.pathname === "/api/admin/login" && request.method === "POST") return await handleAdminLogin(request, env);
       if (url.pathname === "/api/admin/users" && request.method === "GET") return await handleAdminListUsers(request, env);
