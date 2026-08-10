@@ -402,11 +402,12 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       group: true,
       text: "حساب کاربری",
       href: "account.html",
-      match: ["account.html", "profile.html", "favorites.html"],
+      match: ["account.html", "profile.html", "favorites.html", "my-projects.html"],
       children: [
         { href: "account.html", text: "داشبورد حساب", icon: "🗂️", match: ["account.html"] },
         { href: "profile.html", text: "پروفایل من", icon: "🧑", match: ["profile.html"] },
-        { href: "favorites.html", text: "علاقه‌مندی‌های من", icon: "⭐", match: ["favorites.html"] }
+        { href: "favorites.html", text: "علاقه‌مندی‌های من", icon: "⭐", match: ["favorites.html"] },
+        { href: "my-projects.html", text: "پروژه‌های من", icon: "📦", match: ["my-projects.html"] }
       ]
     },
 
@@ -827,7 +828,8 @@ ${quickDockHTML}
       "invoice.html": "فاکتور ساز",
       "project-estimator.html": "برآورد هزینه پروژه",
       "image-compressor.html": "فشرده‌سازی تصویر",
-      "project-upload.html": "بارگذاری پروژه"
+      "project-upload.html": "بارگذاری پروژه",
+      "my-projects.html": "پروژه‌های من"
     };
     const pageName = TRACKED_PAGES[current];
     if (pageName && !sessionStorage.getItem("visited_" + current)) {
