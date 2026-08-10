@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مدیریت کاربران سایت | بایت‌لب</title>
+<title>پنل مدیریت | بایت‌لب</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,6 +50,59 @@
   .toggle-btn:hover{border-color:var(--violet);}
   .phone{font-family:'JetBrains Mono',monospace;direction:ltr;text-align:right;}
   .empty{text-align:center;color:var(--muted);padding:40px;}
+
+  /* تب‌ها (کاربران / پروژه‌ها) */
+  .admin-tabs{display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--line);}
+  .admin-tab{
+    background:none;border:none;color:var(--muted);font-family:inherit;font-size:14px;font-weight:700;
+    padding:10px 4px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;
+  }
+  .admin-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .proj-name{font-family:'JetBrains Mono',monospace;font-weight:700;}
+  .proj-owner{font-size:12px;color:var(--muted);}
+  .proj-actions{display:flex;gap:6px;}
+  .view-btn{
+    background:none;border:1px solid var(--line);color:var(--violet);padding:6px 12px;border-radius:999px;
+    font-family:inherit;font-size:12px;cursor:pointer;transition:border-color .2s ease;
+  }
+  .view-btn:hover{border-color:var(--violet);}
+  .del-btn{
+    background:none;border:1px solid rgba(255,128,128,.4);color:#ff8080;padding:6px 12px;border-radius:999px;
+    font-family:inherit;font-size:12px;cursor:pointer;transition:border-color .2s ease;
+  }
+  .del-btn:hover{border-color:#ff8080;background:rgba(255,128,128,.08);}
+
+  /* مودال مشاهده‌ی فایل‌های پروژه */
+  .proj-modal-overlay{
+    position:fixed;inset:0;background:rgba(7,11,18,.85);backdrop-filter:blur(6px);
+    display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;
+  }
+  .proj-modal-overlay.show{display:flex;}
+  .proj-modal{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    max-width:800px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;
+  }
+  .proj-modal-header{
+    padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .proj-modal-header h3{font-size:16px;font-weight:800;}
+  .proj-modal-header .sub{color:var(--muted);font-size:12px;margin-top:2px;}
+  .proj-modal-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;}
+  .proj-modal-tabs{display:flex;gap:6px;padding:12px 22px 0;border-bottom:1px solid var(--line);}
+  .proj-modal-tab{
+    background:var(--panel-2);border:1px solid var(--line);border-bottom:none;color:var(--muted);
+    font-family:'JetBrains Mono',monospace;font-size:12px;padding:8px 14px;border-radius:8px 8px 0 0;cursor:pointer;
+  }
+  .proj-modal-tab.active{color:var(--cyan);background:var(--panel);}
+  .proj-modal-body{flex:1;overflow:auto;padding:18px 22px;}
+  .proj-modal-body pre{
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--paper);white-space:pre-wrap;word-break:break-all;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px;
+  }
+  .proj-modal-footer{padding:14px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;}
 </style>
 </head>
 <body>
@@ -63,18 +116,64 @@
   </div>
 
   <div id="panelBox" style="display:none;">
-    <h1>مدیریت کاربران سایت</h1>
-    <p class="sub">لیست کسانی که در account.html ثبت‌نام کردن؛ می‌تونی دسترسی هر کاربر رو فعال/غیرفعال کنی.</p>
-    <div class="toolbar">
-      <span class="stat" id="statText"></span>
-      <button class="refresh-btn" id="refreshBtn" style="width:auto;">بروزرسانی</button>
+    <h1>پنل مدیریت</h1>
+    <p class="sub">کاربران ثبت‌نام‌شده و پروژه‌هایی که با ابزار «بارگذاری پروژه» ساختن — هرچی نامناسب بود از همین‌جا حذفش کن.</p>
+
+    <div class="admin-tabs">
+      <button class="admin-tab active" id="tabUsersBtn">👤 کاربران</button>
+      <button class="admin-tab" id="tabProjectsBtn">📦 پروژه‌های بارگذاری‌شده</button>
     </div>
-    <table>
-      <thead>
-        <tr><th>نام</th><th>شماره تماس</th><th>ایمیل</th><th>علاقه‌مندی‌ها</th><th>وضعیت</th><th></th></tr>
-      </thead>
-      <tbody id="usersBody"></tbody>
-    </table>
+
+    <div class="tab-panel active" id="tabUsers">
+      <div class="toolbar">
+        <span class="stat" id="statText"></span>
+        <button class="refresh-btn" id="refreshBtn" style="width:auto;">بروزرسانی</button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>نام</th><th>شماره تماس</th><th>ایمیل</th><th>علاقه‌مندی‌ها</th><th>وضعیت</th><th></th></tr>
+        </thead>
+        <tbody id="usersBody"></tbody>
+      </table>
+    </div>
+
+    <div class="tab-panel" id="tabProjects">
+      <div class="toolbar">
+        <span class="stat" id="projStatText"></span>
+        <button class="refresh-btn" id="refreshProjBtn" style="width:auto;">بروزرسانی</button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>نام پروژه</th><th>صاحب پروژه</th><th>حجم</th><th>آخرین ذخیره</th><th></th></tr>
+        </thead>
+        <tbody id="projectsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- مودال مشاهده‌ی محتوای پروژه -->
+<div class="proj-modal-overlay" id="projModalOverlay">
+  <div class="proj-modal">
+    <div class="proj-modal-header">
+      <div>
+        <h3 id="projModalTitle">نام پروژه</h3>
+        <div class="sub" id="projModalOwner"></div>
+      </div>
+      <button class="proj-modal-close" id="projModalClose">✕</button>
+    </div>
+    <div class="proj-modal-tabs">
+      <button class="proj-modal-tab active" data-file="html">index.html</button>
+      <button class="proj-modal-tab" data-file="css">style.css</button>
+      <button class="proj-modal-tab" data-file="js">script.js</button>
+    </div>
+    <div class="proj-modal-body">
+      <pre id="projModalCode"></pre>
+    </div>
+    <div class="proj-modal-footer">
+      <button class="toggle-btn" id="projModalClose2">بستن</button>
+      <button class="del-btn" id="projModalDelete" style="padding:10px 18px;">🗑️ حذف این پروژه</button>
+    </div>
   </div>
 </div>
 
@@ -162,6 +261,138 @@
   });
 
   document.getElementById("refreshBtn").addEventListener("click", loadUsers);
+
+  // ============ تب‌ها ============
+  const tabUsersBtn = document.getElementById("tabUsersBtn");
+  const tabProjectsBtn = document.getElementById("tabProjectsBtn");
+  const tabUsers = document.getElementById("tabUsers");
+  const tabProjects = document.getElementById("tabProjects");
+
+  tabUsersBtn.addEventListener("click", () => {
+    tabUsersBtn.classList.add("active"); tabProjectsBtn.classList.remove("active");
+    tabUsers.classList.add("active"); tabProjects.classList.remove("active");
+  });
+  tabProjectsBtn.addEventListener("click", () => {
+    tabProjectsBtn.classList.add("active"); tabUsersBtn.classList.remove("active");
+    tabProjects.classList.add("active"); tabUsers.classList.remove("active");
+    loadProjects();
+  });
+
+  // ============ پروژه‌های بارگذاری‌شده (نظارت ادمین) ============
+  function formatFileSize(bytes){
+    if (!bytes) return "0 B";
+    const k = 1024, sizes = ["B","KB","MB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  }
+
+  async function loadProjects(){
+    const body = document.getElementById("projectsBody");
+    body.innerHTML = `<tr><td colspan="5" class="empty">در حال بارگذاری...</td></tr>`;
+    try {
+      const data = await apiFetch("/api/admin/projects", { method: "GET" });
+      const projects = data.projects || [];
+      document.getElementById("projStatText").textContent = `${projects.length} پروژه بارگذاری‌شده`;
+      if (!projects.length) {
+        body.innerHTML = `<tr><td colspan="5" class="empty">هنوز هیچ پروژه‌ای ذخیره نشده.</td></tr>`;
+        return;
+      }
+      body.innerHTML = projects.map(p => {
+        const dateStr = p.updatedAt ? new Date(p.updatedAt).toLocaleString("fa-IR") : "—";
+        return `
+        <tr>
+          <td class="proj-name">${escapeHTML(p.name)}</td>
+          <td>
+            ${escapeHTML(p.ownerName || "—")}<br>
+            <span class="proj-owner phone">${escapeHTML(p.ownerPhone)}</span>
+          </td>
+          <td>${formatFileSize(p.size)}</td>
+          <td>${dateStr}</td>
+          <td>
+            <div class="proj-actions">
+              <button class="view-btn" data-phone="${escapeHTML(p.ownerPhone)}" data-name="${escapeHTML(p.name)}">👁️ مشاهده</button>
+              <button class="del-btn" data-phone="${escapeHTML(p.ownerPhone)}" data-name="${escapeHTML(p.name)}">🗑️ حذف</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join("");
+
+      body.querySelectorAll(".view-btn").forEach(btn => {
+        btn.addEventListener("click", () => openProjectModal(btn.getAttribute("data-phone"), btn.getAttribute("data-name")));
+      });
+      body.querySelectorAll(".del-btn").forEach(btn => {
+        btn.addEventListener("click", () => deleteProject(btn.getAttribute("data-phone"), btn.getAttribute("data-name"), loadProjects));
+      });
+    } catch(err) {
+      body.innerHTML = `<tr><td colspan="5" class="empty">${escapeHTML(err.message)}</td></tr>`;
+    }
+  }
+
+  document.getElementById("refreshProjBtn").addEventListener("click", loadProjects);
+
+  // ============ مودال مشاهده‌ی محتوای پروژه ============
+  const projModalOverlay = document.getElementById("projModalOverlay");
+  const projModalTitle = document.getElementById("projModalTitle");
+  const projModalOwner = document.getElementById("projModalOwner");
+  const projModalCode = document.getElementById("projModalCode");
+  const projModalDelete = document.getElementById("projModalDelete");
+  let currentModalProject = null; // { phone, name, files }
+  let currentModalTab = "html";
+
+  async function openProjectModal(phone, name){
+    projModalOverlay.classList.add("show");
+    projModalTitle.textContent = name;
+    projModalOwner.textContent = "در حال بارگذاری...";
+    projModalCode.textContent = "";
+    try {
+      const data = await apiFetch(`/api/admin/projects/get?phone=${encodeURIComponent(phone)}&name=${encodeURIComponent(name)}`, { method: "GET" });
+      currentModalProject = { phone, name, files: data.project.files };
+      projModalOwner.textContent = `صاحب پروژه: ${phone}`;
+      currentModalTab = "html";
+      document.querySelectorAll(".proj-modal-tab").forEach(t => t.classList.toggle("active", t.getAttribute("data-file") === "html"));
+      renderModalTab();
+    } catch(err) {
+      projModalOwner.textContent = err.message || "خطا در بارگذاری پروژه";
+    }
+  }
+
+  function renderModalTab(){
+    if (!currentModalProject) return;
+    const f = currentModalProject.files[currentModalTab];
+    projModalCode.textContent = f ? f.content : "(خالی)";
+  }
+
+  document.querySelectorAll(".proj-modal-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".proj-modal-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      currentModalTab = tab.getAttribute("data-file");
+      renderModalTab();
+    });
+  });
+
+  function closeProjectModal(){
+    projModalOverlay.classList.remove("show");
+    currentModalProject = null;
+  }
+  document.getElementById("projModalClose").addEventListener("click", closeProjectModal);
+  document.getElementById("projModalClose2").addEventListener("click", closeProjectModal);
+  projModalOverlay.addEventListener("click", (e) => { if (e.target === projModalOverlay) closeProjectModal(); });
+
+  projModalDelete.addEventListener("click", () => {
+    if (!currentModalProject) return;
+    deleteProject(currentModalProject.phone, currentModalProject.name, () => { closeProjectModal(); loadProjects(); });
+  });
+
+  async function deleteProject(phone, name, onDone){
+    if (!confirm(`مطمئنی می‌خوای پروژه‌ی «${name}» رو برای همیشه حذف کنی؟ این کار قابل بازگشت نیست.`)) return;
+    try {
+      await apiFetch("/api/admin/projects/delete", { method: "POST", body: JSON.stringify({ phone, name }) });
+      if (onDone) onDone();
+    } catch(err) {
+      alert(err.message || "حذف با خطا مواجه شد.");
+    }
+  }
 
   if (getToken()) {
     document.getElementById("loginBox").style.display = "none";
