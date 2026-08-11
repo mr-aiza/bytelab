@@ -2,6 +2,18 @@
 // این فایل هدر و منوی موبایل سایت بایت‌لب رو دقیقا مطابق index.html
 // در همه صفحات تزریق می‌کنه. کافیه این فایل رو در همه صفحات لینک بدی.
 (function () {
+  // --- پیشوند مسیر برای صفحاتی که داخل زیرپوشه‌ن (مثل portfolio/، submit/، telegram/) ---
+  // همه‌ی لینک‌ها و منابع داخلی این فایل (index.html، chat.html، لوگو، فاویکون، مانیفست و...)
+  // نسبت به ریشه‌ی سایت نوشته شدن. صفحاتی که یه پوشه پایین‌تر از ریشه‌ن (مثل
+  // portfolio/1-gym.html یا submit/index.html) باید یه "../" جلوشون اضافه بشه
+  // تا لینک‌ها/تصویرها به آدرس درست برن، نه به همون زیرپوشه.
+  const ROOT_PREFIX = /\/(portfolio|submit|telegram)\//.test(location.pathname) ? "../" : "";
+  const R = (href) => {
+    if (!href) return href;
+    if (/^([a-z]+:)?\/\//i.test(href) || href.startsWith("/") || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return href;
+    return ROOT_PREFIX + href;
+  };
+
   // --- جلوگیری از «دارک‌مود اجباری» کروم اندروید که باعث هم‌رنگ شدن متن با پس‌زمینه می‌شد ---
 if (!document.querySelector('meta[name="color-scheme"]')) {
   const colorScheme = document.createElement("meta");
@@ -11,11 +23,11 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
 }
   // --- فاویکون مشترک: با اجرای این فایل روی هر صفحه، فاویکون به‌صورت خودکار اضافه می‌شه ---
   const favicons = [
-    { rel: "icon", type: "image/x-icon", href: "favicon.ico" },
-    { rel: "icon", type: "image/png", sizes: "32x32", href: "favicon-32.png" },
-    { rel: "icon", type: "image/png", sizes: "192x192", href: "favicon-192.png" },
-    { rel: "icon", type: "image/png", sizes: "512x512", href: "favicon-512.png" },
-    { rel: "apple-touch-icon", sizes: "180x180", href: "favicon-180.png" }
+    { rel: "icon", type: "image/x-icon", href: R("favicon.ico") },
+    { rel: "icon", type: "image/png", sizes: "32x32", href: R("favicon-32.png") },
+    { rel: "icon", type: "image/png", sizes: "192x192", href: R("favicon-192.png") },
+    { rel: "icon", type: "image/png", sizes: "512x512", href: R("favicon-512.png") },
+    { rel: "apple-touch-icon", sizes: "180x180", href: R("favicon-180.png") }
   ];
   favicons.forEach(f => {
     const link = document.createElement("link");
@@ -30,7 +42,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   // با تزریق خودکار از همینجا، لازم نیست این خط‌ها رو تو هر صفحه دستی اضافه کنی.
   const manifestLink = document.createElement("link");
   manifestLink.rel = "manifest";
-  manifestLink.href = "manifest.json";
+  manifestLink.href = R("manifest.json");
   document.head.appendChild(manifestLink);
 
   const themeColor = document.createElement("meta");
@@ -42,7 +54,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   // + تشخیص خودکار نسخه‌ی جدید و فعال‌سازی بی‌درنگش (بدون نیاز به بستن کامل تب)
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("sw.js").then((reg) => {
+      navigator.serviceWorker.register(R("sw.js")).then((reg) => {
         // هر بار صفحه لود شد، از سرور چک کن ببین نسخه جدیدتری از sw.js هست یا نه
         reg.update();
 
@@ -325,7 +337,19 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
   // --- لیست لینک‌های منو: منبع واحد برای دسکتاپ و موبایل ---
   // آیتم‌هایی که «group: true» دارن به‌صورت یه دسته‌ی کشویی (آکاردئونی) با زیرمنو نمایش داده می‌شن
   // تا با اضافه‌شدن صفحات بیشتر (پروفایل، علاقه‌مندی‌ها، ارسال نمونه‌کار)، منو شلوغ نشه.
-  const NAV_LINKS = [
+  // applyRoot: همه‌ی href های داخل این ساختار (تو در تو، حتی زیر children/items) رو با R() پیشوند می‌زنه.
+  function applyRoot(node) {
+    if (Array.isArray(node)) return node.map(applyRoot);
+    if (node && typeof node === "object") {
+      const copy = { ...node };
+      if (copy.href !== undefined) copy.href = R(copy.href);
+      if (copy.children) copy.children = applyRoot(copy.children);
+      if (copy.items) copy.items = applyRoot(copy.items);
+      return copy;
+    }
+    return node;
+  }
+  const NAV_LINKS = applyRoot([
     { href: "index.html", text: "خانه", match: ["index.html", ""] },
     {
       group: true,
@@ -412,8 +436,8 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       ]
     },
 
-    { href: "telegram/contact.html", text: "تماس", match: [] },
-  ];
+    { href: "telegram/contact.html", text: "تماس", match: ["contact.html"] },
+  ]);
 
   // --- ساخت مسیر (Breadcrumb) صفحه‌ی فعلی: از روی همون NAV_LINKS بالا، خودکار محاسبه می‌شه ---
   // تا صفحه‌ی جدیدی که به NAV_LINKS اضافه می‌شه، خودش مسیرشم داشته باشه، بدون کد اضافه.
@@ -428,16 +452,16 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       return [{ text: "خانه" }];
     }
 
-    const crumbs = [{ text: "خانه", href: "index.html" }];
+    const crumbs = [{ text: "خانه", href: R("index.html") }];
     const isPortfolioItemPage = location.pathname.indexOf("/portfolio/") !== -1 && current !== "portfolio.html";
 
     if (isPortfolioItemPage) {
-      crumbs.push({ text: "نمونه‌کارها", href: "portfolio.html" });
+      crumbs.push({ text: "نمونه‌کارها", href: R("portfolio.html") });
       crumbs.push({ text: stripTitleSuffix(document.title) || "نمونه‌کار" });
       return crumbs;
     }
     if (current === "blog-post.html") {
-      crumbs.push({ text: "بلاگ", href: "blog.html" });
+      crumbs.push({ text: "بلاگ", href: R("blog.html") });
       crumbs.push({ text: stripTitleSuffix(document.title) || "مقاله" });
       return crumbs;
     }
@@ -507,7 +531,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     { id: "order", href: "project-estimator.html", icon: "📐", label: "برآورد پروژه", acc: "#f2c14e", match: ["project-estimator.html"] },
     { id: "chat", href: "chat.html", icon: "💬", label: "هوش مصنوعی", acc: "#4df0c9", match: ["chat.html"] },
     { id: "bazaar", href: "https://cafebazaar.ir/app/com.bytelab.app", icon: "⬇️", label: "دانلود", acc: "#f2c14e", external: true, match: [] }
-  ].map(t => ({ ...t, active: t.forceActive || isActive(t.match) }));
+  ].map(t => ({ ...t, href: R(t.href), active: t.forceActive || isActive(t.match) }));
   const dockDefaultTab = DOCK_TABS.find(t => t.active) || DOCK_TABS[0];
 
   const quickDockHTML = SHOW_QUICK_DOCK ? `
@@ -563,15 +587,15 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
 <header>
   <div class="wrap nav">
     <div class="logo">
-      <img src="logo-icon.png" alt="بایت‌لب" class="logo-icon">
+      <img src="${R("logo-icon.png")}" alt="بایت‌لب" class="logo-icon">
       <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
     </div>
     <div class="nav-right">
       <div class="header-actions">
-        <a href="chat.html" class="nav-cta-chat"><span class="ico">💬</span><span class="lbl">چت با هوش مصنوعی</span></a>
-        <a href="${PORTFOLIO_SUBMIT_HREF}" class="nav-cta-app"><span class="ico">🎨</span><span class="lbl">نمونه‌کارها</span></a>
+        <a href="${R("chat.html")}" class="nav-cta-chat"><span class="ico">💬</span><span class="lbl">چت با هوش مصنوعی</span></a>
+        <a href="${R(PORTFOLIO_SUBMIT_HREF)}" class="nav-cta-app"><span class="ico">🎨</span><span class="lbl">نمونه‌کارها</span></a>
         <a href="https://cafebazaar.ir/app/com.bytelab.app" target="_blank" rel="noopener" class="nav-cta-app"><span class="ico">⬇️</span><span class="lbl">دانلود از کافه‌بازار</span></a>
-        <a href="account.html" class="nav-cta-app"><span class="ico">👤</span><span class="lbl">حساب کاربری</span></a>
+        <a href="${R("account.html")}" class="nav-cta-app"><span class="ico">👤</span><span class="lbl">حساب کاربری</span></a>
       </div>
       <button class="burger" id="burger" aria-label="باز کردن منو">
         <span></span><span></span><span></span>
@@ -584,7 +608,7 @@ ${breadcrumbHTML}
 <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="منوی سایت">
   <div class="mm-head">
     <div class="logo">
-      <img src="logo-icon.png" alt="بایت‌لب" class="logo-icon">
+      <img src="${R("logo-icon.png")}" alt="بایت‌لب" class="logo-icon">
       <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
     </div>
     <button class="mm-close" id="mmClose" aria-label="بستن منو">✕</button>
@@ -595,10 +619,10 @@ ${breadcrumbHTML}
   <div class="mm-divider"></div>
   <span class="mm-label">دسترسی سریع</span>
   <div class="mm-actions">
-    <a href="chat.html" class="mm-action accent">💬<span>چت با هوش مصنوعی</span></a>
-    <a href="${PORTFOLIO_SUBMIT_HREF}" class="mm-action">🎨<span>نمونه‌کارها</span></a>
+    <a href="${R("chat.html")}" class="mm-action accent">💬<span>چت با هوش مصنوعی</span></a>
+    <a href="${R(PORTFOLIO_SUBMIT_HREF)}" class="mm-action">🎨<span>نمونه‌کارها</span></a>
     <a href="https://cafebazaar.ir/app/com.bytelab.app" target="_blank" rel="noopener" class="mm-action">⬇️<span>دانلود از کافه‌بازار</span></a>
-    <a href="account.html" class="mm-action">👤<span>حساب کاربری</span></a>
+    <a href="${R("account.html")}" class="mm-action">👤<span>حساب کاربری</span></a>
   </div>
 </div>
 ${quickDockHTML}
