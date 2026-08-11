@@ -76,9 +76,16 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 28px;
-      min-height: 600px;
       display: flex;
       flex-direction: column;
+      gap: 16px;
+    }
+    
+    #editorSection {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
     }
     
     .upload-zone {
@@ -130,15 +137,25 @@
     }
     
     .editor-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      flex: 1;
+      min-height: 0;
+    }
+    
+    .editor-top {
       display: grid;
       grid-template-columns: 2fr 1fr;
       gap: 24px;
       flex: 1;
+      min-height: 300px;
     }
     
     .textarea-section {
       display: flex;
       flex-direction: column;
+      min-height: 300px;
     }
     
     .textarea-section h2 {
@@ -150,6 +167,7 @@
     
     .textarea-section textarea {
       flex: 1;
+      min-height: 250px;
       padding: 16px;
       background: rgba(7, 11, 18, 0.6);
       border: 1px solid var(--border);
@@ -267,33 +285,36 @@
     }
     
     .preview-section {
-      margin-top: 24px;
-      padding: 24px;
+      padding: 20px;
       background: rgba(7, 11, 18, 0.6);
       border: 1px solid var(--border);
       border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      min-height: 200px;
     }
     
     .preview-section h2 {
       font-size: 16px;
       font-weight: 600;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       color: var(--text);
+      flex-shrink: 0;
     }
     
     .preview-content {
       background: rgba(15, 22, 32, 0.8);
-      padding: 16px;
+      padding: 12px;
       border-radius: 6px;
-      overflow-x: auto;
-      max-height: 300px;
-      overflow-y: auto;
+      overflow: auto;
+      flex: 1;
       font-family: 'Monaco', 'Courier New', monospace;
       font-size: 12px;
       color: var(--primary);
-      line-height: 1.6;
+      line-height: 1.5;
       white-space: pre-wrap;
       word-wrap: break-word;
+      min-height: 150px;
     }
     
     .copy-status {
@@ -319,27 +340,111 @@
     
     @media (max-width: 768px) {
       main {
-        padding: 24px 16px;
+        padding: 16px 12px;
       }
       
       .page-header {
-        padding: 24px 16px;
+        padding: 16px 12px;
+        margin-bottom: 16px;
       }
       
       .page-header h1 {
-        font-size: 24px;
+        font-size: 22px;
       }
       
-      .editor-wrapper {
-        grid-template-columns: 1fr;
+      .page-header p {
+        font-size: 13px;
       }
       
       .editor-container {
-        padding: 16px;
+        padding: 12px;
+        min-height: auto;
+      }
+      
+      .editor-wrapper {
+        gap: 16px;
+      }
+      
+      .editor-top {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        min-height: auto;
+      }
+      
+      .textarea-section {
+        min-height: 250px;
+      }
+      
+      .textarea-section textarea {
+        min-height: 200px;
+        font-size: 12px;
+        padding: 12px;
       }
       
       .upload-zone {
-        padding: 32px 16px;
+        padding: 24px 12px;
+        margin-bottom: 16px;
+      }
+      
+      .upload-icon {
+        font-size: 32px;
+      }
+      
+      .upload-zone h3 {
+        font-size: 16px;
+      }
+      
+      .btn {
+        padding: 12px 14px;
+        font-size: 13px;
+      }
+      
+      .preview-section {
+        margin-top: 16px;
+        padding: 12px;
+        min-height: auto;
+      }
+      
+      .preview-content {
+        max-height: 200px;
+        font-size: 11px;
+        padding: 10px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding-top: 72px;
+      }
+      
+      main {
+        padding: 12px 8px;
+      }
+      
+      .page-header {
+        padding: 12px 8px;
+      }
+      
+      .page-header h1 {
+        font-size: 18px;
+      }
+      
+      .editor-container {
+        padding: 8px;
+      }
+      
+      .upload-zone {
+        padding: 16px 8px;
+      }
+      
+      .actions-section {
+        gap: 10px;
+      }
+      
+      .btn {
+        padding: 10px 12px;
+        font-size: 12px;
+        gap: 6px;
       }
     }
     
@@ -398,28 +503,30 @@
       </div>
       
       <!-- بخش ویرایش -->
-      <div id="editorSection" style="display: none; flex: 1; display: flex;">
+      <div id="editorSection" style="display: none;">
         <div class="editor-wrapper">
-          <div class="textarea-section">
-            <h2>✍️ ویرایش JSON</h2>
-            <textarea id="jsonInput" placeholder="JSON خود را اینجا وارد کنید یا فایل بارگذاری کنید..."></textarea>
+          <div class="editor-top">
+            <div class="textarea-section">
+              <h2>✍️ ویرایش JSON</h2>
+              <textarea id="jsonInput" placeholder="JSON خود را اینجا وارد کنید یا فایل بارگذاری کنید..."></textarea>
+            </div>
+            
+            <div class="actions-section">
+              <h2>⚙️ عملیات</h2>
+              <button class="btn btn-primary" id="formatBtn">✨ فرمت</button>
+              <button class="btn btn-secondary" id="minifyBtn">📦 کوچک</button>
+              <button class="btn btn-success" id="addPropBtn">➕ اضافه</button>
+              <button class="btn btn-secondary" id="copyBtn">📋 کپی</button>
+              <button class="btn btn-primary" id="downloadBtn">💾 دانلود</button>
+              <button class="btn btn-danger" id="clearBtn">🗑️ پاک</button>
+            </div>
           </div>
           
-          <div class="actions-section">
-            <h2>⚙️ عملیات</h2>
-            <button class="btn btn-primary" id="formatBtn">✨ فرمت</button>
-            <button class="btn btn-secondary" id="minifyBtn">📦 کوچک‌کردن</button>
-            <button class="btn btn-success" id="addPropBtn">➕ اضافه کردن</button>
-            <button class="btn btn-secondary" id="copyBtn">📋 کپی</button>
-            <button class="btn btn-primary" id="downloadBtn">💾 دانلود</button>
-            <button class="btn btn-danger" id="clearBtn">🗑️ پاک کردن</button>
+          <!-- پیش‌نمایش -->
+          <div class="preview-section">
+            <h2>📊 پیش‌نمایش</h2>
+            <div class="preview-content" id="preview">هیچ داده‌ای نیست</div>
           </div>
-        </div>
-        
-        <!-- پیش‌نمایش -->
-        <div class="preview-section">
-          <h2>📊 پیش‌نمایش</h2>
-          <div class="preview-content" id="preview">هیچ داده‌ای نیست</div>
         </div>
       </div>
     </div>
@@ -486,6 +593,8 @@
     
     function showEditor() {
       elements.editorSection.style.display = 'flex';
+      elements.editorSection.style.flexDirection = 'column';
+      elements.editorSection.style.flex = '1';
     }
     
     // آپلود فایل
@@ -619,6 +728,7 @@
       elements.errorAlert.style.display = 'none';
       elements.successAlert.style.display = 'none';
       elements.preview.textContent = 'هیچ داده‌ای نیست';
+      elements.fileInput.value = '';
     });
   </script>
 </body>
