@@ -367,7 +367,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       text: "ابزارها",
       categorized: true,
       match: ["playground.html", "editor.html", "audit.html", "qr.html", "invoice.html", "site-health-checker.html", "project-estimator.html", "image-compressor.html", "dns-checker.html", "whois.html", "dev-tools.html", "ip-tools.html", "image-converter.html", "pdf-tools.html", "project-upload.html", "favicon-generator.html", "json-editor.html"],
-     children: [
+      children: [
         {
           category: "🎨 طراحی و ساخت وب",
           items: [
@@ -376,8 +376,8 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
             { href: "project-upload.html", text: "بارگذاری پروژه", icon: "📦", match: ["project-upload.html"] },
             { href: "favicon-generator.html", text: "ساخت فاویکون", icon: "🎨", match: ["favicon-generator.html"] },
             { href: "image-compressor.html", text: "فشرده‌سازی تصویر", icon: "🖼️", match: ["image-compressor.html"] },
-            { href: "image-converter.html", text: "تبدیل فرمت تصویر", icon: "🔄", match: ["image-converter.html"] }
-            { href: "json-editor.html", text: "ویرایشگر JSON", icon: "🔁", match: ["json-editor.html"] }
+            { href: "image-converter.html", text: "تبدیل فرمت تصویر", icon: "🔄", match: ["image-converter.html"] },
+            { href: "json-editor.html", text: "ویرایشگر JSON", icon: "{ }", match: ["json-editor.html"] }
           ]
         },
         {
@@ -873,7 +873,7 @@ ${quickDockHTML}
       "image-compressor.html": "فشرده‌سازی تصویر",
       "project-upload.html": "بارگذاری پروژه",
       "my-projects.html": "پروژه‌های من",
-      "favicon-generator.html": "ساخت فاویکون"
+      "favicon-generator.html": "ساخت فاویکون",
       "json-editor.html": "ویرایشگر JSON"
     };
     const pageName = TRACKED_PAGES[current];
