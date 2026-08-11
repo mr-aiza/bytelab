@@ -444,7 +444,17 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     // دنبال صفحه‌ی فعلی داخل NAV_LINKS بگرد؛ چه مستقل باشه چه زیرشاخه‌ی یه گروه
     for (const item of NAV_LINKS) {
       if (item.group) {
-        const child = item.children.find((c) => c.match.includes(current));
+        let child = null;
+        if (item.categorized) {
+          // گروه‌های دسته‌بندی‌شده (مثل «ابزارها»): زیرمنو یه آرایه از {category, items}ه،
+          // نه لیست تخت لینک‌ها؛ باید داخل هر دسته دنبال آیتم بگردیم.
+          for (const cat of item.children) {
+            child = (cat.items || []).find((c) => c.match.includes(current));
+            if (child) break;
+          }
+        } else {
+          child = item.children.find((c) => c.match.includes(current));
+        }
         if (child) {
           crumbs.push(item.href ? { text: item.text, href: item.href } : { text: item.text });
           crumbs.push({ text: child.text });
@@ -473,7 +483,14 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
     return `<nav class="mn-breadcrumb" aria-label="مسیر صفحه">${parts.join('<span class="mn-crumb-sep">/</span>')}</nav>`;
   }
 
-  const breadcrumbHTML = renderBreadcrumbHTML();
+  let breadcrumbHTML = "";
+  try {
+    breadcrumbHTML = renderBreadcrumbHTML();
+  } catch (e) {
+    // هر خطایی تو ساخت بریدکرامب نباید کل هدر/منو رو خراب کنه
+    console.error("[header.js] breadcrumb build failed:", e);
+    breadcrumbHTML = "";
+  }
 
   // مسیر صفحه‌ی نمونه‌کارها (دکمه‌ی هدر اول به همین‌جا میره، دکمه‌ی ارسال داخل خودشه)
   const PORTFOLIO_SUBMIT_HREF = "portfolio.html";
