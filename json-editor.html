@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ویرایشگر JSON | بایت‌لب</title>
+  <meta name="description" content="ویرایشگر JSON آنلاین - بارگذاری، خواندن، ویرایش و دانلود فایل‌های JSON">
+  <meta name="theme-color" content="#070b12">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary: #4df0c9;
+      --secondary: #9c7bff;
+      --accent-gold: #f2c14e;
+      --bg: #070b12;
+      --card-bg: #0f1620;
+      --border: #1e2a38;
+      --text: #eaf0f4;
+      --text-muted: #7c8b9c;
+    }
+    
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, var(--bg), #0a0e15);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    body {
+      padding-top: 72px;
+      background-attachment: fixed;
+    }
+    
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      min-height: calc(100vh - 72px);
+    }
+    
+    .page-header {
+      background: rgba(15, 22, 32, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 28px;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    
+    .page-header h1 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .page-header p {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+    
+    .editor-container {
+      background: rgba(15, 22, 32, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 48px 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 24px;
+    }
+    
+    .upload-zone:hover {
+      border-color: var(--primary);
+      background: rgba(77, 240, 201, 0.05);
+    }
+    
+    .upload-zone input {
+      display: none;
+    }
+    
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    
+    .upload-zone h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    
+    .upload-zone p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    
+    .current-file {
+      padding: 12px 16px;
+      background: rgba(77, 240, 201, 0.08);
+      border: 1px solid rgba(77, 240, 201, 0.3);
+      border-radius: 8px;
+      color: var(--primary);
+      font-size: 14px;
+      text-align: center;
+      margin-top: 12px;
+    }
+    
+    .editor-wrapper {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      flex: 1;
+    }
+    
+    .textarea-section {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .textarea-section h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    
+    .textarea-section textarea {
+      flex: 1;
+      padding: 16px;
+      background: rgba(7, 11, 18, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    
+    .textarea-section textarea:focus {
+      border-color: var(--primary);
+    }
+    
+    .textarea-section textarea.error {
+      border-color: #ff6b6b;
+    }
+    
+    .actions-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .actions-section h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    
+    .btn {
+      padding: 14px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #2dd9b0);
+      color: var(--bg);
+      box-shadow: 0 0 24px rgba(77, 240, 201, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 32px rgba(77, 240, 201, 0.5);
+    }
+    
+    .btn-secondary {
+      background: rgba(156, 123, 255, 0.12);
+      color: var(--secondary);
+      border: 1px solid var(--secondary);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(156, 123, 255, 0.22);
+    }
+    
+    .btn-success {
+      background: rgba(76, 175, 80, 0.12);
+      color: #4caf50;
+      border: 1px solid #4caf50;
+    }
+    
+    .btn-success:hover {
+      background: rgba(76, 175, 80, 0.22);
+    }
+    
+    .btn-danger {
+      background: rgba(255, 107, 107, 0.12);
+      color: #ff6b6b;
+      border: 1px solid #ff6b6b;
+    }
+    
+    .btn-danger:hover {
+      background: rgba(255, 107, 107, 0.22);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .alert {
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+    }
+    
+    .alert-error {
+      background: rgba(255, 107, 107, 0.12);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      color: #ff6b6b;
+    }
+    
+    .alert-success {
+      background: rgba(76, 175, 80, 0.12);
+      border: 1px solid rgba(76, 175, 80, 0.3);
+      color: #4caf50;
+    }
+    
+    .preview-section {
+      margin-top: 24px;
+      padding: 24px;
+      background: rgba(7, 11, 18, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    
+    .preview-section h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    
+    .preview-content {
+      background: rgba(15, 22, 32, 0.8);
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+      color: var(--primary);
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    
+    .copy-status {
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      color: var(--bg);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 100;
+    }
+    
+    .copy-status.show {
+      opacity: 1;
+    }
+    
+    @media (max-width: 768px) {
+      main {
+        padding: 24px 16px;
+      }
+      
+      .page-header {
+        padding: 24px 16px;
+      }
+      
+      .page-header h1 {
+        font-size: 24px;
+      }
+      
+      .editor-wrapper {
+        grid-template-columns: 1fr;
+      }
+      
+      .editor-container {
+        padding: 16px;
+      }
+      
+      .upload-zone {
+        padding: 32px 16px;
+      }
+    }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(77, 240, 201, 0.3);
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(77, 240, 201, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <!-- Placeholder برای header که از header.js inject میشه -->
+  <div id="siteHeaderPlaceholder"></div>
+  
+  <main>
+    <div class="page-header">
+      <h1>✨ ویرایشگر JSON</h1>
+      <p>بارگذاری، خواندن، ویرایش و دانلود فایل‌های JSON</p>
+    </div>
+    
+    <div class="editor-container">
+      <!-- بخش آپلود -->
+      <label class="upload-zone" id="uploadZone">
+        <span class="upload-icon">📤</span>
+        <h3>فایل JSON را بارگذاری کنید</h3>
+        <p>یا اینجا کلیک کنید</p>
+        <input type="file" id="fileInput" accept=".json">
+      </label>
+      
+      <div id="fileNameDisplay" class="current-file" style="display: none;">
+        📄 فایل فعلی: <span id="fileName"></span>
+      </div>
+      
+      <!-- پیام‌های خطا و موفقیت -->
+      <div id="errorAlert" class="alert alert-error" style="display: none;">
+        <span>❌</span>
+        <span id="errorText"></span>
+      </div>
+      
+      <div id="successAlert" class="alert alert-success" style="display: none;">
+        <span>✅</span>
+        <span id="successText"></span>
+      </div>
+      
+      <!-- بخش ویرایش -->
+      <div id="editorSection" style="display: none; flex: 1; display: flex;">
+        <div class="editor-wrapper">
+          <div class="textarea-section">
+            <h2>✍️ ویرایش JSON</h2>
+            <textarea id="jsonInput" placeholder="JSON خود را اینجا وارد کنید یا فایل بارگذاری کنید..."></textarea>
+          </div>
+          
+          <div class="actions-section">
+            <h2>⚙️ عملیات</h2>
+            <button class="btn btn-primary" id="formatBtn">✨ فرمت</button>
+            <button class="btn btn-secondary" id="minifyBtn">📦 کوچک‌کردن</button>
+            <button class="btn btn-success" id="addPropBtn">➕ اضافه کردن</button>
+            <button class="btn btn-secondary" id="copyBtn">📋 کپی</button>
+            <button class="btn btn-primary" id="downloadBtn">💾 دانلود</button>
+            <button class="btn btn-danger" id="clearBtn">🗑️ پاک کردن</button>
+          </div>
+        </div>
+        
+        <!-- پیش‌نمایش -->
+        <div class="preview-section">
+          <h2>📊 پیش‌نمایش</h2>
+          <div class="preview-content" id="preview">هیچ داده‌ای نیست</div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <div class="copy-status" id="copyStatus">کپی شد! ✓</div>
+  
+  <!-- Header script -->
+  <script src="header.js"></script>
+  
+  <!-- JSON Editor Logic -->
+  <script>
+    const state = {
+      jsonData: null,
+      jsonString: '',
+      fileName: 'data.json',
+      copied: false
+    };
+    
+    const elements = {
+      uploadZone: document.getElementById('uploadZone'),
+      fileInput: document.getElementById('fileInput'),
+      fileNameDisplay: document.getElementById('fileNameDisplay'),
+      fileName: document.getElementById('fileName'),
+      jsonInput: document.getElementById('jsonInput'),
+      formatBtn: document.getElementById('formatBtn'),
+      minifyBtn: document.getElementById('minifyBtn'),
+      addPropBtn: document.getElementById('addPropBtn'),
+      copyBtn: document.getElementById('copyBtn'),
+      downloadBtn: document.getElementById('downloadBtn'),
+      clearBtn: document.getElementById('clearBtn'),
+      preview: document.getElementById('preview'),
+      errorAlert: document.getElementById('errorAlert'),
+      errorText: document.getElementById('errorText'),
+      successAlert: document.getElementById('successAlert'),
+      successText: document.getElementById('successText'),
+      editorSection: document.getElementById('editorSection'),
+      copyStatus: document.getElementById('copyStatus')
+    };
+    
+    function showError(message) {
+      elements.errorText.textContent = message;
+      elements.errorAlert.style.display = 'flex';
+      elements.successAlert.style.display = 'none';
+      setTimeout(() => {
+        elements.errorAlert.style.display = 'none';
+      }, 5000);
+    }
+    
+    function showSuccess(message) {
+      elements.successText.textContent = message;
+      elements.successAlert.style.display = 'flex';
+      elements.errorAlert.style.display = 'none';
+      setTimeout(() => {
+        elements.successAlert.style.display = 'none';
+      }, 3000);
+    }
+    
+    function updatePreview() {
+      if (state.jsonData) {
+        elements.preview.textContent = JSON.stringify(state.jsonData, null, 2);
+      }
+    }
+    
+    function showEditor() {
+      elements.editorSection.style.display = 'flex';
+    }
+    
+    // آپلود فایل
+    elements.uploadZone.addEventListener('click', () => {
+      elements.fileInput.click();
+    });
+    
+    elements.fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const content = event.target.result;
+          state.jsonData = JSON.parse(content);
+          state.jsonString = JSON.stringify(state.jsonData, null, 2);
+          state.fileName = file.name;
+          
+          elements.fileName.textContent = state.fileName;
+          elements.fileNameDisplay.style.display = 'block';
+          elements.jsonInput.value = state.jsonString;
+          elements.jsonInput.classList.remove('error');
+          
+          updatePreview();
+          showEditor();
+          showSuccess('فایل با موفقیت بارگذاری شد!');
+        } catch (err) {
+          showError('خطا: فایل JSON معتبر نیست - ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+    
+    // ویرایش متن
+    elements.jsonInput.addEventListener('change', () => {
+      try {
+        JSON.parse(elements.jsonInput.value);
+        elements.jsonInput.classList.remove('error');
+      } catch {
+        elements.jsonInput.classList.add('error');
+      }
+    });
+    
+    // فرمت کردن
+    elements.formatBtn.addEventListener('click', () => {
+      try {
+        const parsed = JSON.parse(elements.jsonInput.value);
+        state.jsonData = parsed;
+        state.jsonString = JSON.stringify(parsed, null, 2);
+        elements.jsonInput.value = state.jsonString;
+        elements.jsonInput.classList.remove('error');
+        updatePreview();
+        showSuccess('JSON با موفقیت فرمت شد!');
+      } catch (err) {
+        showError('خطا: JSON معتبر نیست - ' + err.message);
+      }
+    });
+    
+    // کوچک‌کردن
+    elements.minifyBtn.addEventListener('click', () => {
+      try {
+        const parsed = JSON.parse(elements.jsonInput.value);
+        state.jsonData = parsed;
+        state.jsonString = JSON.stringify(parsed);
+        elements.jsonInput.value = state.jsonString;
+        elements.jsonInput.classList.remove('error');
+        updatePreview();
+        showSuccess('JSON با موفقیت کوچک شد!');
+      } catch (err) {
+        showError('خطا: JSON معتبر نیست');
+      }
+    });
+    
+    // اضافه کردن property
+    elements.addPropBtn.addEventListener('click', () => {
+      try {
+        const parsed = JSON.parse(elements.jsonInput.value);
+        if (typeof parsed !== 'object' || Array.isArray(parsed)) {
+          showError('فقط می‌تونید به Object ها property اضافه کنید');
+          return;
+        }
+        parsed['newKey'] = 'newValue';
+        state.jsonData = parsed;
+        state.jsonString = JSON.stringify(parsed, null, 2);
+        elements.jsonInput.value = state.jsonString;
+        elements.jsonInput.classList.remove('error');
+        updatePreview();
+        showSuccess('Property جدید اضافه شد!');
+      } catch (err) {
+        showError('خطا: JSON معتبر نیست');
+      }
+    });
+    
+    // کپی کردن
+    elements.copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(elements.jsonInput.value).then(() => {
+        elements.copyStatus.classList.add('show');
+        setTimeout(() => {
+          elements.copyStatus.classList.remove('show');
+        }, 2000);
+      });
+    });
+    
+    // دانلود
+    elements.downloadBtn.addEventListener('click', () => {
+      try {
+        JSON.parse(elements.jsonInput.value);
+        const blob = new Blob([elements.jsonInput.value], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = state.fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showSuccess('فایل دانلود شد!');
+      } catch (err) {
+        showError('خطا: JSON معتبر نیست - نمی‌تونم دانلود کنم');
+      }
+    });
+    
+    // پاک کردن
+    elements.clearBtn.addEventListener('click', () => {
+      state.jsonData = null;
+      state.jsonString = '';
+      elements.jsonInput.value = '';
+      elements.fileNameDisplay.style.display = 'none';
+      elements.editorSection.style.display = 'none';
+      elements.errorAlert.style.display = 'none';
+      elements.successAlert.style.display = 'none';
+      elements.preview.textContent = 'هیچ داده‌ای نیست';
+    });
+  </script>
+</body>
+</html>
