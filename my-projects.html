@@ -88,6 +88,10 @@
     font-size:34px;color:var(--muted);position:relative;overflow:hidden;
   }
   .proj-thumb iframe{width:220%;height:220%;transform:scale(.4545);transform-origin:top right;border:0;pointer-events:none;background:#fff;}
+  .proj-badge{
+    position:absolute;top:8px;left:8px;background:rgba(77,240,201,.15);border:1px solid rgba(77,240,201,.4);
+    color:var(--cyan);font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;
+  }
   .proj-body{padding:16px 18px 18px;}
   .proj-name{font-size:15px;font-weight:700;margin-bottom:6px;word-break:break-word;}
   .proj-meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
@@ -118,6 +122,35 @@
   .preview-head button{background:none;border:1px solid var(--line);color:var(--paper);width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:15px;}
   .preview-frame-wrap{flex:1;background:#fff;overflow:auto;}
   .preview-frame-wrap iframe{width:100%;height:70vh;border:0;}
+
+  /* مودال اشتراک‌گذاری */
+  .share-box{
+    background:var(--panel);border:1px solid var(--line);border-radius:20px;
+    width:min(440px,100%);padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .share-box h3{font-size:16px;font-weight:700;margin-bottom:8px;}
+  .share-box p{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:18px;}
+  .share-link-row{
+    display:flex;gap:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;
+    padding:10px 12px;margin-bottom:16px;align-items:center;
+  }
+  .share-link-row input{
+    flex:1;background:none;border:none;color:var(--paper);font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;direction:ltr;text-align:left;outline:none;min-width:0;
+  }
+  .share-link-row button{
+    background:var(--cyan);border:none;color:#06120f;font-weight:700;font-size:12px;
+    padding:8px 14px;border-radius:8px;cursor:pointer;flex-shrink:0;
+  }
+  .share-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .share-actions button{
+    flex:1;min-width:100px;border-radius:10px;padding:11px;font-family:inherit;font-size:13px;font-weight:700;
+    cursor:pointer;border:1px solid var(--line);background:var(--panel-2);color:var(--paper);
+  }
+  .share-publish-btn{background:linear-gradient(135deg,var(--cyan),var(--violet));color:#06120f;border:none;}
+  .share-unpublish-btn:hover{border-color:var(--danger);color:var(--danger);}
+  .share-close-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .share-note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.8;}
 
   @media (max-width:640px){
     .page-head{padding-top:130px;}
@@ -172,6 +205,28 @@
   </div>
 </div>
 
+<!-- مودال اشتراک‌گذاری (لینک عمومی پیش‌نمایش) -->
+<div class="preview-modal" id="shareModal">
+  <div class="share-box">
+    <h3>🔗 اشتراک‌گذاری پروژه</h3>
+    <p id="shareDesc">با فعال‌کردن لینک عمومی، هرکسی که این آدرس رو داشته باشه می‌تونه پروژه‌ت رو ببینه، بدون نیاز به ورود به حساب.</p>
+
+    <div id="shareLinkWrap" style="display:none;">
+      <div class="share-link-row">
+        <input type="text" id="shareLinkInput" readonly>
+        <button id="shareCopyBtn">کپی</button>
+      </div>
+    </div>
+
+    <div class="share-actions">
+      <button type="button" class="share-publish-btn" id="sharePublishBtn" style="display:none;">🌐 فعال‌کردن لینک عمومی</button>
+      <button type="button" class="share-unpublish-btn" id="shareUnpublishBtn" style="display:none;">🔒 غیرفعال‌کردن</button>
+      <button type="button" class="share-close-btn" id="shareCloseBtn">بستن</button>
+    </div>
+    <div class="share-note">هرکسی که لینک رو داشته باشه، آخرین نسخه‌ی ذخیره‌شده‌ی پروژه رو می‌بینه. اگه پروژه رو دوباره ویرایش و ذخیره کنی، همون لینک به‌روز می‌مونه.</div>
+  </div>
+</div>
+
 <script src="assets/bytelab-auth.js"></script>
 <script>
 (function(){
@@ -203,9 +258,10 @@
 
   function cardHTML(p){
     const safeName = escapeHtml(p.name);
+    const publicBadge = p.publicSlug ? `<span class="proj-badge">🌐 عمومی</span>` : '';
     return `
-      <div class="proj-card" data-name="${safeName}">
-        <div class="proj-thumb">📦</div>
+      <div class="proj-card" data-name="${safeName}" data-slug="${p.publicSlug ? escapeHtml(p.publicSlug) : ''}">
+        <div class="proj-thumb">📦${publicBadge}</div>
         <div class="proj-body">
           <div class="proj-name">${safeName}</div>
           <div class="proj-meta">
@@ -215,6 +271,7 @@
           <div class="proj-actions">
             <button data-act="edit">✏️ ویرایش</button>
             <button data-act="preview">👁️ پیش‌نمایش</button>
+            <button data-act="share">🔗 اشتراک‌گذاری</button>
             <button data-act="zip">⬇️ ZIP</button>
             <button data-act="delete" class="danger">🗑️ حذف</button>
           </div>
@@ -240,10 +297,12 @@
 
     grid.querySelectorAll('.proj-card').forEach(card => {
       const name = card.getAttribute('data-name');
+      const slug = card.getAttribute('data-slug') || '';
       card.querySelector('[data-act="edit"]').addEventListener('click', () => {
         window.location.href = 'project-upload.html?edit=' + encodeURIComponent(name);
       });
       card.querySelector('[data-act="preview"]').addEventListener('click', () => openPreview(name));
+      card.querySelector('[data-act="share"]').addEventListener('click', () => openShareModal(name, slug));
       card.querySelector('[data-act="zip"]').addEventListener('click', (e) => downloadZip(name, e.currentTarget));
       card.querySelector('[data-act="delete"]').addEventListener('click', (e) => deleteProject(name, e.currentTarget));
     });
@@ -296,6 +355,107 @@ ${p.files.html.content}
   document.getElementById('previewClose').addEventListener('click', closePreview);
   document.getElementById('previewModal').addEventListener('click', (e) => {
     if (e.target.id === 'previewModal') closePreview();
+  });
+
+  // ==== مودال اشتراک‌گذاری (لینک عمومی) ====
+  const PUBLIC_BASE = 'https://bytelab-users.bytelab.workers.dev/p/';
+  let shareCurrentName = null;
+
+  function renderShareState(slug){
+    const linkWrap = document.getElementById('shareLinkWrap');
+    const linkInput = document.getElementById('shareLinkInput');
+    const publishBtn = document.getElementById('sharePublishBtn');
+    const unpublishBtn = document.getElementById('shareUnpublishBtn');
+    const desc = document.getElementById('shareDesc');
+
+    if (slug){
+      linkWrap.style.display = 'block';
+      linkInput.value = PUBLIC_BASE + slug;
+      publishBtn.style.display = 'none';
+      unpublishBtn.style.display = 'block';
+      desc.textContent = 'این پروژه الان عمومیه — هرکسی این لینک رو داشته باشه می‌تونه ببینتش.';
+    } else {
+      linkWrap.style.display = 'none';
+      publishBtn.style.display = 'block';
+      unpublishBtn.style.display = 'none';
+      desc.textContent = 'با فعال‌کردن لینک عمومی، هرکسی که این آدرس رو داشته باشه می‌تونه پروژه‌ت رو ببینه، بدون نیاز به ورود به حساب.';
+    }
+  }
+
+  function openShareModal(name, slug){
+    shareCurrentName = name;
+    renderShareState(slug || '');
+    document.getElementById('shareModal').classList.add('open');
+  }
+
+  function closeShareModal(){
+    document.getElementById('shareModal').classList.remove('open');
+    shareCurrentName = null;
+  }
+  document.getElementById('shareCloseBtn').addEventListener('click', closeShareModal);
+  document.getElementById('shareModal').addEventListener('click', (e) => {
+    if (e.target.id === 'shareModal') closeShareModal();
+  });
+
+  document.getElementById('sharePublishBtn').addEventListener('click', async () => {
+    if (!shareCurrentName) return;
+    const btn = document.getElementById('sharePublishBtn');
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> در حال فعال‌سازی...';
+    try {
+      const res = await window.BytelabAuth.apiFetch('/api/projects/publish', {
+        method: 'POST',
+        body: JSON.stringify({ name: shareCurrentName })
+      });
+      const slug = res.slug;
+      const p = projectsCache.find(x => x.name === shareCurrentName);
+      if (p) p.publicSlug = slug;
+      const card = grid.querySelector(`.proj-card[data-name="${CSS.escape(shareCurrentName)}"]`);
+      if (card) card.setAttribute('data-slug', slug);
+      render();
+      renderShareState(slug);
+    } catch(err){
+      alert('خطا در فعال‌کردن لینک: ' + (err.message || ''));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  });
+
+  document.getElementById('shareUnpublishBtn').addEventListener('click', async () => {
+    if (!shareCurrentName) return;
+    if (!confirm('لینک عمومی این پروژه غیرفعال بشه؟ لینک قبلی دیگه کار نمی‌کنه.')) return;
+    const btn = document.getElementById('shareUnpublishBtn');
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      await window.BytelabAuth.apiFetch('/api/projects/unpublish', {
+        method: 'POST',
+        body: JSON.stringify({ name: shareCurrentName })
+      });
+      const p = projectsCache.find(x => x.name === shareCurrentName);
+      if (p) p.publicSlug = null;
+      render();
+      renderShareState('');
+    } catch(err){
+      alert('خطا در غیرفعال‌کردن لینک: ' + (err.message || ''));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  });
+
+  document.getElementById('shareCopyBtn').addEventListener('click', () => {
+    const input = document.getElementById('shareLinkInput');
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+      const btn = document.getElementById('shareCopyBtn');
+      const original = btn.textContent;
+      btn.textContent = 'کپی شد ✓';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    });
   });
 
   async function downloadZip(name, btn){
