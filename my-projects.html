@@ -152,6 +152,22 @@
   .share-close-btn:hover{border-color:var(--cyan);color:var(--cyan);}
   .share-note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.8;}
 
+  .share-pw-block{margin-bottom:16px;}
+  .share-pw-label{font-size:12.5px;font-weight:700;color:var(--paper);margin-bottom:8px;}
+  .share-pw-row{display:flex;gap:8px;}
+  .share-pw-row input{
+    flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;color:var(--paper);font-family:inherit;font-size:13px;direction:ltr;text-align:left;outline:none;min-width:0;
+  }
+  .share-pw-row input:focus{border-color:var(--cyan);}
+  .share-pw-row button{
+    background:var(--panel-2);border:1px solid var(--cyan);color:var(--cyan);font-weight:700;font-size:12.5px;
+    padding:0 16px;border-radius:10px;cursor:pointer;flex-shrink:0;
+  }
+  .share-pw-row button:hover{background:rgba(77,240,201,.1);}
+  .share-pw-status{font-size:11.5px;color:var(--muted);margin-top:8px;}
+  .share-pw-status.on{color:var(--cyan);}
+
   @media (max-width:640px){
     .page-head{padding-top:130px;}
   }
@@ -218,6 +234,15 @@
       </div>
     </div>
 
+    <div class="share-pw-block">
+      <div class="share-pw-label" id="sharePwLabel">🔒 محافظت با رمز (اختیاری)</div>
+      <div class="share-pw-row">
+        <input type="text" id="sharePwInput" placeholder="رمز عبور را وارد کن" autocomplete="off">
+        <button type="button" id="sharePwSaveBtn" style="display:none;">ثبت</button>
+      </div>
+      <div class="share-pw-status" id="sharePwStatus"></div>
+    </div>
+
     <div class="share-actions">
       <button type="button" class="share-publish-btn" id="sharePublishBtn" style="display:none;">🌐 فعال‌کردن لینک عمومی</button>
       <button type="button" class="share-unpublish-btn" id="shareUnpublishBtn" style="display:none;">🔒 غیرفعال‌کردن</button>
@@ -258,9 +283,9 @@
 
   function cardHTML(p){
     const safeName = escapeHtml(p.name);
-    const publicBadge = p.publicSlug ? `<span class="proj-badge">🌐 عمومی</span>` : '';
+    const publicBadge = p.publicSlug ? `<span class="proj-badge">🌐 عمومی${p.hasPassword ? ' 🔒' : ''}</span>` : '';
     return `
-      <div class="proj-card" data-name="${safeName}" data-slug="${p.publicSlug ? escapeHtml(p.publicSlug) : ''}">
+      <div class="proj-card" data-name="${safeName}" data-slug="${p.publicSlug ? escapeHtml(p.publicSlug) : ''}" data-haspw="${p.hasPassword ? '1' : ''}">
         <div class="proj-thumb">📦${publicBadge}</div>
         <div class="proj-body">
           <div class="proj-name">${safeName}</div>
@@ -298,11 +323,12 @@
     grid.querySelectorAll('.proj-card').forEach(card => {
       const name = card.getAttribute('data-name');
       const slug = card.getAttribute('data-slug') || '';
+      const hasPw = card.getAttribute('data-haspw') === '1';
       card.querySelector('[data-act="edit"]').addEventListener('click', () => {
         window.location.href = 'project-upload.html?edit=' + encodeURIComponent(name);
       });
       card.querySelector('[data-act="preview"]').addEventListener('click', () => openPreview(name));
-      card.querySelector('[data-act="share"]').addEventListener('click', () => openShareModal(name, slug));
+      card.querySelector('[data-act="share"]').addEventListener('click', () => openShareModal(name, slug, hasPw));
       card.querySelector('[data-act="zip"]').addEventListener('click', (e) => downloadZip(name, e.currentTarget));
       card.querySelector('[data-act="delete"]').addEventListener('click', (e) => deleteProject(name, e.currentTarget));
     });
@@ -361,12 +387,18 @@ ${p.files.html.content}
   const PUBLIC_BASE = 'https://bytelab-users.bytelab.workers.dev/p/';
   let shareCurrentName = null;
 
-  function renderShareState(slug){
+  function renderShareState(slug, hasPassword){
     const linkWrap = document.getElementById('shareLinkWrap');
     const linkInput = document.getElementById('shareLinkInput');
     const publishBtn = document.getElementById('sharePublishBtn');
     const unpublishBtn = document.getElementById('shareUnpublishBtn');
     const desc = document.getElementById('shareDesc');
+    const pwLabel = document.getElementById('sharePwLabel');
+    const pwInput = document.getElementById('sharePwInput');
+    const pwSaveBtn = document.getElementById('sharePwSaveBtn');
+    const pwStatus = document.getElementById('sharePwStatus');
+
+    pwInput.value = '';
 
     if (slug){
       linkWrap.style.display = 'block';
@@ -374,17 +406,35 @@ ${p.files.html.content}
       publishBtn.style.display = 'none';
       unpublishBtn.style.display = 'block';
       desc.textContent = 'این پروژه الان عمومیه — هرکسی این لینک رو داشته باشه می‌تونه ببینتش.';
+
+      pwLabel.textContent = '🔒 مدیریت رمز لینک';
+      pwInput.placeholder = hasPassword ? 'رمز جدید (خالی بذار برای حذف رمز)' : 'رمز عبور (اختیاری، برای فعال‌کردن)';
+      pwSaveBtn.style.display = 'block';
+      pwSaveBtn.textContent = 'ثبت';
+      if (hasPassword){
+        pwStatus.textContent = '🔒 این لینک الان با رمز محافظت می‌شه.';
+        pwStatus.classList.add('on');
+      } else {
+        pwStatus.textContent = 'این لینک بدون رمزه و برای همه در دسترسه.';
+        pwStatus.classList.remove('on');
+      }
     } else {
       linkWrap.style.display = 'none';
       publishBtn.style.display = 'block';
       unpublishBtn.style.display = 'none';
       desc.textContent = 'با فعال‌کردن لینک عمومی، هرکسی که این آدرس رو داشته باشه می‌تونه پروژه‌ت رو ببینه، بدون نیاز به ورود به حساب.';
+
+      pwLabel.textContent = '🔒 محافظت با رمز (اختیاری)';
+      pwInput.placeholder = 'رمز عبور را وارد کن';
+      pwSaveBtn.style.display = 'none';
+      pwStatus.textContent = '';
+      pwStatus.classList.remove('on');
     }
   }
 
-  function openShareModal(name, slug){
+  function openShareModal(name, slug, hasPassword){
     shareCurrentName = name;
-    renderShareState(slug || '');
+    renderShareState(slug || '', !!hasPassword);
     document.getElementById('shareModal').classList.add('open');
   }
 
@@ -400,21 +450,21 @@ ${p.files.html.content}
   document.getElementById('sharePublishBtn').addEventListener('click', async () => {
     if (!shareCurrentName) return;
     const btn = document.getElementById('sharePublishBtn');
+    const pwInput = document.getElementById('sharePwInput');
     const original = btn.textContent;
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> در حال فعال‌سازی...';
     try {
       const res = await window.BytelabAuth.apiFetch('/api/projects/publish', {
         method: 'POST',
-        body: JSON.stringify({ name: shareCurrentName })
+        body: JSON.stringify({ name: shareCurrentName, password: pwInput.value || '' })
       });
       const slug = res.slug;
+      const hasPassword = !!res.hasPassword;
       const p = projectsCache.find(x => x.name === shareCurrentName);
-      if (p) p.publicSlug = slug;
-      const card = grid.querySelector(`.proj-card[data-name="${CSS.escape(shareCurrentName)}"]`);
-      if (card) card.setAttribute('data-slug', slug);
+      if (p) { p.publicSlug = slug; p.hasPassword = hasPassword; }
       render();
-      renderShareState(slug);
+      renderShareState(slug, hasPassword);
     } catch(err){
       alert('خطا در فعال‌کردن لینک: ' + (err.message || ''));
     } finally {
@@ -436,11 +486,37 @@ ${p.files.html.content}
         body: JSON.stringify({ name: shareCurrentName })
       });
       const p = projectsCache.find(x => x.name === shareCurrentName);
-      if (p) p.publicSlug = null;
+      if (p) { p.publicSlug = null; p.hasPassword = false; }
       render();
-      renderShareState('');
+      renderShareState('', false);
     } catch(err){
       alert('خطا در غیرفعال‌کردن لینک: ' + (err.message || ''));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  });
+
+  document.getElementById('sharePwSaveBtn').addEventListener('click', async () => {
+    if (!shareCurrentName) return;
+    const btn = document.getElementById('sharePwSaveBtn');
+    const pwInput = document.getElementById('sharePwInput');
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const res = await window.BytelabAuth.apiFetch('/api/projects/set-password', {
+        method: 'POST',
+        body: JSON.stringify({ name: shareCurrentName, password: pwInput.value || '' })
+      });
+      const hasPassword = !!res.hasPassword;
+      const p = projectsCache.find(x => x.name === shareCurrentName);
+      const slug = p ? p.publicSlug : '';
+      if (p) p.hasPassword = hasPassword;
+      render();
+      renderShareState(slug, hasPassword);
+    } catch(err){
+      alert('خطا در ثبت رمز: ' + (err.message || ''));
     } finally {
       btn.disabled = false;
       btn.textContent = original;
