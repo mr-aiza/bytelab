@@ -363,6 +363,11 @@ async function handleSaveProject(request, env) {
     return jsonResponse({ error: "حجم پروژه بیشتر از حد مجازه (حداکثر ۴ مگابایت)." }, 400, env);
   }
 
+  // اگه این پروژه از قبل وجود داره و لینک عمومی داره، موقع ذخیره‌ی دوباره (ویرایش) اون لینک رو حفظ کن
+  const existingRaw = await env.USERS_KV.get("project:" + user.phone + ":" + name);
+  const existing = existingRaw ? JSON.parse(existingRaw) : null;
+  const publicSlug = existing ? existing.publicSlug || null : null;
+
   const record = {
     name,
     owner: user.phone,
@@ -373,14 +378,20 @@ async function handleSaveProject(request, env) {
     },
     updatedAt: new Date().toISOString(),
     size: totalBytes,
+    publicSlug,
   };
 
   // ذخیره‌ی خود پروژه، ایزوله زیر «پوشه»ی شماره‌تماس همون کاربر
   await env.USERS_KV.put("project:" + user.phone + ":" + name, JSON.stringify(record));
 
+  // اگه پابلیش بود، نسخه‌ی عمومی‌ای که با اسلاگ سرو می‌شه رو هم به‌روز کن
+  if (publicSlug) {
+    await env.USERS_KV.put("publicSlug:" + publicSlug, JSON.stringify({ phone: user.phone, name }));
+  }
+
   // به‌روزرسانی فهرست پروژه‌های همون کاربر
   const index = await getProjectIndex(user.phone, env);
-  const meta = { name, updatedAt: record.updatedAt, size: record.size };
+  const meta = { name, updatedAt: record.updatedAt, size: record.size, publicSlug };
   const existingIdx = index.findIndex((p) => p.name === name);
   if (existingIdx >= 0) index[existingIdx] = meta; else index.push(meta);
   await saveProjectIndex(user.phone, index, env);
@@ -413,10 +424,126 @@ async function handleDeleteProject(request, env) {
   const body = await readJson(request);
   const name = sanitizeProjectName(body.name);
   if (!name) return jsonResponse({ error: "نام پروژه نامعتبره." }, 400, env);
+
+  // اگه لینک عمومی داشت، اون رو هم پاک کن که لینک یتیم نمونه
+  const raw = await env.USERS_KV.get("project:" + user.phone + ":" + name);
+  if (raw) {
+    const existing = JSON.parse(raw);
+    if (existing.publicSlug) await env.USERS_KV.delete("publicSlug:" + existing.publicSlug);
+  }
+
   await env.USERS_KV.delete("project:" + user.phone + ":" + name);
   const index = await getProjectIndex(user.phone, env);
   await saveProjectIndex(user.phone, index.filter((p) => p.name !== name), env);
   return jsonResponse({ ok: true }, 200, env);
+}
+
+// ------------------------------------------------------------
+//  لینک عمومی پیش‌نمایش: بدون نیاز به ورود، پروژه رو با یه اسلاگ تصادفی نشون می‌ده
+// ------------------------------------------------------------
+function generateSlug() {
+  return generateRandomToken().toLowerCase().slice(0, 10);
+}
+
+async function handlePublishProject(request, env) {
+  const user = await getUserFromRequest(request, env);
+  if (!user) return jsonResponse({ error: "برای اشتراک‌گذاری پروژه باید وارد حساب بشی." }, 401, env);
+  const body = await readJson(request);
+  const name = sanitizeProjectName(body.name);
+  if (!name) return jsonResponse({ error: "نام پروژه نامعتبره." }, 400, env);
+
+  const raw = await env.USERS_KV.get("project:" + user.phone + ":" + name);
+  if (!raw) return jsonResponse({ error: "پروژه پیدا نشد." }, 404, env);
+  const record = JSON.parse(raw);
+
+  // اگه از قبل پابلیش بوده، همون لینک قبلی رو برگردون (لینک عوض نمی‌شه)
+  if (record.publicSlug) {
+    return jsonResponse({ ok: true, slug: record.publicSlug }, 200, env);
+  }
+
+  // اسلاگ تصادفی و یکتا بساز (چند بار تلاش اگه تصادفاً برخورد داشت)
+  let slug = null;
+  for (let i = 0; i < 5; i++) {
+    const candidate = generateSlug();
+    const exists = await env.USERS_KV.get("publicSlug:" + candidate);
+    if (!exists) { slug = candidate; break; }
+  }
+  if (!slug) return jsonResponse({ error: "ساخت لینک با خطا مواجه شد، دوباره امتحان کن." }, 500, env);
+
+  record.publicSlug = slug;
+  await env.USERS_KV.put("project:" + user.phone + ":" + name, JSON.stringify(record));
+  await env.USERS_KV.put("publicSlug:" + slug, JSON.stringify({ phone: user.phone, name }));
+
+  const index = await getProjectIndex(user.phone, env);
+  const idx = index.findIndex((p) => p.name === name);
+  if (idx >= 0) { index[idx].publicSlug = slug; await saveProjectIndex(user.phone, index, env); }
+
+  return jsonResponse({ ok: true, slug }, 200, env);
+}
+
+async function handleUnpublishProject(request, env) {
+  const user = await getUserFromRequest(request, env);
+  if (!user) return jsonResponse({ error: "باید وارد حساب بشی." }, 401, env);
+  const body = await readJson(request);
+  const name = sanitizeProjectName(body.name);
+  if (!name) return jsonResponse({ error: "نام پروژه نامعتبره." }, 400, env);
+
+  const raw = await env.USERS_KV.get("project:" + user.phone + ":" + name);
+  if (!raw) return jsonResponse({ error: "پروژه پیدا نشد." }, 404, env);
+  const record = JSON.parse(raw);
+
+  if (record.publicSlug) {
+    await env.USERS_KV.delete("publicSlug:" + record.publicSlug);
+    record.publicSlug = null;
+    await env.USERS_KV.put("project:" + user.phone + ":" + name, JSON.stringify(record));
+
+    const index = await getProjectIndex(user.phone, env);
+    const idx = index.findIndex((p) => p.name === name);
+    if (idx >= 0) { index[idx].publicSlug = null; await saveProjectIndex(user.phone, index, env); }
+  }
+
+  return jsonResponse({ ok: true }, 200, env);
+}
+
+// صفحه‌ی عمومی پیش‌نمایش: /p/{slug} — بدون نیاز به ورود، خود HTML رندرشده رو برمی‌گردونه
+async function handlePublicPreview(slug, env) {
+  const mapRaw = await env.USERS_KV.get("publicSlug:" + slug);
+  if (!mapRaw) {
+    return new Response("<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><meta charset=\"UTF-8\"><body style=\"background:#070b12;color:#eaf0f4;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;\"><p>این لینک پیدا نشد یا دیگه در دسترس نیست.</p></body></html>", {
+      status: 404,
+      headers: { "Content-Type": "text/html; charset=utf-8", "X-Robots-Tag": "noindex" },
+    });
+  }
+  const { phone, name } = JSON.parse(mapRaw);
+  const raw = await env.USERS_KV.get("project:" + phone + ":" + name);
+  if (!raw) {
+    return new Response("پروژه دیگه در دسترس نیست.", {
+      status: 404,
+      headers: { "Content-Type": "text/plain; charset=utf-8", "X-Robots-Tag": "noindex" },
+    });
+  }
+  const p = JSON.parse(raw);
+  const fullHTML = `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${p.name}</title>
+<style>${p.files.css.content}</style>
+</head>
+<body>
+${p.files.html.content}
+<script>${p.files.js.content}<\/script>
+</body>
+</html>`;
+  return new Response(fullHTML, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "X-Robots-Tag": "noindex",
+      "Cache-Control": "public, max-age=120",
+    },
+  });
 }
 
 async function handleMyFavorites(request, env) {
@@ -758,6 +885,14 @@ export default {
       if (url.pathname === "/api/projects/mine" && request.method === "GET") return await handleMyProjects(request, env);
       if (url.pathname === "/api/projects/get" && request.method === "GET") return await handleGetProject(request, env);
       if (url.pathname === "/api/projects/delete" && request.method === "POST") return await handleDeleteProject(request, env);
+      if (url.pathname === "/api/projects/publish" && request.method === "POST") return await handlePublishProject(request, env);
+      if (url.pathname === "/api/projects/unpublish" && request.method === "POST") return await handleUnpublishProject(request, env);
+
+      // لینک عمومی پیش‌نمایش (بدون نیاز به ورود): /p/{slug}
+      if (url.pathname.startsWith("/p/") && request.method === "GET") {
+        const slug = url.pathname.slice(3).replace(/[^a-z0-9]/gi, "");
+        return await handlePublicPreview(slug, env);
+      }
 
       if (url.pathname === "/api/admin/login" && request.method === "POST") return await handleAdminLogin(request, env);
       if (url.pathname === "/api/admin/users" && request.method === "GET") return await handleAdminListUsers(request, env);
