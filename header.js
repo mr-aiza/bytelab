@@ -342,7 +342,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
       group: true,
       text: "ابزارها",
       categorized: true,
-      match: ["playground.html", "editor.html", "audit.html", "qr.html", "invoice.html", "site-health-checker.html", "project-estimator.html", "image-compressor.html", "dns-checker.html", "whois.html", "dev-tools.html", "ip-tools.html", "image-converter.html", "pdf-tools.html", "project-upload.html"],
+      match: ["playground.html", "editor.html", "audit.html", "qr.html", "invoice.html", "site-health-checker.html", "project-estimator.html", "image-compressor.html", "dns-checker.html", "whois.html", "dev-tools.html", "ip-tools.html", "image-converter.html", "pdf-tools.html", "project-upload.html", "favicon-generator.html"],
       children: [
         {
           category: "🎨 طراحی و ساخت وب",
@@ -350,6 +350,7 @@ if (!document.querySelector('meta[name="color-scheme"]')) {
             { href: "playground.html", text: "پلی‌گراند کد زنده", icon: "⚡", match: ["playground.html"] },
             { href: "editor.html", text: "ویرایش آنلاین قالب", icon: "🛠️", match: ["editor.html"] },
             { href: "project-upload.html", text: "بارگذاری پروژه", icon: "📦", match: ["project-upload.html"] },
+            { href: "favicon-generator.html", text: "ساخت فاویکون", icon: "🎨", match: ["favicon-generator.html"] },
             { href: "image-compressor.html", text: "فشرده‌سازی تصویر", icon: "🖼️", match: ["image-compressor.html"] },
             { href: "image-converter.html", text: "تبدیل فرمت تصویر", icon: "🔄", match: ["image-converter.html"] }
           ]
@@ -846,7 +847,8 @@ ${quickDockHTML}
       "project-estimator.html": "برآورد هزینه پروژه",
       "image-compressor.html": "فشرده‌سازی تصویر",
       "project-upload.html": "بارگذاری پروژه",
-      "my-projects.html": "پروژه‌های من"
+      "my-projects.html": "پروژه‌های من",
+      "favicon-generator.html": "ساخت فاویکون"
     };
     const pageName = TRACKED_PAGES[current];
     if (pageName && !sessionStorage.getItem("visited_" + current)) {
