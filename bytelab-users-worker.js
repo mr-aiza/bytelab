@@ -451,6 +451,7 @@ async function handlePublishProject(request, env) {
   const body = await readJson(request);
   const name = sanitizeProjectName(body.name);
   if (!name) return jsonResponse({ error: "نام پروژه نامعتبره." }, 400, env);
+  const password = String(body.password || "").slice(0, 100);
 
   const raw = await env.USERS_KV.get("project:" + user.phone + ":" + name);
   if (!raw) return jsonResponse({ error: "پروژه پیدا نشد." }, 404, env);
@@ -458,7 +459,7 @@ async function handlePublishProject(request, env) {
 
   // اگه از قبل پابلیش بوده، همون لینک قبلی رو برگردون (لینک عوض نمی‌شه)
   if (record.publicSlug) {
-    return jsonResponse({ ok: true, slug: record.publicSlug }, 200, env);
+    return jsonResponse({ ok: true, slug: record.publicSlug, hasPassword: !!record.hasPassword }, 200, env);
   }
 
   // اسلاگ تصادفی و یکتا بساز (چند بار تلاش اگه تصادفاً برخورد داشت)
@@ -470,15 +471,60 @@ async function handlePublishProject(request, env) {
   }
   if (!slug) return jsonResponse({ error: "ساخت لینک با خطا مواجه شد، دوباره امتحان کن." }, 500, env);
 
+  const mapping = { phone: user.phone, name };
+  if (password) {
+    const salt = generateRandomToken();
+    mapping.passwordSalt = salt;
+    mapping.passwordHash = await hashPassword(password, salt);
+  }
+
   record.publicSlug = slug;
+  record.hasPassword = !!password;
   await env.USERS_KV.put("project:" + user.phone + ":" + name, JSON.stringify(record));
-  await env.USERS_KV.put("publicSlug:" + slug, JSON.stringify({ phone: user.phone, name }));
+  await env.USERS_KV.put("publicSlug:" + slug, JSON.stringify(mapping));
 
   const index = await getProjectIndex(user.phone, env);
   const idx = index.findIndex((p) => p.name === name);
-  if (idx >= 0) { index[idx].publicSlug = slug; await saveProjectIndex(user.phone, index, env); }
+  if (idx >= 0) { index[idx].publicSlug = slug; index[idx].hasPassword = !!password; await saveProjectIndex(user.phone, index, env); }
 
-  return jsonResponse({ ok: true, slug }, 200, env);
+  return jsonResponse({ ok: true, slug, hasPassword: !!password }, 200, env);
+}
+
+// تنظیم/تغییر/حذف رمز روی یه لینک عمومی که از قبل فعاله
+async function handleSetPublishPassword(request, env) {
+  const user = await getUserFromRequest(request, env);
+  if (!user) return jsonResponse({ error: "باید وارد حساب بشی." }, 401, env);
+  const body = await readJson(request);
+  const name = sanitizeProjectName(body.name);
+  if (!name) return jsonResponse({ error: "نام پروژه نامعتبره." }, 400, env);
+  const password = String(body.password || "").slice(0, 100);
+
+  const raw = await env.USERS_KV.get("project:" + user.phone + ":" + name);
+  if (!raw) return jsonResponse({ error: "پروژه پیدا نشد." }, 404, env);
+  const record = JSON.parse(raw);
+  if (!record.publicSlug) return jsonResponse({ error: "این پروژه هنوز عمومی نشده." }, 400, env);
+
+  const mapRaw = await env.USERS_KV.get("publicSlug:" + record.publicSlug);
+  const mapping = mapRaw ? JSON.parse(mapRaw) : { phone: user.phone, name };
+
+  if (password) {
+    const salt = generateRandomToken();
+    mapping.passwordSalt = salt;
+    mapping.passwordHash = await hashPassword(password, salt);
+  } else {
+    delete mapping.passwordSalt;
+    delete mapping.passwordHash;
+  }
+  await env.USERS_KV.put("publicSlug:" + record.publicSlug, JSON.stringify(mapping));
+
+  record.hasPassword = !!password;
+  await env.USERS_KV.put("project:" + user.phone + ":" + name, JSON.stringify(record));
+
+  const index = await getProjectIndex(user.phone, env);
+  const idx = index.findIndex((p) => p.name === name);
+  if (idx >= 0) { index[idx].hasPassword = !!password; await saveProjectIndex(user.phone, index, env); }
+
+  return jsonResponse({ ok: true, hasPassword: !!password }, 200, env);
 }
 
 async function handleUnpublishProject(request, env) {
@@ -495,18 +541,54 @@ async function handleUnpublishProject(request, env) {
   if (record.publicSlug) {
     await env.USERS_KV.delete("publicSlug:" + record.publicSlug);
     record.publicSlug = null;
+    record.hasPassword = false;
     await env.USERS_KV.put("project:" + user.phone + ":" + name, JSON.stringify(record));
 
     const index = await getProjectIndex(user.phone, env);
     const idx = index.findIndex((p) => p.name === name);
-    if (idx >= 0) { index[idx].publicSlug = null; await saveProjectIndex(user.phone, index, env); }
+    if (idx >= 0) { index[idx].publicSlug = null; index[idx].hasPassword = false; await saveProjectIndex(user.phone, index, env); }
   }
 
   return jsonResponse({ ok: true }, 200, env);
 }
 
+// یه صفحه‌ی سبک برای گرفتن رمز، هم‌رنگ سایت
+function passwordPromptHTML(slug, wrongAttempt) {
+  const errorLine = wrongAttempt
+    ? '<div style="color:#ff8a8a;font-size:13px;margin-bottom:14px;">رمز اشتباهه، دوباره امتحان کن.</div>'
+    : '';
+  return `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>این پیش‌نمایش با رمز محافظت می‌شه</title>
+<style>
+  *{box-sizing:border-box;}
+  body{background:#070b12;color:#eaf0f4;font-family:Tahoma,Vazirmatn,sans-serif;min-height:100vh;margin:0;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .box{background:#0f1620;border:1px solid #1e2a38;border-radius:18px;padding:32px;max-width:360px;width:100%;text-align:center;}
+  h1{font-size:17px;margin:0 0 10px;}
+  p{color:#7c8b9c;font-size:13px;line-height:1.8;margin:0 0 20px;}
+  input{width:100%;background:#141d2b;border:1px solid #1e2a38;color:#eaf0f4;border-radius:10px;padding:12px;font-size:14px;margin-bottom:14px;text-align:center;}
+  button{width:100%;background:#4df0c9;color:#06120f;border:none;border-radius:999px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;}
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>🔒 این پیش‌نمایش با رمز محافظت می‌شه</h1>
+    <p>برای دیدن این پروژه، رمزی که صاحبش بهت داده رو وارد کن.</p>
+    ${errorLine}
+    <form method="POST" action="/p/${slug}">
+      <input type="password" name="password" placeholder="رمز عبور" autofocus>
+      <button type="submit">ورود</button>
+    </form>
+  </div>
+</body>
+</html>`;
+}
+
 // صفحه‌ی عمومی پیش‌نمایش: /p/{slug} — بدون نیاز به ورود، خود HTML رندرشده رو برمی‌گردونه
-async function handlePublicPreview(slug, env) {
+async function handlePublicPreview(slug, env, providedPassword) {
   const mapRaw = await env.USERS_KV.get("publicSlug:" + slug);
   if (!mapRaw) {
     return new Response("<!DOCTYPE html><html lang=\"fa\" dir=\"rtl\"><meta charset=\"UTF-8\"><body style=\"background:#070b12;color:#eaf0f4;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;\"><p>این لینک پیدا نشد یا دیگه در دسترس نیست.</p></body></html>", {
@@ -514,7 +596,26 @@ async function handlePublicPreview(slug, env) {
       headers: { "Content-Type": "text/html; charset=utf-8", "X-Robots-Tag": "noindex" },
     });
   }
-  const { phone, name } = JSON.parse(mapRaw);
+  const mapping = JSON.parse(mapRaw);
+  const { phone, name } = mapping;
+
+  // اگه این لینک با رمز محافظت شده، رمز رو بررسی کن
+  if (mapping.passwordHash) {
+    if (!providedPassword) {
+      return new Response(passwordPromptHTML(slug, false), {
+        status: 200,
+        headers: { "Content-Type": "text/html; charset=utf-8", "X-Robots-Tag": "noindex" },
+      });
+    }
+    const attemptHash = await hashPassword(providedPassword, mapping.passwordSalt || "");
+    if (attemptHash !== mapping.passwordHash) {
+      return new Response(passwordPromptHTML(slug, true), {
+        status: 401,
+        headers: { "Content-Type": "text/html; charset=utf-8", "X-Robots-Tag": "noindex" },
+      });
+    }
+  }
+
   const raw = await env.USERS_KV.get("project:" + phone + ":" + name);
   if (!raw) {
     return new Response("پروژه دیگه در دسترس نیست.", {
@@ -541,7 +642,7 @@ ${p.files.html.content}
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "X-Robots-Tag": "noindex",
-      "Cache-Control": "public, max-age=120",
+      "Cache-Control": mapping.passwordHash ? "no-store" : "public, max-age=120",
     },
   });
 }
@@ -887,11 +988,17 @@ export default {
       if (url.pathname === "/api/projects/delete" && request.method === "POST") return await handleDeleteProject(request, env);
       if (url.pathname === "/api/projects/publish" && request.method === "POST") return await handlePublishProject(request, env);
       if (url.pathname === "/api/projects/unpublish" && request.method === "POST") return await handleUnpublishProject(request, env);
+      if (url.pathname === "/api/projects/set-password" && request.method === "POST") return await handleSetPublishPassword(request, env);
 
-      // لینک عمومی پیش‌نمایش (بدون نیاز به ورود): /p/{slug}
-      if (url.pathname.startsWith("/p/") && request.method === "GET") {
+      // لینک عمومی پیش‌نمایش (بدون نیاز به ورود): /p/{slug} — GET برای نمایش، POST برای وارد کردن رمز
+      if (url.pathname.startsWith("/p/") && (request.method === "GET" || request.method === "POST")) {
         const slug = url.pathname.slice(3).replace(/[^a-z0-9]/gi, "");
-        return await handlePublicPreview(slug, env);
+        if (request.method === "POST") {
+          const form = await request.formData();
+          const pw = String(form.get("password") || "");
+          return await handlePublicPreview(slug, env, pw);
+        }
+        return await handlePublicPreview(slug, env, null);
       }
 
       if (url.pathname === "/api/admin/login" && request.method === "POST") return await handleAdminLogin(request, env);
