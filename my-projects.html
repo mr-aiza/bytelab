@@ -213,6 +213,7 @@
             <span>💾 ${escapeHtml(formatFileSize(p.size || 0))}</span>
           </div>
           <div class="proj-actions">
+            <button data-act="edit">✏️ ویرایش</button>
             <button data-act="preview">👁️ پیش‌نمایش</button>
             <button data-act="zip">⬇️ ZIP</button>
             <button data-act="delete" class="danger">🗑️ حذف</button>
@@ -239,6 +240,9 @@
 
     grid.querySelectorAll('.proj-card').forEach(card => {
       const name = card.getAttribute('data-name');
+      card.querySelector('[data-act="edit"]').addEventListener('click', () => {
+        window.location.href = 'project-upload.html?edit=' + encodeURIComponent(name);
+      });
       card.querySelector('[data-act="preview"]').addEventListener('click', () => openPreview(name));
       card.querySelector('[data-act="zip"]').addEventListener('click', (e) => downloadZip(name, e.currentTarget));
       card.querySelector('[data-act="delete"]').addEventListener('click', (e) => deleteProject(name, e.currentTarget));
