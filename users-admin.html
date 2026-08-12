@@ -19,6 +19,21 @@
   .wrap{max-width:900px;margin:0 auto;padding:40px 20px 80px;overflow-x:hidden;}
   .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius);}
   .table-scroll table{min-width:640px;border-radius:0;}
+
+  /* روی موبایل، جدول به‌جای اسکرول افقی، به‌صورت کارت زیر هم نمایش داده می‌شه */
+  @media (max-width:700px){
+    .table-scroll{overflow-x:visible;}
+    .table-scroll table{min-width:0;width:100%;border:none;background:none;}
+    .table-scroll table thead{display:none;}
+    .table-scroll table, .table-scroll table tbody, .table-scroll table tr, .table-scroll table td{display:block;width:100%;}
+    .table-scroll table tr{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;}
+    .table-scroll table td{border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;text-align:left;}
+    .table-scroll table td:last-child{border-bottom:none;}
+    .table-scroll table td::before{content:attr(data-label);color:var(--muted);font-size:11px;font-weight:600;flex-shrink:0;}
+    .table-scroll table td.empty::before{content:none;}
+    .table-scroll table td.actions-cell{display:block;}
+    .table-scroll table td.actions-cell::before{content:none;}
+  }
   h1{font-size:22px;font-weight:800;margin-bottom:6px;}
   .sub{color:var(--muted);font-size:13px;margin-bottom:28px;}
 
@@ -66,7 +81,8 @@
 
   .proj-name{font-family:'JetBrains Mono',monospace;font-weight:700;}
   .proj-owner{font-size:12px;color:var(--muted);}
-  .proj-actions{display:flex;gap:6px;}
+  .proj-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  @media (max-width:700px){ .proj-actions{width:100%;} }
   .view-btn{
     background:none;border:1px solid var(--line);color:var(--violet);padding:6px 12px;border-radius:999px;
     font-family:inherit;font-size:12px;cursor:pointer;transition:border-color .2s ease;
@@ -84,14 +100,15 @@
   .link-btn:hover{border-color:var(--cyan);}
 
   .user-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  @media (max-width:700px){ .user-actions{width:100%;} }
   .imp-btn{
     background:none;border:1px solid var(--cyan);color:var(--cyan);padding:6px 12px;border-radius:999px;
-    font-family:inherit;font-size:12px;cursor:pointer;transition:background-color .2s ease;
+    font-family:inherit;font-size:12px;cursor:pointer;transition:background-color .2s ease;white-space:nowrap;
   }
   .imp-btn:hover{background:rgba(77,240,201,.1);}
   .reset-btn{
     background:none;border:1px solid var(--line);color:var(--violet);padding:6px 12px;border-radius:999px;
-    font-family:inherit;font-size:12px;cursor:pointer;transition:border-color .2s ease;
+    font-family:inherit;font-size:12px;cursor:pointer;transition:border-color .2s ease;white-space:nowrap;
   }
   .reset-btn:hover{border-color:var(--violet);}
 
@@ -236,6 +253,7 @@
   const IMPERSONATE_BYTELAB = "https://bytelabpro.xyz/impersonate.html";
   const IMPERSONATE_MENUPROAI = "https://menuproai.bytelabpro.xyz/impersonate.html";
   const MENUPROAI_DASHBOARD_PAGE = "dashboard.html"; // ← اگه اسم واقعی فرق داره، عوضش کن
+  const BYTELAB_ACCOUNT_PAGE = "account.html"; // ← صفحه‌ی حساب‌کاربری طرف؛ اگه اسمش چیز دیگه‌ایه عوضش کن
 
   function getToken(){ try { return sessionStorage.getItem(TOKEN_KEY); } catch(e){ return null; } }
   function setToken(t){ try { sessionStorage.setItem(TOKEN_KEY, t); } catch(e){} }
@@ -295,7 +313,7 @@
       if (cafe && cafe.active !== false) {
         url = `${IMPERSONATE_MENUPROAI}?token=${encodeURIComponent(data.token)}&redirect=${encodeURIComponent(MENUPROAI_DASHBOARD_PAGE)}`;
       } else {
-        url = `${IMPERSONATE_BYTELAB}?token=${encodeURIComponent(data.token)}&redirect=${encodeURIComponent("my-projects.html")}`;
+        url = `${IMPERSONATE_BYTELAB}?token=${encodeURIComponent(data.token)}&redirect=${encodeURIComponent(BYTELAB_ACCOUNT_PAGE)}`;
       }
       window.open(url, "_blank");
     } catch(err) {
@@ -333,13 +351,13 @@
       }
       body.innerHTML = users.map(u => `
         <tr>
-          <td>${escapeHTML(u.name || "—")}</td>
-          <td class="phone">${escapeHTML(u.phone)}</td>
-          <td>${escapeHTML(u.email || "—")}</td>
-          <td>${u.favoritesCount || 0}</td>
-          <td><span class="badge ${u.active ? "active" : "blocked"}">${u.active ? "فعال" : "مسدود"}</span></td>
-          <td><button class="toggle-btn" data-phone="${escapeHTML(u.phone)}">${u.active ? "مسدود کردن" : "فعال کردن"}</button></td>
-          <td>
+          <td data-label="نام">${escapeHTML(u.name || "—")}</td>
+          <td class="phone" data-label="شماره">${escapeHTML(u.phone)}</td>
+          <td data-label="ایمیل">${escapeHTML(u.email || "—")}</td>
+          <td data-label="علاقه‌مندی‌ها">${u.favoritesCount || 0}</td>
+          <td data-label="وضعیت"><span class="badge ${u.active ? "active" : "blocked"}">${u.active ? "فعال" : "مسدود"}</span></td>
+          <td data-label="دسترسی"><button class="toggle-btn" data-phone="${escapeHTML(u.phone)}">${u.active ? "مسدود کردن" : "فعال کردن"}</button></td>
+          <td class="actions-cell">
             <div class="user-actions">
               <button class="imp-btn" data-phone="${escapeHTML(u.phone)}">🔑 ورود به‌جای کاربر</button>
               <button class="reset-btn" data-phone="${escapeHTML(u.phone)}">♻️ ریست رمز</button>
@@ -430,14 +448,14 @@
         const dateStr = p.updatedAt ? new Date(p.updatedAt).toLocaleString("fa-IR") : "—";
         return `
         <tr>
-          <td class="proj-name">${escapeHTML(p.name)}</td>
-          <td>
+          <td class="proj-name" data-label="نام پروژه">${escapeHTML(p.name)}</td>
+          <td data-label="صاحب پروژه">
             ${escapeHTML(p.ownerName || "—")}<br>
             <span class="proj-owner phone">${escapeHTML(p.ownerPhone)}</span>
           </td>
-          <td>${formatFileSize(p.size)}</td>
-          <td>${dateStr}</td>
-          <td>
+          <td data-label="حجم">${formatFileSize(p.size)}</td>
+          <td data-label="آخرین ذخیره">${dateStr}</td>
+          <td class="actions-cell">
             <div class="proj-actions">
               <button class="view-btn" data-phone="${escapeHTML(p.ownerPhone)}" data-name="${escapeHTML(p.name)}">👁️ مشاهده</button>
               <button class="del-btn" data-phone="${escapeHTML(p.ownerPhone)}" data-name="${escapeHTML(p.name)}">🗑️ حذف</button>
