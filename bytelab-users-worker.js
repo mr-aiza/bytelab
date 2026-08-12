@@ -758,6 +758,60 @@ async function handleAdminDeleteProject(request, env) {
 }
 
 // ============================================================
+//  ریست رمز عبور کاربر توسط ادمین (پشتیبانی)
+//  POST /api/admin/reset-password   body: { phone, newPassword? }
+//  اگه newPassword ندی، یه رمز تصادفی ۶ رقمی می‌سازه و برمی‌گردونه
+//  تا بتونی به کاربر اطلاع بدی.
+// ============================================================
+function randomNumericPassword() {
+  const n = crypto.getRandomValues(new Uint32Array(1))[0] % 900000 + 100000;
+  return String(n);
+}
+
+async function handleAdminResetPassword(request, env) {
+  if (!(await requireAdmin(request, env))) return jsonResponse({ error: "دسترسی نداری." }, 401, env);
+  const body = await readJson(request);
+  const phone = String(body.phone || "").trim();
+  let newPassword = String(body.newPassword || "");
+
+  const user = await getUserRaw(phone, env);
+  if (!user) return jsonResponse({ error: "کاربر پیدا نشد." }, 404, env);
+
+  if (!newPassword) newPassword = randomNumericPassword();
+  if (newPassword.length < 4) return jsonResponse({ error: "رمز جدید باید حداقل ۴ کاراکتر باشه." }, 400, env);
+
+  const salt = generateRandomToken();
+  user.passwordHash = await hashPassword(newPassword, salt);
+  user.salt = salt;
+  await saveUserRaw(user, env);
+
+  // هر نشست فعال قبلی این کاربر (سایت اصلی و منوساز) رو باطل نمی‌کنیم چون
+  // session ها با توکن جدا شناخته می‌شن نه رمز؛ اگه لازم شد جداگانه اضافه می‌شه.
+
+  return jsonResponse({ ok: true, phone, newPassword }, 200, env);
+}
+
+// ============================================================
+//  ورود ادمین به‌جای کاربر (پشتیبانی / دیباگ)
+//  POST /api/admin/impersonate   body: { phone }
+//  یه نشست واقعی (دقیقاً مثل لاگین خود کاربر) می‌سازه و توکنش رو
+//  برمی‌گردونه. با این توکن می‌شه هم تو سایت اصلی هم تو MenuProAI
+//  دقیقاً جای همون کاربر وارد شد (نمایش کامل + امکان ویرایش).
+// ============================================================
+async function handleAdminImpersonate(request, env) {
+  if (!(await requireAdmin(request, env))) return jsonResponse({ error: "دسترسی نداری." }, 401, env);
+  const body = await readJson(request);
+  const phone = String(body.phone || "").trim();
+
+  const user = await getUserRaw(phone, env);
+  if (!user) return jsonResponse({ error: "کاربر پیدا نشد." }, 404, env);
+  if (user.active === false) return jsonResponse({ error: "این کاربر غیرفعال است؛ اول فعالش کن." }, 403, env);
+
+  const token = await createSession(phone, env);
+  return jsonResponse({ ok: true, token, user: publicUser(user) }, 200, env);
+}
+
+// ============================================================
 //  آنالیزور سایت (audit.html) — بررسی SSL/سرعت/سئو/ریسپانسیو
 // ============================================================
 async function handleAudit(request, env) {
@@ -1004,6 +1058,8 @@ export default {
       if (url.pathname === "/api/admin/login" && request.method === "POST") return await handleAdminLogin(request, env);
       if (url.pathname === "/api/admin/users" && request.method === "GET") return await handleAdminListUsers(request, env);
       if (url.pathname === "/api/admin/users/toggle-access" && request.method === "POST") return await handleAdminToggleAccess(request, env);
+      if (url.pathname === "/api/admin/reset-password" && request.method === "POST") return await handleAdminResetPassword(request, env);
+      if (url.pathname === "/api/admin/impersonate" && request.method === "POST") return await handleAdminImpersonate(request, env);
       if (url.pathname === "/api/admin/projects" && request.method === "GET") return await handleAdminListProjects(request, env);
       if (url.pathname === "/api/admin/projects/get" && request.method === "GET") return await handleAdminGetProject(request, env);
       if (url.pathname === "/api/admin/projects/delete" && request.method === "POST") return await handleAdminDeleteProject(request, env);
