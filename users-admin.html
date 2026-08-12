@@ -83,6 +83,18 @@
   }
   .link-btn:hover{border-color:var(--cyan);}
 
+  .user-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  .imp-btn{
+    background:none;border:1px solid var(--cyan);color:var(--cyan);padding:6px 12px;border-radius:999px;
+    font-family:inherit;font-size:12px;cursor:pointer;transition:background-color .2s ease;
+  }
+  .imp-btn:hover{background:rgba(77,240,201,.1);}
+  .reset-btn{
+    background:none;border:1px solid var(--line);color:var(--violet);padding:6px 12px;border-radius:999px;
+    font-family:inherit;font-size:12px;cursor:pointer;transition:border-color .2s ease;
+  }
+  .reset-btn:hover{border-color:var(--violet);}
+
   /* مودال مشاهده‌ی فایل‌های پروژه */
   .proj-modal-overlay{
     position:fixed;inset:0;background:rgba(7,11,18,.85);backdrop-filter:blur(6px);
@@ -145,7 +157,6 @@
     <div class="admin-tabs">
       <button class="admin-tab active" id="tabUsersBtn">👤 کاربران</button>
       <button class="admin-tab" id="tabProjectsBtn">📦 پروژه‌های بارگذاری‌شده</button>
-      <button class="admin-tab" id="tabMenuproaiBtn">🍽️ منوساز</button>
     </div>
 
     <div class="tab-panel active" id="tabUsers">
@@ -156,7 +167,7 @@
       <div class="table-scroll">
         <table>
           <thead>
-            <tr><th>نام</th><th>شماره تماس</th><th>ایمیل</th><th>علاقه‌مندی‌ها</th><th>وضعیت</th><th></th></tr>
+            <tr><th>نام</th><th>شماره تماس</th><th>ایمیل</th><th>علاقه‌مندی‌ها</th><th>وضعیت</th><th></th><th></th></tr>
           </thead>
           <tbody id="usersBody"></tbody>
         </table>
@@ -178,20 +189,6 @@
       </div>
     </div>
 
-    <div class="tab-panel" id="tabMenuproai">
-      <div class="toolbar">
-        <span class="stat" id="menuproaiStatText"></span>
-        <button class="refresh-btn" id="refreshMenuproaiBtn" style="width:auto;">بروزرسانی</button>
-      </div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr><th>نام کافه</th><th>صاحب (شماره)</th><th>تعداد آیتم</th><th>آخرین بروزرسانی</th><th></th></tr>
-          </thead>
-          <tbody id="menuproaiBody"></tbody>
-        </table>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -227,12 +224,18 @@
   // آدرس Worker حساب‌کاربری رو بعد از دیپلوی، اینجا با آدرس واقعیت جایگزین کن
   const API_URL = "https://bytelab-users.bytelab.workers.dev";
   const TOKEN_KEY = "bytelab_users_admin_token";
-  // MenuProAI بک‌اند جدایی داره (Worker خودش، KV خودش)، پس تب «منوساز»
-  // مستقیم به همون Worker وصل می‌شه، نه به bytelab-users.
+  // MenuProAI بک‌اند جدایی داره (Worker خودش، KV خودش). تب نمایشی‌ش از
+  // پنل حذف شده، ولی همچنان لازمه بفهمیم هر کاربر تو منوساز کافه داره
+  // یا نه، تا دکمه‌ی «ورود به‌جای کاربر» بفهمه کجا ریدایرکت کنه.
   const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
-  // آدرس منوی عمومی هر کافه (برای دکمه‌ی «مشاهده منو»)
-  const MENUPROAI_PUBLIC_BASE = "https://menuproai.bytelabpro.xyz/USERS";
-  const ADMIN_PASS_KEY = "bytelab_admin_pass_session"; // برای احراز هویت تب منوساز
+  const ADMIN_PASS_KEY = "bytelab_admin_pass_session"; // برای احراز هویت به Worker منوساز
+
+  // صفحه‌ی «ورود به‌جای کاربر»: یه نسخه از impersonate.html روی هر
+  // دامنه (چون localStorage بین دامنه‌ها مشترک نیست). صفحه‌ی داشبورد
+  // منوساز رو اگه اسمش چیز دیگه‌ایه، همینجا عوض کن.
+  const IMPERSONATE_BYTELAB = "https://bytelabpro.xyz/impersonate.html";
+  const IMPERSONATE_MENUPROAI = "https://menuproai.bytelabpro.xyz/impersonate.html";
+  const MENUPROAI_DASHBOARD_PAGE = "dashboard.html"; // ← اگه اسم واقعی فرق داره، عوضش کن
 
   function getToken(){ try { return sessionStorage.getItem(TOKEN_KEY); } catch(e){ return null; } }
   function setToken(t){ try { sessionStorage.setItem(TOKEN_KEY, t); } catch(e){} }
@@ -258,15 +261,74 @@
     return data;
   }
 
+  // ============ تشخیص خاموش اینکه کاربر تو منوساز کافه داره یا نه ============
+  // (بدون نمایش تب جدا؛ فقط برای تصمیم مقصد «ورود به‌جای کاربر»)
+  let menuproaiOwnersCache = null; // Map<phone, {slug, active}>
+  async function getMenuproaiOwnersMap(){
+    if (menuproaiOwnersCache) return menuproaiOwnersCache;
+    const adminPass = getAdminPass();
+    if (!adminPass) return new Map();
+    try {
+      const res = await fetch(MENUPROAI_API + "/api/menu/admin/list", {
+        method: "GET",
+        headers: { "X-Admin-Password": adminPass },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return new Map();
+      const map = new Map();
+      (data.cafes || []).forEach(c => { if (c.ownerPhone) map.set(c.ownerPhone, c); });
+      menuproaiOwnersCache = map;
+      return map;
+    } catch(e) {
+      return new Map();
+    }
+  }
+
+  // ============ ورود به‌جای کاربر (Impersonate) ============
+  async function doImpersonate(phone, btn){
+    if (btn) btn.disabled = true;
+    try {
+      const data = await apiFetch("/api/admin/impersonate", { method: "POST", body: JSON.stringify({ phone }) });
+      const owners = await getMenuproaiOwnersMap();
+      const cafe = owners.get(phone);
+      let url;
+      if (cafe && cafe.active !== false) {
+        url = `${IMPERSONATE_MENUPROAI}?token=${encodeURIComponent(data.token)}&redirect=${encodeURIComponent(MENUPROAI_DASHBOARD_PAGE)}`;
+      } else {
+        url = `${IMPERSONATE_BYTELAB}?token=${encodeURIComponent(data.token)}&redirect=${encodeURIComponent("my-projects.html")}`;
+      }
+      window.open(url, "_blank");
+    } catch(err) {
+      alert(err.message || "ورود به‌جای کاربر ناموفق بود.");
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  // ============ ریست رمز عبور کاربر ============
+  async function doResetPassword(phone){
+    const custom = prompt("رمز جدید رو وارد کن (حداقل ۴ کاراکتر) — اگه خالی بذاری، رمز تصادفی ساخته می‌شه:");
+    if (custom === null) return; // انصراف
+    try {
+      const data = await apiFetch("/api/admin/reset-password", {
+        method: "POST",
+        body: JSON.stringify({ phone, newPassword: custom || "" }),
+      });
+      prompt("رمز جدید کاربر (کپی کن و به کاربر بده):", data.newPassword);
+    } catch(err) {
+      alert(err.message || "ریست رمز ناموفق بود.");
+    }
+  }
+
   async function loadUsers(){
     const body = document.getElementById("usersBody");
-    body.innerHTML = `<tr><td colspan="6" class="empty">در حال بارگذاری...</td></tr>`;
+    body.innerHTML = `<tr><td colspan="7" class="empty">در حال بارگذاری...</td></tr>`;
     try {
       const data = await apiFetch("/api/admin/users", { method: "GET" });
       const users = data.users || [];
       document.getElementById("statText").textContent = `${users.length} کاربر ثبت‌نام‌شده`;
       if (!users.length) {
-        body.innerHTML = `<tr><td colspan="6" class="empty">هنوز کاربری ثبت‌نام نکرده.</td></tr>`;
+        body.innerHTML = `<tr><td colspan="7" class="empty">هنوز کاربری ثبت‌نام نکرده.</td></tr>`;
         return;
       }
       body.innerHTML = users.map(u => `
@@ -277,6 +339,12 @@
           <td>${u.favoritesCount || 0}</td>
           <td><span class="badge ${u.active ? "active" : "blocked"}">${u.active ? "فعال" : "مسدود"}</span></td>
           <td><button class="toggle-btn" data-phone="${escapeHTML(u.phone)}">${u.active ? "مسدود کردن" : "فعال کردن"}</button></td>
+          <td>
+            <div class="user-actions">
+              <button class="imp-btn" data-phone="${escapeHTML(u.phone)}">🔑 ورود به‌جای کاربر</button>
+              <button class="reset-btn" data-phone="${escapeHTML(u.phone)}">♻️ ریست رمز</button>
+            </div>
+          </td>
         </tr>`).join("");
 
       body.querySelectorAll(".toggle-btn").forEach(btn => {
@@ -293,8 +361,14 @@
           }
         });
       });
+      body.querySelectorAll(".imp-btn").forEach(btn => {
+        btn.addEventListener("click", () => doImpersonate(btn.getAttribute("data-phone"), btn));
+      });
+      body.querySelectorAll(".reset-btn").forEach(btn => {
+        btn.addEventListener("click", () => doResetPassword(btn.getAttribute("data-phone")));
+      });
     } catch(err) {
-      body.innerHTML = `<tr><td colspan="6" class="empty">${escapeHTML(err.message)}</td></tr>`;
+      body.innerHTML = `<tr><td colspan="7" class="empty">${escapeHTML(err.message)}</td></tr>`;
     }
   }
 
@@ -304,7 +378,7 @@
     try {
       const data = await apiFetch("/api/admin/login", { method: "POST", body: JSON.stringify({ password: pass }) });
       setToken(data.token);
-      setAdminPass(pass); // برای تب منوساز که مستقیم به Worker دیگه‌ای وصل می‌شه
+      setAdminPass(pass); // برای احراز هویت به Worker منوساز (تشخیص مقصد دکمه‌ی «ورود به‌جای کاربر»)
       document.getElementById("loginBox").style.display = "none";
       document.getElementById("panelBox").style.display = "block";
       loadUsers();
@@ -319,24 +393,18 @@
   // ============ تب‌ها ============
   const tabUsersBtn = document.getElementById("tabUsersBtn");
   const tabProjectsBtn = document.getElementById("tabProjectsBtn");
-  const tabMenuproaiBtn = document.getElementById("tabMenuproaiBtn");
   const tabUsers = document.getElementById("tabUsers");
   const tabProjects = document.getElementById("tabProjects");
-  const tabMenuproai = document.getElementById("tabMenuproai");
 
   function activateTab(btn, panel){
-    [tabUsersBtn, tabProjectsBtn, tabMenuproaiBtn].forEach(b => b.classList.toggle("active", b === btn));
-    [tabUsers, tabProjects, tabMenuproai].forEach(p => p.classList.toggle("active", p === panel));
+    [tabUsersBtn, tabProjectsBtn].forEach(b => b.classList.toggle("active", b === btn));
+    [tabUsers, tabProjects].forEach(p => p.classList.toggle("active", p === panel));
   }
 
   tabUsersBtn.addEventListener("click", () => activateTab(tabUsersBtn, tabUsers));
   tabProjectsBtn.addEventListener("click", () => {
     activateTab(tabProjectsBtn, tabProjects);
     loadProjects();
-  });
-  tabMenuproaiBtn.addEventListener("click", () => {
-    activateTab(tabMenuproaiBtn, tabMenuproai);
-    loadMenuproaiCafes();
   });
 
   // ============ پروژه‌های بارگذاری‌شده (نظارت ادمین) ============
@@ -390,53 +458,6 @@
   }
 
   document.getElementById("refreshProjBtn").addEventListener("click", loadProjects);
-
-  // ============ کافه‌های منوساز (MenuProAI) — فقط نظارت، بدون حذف ============
-  // این تب مستقیم به Worker خودِ MenuProAI وصل می‌شه (نه bytelab-users)،
-  // چون داده‌ی کافه‌ها تو KV جدای اون Workerه. احراز هویتش هم با همون
-  // رمز پنل ادمینه (هدر X-Admin-Password) — رو Worker منوساز هم باید
-  // متغیر محیطی ADMIN_PANEL_PASSWORD رو با همین مقدار ست کنی.
-  async function loadMenuproaiCafes(){
-    const body = document.getElementById("menuproaiBody");
-    body.innerHTML = `<tr><td colspan="5" class="empty">در حال بارگذاری...</td></tr>`;
-    const adminPass = getAdminPass();
-    if (!adminPass) {
-      body.innerHTML = `<tr><td colspan="5" class="empty">برای این بخش دوباره وارد پنل شو.</td></tr>`;
-      return;
-    }
-    try {
-      const res = await fetch(MENUPROAI_API + "/api/menu/admin/list", {
-        method: "GET",
-        headers: { "X-Admin-Password": adminPass },
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "خطا در دریافت لیست کافه‌ها.");
-      const cafes = data.cafes || [];
-      document.getElementById("menuproaiStatText").textContent = `${cafes.length} کافه با منوساز فعال`;
-      if (!cafes.length) {
-        body.innerHTML = `<tr><td colspan="5" class="empty">هنوز هیچ کافه‌ای منوساز رو فعال نکرده.</td></tr>`;
-        return;
-      }
-      body.innerHTML = cafes.map(c => {
-        const dateStr = c.updatedAt ? new Date(c.updatedAt).toLocaleString("fa-IR") : "—";
-        const link = `${MENUPROAI_PUBLIC_BASE}/${encodeURIComponent(c.slug)}/menu.html`;
-        return `
-        <tr>
-          <td class="proj-name">${escapeHTML(c.cafeName || c.slug)}</td>
-          <td class="phone">${escapeHTML(c.ownerPhone || "—")}</td>
-          <td>${c.itemsCount || 0}</td>
-          <td>${dateStr}</td>
-          <td>
-            <a class="link-btn" href="${link}" target="_blank" rel="noopener">🔗 مشاهده منو</a>
-          </td>
-        </tr>`;
-      }).join("");
-    } catch(err) {
-      body.innerHTML = `<tr><td colspan="5" class="empty">${escapeHTML(err.message)}</td></tr>`;
-    }
-  }
-
-  document.getElementById("refreshMenuproaiBtn").addEventListener("click", loadMenuproaiCafes);
 
   // ============ مودال مشاهده‌ی محتوای پروژه ============
   const projModalOverlay = document.getElementById("projModalOverlay");
