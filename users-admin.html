@@ -54,8 +54,8 @@
   .phone{font-family:'JetBrains Mono',monospace;direction:ltr;text-align:right;}
   .empty{text-align:center;color:var(--muted);padding:40px;}
 
-  /* تب‌ها (کاربران / پروژه‌ها) */
-  .admin-tabs{display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--line);}
+  /* تب‌ها (کاربران / پروژه‌ها / منوساز) */
+  .admin-tabs{display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
   .admin-tab{
     background:none;border:none;color:var(--muted);font-family:inherit;font-size:14px;font-weight:700;
     padding:10px 4px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;
@@ -77,6 +77,11 @@
     font-family:inherit;font-size:12px;cursor:pointer;transition:border-color .2s ease;
   }
   .del-btn:hover{border-color:#ff8080;background:rgba(255,128,128,.08);}
+  .link-btn{
+    background:none;border:1px solid var(--line);color:var(--cyan);padding:6px 12px;border-radius:999px;
+    font-family:inherit;font-size:12px;cursor:pointer;transition:border-color .2s ease;text-decoration:none;display:inline-block;
+  }
+  .link-btn:hover{border-color:var(--cyan);}
 
   /* مودال مشاهده‌ی فایل‌های پروژه */
   .proj-modal-overlay{
@@ -135,11 +140,12 @@
 
   <div id="panelBox" style="display:none;">
     <h1>پنل مدیریت</h1>
-    <p class="sub">کاربران ثبت‌نام‌شده و پروژه‌هایی که با ابزار «بارگذاری پروژه» ساختن — هرچی نامناسب بود از همین‌جا حذفش کن.</p>
+    <p class="sub">کاربران ثبت‌نام‌شده، پروژه‌هایی که با ابزار «بارگذاری پروژه» ساختن، و کافه‌هایی که با «منوساز» فعال شدن — هرچی نامناسب بود از همین‌جا حذفش کن.</p>
 
     <div class="admin-tabs">
       <button class="admin-tab active" id="tabUsersBtn">👤 کاربران</button>
       <button class="admin-tab" id="tabProjectsBtn">📦 پروژه‌های بارگذاری‌شده</button>
+      <button class="admin-tab" id="tabMenuproaiBtn">🍽️ منوساز</button>
     </div>
 
     <div class="tab-panel active" id="tabUsers">
@@ -168,6 +174,21 @@
             <tr><th>نام پروژه</th><th>صاحب پروژه</th><th>حجم</th><th>آخرین ذخیره</th><th></th></tr>
           </thead>
           <tbody id="projectsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tabMenuproai">
+      <div class="toolbar">
+        <span class="stat" id="menuproaiStatText"></span>
+        <button class="refresh-btn" id="refreshMenuproaiBtn" style="width:auto;">بروزرسانی</button>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>نام کافه</th><th>صاحب (شماره)</th><th>تعداد آیتم</th><th>آخرین بروزرسانی</th><th></th></tr>
+          </thead>
+          <tbody id="menuproaiBody"></tbody>
         </table>
       </div>
     </div>
@@ -206,9 +227,17 @@
   // آدرس Worker حساب‌کاربری رو بعد از دیپلوی، اینجا با آدرس واقعیت جایگزین کن
   const API_URL = "https://bytelab-users.bytelab.workers.dev";
   const TOKEN_KEY = "bytelab_users_admin_token";
+  // MenuProAI بک‌اند جدایی داره (Worker خودش، KV خودش)، پس تب «منوساز»
+  // مستقیم به همون Worker وصل می‌شه، نه به bytelab-users.
+  const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
+  // آدرس منوی عمومی هر کافه (برای دکمه‌ی «مشاهده منو»)
+  const MENUPROAI_PUBLIC_BASE = "https://menuproai.bytelabpro.xyz/USERS";
+  const ADMIN_PASS_KEY = "bytelab_admin_pass_session"; // برای احراز هویت تب منوساز
 
   function getToken(){ try { return sessionStorage.getItem(TOKEN_KEY); } catch(e){ return null; } }
   function setToken(t){ try { sessionStorage.setItem(TOKEN_KEY, t); } catch(e){} }
+  function getAdminPass(){ try { return sessionStorage.getItem(ADMIN_PASS_KEY); } catch(e){ return null; } }
+  function setAdminPass(p){ try { sessionStorage.setItem(ADMIN_PASS_KEY, p); } catch(e){} }
 
   function escapeHTML(str){
     return String(str || "").replace(/[&<>"']/g, (c) => ({
@@ -275,6 +304,7 @@
     try {
       const data = await apiFetch("/api/admin/login", { method: "POST", body: JSON.stringify({ password: pass }) });
       setToken(data.token);
+      setAdminPass(pass); // برای تب منوساز که مستقیم به Worker دیگه‌ای وصل می‌شه
       document.getElementById("loginBox").style.display = "none";
       document.getElementById("panelBox").style.display = "block";
       loadUsers();
@@ -289,17 +319,24 @@
   // ============ تب‌ها ============
   const tabUsersBtn = document.getElementById("tabUsersBtn");
   const tabProjectsBtn = document.getElementById("tabProjectsBtn");
+  const tabMenuproaiBtn = document.getElementById("tabMenuproaiBtn");
   const tabUsers = document.getElementById("tabUsers");
   const tabProjects = document.getElementById("tabProjects");
+  const tabMenuproai = document.getElementById("tabMenuproai");
 
-  tabUsersBtn.addEventListener("click", () => {
-    tabUsersBtn.classList.add("active"); tabProjectsBtn.classList.remove("active");
-    tabUsers.classList.add("active"); tabProjects.classList.remove("active");
-  });
+  function activateTab(btn, panel){
+    [tabUsersBtn, tabProjectsBtn, tabMenuproaiBtn].forEach(b => b.classList.toggle("active", b === btn));
+    [tabUsers, tabProjects, tabMenuproai].forEach(p => p.classList.toggle("active", p === panel));
+  }
+
+  tabUsersBtn.addEventListener("click", () => activateTab(tabUsersBtn, tabUsers));
   tabProjectsBtn.addEventListener("click", () => {
-    tabProjectsBtn.classList.add("active"); tabUsersBtn.classList.remove("active");
-    tabProjects.classList.add("active"); tabUsers.classList.remove("active");
+    activateTab(tabProjectsBtn, tabProjects);
     loadProjects();
+  });
+  tabMenuproaiBtn.addEventListener("click", () => {
+    activateTab(tabMenuproaiBtn, tabMenuproai);
+    loadMenuproaiCafes();
   });
 
   // ============ پروژه‌های بارگذاری‌شده (نظارت ادمین) ============
@@ -353,6 +390,53 @@
   }
 
   document.getElementById("refreshProjBtn").addEventListener("click", loadProjects);
+
+  // ============ کافه‌های منوساز (MenuProAI) — فقط نظارت، بدون حذف ============
+  // این تب مستقیم به Worker خودِ MenuProAI وصل می‌شه (نه bytelab-users)،
+  // چون داده‌ی کافه‌ها تو KV جدای اون Workerه. احراز هویتش هم با همون
+  // رمز پنل ادمینه (هدر X-Admin-Password) — رو Worker منوساز هم باید
+  // متغیر محیطی ADMIN_PANEL_PASSWORD رو با همین مقدار ست کنی.
+  async function loadMenuproaiCafes(){
+    const body = document.getElementById("menuproaiBody");
+    body.innerHTML = `<tr><td colspan="5" class="empty">در حال بارگذاری...</td></tr>`;
+    const adminPass = getAdminPass();
+    if (!adminPass) {
+      body.innerHTML = `<tr><td colspan="5" class="empty">برای این بخش دوباره وارد پنل شو.</td></tr>`;
+      return;
+    }
+    try {
+      const res = await fetch(MENUPROAI_API + "/api/menu/admin/list", {
+        method: "GET",
+        headers: { "X-Admin-Password": adminPass },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "خطا در دریافت لیست کافه‌ها.");
+      const cafes = data.cafes || [];
+      document.getElementById("menuproaiStatText").textContent = `${cafes.length} کافه با منوساز فعال`;
+      if (!cafes.length) {
+        body.innerHTML = `<tr><td colspan="5" class="empty">هنوز هیچ کافه‌ای منوساز رو فعال نکرده.</td></tr>`;
+        return;
+      }
+      body.innerHTML = cafes.map(c => {
+        const dateStr = c.updatedAt ? new Date(c.updatedAt).toLocaleString("fa-IR") : "—";
+        const link = `${MENUPROAI_PUBLIC_BASE}/${encodeURIComponent(c.slug)}/menu.html`;
+        return `
+        <tr>
+          <td class="proj-name">${escapeHTML(c.cafeName || c.slug)}</td>
+          <td class="phone">${escapeHTML(c.ownerPhone || "—")}</td>
+          <td>${c.itemsCount || 0}</td>
+          <td>${dateStr}</td>
+          <td>
+            <a class="link-btn" href="${link}" target="_blank" rel="noopener">🔗 مشاهده منو</a>
+          </td>
+        </tr>`;
+      }).join("");
+    } catch(err) {
+      body.innerHTML = `<tr><td colspan="5" class="empty">${escapeHTML(err.message)}</td></tr>`;
+    }
+  }
+
+  document.getElementById("refreshMenuproaiBtn").addEventListener("click", loadMenuproaiCafes);
 
   // ============ مودال مشاهده‌ی محتوای پروژه ============
   const projModalOverlay = document.getElementById("projModalOverlay");
