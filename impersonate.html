@@ -43,7 +43,9 @@
 
   const params = new URLSearchParams(location.search);
   const token = params.get("token");
-  const redirect = params.get("redirect") || "my-projects.html";
+  // پیش‌فرض روی صفحه‌ی حساب‌کاربری، نه لیست پروژه‌ها.
+  // اگه اسم واقعی صفحه چیز دیگه‌ایه، همینجا عوضش کن.
+  const redirect = params.get("redirect") || "account.html";
 
   function fail(text) {
     document.getElementById("msg").textContent = "ورود ناموفق بود.";
@@ -60,7 +62,7 @@
       localStorage.setItem(USER_KEY, JSON.stringify({ phone: data.phone, name: data.name, email: data.email }));
       // آدرس رو پاک می‌کنیم تا توکن تو تاریخچه‌ی مرورگر نمونه
       history.replaceState(null, "", location.pathname);
-      location.href = /^[a-zA-Z0-9_-]+\.html$/.test(redirect) ? redirect : "my-projects.html";
+      location.href = /^[a-zA-Z0-9_-]+\.html$/.test(redirect) ? redirect : "account.html";
     })
     .catch((err) => fail(err.message));
 })();
