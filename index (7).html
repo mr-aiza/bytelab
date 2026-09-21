@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بایت‌لب | طراحی اپلیکیشن، سایت و خدمات کامپیوتر</title>
+<meta name="description" content="بایت‌لب: طراحی سایت، طراحی اپلیکیشن اختصاصی و خدمات تخصصی کامپیوتر با مشاوره رایگان و قیمت شفاف.">
+<link rel="canonical" href="https://bytelabpro.xyz/index.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="بایت‌لب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="بایت‌لب | طراحی اپلیکیشن، سایت و خدمات کامپیوتر">
+<meta property="og:description" content="بایت‌لب: طراحی سایت، طراحی اپلیکیشن اختصاصی و خدمات تخصصی کامپیوتر با مشاوره رایگان و قیمت شفاف.">
+<meta property="og:url" content="https://bytelabpro.xyz/index.html">
+<meta property="og:image" content="https://bytelabpro.xyz/favicon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="بایت‌لب | طراحی اپلیکیشن، سایت و خدمات کامپیوتر">
+<meta name="twitter:description" content="بایت‌لب: طراحی سایت، طراحی اپلیکیشن اختصاصی و خدمات تخصصی کامپیوتر با مشاوره رایگان و قیمت شفاف.">
+<meta name="twitter:image" content="https://bytelabpro.xyz/favicon-512.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070b12;
+    --panel:#0f1620;
+    --panel-2:#141d2b;
+    --line:#1e2a38;
+    --cyan:#4df0c9;
+    --violet:#9c7bff;
+    --paper:#eaf0f4;
+    --muted:#7c8b9c;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Vazirmatn',sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    width:100%;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.02em;}
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+  section{position:relative;}
+
+  /* background circuit grid */
+  .grid-bg{
+    position:absolute;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:64px 64px;
+    opacity:.18;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  }
+  .glow{
+    position:absolute;border-radius:50%;filter:blur(80px);z-index:0;pointer-events:none;
+  }
+
+  /* توجه: استایل هدر/منوی کشویی موبایل به‌صورت خودکار از header.js تزریق می‌شه */
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;}
+  .logo .mark{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;
+    box-shadow:0 0 24px rgba(77,240,201,.45);
+  }
+  .logo .tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.08em;margin-right:2px;}
+  .nav-cta{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--cyan);color:#06120f;font-weight:700;font-size:14px;
+    padding:11px 22px;border-radius:999px;
+    box-shadow:0 0 24px rgba(77,240,201,.35);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(77,240,201,.55);}
+
+  /* hero */
+  .hero{padding:170px 0 110px;min-height:100vh;display:flex;align-items:center;overflow:hidden;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:13px;color:var(--cyan);
+    border:1px solid var(--line);border-radius:999px;padding:7px 16px;margin-bottom:28px;
+    background:rgba(77,240,201,.05);
+  }
+  .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(77,240,201,.6);animation:pulse 1.8s infinite;}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(77,240,201,.55);}
+    70%{box-shadow:0 0 0 10px rgba(77,240,201,0);}
+    100%{box-shadow:0 0 0 0 rgba(77,240,201,0);}
+  }
+  h1.hero-title{
+    font-size:clamp(36px,6vw,68px);font-weight:800;line-height:1.18;letter-spacing:-.01em;
+    max-width:780px;
+  }
+  h1.hero-title .accent{
+    background:linear-gradient(90deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero-sub{font-size:18px;color:var(--muted);max-width:560px;margin-top:24px;}
+  .hero-ctas{display:flex;gap:16px;margin-top:40px;flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--cyan);color:#06120f;font-weight:700;padding:15px 30px;border-radius:999px;
+    box-shadow:0 0 30px rgba(77,240,201,.4);transition:transform .2s ease;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-ghost{
+    border:1px solid var(--line);color:var(--paper);padding:15px 30px;border-radius:999px;
+    transition:border-color .2s ease, color .2s ease;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+  .trust-strip{display:flex;gap:36px;margin-top:64px;flex-wrap:wrap;color:var(--muted);font-size:14px;}
+  .trust-strip .item{display:flex;align-items:center;gap:8px;}
+  .trust-strip .dot{width:5px;height:5px;border-radius:50%;background:var(--violet);}
+
+  /* section heading */
+  .sec-head{margin-bottom:56px;max-width:640px;}
+  .sec-eyebrow{font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:13px;color:var(--violet);letter-spacing:.02em;margin-bottom:14px;display:block;}
+  .sec-title{font-size:clamp(26px,3.6vw,40px);font-weight:800;}
+  .sec-sub{color:var(--muted);margin-top:14px;font-size:16px;}
+
+  /* services */
+  .services{padding:140px 0 100px;}
+  .trace-row{position:relative;}
+  .trace-svg{position:absolute;top:46px;left:0;right:0;width:100%;height:2px;z-index:0;}
+  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative;z-index:1;}
+  .svc-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:32px 26px;transition:border-color .25s ease, transform .25s ease;
+  }
+  .svc-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
+  .svc-node{
+    width:52px;height:52px;border-radius:14px;background:var(--panel-2);
+    display:flex;align-items:center;justify-content:center;margin-bottom:22px;
+    border:1px solid var(--line);position:relative;
+  }
+  .svc-node::after{
+    content:'';position:absolute;inset:-1px;border-radius:14px;
+    background:linear-gradient(135deg,rgba(77,240,201,.5),rgba(156,123,255,.5));
+    opacity:0;transition:opacity .25s ease;z-index:-1;
+  }
+  .svc-card:hover .svc-node::after{opacity:1;}
+  .svc-title{font-size:19px;font-weight:700;margin-bottom:10px;}
+  .svc-desc{color:var(--muted);font-size:14.5px;}
+  .svc-tags{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;}
+  .svc-tags span{
+    font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:12.5px;color:var(--cyan);
+    border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:rgba(77,240,201,.04);
+  }
+
+  /* process */
+  .process{padding:100px 0;}
+  .proc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative;}
+  .proc-grid::before{
+    content:'';position:absolute;top:30px;left:6%;right:6%;height:1px;background:var(--line);z-index:0;
+  }
+  .proc-step{position:relative;z-index:1;}
+  .proc-num{
+    font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--ink);font-weight:700;
+    width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--violet));
+    display:flex;align-items:center;justify-content:center;margin-bottom:20px;
+  }
+  .proc-title{font-weight:700;font-size:16.5px;margin-bottom:8px;}
+  .proc-desc{color:var(--muted);font-size:14px;}
+
+  /* portfolio */
+  .portfolio{padding:100px 0;}
+  .pf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;}
+  .pf-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:block;transition:border-color .25s ease, transform .25s ease;}
+  .pf-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
+  .pf-link{color:var(--cyan);font-size:13px;font-weight:700;margin-top:14px;display:inline-flex;align-items:center;gap:6px;}
+  .pf-preview{background:var(--panel-2);position:relative;}
+  .live-preview{width:100%;height:200px;overflow:hidden;position:relative;background:#0a0f17;}
+  .live-preview iframe{
+    width:1280px;height:800px;
+    position:absolute;top:0;left:0;
+    transform-origin:top left;
+    border:0;pointer-events:none;background:#fff;
+  }
+  .live-preview .lp-fade{
+    position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,23,0) 65%,rgba(10,15,23,.55) 100%);
+  }
+  .pf-info{padding:22px 24px 26px;}
+  .pf-label{font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:12.5px;color:var(--violet);margin-bottom:8px;display:block;}
+  .pf-title{font-weight:700;font-size:17px;margin-bottom:6px;}
+  .pf-desc{color:var(--muted);font-size:14px;}
+
+  /* live preview generator */
+  .live-gen{padding:100px 0;}
+  .lg-beta{
+    display:inline-flex;align-items:center;font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:11px;
+    color:#06120f;background:linear-gradient(120deg,#f0a94e,#ff6b4a);padding:4px 10px;border-radius:999px;
+    margin-right:8px;vertical-align:middle;
+  }
+  .lg-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:24px;
+    padding:36px;display:grid;grid-template-columns:.85fr 1.15fr;gap:36px;align-items:start;
+  }
+  .lg-form{display:flex;flex-direction:column;gap:10px;padding-top:6px;}
+  .lg-group-label{font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:12px;color:var(--violet);margin-top:6px;}
+  .lg-group-label:first-child{margin-top:0;}
+  .lg-dots{display:flex;flex-direction:column;gap:8px;}
+  .lg-dot{
+    display:flex;align-items:baseline;gap:8px;
+    font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:13.5px;color:var(--muted);
+    border:1px solid var(--line);border-radius:12px;padding:11px 15px;background:transparent;cursor:pointer;
+    transition:border-color .2s ease,color .2s ease,background .2s ease;text-align:right;width:100%;
+  }
+  .lg-dot em{font-style:normal;font-size:11.5px;color:var(--muted);font-weight:400;}
+  .lg-dot-mark{width:8px;height:8px;border-radius:50%;background:var(--line);flex-shrink:0;transition:background .2s ease,box-shadow .2s ease;}
+  .lg-dot:hover{color:var(--paper);border-color:var(--cyan);}
+  .lg-dot.active{color:var(--paper);border-color:var(--cyan);background:rgba(77,240,201,.06);}
+  .lg-dot.active .lg-dot-mark{background:var(--cyan);box-shadow:0 0 8px var(--cyan);}
+  .lg-device{display:flex;gap:8px;}
+  .lg-dev-btn{
+    display:flex;align-items:center;gap:8px;flex:1;justify-content:center;
+    font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:13px;color:var(--muted);
+    border:1px solid var(--line);border-radius:12px;padding:10px;background:transparent;cursor:pointer;
+    transition:border-color .2s ease,color .2s ease,background .2s ease;
+  }
+  .lg-dev-btn:hover{color:var(--paper);border-color:var(--cyan);}
+  .lg-dev-btn.active{color:#06120f;background:var(--cyan);border-color:var(--cyan);}
+  .lg-hint{color:var(--muted);font-size:12.5px;line-height:1.6;margin-top:4px;}
+  .lg-preview{
+    position:relative;background:#0a0f17;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    height:460px;transition:width .35s ease,height .35s ease,border-radius .35s ease,margin .35s ease;
+  }
+  .lg-preview.is-mobile{width:230px;height:460px;margin:0 auto;border-radius:26px;border-width:2px;}
+  .lg-preview-inner{width:100%;height:100%;overflow:hidden;position:relative;}
+  .lg-preview-inner iframe{
+    width:1280px;height:800px;position:absolute;top:0;left:0;
+    transform-origin:top left;border:0;pointer-events:none;background:#fff;
+  }
+  @media (max-width:900px){
+    .lg-card{grid-template-columns:1fr;}
+    .lg-preview{height:340px;}
+    .lg-preview.is-mobile{height:420px;}
+  }
+
+  /* playground promo */
+  .pg-promo{padding:100px 0;}
+  .pg-promo-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:24px;
+    padding:44px;display:grid;grid-template-columns:1fr .85fr;gap:40px;align-items:center;
+  }
+  .pg-promo-mock{
+    background:var(--ink);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  }
+  .pg-promo-mock-head{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--panel-2);}
+  .pg-promo-dot{width:9px;height:9px;border-radius:50%;}
+  .pg-promo-dot.html{background:#f97362;}
+  .pg-promo-dot.css{background:var(--cyan);}
+  .pg-promo-dot.js{background:#f2c14e;}
+  .pg-promo-mock-body{padding:18px 16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:2;color:var(--muted);direction:ltr;text-align:left;}
+  .pg-promo-mock-body .tag{color:#f97362;}
+  .pg-promo-mock-body .attr{color:var(--cyan);}
+  .pg-promo-mock-body .val{color:#f2c14e;}
+  .pg-promo-cursor{display:inline-block;width:7px;height:14px;background:var(--cyan);vertical-align:middle;margin-right:2px;animation:pgPromoBlink 1s step-end infinite;}
+  @keyframes pgPromoBlink{50%{opacity:0;}}
+  .pg-promo-text .sec-eyebrow{margin-bottom:12px;}
+  .pg-promo-text h2{font-size:clamp(22px,3vw,32px);font-weight:800;margin-bottom:14px;}
+  .pg-promo-text p{color:var(--muted);font-size:15px;margin-bottom:26px;}
+  @media (max-width:880px){
+    .pg-promo-card{grid-template-columns:1fr;padding:30px 24px;}
+    .pg-promo-text{order:-1;}
+  }
+
+  /* blog preview */
+  .blog-preview{padding:100px 0;}
+  .bp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .bp-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 26px;display:block;transition:border-color .25s ease, transform .25s ease;
+  }
+  .bp-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
+  .bp-meta{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--violet);margin-bottom:14px;display:block;}
+  .bp-title{font-size:18px;font-weight:700;margin-bottom:10px;line-height:1.5;}
+  .bp-desc{color:var(--muted);font-size:14px;margin-bottom:16px;}
+  .bp-link{color:var(--cyan);font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;}
+
+  /* stats band */
+  .stats{padding:70px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;}
+  .stat-val{font-family:'Vazirmatn',sans-serif;font-weight:800;font-size:clamp(22px,3vw,30px);color:var(--cyan);}
+  .stat-label{color:var(--muted);font-size:13.5px;margin-top:8px;}
+
+  /* cta band */
+  .cta-band{padding:130px 0;}
+  .cta-card{
+    position:relative;border-radius:28px;border:1px solid var(--line);
+    background:radial-gradient(circle at 30% 20%, rgba(77,240,201,.12), transparent 60%),
+               radial-gradient(circle at 80% 80%, rgba(156,123,255,.14), transparent 55%),
+               var(--panel);
+    padding:70px 50px;text-align:center;overflow:hidden;
+  }
+  .cta-card h2{font-size:clamp(26px,4vw,42px);font-weight:800;max-width:600px;margin:0 auto 18px;}
+  .cta-card p{color:var(--muted);max-width:480px;margin:0 auto 36px;}
+
+  /* contact */
+  .contact{padding:0 0 120px;}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  .contact-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 28px;display:flex;align-items:center;gap:20px;transition:border-color .2s ease;
+  }
+  .contact-card:hover{border-color:var(--cyan);}
+  .contact-icon{
+    width:50px;height:50px;border-radius:13px;background:var(--panel-2);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;border:1px solid var(--line);
+  }
+  .contact-label{font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:12.5px;color:var(--muted);margin-bottom:4px;display:block;}
+  .contact-value{font-weight:700;font-size:16px;}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:50px 0 32px;}
+  .foot-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:30px;margin-bottom:36px;}
+  .foot-desc{color:var(--muted);font-size:14px;max-width:320px;margin-top:14px;}
+  .foot-links{display:flex;gap:40px;flex-wrap:wrap;}
+  .foot-col h4{font-size:13.5px;color:var(--muted);font-family:'Vazirmatn',sans-serif;font-weight:700;margin-bottom:16px;}
+  .foot-col a{display:block;color:var(--paper);font-size:14.5px;margin-bottom:12px;}
+  .foot-col a:hover{color:var(--cyan);}
+  .social-row{display:flex;gap:12px;margin-top:18px;}
+  .social-row a{
+    width:40px;height:40px;border-radius:11px;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;transition:border-color .2s ease, color .2s ease;color:var(--muted);
+  }
+  .social-row a:hover{border-color:var(--cyan);color:var(--cyan);}
+  .foot-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;color:var(--muted);font-size:13px;flex-wrap:wrap;gap:10px;}
+
+  /* reveal animation */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+    .reveal{opacity:1;transform:none;}
+  }
+
+  @media (max-width: 900px){
+    .svc-grid,.pf-grid,.bp-grid{grid-template-columns:1fr;}
+    .proc-grid{grid-template-columns:1fr 1fr;row-gap:36px;}
+    .proc-grid::before{display:none;}
+    .stats-grid{grid-template-columns:1fr 1fr;row-gap:28px;}
+    .contact-grid{grid-template-columns:1fr;}
+    .trace-svg{display:none;}
+    .foot-top{flex-direction:column;}
+  }
+  @media (max-width:560px){
+    .hero{padding:150px 0 80px;}
+    .proc-grid{grid-template-columns:1fr 1fr;}
+    .cta-card{padding:50px 26px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="siteHeaderPlaceholder"></div>
+
+<section class="hero">
+  <div class="grid-bg"></div>
+  <div class="glow" style="width:480px;height:480px;background:var(--cyan);opacity:.10;top:-120px;right:-120px;"></div>
+  <div class="glow" style="width:420px;height:420px;background:var(--violet);opacity:.10;bottom:-100px;left:-100px;"></div>
+  <div class="wrap" style="position:relative;z-index:1;">
+    <div class="eyebrow"><span class="pulse-dot"></span> آزمایشگاه دیجیتال بایت‌لب</div>
+    <h1 class="hero-title">از ایده تا اجرا؛ <span class="accent">اپ، سایت و سیستم</span> شما زیر یک سقف ساخته می‌شود</h1>
+    <p class="hero-sub">بایت‌لب اپلیکیشن و وب‌سایت شما را طراحی می‌کند و کنار آن، خدمات کامل کامپیوتر از تعمیر تا خرید و فروش قطعه و سیستم را هم انجام می‌دهد.</p>
+    <div class="hero-ctas">
+      <a href="telegram/contact.html" class="btn-primary">مشاوره رایگان بگیر ←</a>
+      <a href="portfolio.html" class="btn-ghost">نمونه‌کارها</a>
+    </div>
+    <div class="trust-strip">
+      <div class="item"><span class="dot"></span> مشاوره رایگان پیش از شروع</div>
+      <div class="item"><span class="dot"></span> پشتیبانی پس از تحویل</div>
+      <div class="item"><span class="dot"></span> قیمت شفاف، بدون هزینه پنهان</div>
+    </div>
+  </div>
+</section>
+
+<section class="services" id="services">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">خدمات</span>
+      <h2 class="sec-title">سه ماژول اصلی بایت‌لب</h2>
+      <p class="sec-sub">هر بخش جدا انجام می‌شود، اما در یک پروژه هم می‌توان همه را با هم گرفت؛ مثلاً طراحی سایت به‌همراه راه‌اندازی سیستم فروشگاه.</p>
+    </div>
+    <div class="trace-row">
+      <svg class="trace-svg" viewBox="0 0 100 2" preserveAspectRatio="none">
+        <line x1="16" y1="1" x2="84" y2="1" stroke="#1e2a38" stroke-width="1" stroke-dasharray="3 3"/>
+      </svg>
+      <div class="svc-grid">
+        <div class="svc-card reveal">
+          <div class="svc-node">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><rect x="6" y="2" width="12" height="20" rx="2.5"/><line x1="10" y1="19" x2="14" y2="19"/></svg>
+          </div>
+          <div class="svc-title">طراحی اپلیکیشن</div>
+          <div class="svc-desc">اپلیکیشن اندروید و iOS با رابط کاربری اختصاصی، از فروشگاهی تا سفارش‌گیری و رزرو.</div>
+          <div class="svc-tags"><span>UI/UX</span><span>Android</span><span>iOS</span></div>
+        </div>
+        <div class="svc-card reveal">
+          <div class="svc-node">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"/></svg>
+          </div>
+          <div class="svc-title">طراحی وب‌سایت</div>
+          <div class="svc-desc">سایت شرکتی، فروشگاهی یا پورتفولیو؛ سریع، ریسپانسیو و آماده برای گوگل.</div>
+          <div class="svc-tags"><span>فروشگاهی</span><span>شرکتی</span><span>SEO</span></div>
+        </div>
+        <div class="svc-card reveal">
+          <div class="svc-node">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="16" x2="12" y2="20"/></svg>
+          </div>
+          <div class="svc-title">خدمات کامپیوتر</div>
+          <div class="svc-desc">تعمیر، نگهداری، آپگرید و نیز خرید و فروش قطعه و سیستم نو و دست‌دوم.</div>
+          <div class="svc-tags"><span>تعمیر</span><span>آپگرید</span><span>خرید و فروش</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="process" id="process">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">روند کار</span>
+      <h2 class="sec-title">از مشاوره تا تحویل، چهار قدم</h2>
+    </div>
+    <div class="proc-grid">
+      <div class="proc-step reveal">
+        <div class="proc-num">01</div>
+        <div class="proc-title">مشاوره رایگان</div>
+        <div class="proc-desc">نیاز و بودجه‌تون رو می‌شنویم و بهترین راه‌حل رو پیشنهاد می‌دیم.</div>
+      </div>
+      <div class="proc-step reveal">
+        <div class="proc-num">02</div>
+        <div class="proc-title">طراحی</div>
+        <div class="proc-desc">طرح اولیه و نمونه بصری رو قبل از اجرا می‌بینید و تأیید می‌کنید.</div>
+      </div>
+      <div class="proc-step reveal">
+        <div class="proc-num">03</div>
+        <div class="proc-title">اجرا</div>
+        <div class="proc-desc">توسعه یا انجام خدمات با گزارش پیشرفت منظم.</div>
+      </div>
+      <div class="proc-step reveal">
+        <div class="proc-num">04</div>
+        <div class="proc-title">تحویل و پشتیبانی</div>
+        <div class="proc-desc">تحویل نهایی به‌همراه پشتیبانی پس از تحویل.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="live-gen" id="live-gen">
+  <div class="wrap">
+    <div class="sec-head reveal" style="max-width:680px;">
+      <span class="sec-eyebrow">پیش‌نمایش زنده <span class="lg-beta">نسخه آزمایشی</span></span>
+      <h2 class="sec-title">نمونه‌کارهای واقعی رو خودت انتخاب و روی گوشی و دسکتاپ ببین</h2>
+      <p class="sec-sub">این‌جا کد واقعی همون سایت‌هاییه که برای مشتری‌ها ساختیم؛ خودش هر چند ثانیه عوض می‌شه، ولی می‌تونی خودت هم نمونه و حالت نمایش (دسکتاپ/موبایل) رو انتخاب کنی. اگه دوست داشتی، با دکمه‌ی «ویرایش آنلاین» وارد یه محیط جدا می‌شی و می‌تونی متن و رنگ‌های همون قالب رو خودت عوض کنی و پیش‌نمایش بگیری — بدون ثبت نهایی.</p>
+    </div>
+
+    <div class="lg-card reveal">
+      <div class="lg-form">
+        <span class="lg-group-label">نمونه‌کار</span>
+        <div class="lg-dots" id="lgDots">
+          <button type="button" class="lg-dot" data-cat="gold"><span class="lg-dot-mark"></span>زرّین گالری <em>طلا و جواهر</em></button>
+          <button type="button" class="lg-dot" data-cat="cafe"><span class="lg-dot-mark"></span>کافه اِمبر <em>کافه و رستوران</em></button>
+          <button type="button" class="lg-dot" data-cat="car"><span class="lg-dot-mark"></span>گالری پرستیژ <em>نمایشگاه خودرو</em></button>
+          <button type="button" class="lg-dot" data-cat="tashrifat"><span class="lg-dot-mark"></span>تشریفات رویایی <em>خدمات مراسم</em></button>
+        </div>
+
+        <span class="lg-group-label">حالت نمایش</span>
+        <div class="lg-device" id="lgDevice">
+          <button type="button" class="lg-dev-btn active" data-device="desktop">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="13" rx="1.5"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            دسکتاپ
+          </button>
+          <button type="button" class="lg-dev-btn" data-device="mobile">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18.5" x2="13" y2="18.5"/></svg>
+            موبایل
+          </button>
+        </div>
+
+        <span class="lg-hint" id="lgHint">نمونه‌ها هر چند ثانیه خودکار عوض می‌شن؛ روی هرکدوم بزنی همونجا نگه می‌داریم.</span>
+      </div>
+
+      <div class="lg-preview" id="lgPreview">
+        <div class="lg-preview-inner">
+          <iframe id="lgFrame" loading="lazy" tabindex="-1" title="پیش‌نمایش زنده سایت"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:36px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a href="editor.html" class="btn-primary" id="lgEdit">این قالب رو آنلاین ویرایش کن ←</a>
+      <a href="telegram/contact.html" class="btn-ghost" id="lgCta">دقیقاً همینو برای من بساز ←</a>
+    </div>
+    <div style="text-align:center;margin-top:18px;">
+      <a href="portfolio.html" class="pf-link" style="justify-content:center;">نمونه‌کارهای بیشتر ←</a>
+    </div>
+  </div>
+</section>
+
+<section class="pg-promo" id="pg-promo">
+  <div class="wrap">
+    <div class="pg-promo-card reveal">
+      <div class="pg-promo-mock" aria-hidden="true">
+        <div class="pg-promo-mock-head">
+          <span class="pg-promo-dot html"></span>
+          <span class="pg-promo-dot css"></span>
+          <span class="pg-promo-dot js"></span>
+        </div>
+        <div class="pg-promo-mock-body">
+          <div>&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="val">"box"</span>&gt;</div>
+          <div>&nbsp;&nbsp;&lt;<span class="tag">h1</span>&gt;سلام دنیا 👋&lt;/<span class="tag">h1</span>&gt;</div>
+          <div>&lt;/<span class="tag">div</span>&gt;<span class="pg-promo-cursor"></span></div>
+        </div>
+      </div>
+      <div class="pg-promo-text">
+        <span class="sec-eyebrow">ابزار رایگان</span>
+        <h2>کد بلدی؟ همین‌جا امتحانش کن</h2>
+        <p>پلی‌گراند کد بایت‌لب یه ویرایشگر HTML، CSS و جاوااسکریپت با پیش‌نمایش زنده‌ست؛ بدون نصب و بدون ثبت‌نام. کدتو بنویس، همون لحظه نتیجه رو ببین، با AI بهترش کن یا لینکشو با ما به اشتراک بذار تا حرفه‌ایش کنیم.</p>
+        <a href="playground.html" class="btn-primary">شروع کن ←</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="blog-preview" id="blog-preview">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">بلاگ</span>
+      <h2 class="sec-title">تازه‌ترین یادداشت‌ها</h2>
+      <p class="sec-sub">نکات عملی درباره طراحی سایت، اپلیکیشن و نگهداری سیستم؛ تازه‌ترین مطالب بلاگ بایت‌لب.</p>
+    </div>
+    <div class="bp-grid" id="blogPreviewGrid">
+      <!-- کارت‌های ثابت پیش‌فرض؛ اگه پست‌های دینامیک از تلگرام لود بشن، جایگزین همین‌ها می‌شن -->
+      <a href="hazine-tarahi-site.html" class="bp-card reveal">
+        <span class="bp-meta">طراحی سایت</span>
+        <div class="bp-title">هزینه طراحی سایت چطور محاسبه می‌شود؟</div>
+        <div class="bp-desc">عوامل موثر بر قیمت طراحی سایت و اینکه چطور یک برآورد واقع‌بینانه بگیرید.</div>
+        <span class="bp-link">ادامه مطلب ←</span>
+      </a>
+      <a href="app-ekhtesasi.html" class="bp-card reveal">
+        <span class="bp-meta">طراحی اپلیکیشن</span>
+        <div class="bp-title">چه زمانی کسب‌وکار شما به اپلیکیشن اختصاصی نیاز دارد؟</div>
+        <div class="bp-desc">نشانه‌هایی که می‌گویند وقت ساخت اپلیکیشن اختصاصی رسیده.</div>
+        <span class="bp-link">ادامه مطلب ←</span>
+      </a>
+      <a href="blog.html" class="bp-card reveal">
+        <span class="bp-meta">بایت‌لب</span>
+        <div class="bp-title">همه یادداشت‌های بلاگ رو ببین</div>
+        <div class="bp-desc">راهنما و نکات بیشتر درباره طراحی سایت، اپلیکیشن و خدمات کامپیوتر.</div>
+        <span class="bp-link">مشاهده بلاگ ←</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="wrap stats-grid">
+    <div class="reveal">
+      <div class="stat-val">رایگان</div>
+      <div class="stat-label">مشاوره اولیه</div>
+    </div>
+    <div class="reveal">
+      <div class="stat-val">شفاف</div>
+      <div class="stat-label">قیمت‌گذاری</div>
+    </div>
+    <div class="reveal">
+      <div class="stat-val">۳</div>
+      <div class="stat-label">حوزه خدمات اصلی</div>
+    </div>
+    <div class="reveal">
+      <div class="stat-val">پس از تحویل</div>
+      <div class="stat-label">پشتیبانی فعال</div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap">
+    <div class="cta-card reveal">
+      <h2>آماده‌ای ایده‌ت رو اجرا کنیم؟</h2>
+      <p>همین حالا پیام بده تا در کمتر از یک روز کاری باهات تماس بگیریم و رایگان مشورت کنیم.</p>
+      <a href="project-estimator.html" class="btn-primary">شروع گفتگو ←</a>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">تماس با ما</span>
+      <h2 class="sec-title">بایت‌لب همین الان آماده شنیدن ایده توست</h2>
+    </div>
+    <div class="contact-grid">
+      <a href="tel:+989388088657" class="contact-card reveal">
+        <div class="contact-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><path d="M3 5a2 2 0 0 1 2-2h2.3a1 1 0 0 1 1 .8l1 4a1 1 0 0 1-.5 1.1l-1.8 1a13 13 0 0 0 6 6l1-1.8a1 1 0 0 1 1.1-.5l4 1a1 1 0 0 1 .8 1V19a2 2 0 0 1-2 2h-1C9.6 21 3 14.4 3 6V5z"/></svg></div>
+        <div>
+          <span class="contact-label">تلفن / واتس‌اپ</span>
+          <span class="contact-value mono" dir="ltr">09388088657</span>
+        </div>
+      </a>
+      <a href="https://t.me/ByteLab_Com" class="contact-card reveal">
+        <div class="contact-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><path d="M21 4 3 11l6 2.5M21 4l-3.5 16-7.5-6.5M21 4l-11 7"/></svg></div>
+        <div>
+          <span class="contact-label">تلگرام</span>
+          <span class="contact-value mono" dir="ltr">ByteLab_Com</span>
+        </div>
+      </a>
+      <a href="https://instagram.com/ByteLab_Com" class="contact-card reveal">
+        <div class="contact-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.7"/><circle cx="17.2" cy="6.8" r="1"/></svg></div>
+        <div>
+          <span class="contact-label">اینستاگرام</span>
+          <span class="contact-value mono" dir="ltr">ByteLab_Com</span>
+        </div>
+      </a>
+      <a href="mailto:Aliabdoli161@gmail.com" class="contact-card reveal">
+        <div class="contact-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></div>
+        <div>
+          <span class="contact-label">ایمیل</span>
+          <span class="contact-value mono" dir="ltr">Aliabdoli161@gmail.com</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <div class="logo">
+          <div class="mark">B</div>
+          <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
+        </div>
+        <p class="foot-desc">طراحی اپلیکیشن، طراحی وب‌سایت و خدمات کامل کامپیوتر؛ از ایده تا اجرا.</p>
+        <div class="social-row">
+          <a href="https://instagram.com/ByteLab_Com" aria-label="اینستاگرام"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.7"/><circle cx="17.2" cy="6.8" r="1"/></svg></a>
+          <a href="https://t.me/ByteLab_Com" aria-label="تلگرام"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 4 3 11l6 2.5M21 4l-3.5 16-7.5-6.5M21 4l-11 7"/></svg></a>
+          <a href="https://wa.me/989388088657" aria-label="واتس‌اپ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21l1.5-4.5A8 8 0 1 1 8 19.5L3 21z"/></svg></a>
+        </div>
+      </div>
+      <div class="foot-links">
+        <div class="foot-col">
+          <h4>دسترسی سریع</h4>
+          <a href="#services">خدمات</a>
+          <a href="#process">روند کار</a>
+          <a href="portfolio.html">نمونه‌کارها</a>
+        </div>
+        <div class="foot-col">
+          <h4>خدمات</h4>
+          <a href="tarahi-app.html">طراحی اپلیکیشن</a>
+          <a href="tarahi-site.html">طراحی سایت</a>
+          <a href="khadamat-computer.html">خدمات کامپیوتر</a>
+          <a href="blog.html">بلاگ</a>
+        </div>
+        <div class="foot-col">
+          <h4>حساب کاربری</h4>
+          <a href="account.html">داشبورد حساب</a>
+          <a href="profile.html">پروفایل من</a>
+          <a href="favorites.html">علاقه‌مندی‌های من</a>
+          <a href="submit/index.html">ارسال نمونه‌کار</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© ۱۴۰۵ بایت‌لب. تمامی حقوق محفوظ است.</span>
+      <span class="mono" style="direction:ltr;">BYTE_LAB / DIGITAL SERVICES</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
+  }, {threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // --- مقیاس‌دهی خودکار پیش‌نمایش‌های زنده (iframe) با اندازه‌ی واقعی کارت ---
+  function scaleLivePreviews(){
+    document.querySelectorAll('.live-preview').forEach(wrap => {
+      const iframe = wrap.querySelector('iframe');
+      if(!iframe) return;
+      const scale = wrap.clientWidth / 1280;
+      iframe.style.transform = `scale(${scale})`;
+    });
+  }
+  window.addEventListener('load', scaleLivePreviews);
+  window.addEventListener('resize', scaleLivePreviews);
+
+  // --- ۳ پست آخر بلاگ رو از همون سرور تلگرام می‌گیریم؛ اگه چیزی نیومد، کارت‌های ثابت بالا می‌مونن ---
+  (function loadBlogPreview(){
+    const grid = document.getElementById('blogPreviewGrid');
+    if(!grid) return;
+    function escapeHTML(str){
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+    fetch('https://bytelab-telegram.bytelab.workers.dev/api/blog')
+      .then(r => r.json())
+      .then(res => {
+        const posts = (res && res.posts) || [];
+        if(posts.length === 0) return;
+        grid.innerHTML = posts.slice(0, 3).map(p => `
+          <a href="blog-post.html?id=${encodeURIComponent(p.id)}" class="bp-card reveal in">
+            <span class="bp-meta">${escapeHTML(p.tag || 'بایت‌لب')}</span>
+            <div class="bp-title">${escapeHTML(p.title)}</div>
+            <div class="bp-desc">${escapeHTML(p.excerpt || '')}</div>
+            <span class="bp-link">ادامه مطلب ←</span>
+          </a>`).join('');
+      })
+      .catch(() => { /* اگه لود نشد، کارت‌های ثابت همون‌طور می‌مونن */ });
+  })();
+
+  // --- پیش‌نمایش زنده: کد واقعی نمونه‌کارها رو نشون می‌ده، با انتخاب نمونه و حالت دسکتاپ/موبایل ---
+  (function livePreviewGenerator(){
+    const frame = document.getElementById('lgFrame');
+    const dotsWrap = document.getElementById('lgDots');
+    const deviceWrap = document.getElementById('lgDevice');
+    const preview = document.getElementById('lgPreview');
+    const hint = document.getElementById('lgHint');
+    const ctaLink = document.getElementById('lgCta');
+    const editLink = document.getElementById('lgEdit');
+    if(!frame || !dotsWrap) return;
+
+    const ORDER = ['gold','cafe','car','tashrifat'];
+    const SAMPLES = {
+      gold:{ label:'زرّین گالری', sub:'طلا و جواهر', src:'portfolio/zarrin-gallery-gold-shop.html' },
+      cafe:{ label:'کافه اِمبر', sub:'کافه و رستوران', src:'portfolio/cafe-restoran-amber.html' },
+      car:{ label:'گالری پرستیژ', sub:'نمایشگاه خودرو', src:'portfolio/galeriy-mashin.html' },
+      tashrifat:{ label:'تشریفات رویایی', sub:'خدمات مراسم', src:'portfolio/tasharifat-royaee-v2.html' }
+    };
+    const DEVICES = {
+      desktop:{ w:1280, h:800 },
+      mobile:{ w:390, h:760 }
+    };
+
+    let idx = 0;
+    let device = 'desktop';
+    let timer = null;
+    const AUTOPLAY_MS = 5500;
+
+    function applyFrameSize(){
+      const d = DEVICES[device];
+      frame.style.width = d.w + 'px';
+      frame.style.height = d.h + 'px';
+      const innerEl = frame.parentElement;
+      const scale = innerEl.clientWidth / d.w;
+      frame.style.transform = `scale(${scale})`;
+    }
+
+    function render(catKey, opts){
+      opts = opts || {};
+      const s = SAMPLES[catKey];
+      dotsWrap.querySelectorAll('.lg-dot').forEach(d => d.classList.toggle('active', d.dataset.cat === catKey));
+      if(!opts.keepSrc){ frame.src = s.src; }
+      applyFrameSize();
+      hint.textContent = `الان «${s.label}» (${s.sub}) رو تو حالت ${device === 'mobile' ? 'موبایل' : 'دسکتاپ'} می‌بینی — کد واقعی همون سایته.`;
+      ctaLink.textContent = `دقیقاً شبیه «${s.label}» برای من بساز ←`;
+      if(editLink){
+        editLink.href = `editor.html?t=${encodeURIComponent(catKey)}`;
+        editLink.textContent = `«${s.label}» رو آنلاین ویرایش کن ←`;
+      }
+    }
+
+    function startAutoplay(){
+      stopAutoplay();
+      timer = setInterval(() => {
+        idx = (idx + 1) % ORDER.length;
+        render(ORDER[idx]);
+      }, AUTOPLAY_MS);
+    }
+    function stopAutoplay(){ if(timer){ clearInterval(timer); timer = null; } }
+
+    let resumeT;
+    function pauseThenResume(){
+      stopAutoplay();
+      clearTimeout(resumeT);
+      resumeT = setTimeout(startAutoplay, 8000);
+    }
+
+    dotsWrap.querySelectorAll('.lg-dot').forEach(d => {
+      d.addEventListener('click', () => {
+        idx = ORDER.indexOf(d.dataset.cat);
+        render(ORDER[idx]);
+        pauseThenResume();
+      });
+    });
+
+    deviceWrap.querySelectorAll('.lg-dev-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        device = btn.dataset.device;
+        deviceWrap.querySelectorAll('.lg-dev-btn').forEach(b => b.classList.toggle('active', b === btn));
+        preview.classList.toggle('is-mobile', device === 'mobile');
+        render(ORDER[idx], { keepSrc:true });
+        pauseThenResume();
+      });
+    });
+
+    if(preview){
+      preview.addEventListener('mouseenter', stopAutoplay);
+      preview.addEventListener('mouseleave', startAutoplay);
+    }
+    window.addEventListener('resize', applyFrameSize);
+
+    render(ORDER[idx]);
+    startAutoplay();
+  })();
+</script>
+  <script src="header.js"></script>
+</body>
+</html>
