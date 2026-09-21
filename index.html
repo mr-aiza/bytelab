@@ -1,820 +1,623 @@
 <!DOCTYPE html>
-
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>بایت‌لب | طراحی اپلیکیشن، سایت و خدمات کامپیوتر</title>
-<meta name="description" content="بایت‌لب: طراحی سایت، طراحی اپلیکیشن اختصاصی و خدمات تخصصی کامپیوتر با مشاوره رایگان و قیمت شفاف.">
-<link rel="canonical" href="https://bytelabpro.xyz/index.html">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="بایت‌لب">
-<meta property="og:locale" content="fa_IR">
-<meta property="og:title" content="بایت‌لب | طراحی اپلیکیشن، سایت و خدمات کامپیوتر">
-<meta property="og:description" content="بایت‌لب: طراحی سایت، طراحی اپلیکیشن اختصاصی و خدمات تخصصی کامپیوتر با مشاوره رایگان و قیمت شفاف.">
-<meta property="og:url" content="https://bytelabpro.xyz/index.html">
-<meta property="og:image" content="https://bytelabpro.xyz/favicon-512.png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="بایت‌لب | طراحی اپلیکیشن، سایت و خدمات کامپیوتر">
-<meta name="twitter:description" content="بایت‌لب: طراحی سایت، طراحی اپلیکیشن اختصاصی و خدمات تخصصی کامپیوتر با مشاوره رایگان و قیمت شفاف.">
-<meta name="twitter:image" content="https://bytelabpro.xyz/favicon-512.png">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MenuProAI — قالب منوی دیجیتال</title>
+<meta name="description" content="قالب‌های حرفه‌ای MenuProAI را ببین، جستجو کن، پیش‌نمایش زنده بگیر و قالب دلخواهت را انتخاب کن.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --ink:#070b12;
-    --panel:#0f1620;
-    --panel-2:#141d2b;
-    --line:#1e2a38;
-    --cyan:#4df0c9;
-    --violet:#9c7bff;
-    --paper:#eaf0f4;
-    --muted:#7c8b9c;
-    --radius:18px;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  html{scroll-behavior:smooth;overflow-x:hidden;}
-  body{
-    background:var(--ink);
-    color:var(--paper);
-    font-family:'Vazirmatn',sans-serif;
-    line-height:1.7;
-    overflow-x:hidden;
-    width:100%;
-  }
-  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.02em;}
-  a{color:inherit;text-decoration:none;}
-  img{max-width:100%;display:block;}
-  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
-  section{position:relative;}
+:root{
+  --bg:#040812;
+  --bg2:#07111f;
+  --panel:rgba(10,20,34,.78);
+  --panel2:#0c1726;
+  --panel3:#101e30;
+  --line:rgba(101,141,190,.20);
+  --line2:rgba(101,141,190,.34);
+  --text:#f2f7fb;
+  --muted:#91a2b6;
+  --cyan:#43efd0;
+  --cyan2:#17cbb2;
+  --violet:#9a6cff;
+  --pink:#e65cff;
+  --gold:#f2c866;
+  --danger:#ff718c;
+  --radius:24px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --shadow:0 24px 70px rgba(0,0,0,.34);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh;
+  overflow-x:hidden;
+  color:var(--text);
+  font-family:'Vazirmatn',sans-serif;
+  line-height:1.7;
+  background:
+    radial-gradient(circle at 82% 5%,rgba(0,217,255,.09),transparent 25rem),
+    radial-gradient(circle at 8% 34%,rgba(133,75,255,.10),transparent 27rem),
+    linear-gradient(180deg,#030711 0%,#050a13 55%,#040812 100%);
+}
+body:before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:linear-gradient(to bottom,black,transparent 78%);
+}
+body:after{
+  content:"";position:fixed;z-index:-1;pointer-events:none;width:460px;height:460px;left:-260px;top:38%;
+  border-radius:50%;background:rgba(94,74,255,.12);filter:blur(80px);
+}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+button{cursor:pointer}
+.container{width:min(1240px,calc(100% - 32px));margin:auto}
+::selection{background:rgba(67,239,208,.22);color:#fff}
 
-  /* background circuit grid */
-  .grid-bg{
-    position:absolute;inset:0;pointer-events:none;z-index:0;
-    background-image:
-      linear-gradient(var(--line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--line) 1px, transparent 1px);
-    background-size:64px 64px;
-    opacity:.18;
-    mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
-  }
-  .glow{
-    position:absolute;border-radius:50%;filter:blur(80px);z-index:0;pointer-events:none;
-  }
+/* top navigation */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  height:74px;
+  border-bottom:1px solid rgba(103,145,190,.13);
+  background:rgba(3,8,17,.70);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+}
+.nav{height:100%;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:inline-flex;align-items:center;gap:10px;font-weight:900;font-size:19px}
+.brand-mark{
+  width:35px;height:35px;border-radius:12px;display:grid;place-items:center;
+  color:#06110f;font-weight:900;
+  background:linear-gradient(135deg,var(--cyan),#7b6cff);
+  box-shadow:0 0 26px rgba(67,239,208,.20);
+}
+.brand small{display:block;color:var(--muted);font-size:9px;font-weight:600;line-height:1.2}
+.nav-actions{display:flex;align-items:center;gap:8px}
+.nav-link,.nav-cta{
+  min-height:40px;display:inline-flex;align-items:center;justify-content:center;
+  padding:0 14px;border:1px solid var(--line);border-radius:13px;
+  background:rgba(11,21,34,.72);font-size:11px;font-weight:800;
+  transition:transform .22s var(--ease),border-color .22s,box-shadow .22s,color .22s;
+}
+.nav-link:hover{transform:translateY(-2px);border-color:var(--cyan);color:var(--cyan)}
+.nav-cta{border-color:transparent;background:linear-gradient(135deg,var(--cyan),#58d7ff);color:#03110e;box-shadow:0 8px 28px rgba(67,239,208,.12)}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(67,239,208,.22)}
 
-  /* توجه: استایل هدر/منوی کشویی موبایل به‌صورت خودکار از header.js تزریق می‌شه */
-  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;}
-  .logo .mark{
-    width:34px;height:34px;border-radius:9px;
-    background:linear-gradient(135deg,var(--cyan),var(--violet));
-    display:flex;align-items:center;justify-content:center;
-    color:var(--ink);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;
-    box-shadow:0 0 24px rgba(77,240,201,.45);
-  }
-  .logo .tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.08em;margin-right:2px;}
-  .nav-cta{
-    display:inline-flex;align-items:center;gap:8px;
-    background:var(--cyan);color:#06120f;font-weight:700;font-size:14px;
-    padding:11px 22px;border-radius:999px;
-    box-shadow:0 0 24px rgba(77,240,201,.35);
-    transition:transform .2s ease, box-shadow .2s ease;
-  }
-  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(77,240,201,.55);}
+/* hero */
+.hero{position:relative;padding:62px 0 34px;display:grid;grid-template-columns:1.02fr .98fr;align-items:center;gap:36px}
+.hero-copy{animation:heroIn .75s var(--ease) both}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid rgba(67,239,208,.24);
+  background:rgba(67,239,208,.065);border-radius:999px;color:var(--cyan);font-size:10px;font-weight:800;
+}
+.hero h1{font-size:clamp(34px,5vw,62px);line-height:1.23;letter-spacing:-1.3px;font-weight:900;margin:17px 0 14px;max-width:680px}
+.hero h1 span{background:linear-gradient(90deg,var(--cyan),#62d8ff 45%,#b073ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{max-width:650px;color:var(--muted);font-size:14px;line-height:2}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:23px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;
+  border-radius:13px;padding:0 17px;border:1px solid var(--line);
+  font-size:11px;font-weight:900;transition:transform .22s var(--ease),box-shadow .22s,border-color .22s,background .22s;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),#59d9ff);border-color:transparent;color:#03110e;box-shadow:0 12px 35px rgba(67,239,208,.13)}
+.btn-primary:hover{box-shadow:0 15px 42px rgba(67,239,208,.24)}
+.btn-ghost{background:rgba(12,23,38,.72);color:var(--text)}
+.btn-ghost:hover{border-color:rgba(67,239,208,.5);color:var(--cyan)}
 
-  /* hero */
-  .hero{padding:170px 0 110px;min-height:100vh;display:flex;align-items:center;overflow:hidden;}
-  .eyebrow{
-    display:inline-flex;align-items:center;gap:10px;
-    font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:13px;color:var(--cyan);
-    border:1px solid var(--line);border-radius:999px;padding:7px 16px;margin-bottom:28px;
-    background:rgba(77,240,201,.05);
-  }
-  .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(77,240,201,.6);animation:pulse 1.8s infinite;}
-  @keyframes pulse{
-    0%{box-shadow:0 0 0 0 rgba(77,240,201,.55);}
-    70%{box-shadow:0 0 0 10px rgba(77,240,201,0);}
-    100%{box-shadow:0 0 0 0 rgba(77,240,201,0);}
-  }
-  h1.hero-title{
-    font-size:clamp(36px,6vw,68px);font-weight:800;line-height:1.18;letter-spacing:-.01em;
-    max-width:780px;
-  }
-  h1.hero-title .accent{
-    background:linear-gradient(90deg,var(--cyan),var(--violet));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-  }
-  .hero-sub{font-size:18px;color:var(--muted);max-width:560px;margin-top:24px;}
-  .hero-ctas{display:flex;gap:16px;margin-top:40px;flex-wrap:wrap;}
-  .btn-primary{
-    background:var(--cyan);color:#06120f;font-weight:700;padding:15px 30px;border-radius:999px;
-    box-shadow:0 0 30px rgba(77,240,201,.4);transition:transform .2s ease;display:inline-flex;align-items:center;gap:8px;
-  }
-  .btn-primary:hover{transform:translateY(-2px);}
-  .btn-ghost{
-    border:1px solid var(--line);color:var(--paper);padding:15px 30px;border-radius:999px;
-    transition:border-color .2s ease, color .2s ease;display:inline-flex;align-items:center;gap:8px;
-  }
-  .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
-  .trust-strip{display:flex;gap:36px;margin-top:64px;flex-wrap:wrap;color:var(--muted);font-size:14px;}
-  .trust-strip .item{display:flex;align-items:center;gap:8px;}
-  .trust-strip .dot{width:5px;height:5px;border-radius:50%;background:var(--violet);}
+.hero-visual{position:relative;min-height:360px;display:grid;place-items:center;animation:heroVisual .9s var(--ease) .08s both}
+.orbit{
+  position:absolute;width:350px;height:350px;border-radius:50%;
+  border:1px solid rgba(83,137,255,.17);
+  box-shadow:0 0 80px rgba(72,72,255,.10),inset 0 0 60px rgba(67,239,208,.05);
+  animation:float 7s ease-in-out infinite;
+}
+.orbit:before,.orbit:after{content:"";position:absolute;border-radius:50%;filter:blur(1px)}
+.orbit:before{width:9px;height:9px;right:14%;top:13%;background:var(--cyan);box-shadow:0 0 22px var(--cyan)}
+.orbit:after{width:7px;height:7px;left:12%;bottom:22%;background:var(--violet);box-shadow:0 0 22px var(--violet)}
+.phone{
+  position:relative;width:206px;height:355px;border-radius:31px;padding:8px;
+  background:linear-gradient(145deg,#17263d,#050a12);
+  border:1px solid rgba(143,188,255,.35);
+  box-shadow:0 30px 80px rgba(0,0,0,.52),0 0 55px rgba(81,89,255,.14);
+  transform:rotate(-6deg);
+  animation:phoneFloat 5.5s ease-in-out infinite;
+}
+.phone:before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:65px;height:15px;border-radius:999px;background:#03060b;z-index:3}
+.phone-screen{height:100%;border-radius:24px;overflow:hidden;background:#08111d;position:relative}
+.phone-screen img{
+  width:100%;height:100%;object-fit:contain;object-position:center;display:block;
+  background:linear-gradient(145deg,#101b2a,#050a12)
+}
+.phone-glow{position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(82,65,255,.22);filter:blur(50px);left:calc(50% - 90px);top:calc(50% - 90px);z-index:-1}
+.float-card{
+  position:absolute;display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:15px;
+  border:1px solid rgba(110,154,207,.25);background:rgba(7,15,27,.76);backdrop-filter:blur(14px);
+  box-shadow:0 15px 40px rgba(0,0,0,.28);font-size:10px;font-weight:800;
+}
+.float-card b{color:var(--cyan)}
+.float-one{right:2%;top:22%;animation:float 4.5s ease-in-out infinite}
+.float-two{left:1%;bottom:17%;animation:float 5s ease-in-out .4s infinite}
 
-  /* section heading */
-  .sec-head{margin-bottom:56px;max-width:640px;}
-  .sec-eyebrow{font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:13px;color:var(--violet);letter-spacing:.02em;margin-bottom:14px;display:block;}
-  .sec-title{font-size:clamp(26px,3.6vw,40px);font-weight:800;}
-  .sec-sub{color:var(--muted);margin-top:14px;font-size:16px;}
+/* quick stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-width:780px;margin:10px auto 40px}
+.stat{padding:13px;border:1px solid var(--line);background:rgba(9,18,31,.65);border-radius:16px;text-align:center}
+.stat strong{display:block;color:var(--cyan);font:800 19px 'JetBrains Mono',monospace}
+.stat span{display:block;margin-top:1px;color:var(--muted);font-size:9.5px}
 
-  /* services */
-  .services{padding:140px 0 100px;}
-  .trace-row{position:relative;}
-  .trace-svg{position:absolute;top:46px;left:0;right:0;width:100%;height:2px;z-index:0;}
-  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative;z-index:1;}
-  .svc-card{
-    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:32px 26px;transition:border-color .25s ease, transform .25s ease;
-  }
-  .svc-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
-  .svc-node{
-    width:52px;height:52px;border-radius:14px;background:var(--panel-2);
-    display:flex;align-items:center;justify-content:center;margin-bottom:22px;
-    border:1px solid var(--line);position:relative;
-  }
-  .svc-node::after{
-    content:'';position:absolute;inset:-1px;border-radius:14px;
-    background:linear-gradient(135deg,rgba(77,240,201,.5),rgba(156,123,255,.5));
-    opacity:0;transition:opacity .25s ease;z-index:-1;
-  }
-  .svc-card:hover .svc-node::after{opacity:1;}
-  .svc-title{font-size:19px;font-weight:700;margin-bottom:10px;}
-  .svc-desc{color:var(--muted);font-size:14.5px;}
-  .svc-tags{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;}
-  .svc-tags span{
-    font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:12.5px;color:var(--cyan);
-    border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:rgba(77,240,201,.04);
-  }
+/* template section */
+.section{padding:28px 0 80px}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:18px}
+.section-title h2{font-size:25px;font-weight:900}
+.section-title p{font-size:11px;color:var(--muted);margin-top:3px}
+.count-pill{padding:7px 11px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;color:var(--muted);font-size:10px}
 
-  /* process */
-  .process{padding:100px 0;}
-  .proc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative;}
-  .proc-grid::before{
-    content:'';position:absolute;top:30px;left:6%;right:6%;height:1px;background:var(--line);z-index:0;
-  }
-  .proc-step{position:relative;z-index:1;}
-  .proc-num{
-    font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--ink);font-weight:700;
-    width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--violet));
-    display:flex;align-items:center;justify-content:center;margin-bottom:20px;
-  }
-  .proc-title{font-weight:700;font-size:16.5px;margin-bottom:8px;}
-  .proc-desc{color:var(--muted);font-size:14px;}
+/* sticky search + filters */
+.toolbar{
+  position:sticky;top:84px;z-index:70;
+  padding:9px;margin-bottom:22px;display:grid;grid-template-columns:minmax(230px,1fr) auto;gap:9px;
+  border:1px solid rgba(105,148,198,.22);border-radius:19px;
+  background:rgba(5,12,22,.78);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:0 12px 38px rgba(0,0,0,.20);
+}
+.search{position:relative}
+.search input{
+  width:100%;height:45px;padding:0 42px 0 14px;outline:none;color:var(--text);
+  border:1px solid var(--line);border-radius:13px;background:rgba(12,24,40,.78);font-size:11px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.search input:focus{border-color:rgba(67,239,208,.65);box-shadow:0 0 0 4px rgba(67,239,208,.06)}
+.search-icon{position:absolute;right:14px;top:8px;font-size:18px;color:var(--muted);pointer-events:none}
+.filters{display:flex;align-items:center;gap:6px;overflow:auto;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filter{
+  height:45px;white-space:nowrap;padding:0 13px;border:1px solid var(--line);border-radius:13px;
+  background:rgba(12,24,40,.78);color:var(--muted);font-size:10.5px;font-weight:900;
+  transition:transform .2s,border-color .2s,color .2s,background .2s,box-shadow .2s;
+}
+.filter:hover{transform:translateY(-1px);border-color:rgba(67,239,208,.35)}
+.filter.active{color:var(--cyan);border-color:rgba(67,239,208,.55);background:rgba(67,239,208,.09);box-shadow:0 0 22px rgba(67,239,208,.06)}
 
-  /* portfolio */
-  .portfolio{padding:100px 0;}
-  .pf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;}
-  .pf-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:block;transition:border-color .25s ease, transform .25s ease;}
-  .pf-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
-  .pf-link{color:var(--cyan);font-size:13px;font-weight:700;margin-top:14px;display:inline-flex;align-items:center;gap:6px;}
-  .pf-preview{background:var(--panel-2);position:relative;}
-  .live-preview{width:100%;height:200px;overflow:hidden;position:relative;background:#0a0f17;}
-  .live-preview iframe{
-    width:1280px;height:800px;
-    position:absolute;top:0;left:0;
-    transform-origin:top left;
-    border:0;pointer-events:none;background:#fff;
-  }
-  .live-preview .lp-fade{
-    position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,23,0) 65%,rgba(10,15,23,.55) 100%);
-  }
-  .pf-info{padding:22px 24px 26px;}
-  .pf-label{font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:12.5px;color:var(--violet);margin-bottom:8px;display:block;}
-  .pf-title{font-weight:700;font-size:17px;margin-bottom:6px;}
-  .pf-desc{color:var(--muted);font-size:14px;}
+/* featured carousel */
+.featured-wrap{
+  margin-bottom:28px;border:1px solid rgba(89,136,196,.20);border-radius:24px;
+  background:linear-gradient(145deg,rgba(12,27,45,.86),rgba(7,14,25,.72));padding:17px;
+  overflow:hidden;
+}
+.featured-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.featured-head h3{font-size:17px;font-weight:900}
+.featured-head p{font-size:9.5px;color:var(--muted)}
+.featured-track{
+  display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 36px)/4);
+  gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:2px 2px 8px;
+}
+.featured-track::-webkit-scrollbar{display:none}
+.featured-card{
+  scroll-snap-align:start;min-width:0;overflow:hidden;position:relative;
+  border:1px solid var(--line);border-radius:19px;background:rgba(10,20,34,.92);
+  transition:transform .25s var(--ease),border-color .25s,box-shadow .25s;
+}
+.featured-card:hover{transform:translateY(-4px);border-color:rgba(67,239,208,.42);box-shadow:0 18px 42px rgba(0,0,0,.28)}
+.featured-img{aspect-ratio:1.04/1;overflow:hidden;background:var(--panel3);position:relative}
+.featured-img img{width:100%;height:100%;display:block;object-fit:cover;object-position:top;transition:transform .55s var(--ease)}
+.featured-card:hover .featured-img img{transform:scale(1.035)}
+.featured-badge{position:absolute;top:9px;right:9px;padding:4px 8px;border-radius:999px;background:rgba(3,8,16,.76);backdrop-filter:blur(9px);font-size:8.5px;font-weight:900;color:var(--gold);border:1px solid rgba(242,200,102,.26)}
+.featured-body{padding:10px}
+.featured-body h4{font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.featured-body span{display:block;color:var(--muted);font-size:8.5px;margin-top:1px}
+.featured-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:9px}
+.featured-actions a{min-height:33px;padding:0 5px;border-radius:10px;font-size:8.5px}
 
-  /* live preview generator */
-  .live-gen{padding:100px 0;}
-  .lg-beta{
-    display:inline-flex;align-items:center;font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:11px;
-    color:#06120f;background:linear-gradient(120deg,#f0a94e,#ff6b4a);padding:4px 10px;border-radius:999px;
-    margin-right:8px;vertical-align:middle;
-  }
-  .lg-card{
-    background:var(--panel);border:1px solid var(--line);border-radius:24px;
-    padding:36px;display:grid;grid-template-columns:.85fr 1.15fr;gap:36px;align-items:start;
-  }
-  .lg-form{display:flex;flex-direction:column;gap:10px;padding-top:6px;}
-  .lg-group-label{font-family:'Vazirmatn',sans-serif;font-weight:700;font-size:12px;color:var(--violet);margin-top:6px;}
-  .lg-group-label:first-child{margin-top:0;}
-  .lg-dots{display:flex;flex-direction:column;gap:8px;}
-  .lg-dot{
-    display:flex;align-items:baseline;gap:8px;
-    font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:13.5px;color:var(--muted);
-    border:1px solid var(--line);border-radius:12px;padding:11px 15px;background:transparent;cursor:pointer;
-    transition:border-color .2s ease,color .2s ease,background .2s ease;text-align:right;width:100%;
-  }
-  .lg-dot em{font-style:normal;font-size:11.5px;color:var(--muted);font-weight:400;}
-  .lg-dot-mark{width:8px;height:8px;border-radius:50%;background:var(--line);flex-shrink:0;transition:background .2s ease,box-shadow .2s ease;}
-  .lg-dot:hover{color:var(--paper);border-color:var(--cyan);}
-  .lg-dot.active{color:var(--paper);border-color:var(--cyan);background:rgba(77,240,201,.06);}
-  .lg-dot.active .lg-dot-mark{background:var(--cyan);box-shadow:0 0 8px var(--cyan);}
-  .lg-device{display:flex;gap:8px;}
-  .lg-dev-btn{
-    display:flex;align-items:center;gap:8px;flex:1;justify-content:center;
-    font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:13px;color:var(--muted);
-    border:1px solid var(--line);border-radius:12px;padding:10px;background:transparent;cursor:pointer;
-    transition:border-color .2s ease,color .2s ease,background .2s ease;
-  }
-  .lg-dev-btn:hover{color:var(--paper);border-color:var(--cyan);}
-  .lg-dev-btn.active{color:#06120f;background:var(--cyan);border-color:var(--cyan);}
-  .lg-hint{color:var(--muted);font-size:12.5px;line-height:1.6;margin-top:4px;}
-  .lg-preview{
-    position:relative;background:#0a0f17;border:1px solid var(--line);border-radius:16px;overflow:hidden;
-    height:460px;transition:width .35s ease,height .35s ease,border-radius .35s ease,margin .35s ease;
-  }
-  .lg-preview.is-mobile{width:230px;height:460px;margin:0 auto;border-radius:26px;border-width:2px;}
-  .lg-preview-inner{width:100%;height:100%;overflow:hidden;position:relative;}
-  .lg-preview-inner iframe{
-    width:1280px;height:800px;position:absolute;top:0;left:0;
-    transform-origin:top left;border:0;pointer-events:none;background:#fff;
-  }
-  @media (max-width:900px){
-    .lg-card{grid-template-columns:1fr;}
-    .lg-preview{height:340px;}
-    .lg-preview.is-mobile{height:420px;}
-  }
+/* Premium showcase images: show the complete sample instead of cropping it. */
+.featured-img{
+  aspect-ratio:.72/1;
+  padding:7px;
+  background:
+    radial-gradient(circle at 50% 30%,rgba(242,200,102,.10),transparent 58%),
+    linear-gradient(145deg,#111c2b,#050b14);
+  border:1px solid rgba(242,200,102,.14);
+}
+.featured-img img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  border-radius:13px;
+  background:#070d16;
+}
+.featured-card:hover .featured-img img{transform:scale(1.015)}
 
-  /* playground promo */
-  .pg-promo{padding:100px 0;}
-  .pg-promo-card{
-    background:var(--panel);border:1px solid var(--line);border-radius:24px;
-    padding:44px;display:grid;grid-template-columns:1fr .85fr;gap:40px;align-items:center;
-  }
-  .pg-promo-mock{
-    background:var(--ink);border:1px solid var(--line);border-radius:14px;overflow:hidden;
-  }
-  .pg-promo-mock-head{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--panel-2);}
-  .pg-promo-dot{width:9px;height:9px;border-radius:50%;}
-  .pg-promo-dot.html{background:#f97362;}
-  .pg-promo-dot.css{background:var(--cyan);}
-  .pg-promo-dot.js{background:#f2c14e;}
-  .pg-promo-mock-body{padding:18px 16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:2;color:var(--muted);direction:ltr;text-align:left;}
-  .pg-promo-mock-body .tag{color:#f97362;}
-  .pg-promo-mock-body .attr{color:var(--cyan);}
-  .pg-promo-mock-body .val{color:#f2c14e;}
-  .pg-promo-cursor{display:inline-block;width:7px;height:14px;background:var(--cyan);vertical-align:middle;margin-right:2px;animation:pgPromoBlink 1s step-end infinite;}
-  @keyframes pgPromoBlink{50%{opacity:0;}}
-  .pg-promo-text .sec-eyebrow{margin-bottom:12px;}
-  .pg-promo-text h2{font-size:clamp(22px,3vw,32px);font-weight:800;margin-bottom:14px;}
-  .pg-promo-text p{color:var(--muted);font-size:15px;margin-bottom:26px;}
-  @media (max-width:880px){
-    .pg-promo-card{grid-template-columns:1fr;padding:30px 24px;}
-    .pg-promo-text{order:-1;}
-  }
+/* all templates */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.card{
+  overflow:hidden;min-width:0;display:flex;flex-direction:column;background:rgba(10,19,32,.90);
+  border:1px solid var(--line);border-radius:19px;
+  transition:transform .26s var(--ease),border-color .26s,box-shadow .26s,opacity .25s;
+}
+.card:hover{transform:translateY(-5px);border-color:rgba(75,140,199,.45);box-shadow:var(--shadow)}
+.card-preview{display:block;position:relative;aspect-ratio:1.38/1;background:linear-gradient(145deg,var(--panel3),var(--bg));overflow:hidden;border-bottom:1px solid var(--line)}
+.card-preview img{
+  width:100%;height:100%;display:block;object-fit:contain;object-position:center;
+  padding:6px;background:linear-gradient(145deg,var(--panel3),var(--bg));
+  transition:transform .5s var(--ease)
+}
+.card:hover .card-preview img{transform:scale(1.035)}
+.preview-fallback{height:100%;display:none;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:var(--muted);font-size:25px;background:radial-gradient(circle at 50% 35%,rgba(67,239,208,.13),transparent 55%)}
+.preview-fallback span{font-size:8px}
+.badges{position:absolute;right:8px;top:8px;display:flex;gap:5px;flex-wrap:wrap}
+.badge{padding:4px 7px;border-radius:999px;background:rgba(3,8,16,.76);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.11);font-size:8px;font-weight:900}
+.badge.gold{color:var(--gold);border-color:rgba(242,200,102,.28)}
+.badge.cyan{color:var(--cyan);border-color:rgba(67,239,208,.25)}
+.card-body{padding:11px;display:flex;flex-direction:column;flex:1}
+.card-title-row{display:flex;align-items:start;justify-content:space-between;gap:7px}
+.card h3{font-size:12px;font-weight:900;line-height:1.55}
+.card-desc{font-size:8.8px;color:var(--muted);line-height:1.75;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:31px}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0 9px}
+.tag{font-size:7px;color:#aebccc;background:rgba(17,31,49,.82);border:1px solid rgba(102,142,184,.16);padding:2px 6px;border-radius:999px}
+.card-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:auto}
+.card-actions .btn{width:100%;min-height:34px;padding:0 5px;font-size:8.5px;border-radius:9px}
+.empty{display:none;text-align:center;padding:42px 15px;border:1px dashed var(--line);border-radius:18px;color:var(--muted);font-size:11px}
+.empty.show{display:block}
 
-  /* blog preview */
-  .blog-preview{padding:100px 0;}
-  .bp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-  .bp-card{
-    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:30px 26px;display:block;transition:border-color .25s ease, transform .25s ease;
-  }
-  .bp-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
-  .bp-meta{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--violet);margin-bottom:14px;display:block;}
-  .bp-title{font-size:18px;font-weight:700;margin-bottom:10px;line-height:1.5;}
-  .bp-desc{color:var(--muted);font-size:14px;margin-bottom:16px;}
-  .bp-link{color:var(--cyan);font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;}
+/* CTA */
+.cta{
+  margin:0 auto 70px;padding:25px;border-radius:24px;position:relative;overflow:hidden;text-align:center;
+  border:1px solid rgba(124,93,255,.25);
+  background:radial-gradient(circle at 50% 0,rgba(117,81,255,.17),transparent 55%),rgba(10,17,31,.86);
+}
+.cta:before{content:"";position:absolute;width:180px;height:180px;left:-60px;bottom:-100px;border-radius:50%;background:rgba(67,239,208,.10);filter:blur(30px)}
+.cta h2{font-size:21px;font-weight:900;position:relative}
+.cta p{font-size:10.5px;color:var(--muted);margin:4px auto 14px;position:relative}
 
-  /* stats band */
-  .stats{padding:70px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
-  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;}
-  .stat-val{font-family:'Vazirmatn',sans-serif;font-weight:800;font-size:clamp(22px,3vw,30px);color:var(--cyan);}
-  .stat-label{color:var(--muted);font-size:13.5px;margin-top:8px;}
+/* bottom nav */
+.mobile-nav{
+  display:none;position:fixed;z-index:120;right:10px;left:10px;bottom:10px;
+  min-height:62px;padding:7px;border:1px solid rgba(100,143,190,.25);border-radius:20px;
+  background:rgba(5,12,22,.88);backdrop-filter:blur(20px);box-shadow:0 18px 45px rgba(0,0,0,.42);
+}
+.mobile-nav a{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;color:var(--muted);font-size:8px;font-weight:800;border-radius:14px}
+.mobile-nav a.active{color:var(--cyan);background:rgba(67,239,208,.07)}
+.mobile-nav .plus{font-size:19px;line-height:1;color:var(--text)}
+.mobile-nav a:last-child .plus{color:var(--cyan)}
 
-  /* cta band */
-  .cta-band{padding:130px 0;}
-  .cta-card{
-    position:relative;border-radius:28px;border:1px solid var(--line);
-    background:radial-gradient(circle at 30% 20%, rgba(77,240,201,.12), transparent 60%),
-               radial-gradient(circle at 80% 80%, rgba(156,123,255,.14), transparent 55%),
-               var(--panel);
-    padding:70px 50px;text-align:center;overflow:hidden;
-  }
-  .cta-card h2{font-size:clamp(26px,4vw,42px);font-weight:800;max-width:600px;margin:0 auto 18px;}
-  .cta-card p{color:var(--muted);max-width:480px;margin:0 auto 36px;}
+/* reveal animations */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .65s var(--ease),transform .65s var(--ease)}
+.reveal.visible{opacity:1;transform:none}
+.card.reveal:nth-child(2){transition-delay:.04s}
+.card.reveal:nth-child(3){transition-delay:.08s}
+.card.reveal:nth-child(4){transition-delay:.12s}
+.card.reveal:nth-child(5){transition-delay:.16s}
+.card.reveal:nth-child(6){transition-delay:.20s}
+.card.reveal:nth-child(7){transition-delay:.24s}
+.card.reveal:nth-child(8){transition-delay:.28s}
 
-  /* contact */
-  .contact{padding:0 0 120px;}
-  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
-  .contact-card{
-    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:30px 28px;display:flex;align-items:center;gap:20px;transition:border-color .2s ease;
-  }
-  .contact-card:hover{border-color:var(--cyan);}
-  .contact-icon{
-    width:50px;height:50px;border-radius:13px;background:var(--panel-2);flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;border:1px solid var(--line);
-  }
-  .contact-label{font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:12.5px;color:var(--muted);margin-bottom:4px;display:block;}
-  .contact-value{font-weight:700;font-size:16px;}
+@keyframes heroIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes heroVisual{from{opacity:0;transform:translateX(-18px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes phoneFloat{0%,100%{transform:rotate(-6deg) translateY(0)}50%{transform:rotate(-4deg) translateY(-10px)}}
 
-  /* footer */
-  footer{border-top:1px solid var(--line);padding:50px 0 32px;}
-  .foot-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:30px;margin-bottom:36px;}
-  .foot-desc{color:var(--muted);font-size:14px;max-width:320px;margin-top:14px;}
-  .foot-links{display:flex;gap:40px;flex-wrap:wrap;}
-  .foot-col h4{font-size:13.5px;color:var(--muted);font-family:'Vazirmatn',sans-serif;font-weight:700;margin-bottom:16px;}
-  .foot-col a{display:block;color:var(--paper);font-size:14.5px;margin-bottom:12px;}
-  .foot-col a:hover{color:var(--cyan);}
-  .social-row{display:flex;gap:12px;margin-top:18px;}
-  .social-row a{
-    width:40px;height:40px;border-radius:11px;border:1px solid var(--line);
-    display:flex;align-items:center;justify-content:center;transition:border-color .2s ease, color .2s ease;color:var(--muted);
-  }
-  .social-row a:hover{border-color:var(--cyan);color:var(--cyan);}
-  .foot-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;color:var(--muted);font-size:13px;flex-wrap:wrap;gap:10px;}
+footer{border-top:1px solid var(--line);padding:24px 16px 34px;text-align:center;color:var(--muted);font-size:9.5px}
+footer a{color:var(--cyan)}
 
-  /* reveal animation */
-  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
-  .reveal.in{opacity:1;transform:translateY(0);}
+/* responsive */
+@media(max-width:1050px){
+  .grid{grid-template-columns:repeat(3,1fr)}
+  .featured-track{grid-auto-columns:calc((100% - 24px)/3)}
+}
+@media(max-width:800px){
+  .container{width:min(100% - 24px,1240px)}
+  .hero{grid-template-columns:1fr;text-align:center;padding-top:40px;gap:10px}
+  .hero-copy{order:1}.hero-visual{order:2;min-height:330px}
+  .hero h1{margin-left:auto;margin-right:auto}
+  .hero p{margin-left:auto;margin-right:auto}
+  .hero-actions{justify-content:center}
+  .toolbar{grid-template-columns:1fr;top:73px}
+  .filters{order:2}
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .featured-track{grid-auto-columns:calc((100% - 12px)/2)}
+  .mobile-nav{display:flex}
+  footer{padding-bottom:94px}
+}
+@media(max-width:560px){
+  .topbar{height:64px}
+  .brand{font-size:16px}.brand-mark{width:32px;height:32px;border-radius:10px}
+  .brand small{font-size:8px}
+  .nav-link{display:none}.nav-cta{min-height:37px;padding:0 11px;font-size:9px}
+  .hero{padding:31px 0 12px}
+  .hero h1{font-size:31px;letter-spacing:-.6px}
+  .hero p{font-size:11px}
+  .hero-visual{min-height:270px}
+  .orbit{width:270px;height:270px}
+  .phone{width:158px;height:273px;border-radius:25px}
+  .float-card{font-size:8px;padding:8px 9px}
+  .float-one{right:0;top:14%}.float-two{left:0;bottom:13%}
+  .stats{margin-bottom:25px}
+  .stat{padding:10px 5px}.stat strong{font-size:16px}.stat span{font-size:8px}
+  .section{padding-top:22px}
+  .section-head{align-items:flex-start;flex-direction:column;gap:7px}
+  .section-title h2{font-size:21px}
+  .toolbar{padding:7px;border-radius:17px}
+  .search input,.filter{height:42px}
+  .grid{gap:8px}
+  .card{border-radius:15px}
+  .card-body{padding:9px}
+  .card h3{font-size:11px}
+  .card-desc{font-size:8px;min-height:28px}
+  .tags{display:none}
+  .card-actions{grid-template-columns:1fr;gap:4px}
+  .card-actions .btn{min-height:33px}
+  .featured-wrap{padding:12px;border-radius:20px}
+  .featured-head h3{font-size:15px}
+  .featured-head p{display:none}
+  .featured-track{grid-auto-columns:78%}
+  .featured-body{padding:9px}
+  .featured-actions .btn{min-height:32px}
+}
+@media(max-width:390px){
+  .container{width:min(100% - 18px,1240px)}
+  .hero h1{font-size:28px}
+  .hero-visual{min-height:245px}
+  .phone{width:145px;height:252px}
+  .orbit{width:245px;height:245px}
+  .grid{gap:7px}
+  .card-body{padding:8px}
+  .card h3{font-size:10.5px}
+  .card-desc{display:none}
+  .card-preview{aspect-ratio:1.2/1}
+}
 
-  @media (prefers-reduced-motion: reduce){
-    *{animation:none !important;transition:none !important;}
-    .reveal{opacity:1;transform:none;}
-  }
-
-  @media (max-width: 900px){
-    .svc-grid,.pf-grid,.bp-grid{grid-template-columns:1fr;}
-    .proc-grid{grid-template-columns:1fr 1fr;row-gap:36px;}
-    .proc-grid::before{display:none;}
-    .stats-grid{grid-template-columns:1fr 1fr;row-gap:28px;}
-    .contact-grid{grid-template-columns:1fr;}
-    .trace-svg{display:none;}
-    .foot-top{flex-direction:column;}
-  }
-  @media (max-width:560px){
-    .hero{padding:150px 0 80px;}
-    .proc-grid{grid-template-columns:1fr 1fr;}
-    .cta-card{padding:50px 26px;}
-  }
+/* accessibility */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*:before,*:after{animation:none!important;transition:none!important}
+  .reveal{opacity:1!important;transform:none!important}
+}
 </style>
 </head>
 <body>
 
-<div id="siteHeaderPlaceholder"></div>
-
-<section class="hero">
-  <div class="grid-bg"></div>
-  <div class="glow" style="width:480px;height:480px;background:var(--cyan);opacity:.10;top:-120px;right:-120px;"></div>
-  <div class="glow" style="width:420px;height:420px;background:var(--violet);opacity:.10;bottom:-100px;left:-100px;"></div>
-  <div class="wrap" style="position:relative;z-index:1;">
-    <div class="eyebrow"><span class="pulse-dot"></span> آزمایشگاه دیجیتال بایت‌لب</div>
-    <h1 class="hero-title">از ایده تا اجرا؛ <span class="accent">اپ، سایت و سیستم</span> شما زیر یک سقف ساخته می‌شود</h1>
-    <p class="hero-sub">بایت‌لب اپلیکیشن و وب‌سایت شما را طراحی می‌کند و کنار آن، خدمات کامل کامپیوتر از تعمیر تا خرید و فروش قطعه و سیستم را هم انجام می‌دهد.</p>
-    <div class="hero-ctas">
-      <a href="telegram/contact.html" class="btn-primary">مشاوره رایگان بگیر ←</a>
-      <a href="portfolio.html" class="btn-ghost">نمونه‌کارها</a>
-    </div>
-    <div class="trust-strip">
-      <div class="item"><span class="dot"></span> مشاوره رایگان پیش از شروع</div>
-      <div class="item"><span class="dot"></span> پشتیبانی پس از تحویل</div>
-      <div class="item"><span class="dot"></span> قیمت شفاف، بدون هزینه پنهان</div>
+<header class="topbar">
+  <div class="container nav">
+    <a class="brand" href="index.html" aria-label="MenuProAI">
+      <span class="brand-mark">M</span>
+      <span>MenuProAI<small>منوی دیجیتال حرفه‌ای</small></span>
+    </a>
+    <div class="nav-actions">
+      <a class="nav-link" href="#templates">قالب‌ها</a>
+      <a class="nav-cta" href="dashboard.html">ورود / ساخت منو</a>
     </div>
   </div>
-</section>
+</header>
 
-<section class="services" id="services">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="sec-eyebrow">خدمات</span>
-      <h2 class="sec-title">سه ماژول اصلی بایت‌لب</h2>
-      <p class="sec-sub">هر بخش جدا انجام می‌شود، اما در یک پروژه هم می‌توان همه را با هم گرفت؛ مثلاً طراحی سایت به‌همراه راه‌اندازی سیستم فروشگاه.</p>
-    </div>
-    <div class="trace-row">
-      <svg class="trace-svg" viewBox="0 0 100 2" preserveAspectRatio="none">
-        <line x1="16" y1="1" x2="84" y2="1" stroke="#1e2a38" stroke-width="1" stroke-dasharray="3 3"/>
-      </svg>
-      <div class="svc-grid">
-        <div class="svc-card reveal">
-          <div class="svc-node">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><rect x="6" y="2" width="12" height="20" rx="2.5"/><line x1="10" y1="19" x2="14" y2="19"/></svg>
-          </div>
-          <div class="svc-title">طراحی اپلیکیشن</div>
-          <div class="svc-desc">اپلیکیشن اندروید و iOS با رابط کاربری اختصاصی، از فروشگاهی تا سفارش‌گیری و رزرو.</div>
-          <div class="svc-tags"><span>UI/UX</span><span>Android</span><span>iOS</span></div>
-        </div>
-        <div class="svc-card reveal">
-          <div class="svc-node">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"/></svg>
-          </div>
-          <div class="svc-title">طراحی وب‌سایت</div>
-          <div class="svc-desc">سایت شرکتی، فروشگاهی یا پورتفولیو؛ سریع، ریسپانسیو و آماده برای گوگل.</div>
-          <div class="svc-tags"><span>فروشگاهی</span><span>شرکتی</span><span>SEO</span></div>
-        </div>
-        <div class="svc-card reveal">
-          <div class="svc-node">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="16" x2="12" y2="20"/></svg>
-          </div>
-          <div class="svc-title">خدمات کامپیوتر</div>
-          <div class="svc-desc">تعمیر، نگهداری، آپگرید و نیز خرید و فروش قطعه و سیستم نو و دست‌دوم.</div>
-          <div class="svc-tags"><span>تعمیر</span><span>آپگرید</span><span>خرید و فروش</span></div>
-        </div>
+<main>
+  <section class="hero container">
+    <div class="hero-copy">
+      <span class="eyebrow">✨ منوی دیجیتال حرفه‌ای، آماده برای کسب‌وکار شما</span>
+      <h1>قالب دلخواهت رو <span>انتخاب کن</span></h1>
+      <p>قالب‌های آماده و قابل شخصی‌سازی MenuProAI را ببین، جستجو کن و قبل از شروع، منوی واقعی را با پیش‌نمایش زنده بررسی کن.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#templates">✨ مشاهده قالب‌ها</a>
+        <a class="btn btn-ghost" href="dashboard.html">🚀 ساخت منوی جدید</a>
       </div>
     </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="orbit"></div>
+      <div class="phone-glow"></div>
+      <div class="phone">
+        <div class="phone-screen">
+          <img src="portfolio/templates/ultra-gold/ultra-gold.png" alt="پیش‌نمایش قالب ویژه Ultra Gold">
+        </div>
+      </div>
+      <div class="float-card float-one">👑 قالب ویژه <b>Premium</b></div>
+      <div class="float-card float-two">✨ پیش‌نمایش زنده <b>✓</b></div>
+    </div>
+  </section>
+
+  <div class="container stats" aria-label="آمار قالب‌ها">
+    <div class="stat"><strong id="statTotal">۰</strong><span>قالب آماده</span></div>
+    <div class="stat"><strong>۵</strong><span>دسته‌بندی کاربردی</span></div>
+    <div class="stat"><strong>۲</strong><span>قالب ویژه</span></div>
   </div>
-</section>
 
-<section class="process" id="process">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="sec-eyebrow">روند کار</span>
-      <h2 class="sec-title">از مشاوره تا تحویل، چهار قدم</h2>
-    </div>
-    <div class="proc-grid">
-      <div class="proc-step reveal">
-        <div class="proc-num">01</div>
-        <div class="proc-title">مشاوره رایگان</div>
-        <div class="proc-desc">نیاز و بودجه‌تون رو می‌شنویم و بهترین راه‌حل رو پیشنهاد می‌دیم.</div>
+  <section class="section container" id="templates">
+    <div class="section-head">
+      <div class="section-title">
+        <h2>قالب مناسب کسب‌وکارت رو پیدا کن</h2>
+        <p>جستجو کن، دسته‌بندی را انتخاب کن و با یک لمس پیش‌نمایش بگیر.</p>
       </div>
-      <div class="proc-step reveal">
-        <div class="proc-num">02</div>
-        <div class="proc-title">طراحی</div>
-        <div class="proc-desc">طرح اولیه و نمونه بصری رو قبل از اجرا می‌بینید و تأیید می‌کنید.</div>
-      </div>
-      <div class="proc-step reveal">
-        <div class="proc-num">03</div>
-        <div class="proc-title">اجرا</div>
-        <div class="proc-desc">توسعه یا انجام خدمات با گزارش پیشرفت منظم.</div>
-      </div>
-      <div class="proc-step reveal">
-        <div class="proc-num">04</div>
-        <div class="proc-title">تحویل و پشتیبانی</div>
-        <div class="proc-desc">تحویل نهایی به‌همراه پشتیبانی پس از تحویل.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="live-gen" id="live-gen">
-  <div class="wrap">
-    <div class="sec-head reveal" style="max-width:680px;">
-      <span class="sec-eyebrow">پیش‌نمایش زنده <span class="lg-beta">نسخه آزمایشی</span></span>
-      <h2 class="sec-title">نمونه‌کارهای واقعی رو خودت انتخاب و روی گوشی و دسکتاپ ببین</h2>
-      <p class="sec-sub">این‌جا کد واقعی همون سایت‌هاییه که برای مشتری‌ها ساختیم؛ خودش هر چند ثانیه عوض می‌شه، ولی می‌تونی خودت هم نمونه و حالت نمایش (دسکتاپ/موبایل) رو انتخاب کنی. اگه دوست داشتی، با دکمه‌ی «ویرایش آنلاین» وارد یه محیط جدا می‌شی و می‌تونی متن و رنگ‌های همون قالب رو خودت عوض کنی و پیش‌نمایش بگیری — بدون ثبت نهایی.</p>
+      <span class="count-pill" id="resultCount">۰ قالب</span>
     </div>
 
-    <div class="lg-card reveal">
-      <div class="lg-form">
-        <span class="lg-group-label">نمونه‌کار</span>
-        <div class="lg-dots" id="lgDots">
-          <button type="button" class="lg-dot" data-cat="gold"><span class="lg-dot-mark"></span>زرّین گالری <em>طلا و جواهر</em></button>
-          <button type="button" class="lg-dot" data-cat="cafe"><span class="lg-dot-mark"></span>کافه اِمبر <em>کافه و رستوران</em></button>
-          <button type="button" class="lg-dot" data-cat="car"><span class="lg-dot-mark"></span>گالری پرستیژ <em>نمایشگاه خودرو</em></button>
-          <button type="button" class="lg-dot" data-cat="tashrifat"><span class="lg-dot-mark"></span>تشریفات رویایی <em>خدمات مراسم</em></button>
-        </div>
-
-        <span class="lg-group-label">حالت نمایش</span>
-        <div class="lg-device" id="lgDevice">
-          <button type="button" class="lg-dev-btn active" data-device="desktop">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="13" rx="1.5"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-            دسکتاپ
-          </button>
-          <button type="button" class="lg-dev-btn" data-device="mobile">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18.5" x2="13" y2="18.5"/></svg>
-            موبایل
-          </button>
-        </div>
-
-        <span class="lg-hint" id="lgHint">نمونه‌ها هر چند ثانیه خودکار عوض می‌شن؛ روی هرکدوم بزنی همونجا نگه می‌داریم.</span>
-      </div>
-
-      <div class="lg-preview" id="lgPreview">
-        <div class="lg-preview-inner">
-          <iframe id="lgFrame" loading="lazy" tabindex="-1" title="پیش‌نمایش زنده سایت"></iframe>
-        </div>
+    <div class="toolbar" aria-label="جستجو و فیلتر قالب‌ها">
+      <label class="search" aria-label="جستجوی قالب">
+        <span class="search-icon">⌕</span>
+        <input id="templateSearch" type="search" placeholder="جستجوی قالب؛ کافه، رستوران، فست‌فود..." autocomplete="off">
+      </label>
+      <div class="filters" id="filters" role="tablist" aria-label="فیلتر قالب‌ها">
+        <button class="filter active" data-filter="all">▦ همه</button>
+        <button class="filter" data-filter="cafe">☕ کافه</button>
+        <button class="filter" data-filter="restaurant">🍽️ رستوران</button>
+        <button class="filter" data-filter="shop">🛍️ فروشگاه</button>
+        <button class="filter" data-filter="salon">💇 سالن</button>
       </div>
     </div>
 
-    <div style="text-align:center;margin-top:36px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
-      <a href="editor.html" class="btn-primary" id="lgEdit">این قالب رو آنلاین ویرایش کن ←</a>
-      <a href="telegram/contact.html" class="btn-ghost" id="lgCta">دقیقاً همینو برای من بساز ←</a>
-    </div>
-    <div style="text-align:center;margin-top:18px;">
-      <a href="portfolio.html" class="pf-link" style="justify-content:center;">نمونه‌کارهای بیشتر ←</a>
-    </div>
-  </div>
-</section>
-
-<section class="pg-promo" id="pg-promo">
-  <div class="wrap">
-    <div class="pg-promo-card reveal">
-      <div class="pg-promo-mock" aria-hidden="true">
-        <div class="pg-promo-mock-head">
-          <span class="pg-promo-dot html"></span>
-          <span class="pg-promo-dot css"></span>
-          <span class="pg-promo-dot js"></span>
-        </div>
-        <div class="pg-promo-mock-body">
-          <div>&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="val">"box"</span>&gt;</div>
-          <div>&nbsp;&nbsp;&lt;<span class="tag">h1</span>&gt;سلام دنیا 👋&lt;/<span class="tag">h1</span>&gt;</div>
-          <div>&lt;/<span class="tag">div</span>&gt;<span class="pg-promo-cursor"></span></div>
-        </div>
-      </div>
-      <div class="pg-promo-text">
-        <span class="sec-eyebrow">ابزار رایگان</span>
-        <h2>کد بلدی؟ همین‌جا امتحانش کن</h2>
-        <p>پلی‌گراند کد بایت‌لب یه ویرایشگر HTML، CSS و جاوااسکریپت با پیش‌نمایش زنده‌ست؛ بدون نصب و بدون ثبت‌نام. کدتو بنویس، همون لحظه نتیجه رو ببین، با AI بهترش کن یا لینکشو با ما به اشتراک بذار تا حرفه‌ایش کنیم.</p>
-        <a href="playground.html" class="btn-primary">شروع کن ←</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="blog-preview" id="blog-preview">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="sec-eyebrow">بلاگ</span>
-      <h2 class="sec-title">تازه‌ترین یادداشت‌ها</h2>
-      <p class="sec-sub">نکات عملی درباره طراحی سایت، اپلیکیشن و نگهداری سیستم؛ تازه‌ترین مطالب بلاگ بایت‌لب.</p>
-    </div>
-    <div class="bp-grid" id="blogPreviewGrid">
-      <!-- کارت‌های ثابت پیش‌فرض؛ اگه پست‌های دینامیک از تلگرام لود بشن، جایگزین همین‌ها می‌شن -->
-      <a href="hazine-tarahi-site.html" class="bp-card reveal">
-        <span class="bp-meta">طراحی سایت</span>
-        <div class="bp-title">هزینه طراحی سایت چطور محاسبه می‌شود؟</div>
-        <div class="bp-desc">عوامل موثر بر قیمت طراحی سایت و اینکه چطور یک برآورد واقع‌بینانه بگیرید.</div>
-        <span class="bp-link">ادامه مطلب ←</span>
-      </a>
-      <a href="app-ekhtesasi.html" class="bp-card reveal">
-        <span class="bp-meta">طراحی اپلیکیشن</span>
-        <div class="bp-title">چه زمانی کسب‌وکار شما به اپلیکیشن اختصاصی نیاز دارد؟</div>
-        <div class="bp-desc">نشانه‌هایی که می‌گویند وقت ساخت اپلیکیشن اختصاصی رسیده.</div>
-        <span class="bp-link">ادامه مطلب ←</span>
-      </a>
-      <a href="blog.html" class="bp-card reveal">
-        <span class="bp-meta">بایت‌لب</span>
-        <div class="bp-title">همه یادداشت‌های بلاگ رو ببین</div>
-        <div class="bp-desc">راهنما و نکات بیشتر درباره طراحی سایت، اپلیکیشن و خدمات کامپیوتر.</div>
-        <span class="bp-link">مشاهده بلاگ ←</span>
-      </a>
-    </div>
-  </div>
-</section>
-
-<section class="stats">
-  <div class="wrap stats-grid">
-    <div class="reveal">
-      <div class="stat-val">رایگان</div>
-      <div class="stat-label">مشاوره اولیه</div>
-    </div>
-    <div class="reveal">
-      <div class="stat-val">شفاف</div>
-      <div class="stat-label">قیمت‌گذاری</div>
-    </div>
-    <div class="reveal">
-      <div class="stat-val">۳</div>
-      <div class="stat-label">حوزه خدمات اصلی</div>
-    </div>
-    <div class="reveal">
-      <div class="stat-val">پس از تحویل</div>
-      <div class="stat-label">پشتیبانی فعال</div>
-    </div>
-  </div>
-</section>
-
-<section class="cta-band">
-  <div class="wrap">
-    <div class="cta-card reveal">
-      <h2>آماده‌ای ایده‌ت رو اجرا کنیم؟</h2>
-      <p>همین حالا پیام بده تا در کمتر از یک روز کاری باهات تماس بگیریم و رایگان مشورت کنیم.</p>
-      <a href="project-estimator.html" class="btn-primary">شروع گفتگو ←</a>
-    </div>
-  </div>
-</section>
-
-<section class="contact" id="contact">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="sec-eyebrow">تماس با ما</span>
-      <h2 class="sec-title">بایت‌لب همین الان آماده شنیدن ایده توست</h2>
-    </div>
-    <div class="contact-grid">
-      <a href="tel:+989388088657" class="contact-card reveal">
-        <div class="contact-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><path d="M3 5a2 2 0 0 1 2-2h2.3a1 1 0 0 1 1 .8l1 4a1 1 0 0 1-.5 1.1l-1.8 1a13 13 0 0 0 6 6l1-1.8a1 1 0 0 1 1.1-.5l4 1a1 1 0 0 1 .8 1V19a2 2 0 0 1-2 2h-1C9.6 21 3 14.4 3 6V5z"/></svg></div>
+    <section class="featured-wrap reveal" aria-label="قالب‌های ویژه">
+      <div class="featured-head">
         <div>
-          <span class="contact-label">تلفن / واتس‌اپ</span>
-          <span class="contact-value mono" dir="ltr">09388088657</span>
+          <h3>👑 قالب‌های ویژه</h3>
+          <p>فقط قالب‌های ویژه؛ برای مشاهده کامل، روی هر نمونه بزن.</p>
         </div>
-      </a>
-      <a href="https://t.me/ByteLab_Com" class="contact-card reveal">
-        <div class="contact-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><path d="M21 4 3 11l6 2.5M21 4l-3.5 16-7.5-6.5M21 4l-11 7"/></svg></div>
-        <div>
-          <span class="contact-label">تلگرام</span>
-          <span class="contact-value mono" dir="ltr">ByteLab_Com</span>
-        </div>
-      </a>
-      <a href="https://instagram.com/ByteLab_Com" class="contact-card reveal">
-        <div class="contact-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.7"/><circle cx="17.2" cy="6.8" r="1"/></svg></div>
-        <div>
-          <span class="contact-label">اینستاگرام</span>
-          <span class="contact-value mono" dir="ltr">ByteLab_Com</span>
-        </div>
-      </a>
-      <a href="mailto:Aliabdoli161@gmail.com" class="contact-card reveal">
-        <div class="contact-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4df0c9" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></div>
-        <div>
-          <span class="contact-label">ایمیل</span>
-          <span class="contact-value mono" dir="ltr">Aliabdoli161@gmail.com</span>
-        </div>
-      </a>
+        <span class="count-pill">فقط ویژه ⭐</span>
+      </div>
+      <div class="featured-track" id="featuredTrack"></div>
+    </section>
+
+    <div class="section-head" style="margin-top:8px">
+      <div class="section-title">
+        <h2>همه قالب‌ها</h2>
+        <p>کارت‌ها عمداً فشرده طراحی شده‌اند تا روی موبایل اسکرول کمتری لازم باشد.</p>
+      </div>
     </div>
-  </div>
-</section>
+
+    <div class="grid" id="templateGrid"></div>
+    <div class="empty" id="emptyState">قالبی با این جستجو پیدا نشد. عبارت دیگری امتحان کن.</div>
+  </section>
+
+  <section class="container cta reveal">
+    <h2>نیاز به قالب خاص داری؟ ✨</h2>
+    <p>قالب مناسب کسب‌وکارت را انتخاب کن و ساخت منوی دیجیتال را شروع کن.</p>
+    <a class="btn btn-primary" href="dashboard.html">🚀 شروع ساخت منو</a>
+  </section>
+</main>
+
+<nav class="mobile-nav" aria-label="ناوبری موبایل">
+  <a class="active" href="index.html"><span class="plus">⌂</span><span>خانه</span></a>
+  <a href="#templates"><span class="plus">▦</span><span>قالب‌ها</span></a>
+  <a href="#templates"><span class="plus">⌕</span><span>جستجو</span></a>
+  <a href="dashboard.html"><span class="plus">＋</span><span>ساخت منو</span></a>
+</nav>
 
 <footer>
-  <div class="wrap">
-    <div class="foot-top">
-      <div>
-        <div class="logo">
-          <div class="mark">B</div>
-          <span>بایت‌لب<span class="tag">BYTE_LAB</span></span>
-        </div>
-        <p class="foot-desc">طراحی اپلیکیشن، طراحی وب‌سایت و خدمات کامل کامپیوتر؛ از ایده تا اجرا.</p>
-        <div class="social-row">
-          <a href="https://instagram.com/ByteLab_Com" aria-label="اینستاگرام"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.7"/><circle cx="17.2" cy="6.8" r="1"/></svg></a>
-          <a href="https://t.me/ByteLab_Com" aria-label="تلگرام"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 4 3 11l6 2.5M21 4l-3.5 16-7.5-6.5M21 4l-11 7"/></svg></a>
-          <a href="https://wa.me/989388088657" aria-label="واتس‌اپ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21l1.5-4.5A8 8 0 1 1 8 19.5L3 21z"/></svg></a>
-        </div>
-      </div>
-      <div class="foot-links">
-        <div class="foot-col">
-          <h4>دسترسی سریع</h4>
-          <a href="#services">خدمات</a>
-          <a href="#process">روند کار</a>
-          <a href="portfolio.html">نمونه‌کارها</a>
-        </div>
-        <div class="foot-col">
-          <h4>خدمات</h4>
-          <a href="tarahi-app.html">طراحی اپلیکیشن</a>
-          <a href="tarahi-site.html">طراحی سایت</a>
-          <a href="khadamat-computer.html">خدمات کامپیوتر</a>
-          <a href="blog.html">بلاگ</a>
-        </div>
-        <div class="foot-col">
-          <h4>حساب کاربری</h4>
-          <a href="account.html">داشبورد حساب</a>
-          <a href="profile.html">پروفایل من</a>
-          <a href="favorites.html">علاقه‌مندی‌های من</a>
-          <a href="submit/index.html">ارسال نمونه‌کار</a>
-        </div>
-      </div>
-    </div>
-    <div class="foot-bottom">
-      <span>© ۱۴۰۵ بایت‌لب. تمامی حقوق محفوظ است.</span>
-      <span class="mono" style="direction:ltr;">BYTE_LAB / DIGITAL SERVICES</span>
-    </div>
-  </div>
+  MenuProAI — ساخته‌شده توسط <a href="https://bytelabpro.xyz" target="_blank" rel="noopener noreferrer">ByteLab</a>
 </footer>
 
 <script>
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
-  }, {threshold:.15});
-  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+const TEMPLATES = [
 
-  // --- مقیاس‌دهی خودکار پیش‌نمایش‌های زنده (iframe) با اندازه‌ی واقعی کارت ---
-  function scaleLivePreviews(){
-    document.querySelectorAll('.live-preview').forEach(wrap => {
-      const iframe = wrap.querySelector('iframe');
-      if(!iframe) return;
-      const scale = wrap.clientWidth / 1280;
-      iframe.style.transform = `scale(${scale})`;
-    });
+  {id:'classic-menu',name:'کلاسیک',type:'cafe',typeLabel:'کافه',tier:'free',badge:'پیش‌فرض',icon:'☕',img:'portfolio/templates/classic-menu/classic-menu.png',desc:'تیره و مدرن، مرتب و مناسب منوهای روزمره با سفارش آنلاین.',tags:['کلاسیک','تیره','سفارش آنلاین']},
+  {id:'modern-grid',name:'مدرن روشن',type:'cafe',typeLabel:'کافه',tier:'free',badge:'جدید',icon:'☀️',img:'portfolio/templates/modern-grid/modern-grid.png',desc:'پس‌زمینه روشن و گرم با کارت‌های تصویری؛ مناسب کافه‌های امروزی.',tags:['روشن','کارت‌محور','مدرن']},
+  {id:'classic-receipt',name:'برگه سفارش',type:'cafe',typeLabel:'کافه',tier:'free',badge:'جدید',icon:'🧾',img:'portfolio/templates/classic-receipt/classic-receipt.png',desc:'الهام‌گرفته از رسید کاغذی، با حس سنتی و متفاوت برای کافه.',tags:['رسیدی','سنتی','خاص']},
+  {id:'bubble-pop',name:'کافه حبابی',type:'cafe',typeLabel:'کافه',tier:'free',badge:'جدید',icon:'🫧',img:'portfolio/templates/bubble-pop/bubble-pop.png',desc:'رنگی و بازیگوش با گرادیانت، حباب‌های شناور و کارت‌های شیشه‌ای.',tags:['رنگی','Glass','دسر']},
+  {id:'diet-filter',name:'کافه پاک',type:'cafe',typeLabel:'کافه',tier:'free',badge:'جدید',icon:'🥗',img:'portfolio/templates/diet-filter/diet-filter.png',desc:'فیلترهای رژیمی و آلرژن برای منوهای سالم و سبک زندگی.',tags:['رژیمی','فیلتر','سالم']},
+  {id:'ultra-gold',name:'Ultra Gold',type:'cafe',typeLabel:'کافه',tier:'premium',badge:'ویژه ⭐',icon:'✨',img:'portfolio/templates/ultra-gold/ultra-gold.png',desc:'مشکی و طلایی با ظاهر لوکس، اسپلش برند و اطلاعات شیشه‌ای.',tags:['لوکس','طلایی','Premium']},
+  {id:'luna-grid',name:'Luna',type:'cafe',typeLabel:'کافه',tier:'premium',badge:'ویژه ⭐',icon:'🌙',img:'portfolio/templates/luna-grid/luna-grid.png',desc:'ویژه امروز، گرید محبوب‌ها و شیت جزئیات محصول با حس اپ سفارش غذا.',tags:['اپ‌مانند','گرید','Premium']},
+  {id:'restaurant-classic',name:'رستوران نارنج',type:'restaurant',typeLabel:'رستوران',tier:'free',badge:'رستوران',icon:'🍽️',img:'portfolio/templates/restaurant-classic/restaurant-classic.png',desc:'پالت شرابی و طلایی با ساختار دسته‌بندی مخصوص رستوران.',tags:['رستوران','شرابی','طلایی']},
+  {id:'fastfood-combo',name:'فست‌فود بورد کمبو',type:'restaurant',typeLabel:'رستوران',tier:'free',badge:'جدید',icon:'🍔',img:'portfolio/templates/fastfood-combo/fastfood-combo.png',desc:'پر انرژی و شبیه تابلوی منوی فست‌فود، مناسب نمایش کمبوها.',tags:['فست‌فود','کمبو','انرژی']},
+  {id:'fastfood-cards',name:'فست‌فود کارت روشن',type:'restaurant',typeLabel:'رستوران',tier:'free',badge:'جدید',icon:'🍟',img:'portfolio/templates/fastfood-cards/fastfood-cards.png',desc:'روشن و اپ‌مانند با کارت‌های عکس‌دار و ناوبری ثابت.',tags:['روشن','اپ‌مانند','عکس‌محور']},
+  {id:'zoghali-noir',name:'زغالی دودکش',type:'restaurant',typeLabel:'رستوران',tier:'free',badge:'جدید',icon:'🔥',img:'portfolio/templates/zoghali-noir/zoghali-noir.png',desc:'مشکی و شیک با حال‌وهوای گریل، اخگر و دسته‌بندی سریع.',tags:['گریل','مشکی','رستوران']},
+  {id:'editorial-leaf',name:'ادیتوریال برگ',type:'restaurant',typeLabel:'رستوران',tier:'free',badge:'جدید',icon:'🌿',img:'portfolio/templates/editorial-leaf/editorial-leaf.png',desc:'مینیمال و شیک، با تایپوگرافی ادیتوریال و فضای سفید بیشتر.',tags:['مینیمال','شیک','ادیتوریال']},
+  {id:'shop-storefront',name:'فروشگاه کلاسیک',type:'shop',typeLabel:'فروشگاه',tier:'free',badge:'فروشگاهی',icon:'🛍️',img:'portfolio/templates/shop-storefront/shop-storefront.png',desc:'نمایش لیستی محصولات با قیمت و دسته‌بندی برای فروشگاه.',tags:['فروشگاه','لیستی','ساده']},
+  {id:'shop-lookbook',name:'فروشگاه لوک‌بوک',type:'shop',typeLabel:'فروشگاه',tier:'free',badge:'فروشگاهی',icon:'📸',img:'portfolio/templates/shop-lookbook/shop-lookbook.png',desc:'گرید عکس‌محور دوستونه برای محصولاتی که با تصویر دیده می‌شوند.',tags:['لوک‌بوک','عکس‌محور','گرید']},
+  {id:'carwash-shine',name:'کارواش براق',type:'shop',typeLabel:'خدمات',tier:'free',badge:'جدید',icon:'🚗',img:'portfolio/templates/carwash-shine/carwash-shine.png',desc:'آبی شیشه‌ای با حس خدمات خودرو و دسته‌بندی‌های سریع.',tags:['کارواش','خدمات','آبی']},
+  {id:'salon-studio',name:'سالن زیبایی رز',type:'salon',typeLabel:'سالن',tier:'free',badge:'سالن',icon:'💇',img:'portfolio/templates/salon-studio/salon-studio.png',desc:'نمایش خدمات سالن با ساختار مناسب دریافت درخواست نوبت.',tags:['سالن','نوبت‌دهی','زیبایی']},
+  {id:'barber-classic',name:'آرایشگاه مردانه',type:'salon',typeLabel:'سالن',tier:'free',badge:'جدید',icon:'💈',img:'portfolio/templates/barber-classic/barber-classic.png',desc:'سرمه‌ای و طلایی با حال‌وهوای آرایشگاه کلاسیک مردانه.',tags:['Barber','کلاسیک','طلایی']},
+  {id:'clinic-appointment',name:'کلینیک و درمانگاه',type:'salon',typeLabel:'سالن / خدمات',tier:'free',badge:'جدید',icon:'🩺',img:'portfolio/templates/clinic-appointment/clinic-appointment.png',desc:'آبی‌سبز پزشکی با ساختار مناسب خدمات و درخواست نوبت.',tags:['کلینیک','نوبت‌دهی','پزشکی']}
+];
+
+const grid=document.getElementById('templateGrid');
+const empty=document.getElementById('emptyState');
+const search=document.getElementById('templateSearch');
+const count=document.getElementById('resultCount');
+const featuredTrack=document.getElementById('featuredTrack');
+let activeFilter='all';
+
+document.getElementById('statTotal').textContent=toFa(TEMPLATES.length);
+
+function toFa(n){return Number(n).toLocaleString('fa-IR')}
+function esc(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function matches(t,q){
+  if(activeFilter!=='all' && t.type!==activeFilter) return false;
+  if(!q) return true;
+  const hay=[t.id,t.name,t.typeLabel,t.desc,...t.tags].join(' ').toLowerCase();
+  return hay.includes(q.toLowerCase());
+}
+function imageFallback(t){
+  return `<div class="preview-fallback"><div>${t.icon}</div><span>پیش‌نمایش تصویری در دسترس نیست</span></div>`;
+}
+function card(t){
+  const premium=t.tier==='premium';
+  return `<article class="card reveal" data-type="${t.type}" data-tier="${t.tier}">
+    <a class="card-preview" href="portfolio/templates/${t.id}/menu.html" aria-label="پیش‌نمایش ${esc(t.name)}">
+      <img src="${t.img}" alt="پیش‌نمایش قالب ${esc(t.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      ${imageFallback(t)}
+      <div class="badges"><span class="badge ${premium?'gold':'cyan'}">${esc(t.badge)}</span><span class="badge">${esc(t.typeLabel)}</span></div>
+    </a>
+    <div class="card-body">
+      <div class="card-title-row"><h3>${esc(t.name)}</h3></div>
+      <p class="card-desc">${esc(t.desc)}</p>
+      <div class="tags">${t.tags.map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div>
+      <div class="card-actions">
+        <a class="btn btn-primary" href="portfolio/templates/${t.id}/menu.html">پیش‌نمایش</a>
+        <a class="btn btn-ghost" href="dashboard.html?template=${encodeURIComponent(t.id)}">انتخاب قالب</a>
+      </div>
+    </div>
+  </article>`;
+}
+function featuredCard(t){
+  const premium=t.tier==='premium';
+  return `<article class="featured-card">
+    <a class="featured-img" href="portfolio/templates/${t.id}/menu.html" aria-label="پیش‌نمایش ${esc(t.name)}">
+      <img src="${t.img}" alt="پیش‌نمایش ${esc(t.name)}" loading="lazy">
+      <span class="featured-badge">${premium?'👑 Premium':'🔥 محبوب'}</span>
+    </a>
+    <div class="featured-body">
+      <h4>${esc(t.name)}</h4>
+      <span>${esc(t.typeLabel)}</span>
+      <div class="featured-actions">
+        <a class="btn btn-primary" href="portfolio/templates/${t.id}/menu.html">پیش‌نمایش</a>
+        <a class="btn btn-ghost" href="dashboard.html?template=${encodeURIComponent(t.id)}">انتخاب</a>
+      </div>
+    </div>
+  </article>`;
+}
+function renderFeatured(){
+  // This section is reserved exclusively for premium / ویژه templates.
+  const featured=TEMPLATES.filter(t=>t.tier==='premium');
+  featuredTrack.innerHTML=featured.map(featuredCard).join('');
+}
+function render(){
+  const q=search.value.trim();
+  const list=TEMPLATES.filter(t=>matches(t,q));
+  grid.innerHTML=list.map(card).join('');
+  empty.classList.toggle('show',list.length===0);
+  count.textContent=`${toFa(list.length)} قالب`;
+  requestAnimationFrame(observeReveals);
+}
+document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter=btn.dataset.filter;
+  render();
+}));
+search.addEventListener('input',render);
+
+let revealObserver;
+function observeReveals(){
+  const items=document.querySelectorAll('.reveal:not(.visible)');
+  if(!('IntersectionObserver' in window)){
+    items.forEach(el=>el.classList.add('visible'));
+    return;
   }
-  window.addEventListener('load', scaleLivePreviews);
-  window.addEventListener('resize', scaleLivePreviews);
-
-  // --- ۳ پست آخر بلاگ رو از همون سرور تلگرام می‌گیریم؛ اگه چیزی نیومد، کارت‌های ثابت بالا می‌مونن ---
-  (function loadBlogPreview(){
-    const grid = document.getElementById('blogPreviewGrid');
-    if(!grid) return;
-    function escapeHTML(str){
-      const div = document.createElement('div');
-      div.textContent = str || '';
-      return div.innerHTML;
-    }
-    fetch('https://bytelab-telegram.bytelab.workers.dev/api/blog')
-      .then(r => r.json())
-      .then(res => {
-        const posts = (res && res.posts) || [];
-        if(posts.length === 0) return;
-        grid.innerHTML = posts.slice(0, 3).map(p => `
-          <a href="blog-post.html?id=${encodeURIComponent(p.id)}" class="bp-card reveal in">
-            <span class="bp-meta">${escapeHTML(p.tag || 'بایت‌لب')}</span>
-            <div class="bp-title">${escapeHTML(p.title)}</div>
-            <div class="bp-desc">${escapeHTML(p.excerpt || '')}</div>
-            <span class="bp-link">ادامه مطلب ←</span>
-          </a>`).join('');
-      })
-      .catch(() => { /* اگه لود نشد، کارت‌های ثابت همون‌طور می‌مونن */ });
-  })();
-
-  // --- پیش‌نمایش زنده: کد واقعی نمونه‌کارها رو نشون می‌ده، با انتخاب نمونه و حالت دسکتاپ/موبایل ---
-  (function livePreviewGenerator(){
-    const frame = document.getElementById('lgFrame');
-    const dotsWrap = document.getElementById('lgDots');
-    const deviceWrap = document.getElementById('lgDevice');
-    const preview = document.getElementById('lgPreview');
-    const hint = document.getElementById('lgHint');
-    const ctaLink = document.getElementById('lgCta');
-    const editLink = document.getElementById('lgEdit');
-    if(!frame || !dotsWrap) return;
-
-    const ORDER = ['gold','cafe','car','tashrifat'];
-    const SAMPLES = {
-      gold:{ label:'زرّین گالری', sub:'طلا و جواهر', src:'portfolio/zarrin-gallery-gold-shop.html' },
-      cafe:{ label:'کافه اِمبر', sub:'کافه و رستوران', src:'portfolio/cafe-restoran-amber.html' },
-      car:{ label:'گالری پرستیژ', sub:'نمایشگاه خودرو', src:'portfolio/galeriy-mashin.html' },
-      tashrifat:{ label:'تشریفات رویایی', sub:'خدمات مراسم', src:'portfolio/tasharifat-royaee-v2.html' }
-    };
-    const DEVICES = {
-      desktop:{ w:1280, h:800 },
-      mobile:{ w:390, h:760 }
-    };
-
-    let idx = 0;
-    let device = 'desktop';
-    let timer = null;
-    const AUTOPLAY_MS = 5500;
-
-    function applyFrameSize(){
-      const d = DEVICES[device];
-      frame.style.width = d.w + 'px';
-      frame.style.height = d.h + 'px';
-      const innerEl = frame.parentElement;
-      const scale = innerEl.clientWidth / d.w;
-      frame.style.transform = `scale(${scale})`;
-    }
-
-    function render(catKey, opts){
-      opts = opts || {};
-      const s = SAMPLES[catKey];
-      dotsWrap.querySelectorAll('.lg-dot').forEach(d => d.classList.toggle('active', d.dataset.cat === catKey));
-      if(!opts.keepSrc){ frame.src = s.src; }
-      applyFrameSize();
-      hint.textContent = `الان «${s.label}» (${s.sub}) رو تو حالت ${device === 'mobile' ? 'موبایل' : 'دسکتاپ'} می‌بینی — کد واقعی همون سایته.`;
-      ctaLink.textContent = `دقیقاً شبیه «${s.label}» برای من بساز ←`;
-      if(editLink){
-        editLink.href = `editor.html?t=${encodeURIComponent(catKey)}`;
-        editLink.textContent = `«${s.label}» رو آنلاین ویرایش کن ←`;
-      }
-    }
-
-    function startAutoplay(){
-      stopAutoplay();
-      timer = setInterval(() => {
-        idx = (idx + 1) % ORDER.length;
-        render(ORDER[idx]);
-      }, AUTOPLAY_MS);
-    }
-    function stopAutoplay(){ if(timer){ clearInterval(timer); timer = null; } }
-
-    let resumeT;
-    function pauseThenResume(){
-      stopAutoplay();
-      clearTimeout(resumeT);
-      resumeT = setTimeout(startAutoplay, 8000);
-    }
-
-    dotsWrap.querySelectorAll('.lg-dot').forEach(d => {
-      d.addEventListener('click', () => {
-        idx = ORDER.indexOf(d.dataset.cat);
-        render(ORDER[idx]);
-        pauseThenResume();
+  if(!revealObserver){
+    revealObserver=new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
       });
-    });
+    },{threshold:.08,rootMargin:'0px 0px -30px 0px'});
+  }
+  items.forEach(el=>revealObserver.observe(el));
+}
 
-    deviceWrap.querySelectorAll('.lg-dev-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        device = btn.dataset.device;
-        deviceWrap.querySelectorAll('.lg-dev-btn').forEach(b => b.classList.toggle('active', b === btn));
-        preview.classList.toggle('is-mobile', device === 'mobile');
-        render(ORDER[idx], { keepSrc:true });
-        pauseThenResume();
-      });
-    });
+renderFeatured();
+render();
+observeReveals();
 
-    if(preview){
-      preview.addEventListener('mouseenter', stopAutoplay);
-      preview.addEventListener('mouseleave', startAutoplay);
-    }
-    window.addEventListener('resize', applyFrameSize);
-
-    render(ORDER[idx]);
-    startAutoplay();
-  })();
+// Smoothly focus search from the mobile navigation.
+document.querySelectorAll('.mobile-nav a[href="#templates"]').forEach(a=>{
+  a.addEventListener('click',()=>{
+    setTimeout(()=>search.focus({preventScroll:true}),280);
+  });
+});
 </script>
-  <script src="header.js"></script>
 </body>
 </html>
